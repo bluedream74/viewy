@@ -2,7 +2,6 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
-*.sqlite3
 *.py[cod]
 *_test.py
 settings.py
