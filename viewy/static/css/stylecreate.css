@@ -1,0 +1,193 @@
+.mid-logo{
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 48px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding-top: 16px;
+  /* text-decoration: underline aqua; */
+  text-shadow: aqua 1px 1px 2px;
+}
+
+.sub-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 0px;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  color: white;
+}
+
+p{
+  color: white;
+}
+
+form input{
+  background-color: rgb(50, 50, 50);
+  border-radius: 4px;
+  color: white;
+}
+
+.forms{
+  width: 324px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  margin-top: 36px;
+}
+
+.title{
+  margin-top: 36px;
+}
+
+.title > input{
+  width: 80%;
+}
+
+.url{
+  margin-top: 24px;
+}
+
+.url > input{
+  width: 280px;
+}
+
+.hashtags{
+  color: white;
+  margin-top: 24px;
+}
+
+.hashtags > input{
+  width: 80px;
+}
+
+.caption{
+  margin-top: 24px;
+  width: 100%;
+  text-align: center;
+}
+
+.caption > textarea{
+  width: 90%;
+  background-color: rgb(50, 50, 50);
+  border-radius: 4px;
+  color: white;
+}
+
+.forms > button{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.button{
+  color: white;
+  margin-top: 24px;
+  border: aqua 1.5px solid;
+  border-bottom:  rgb(0, 153, 153) 1.5px solid;
+  border-right:  rgb(0, 182, 182) 1.5px solid;
+  border-radius: 4px;
+}
+
+.current-img{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+  background-color: white;
+}
+
+.current-img > img{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+}
+
+.urls > input{
+  width: 280px;
+  margin-top: 8px;
+}
+
+.error{
+  color: rgb(239, 31, 31);
+  font-size: 12px;
+  list-style-type: none;
+}
+
+.error > ul >li{
+  list-style-type: none;
+}
+
+.bottom-space{
+  height: 60px;
+  width: 100%;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .mid-logo{
+    padding-top: 36px;
+    font-size: 60px;
+  }
+
+  .sub-title{
+    font-size: 16px;
+  }
+
+  form input{
+    height: 24px;
+  }
+
+  .forms{
+    width: 90%;
+  }
+
+  .url > input{
+    width: 90%;
+  }
+  
+  .hashtags{
+    color: white;
+    margin-top: 24px;
+  }
+  
+  .hashtags > input{
+    width: 25%;
+  }
+  
+  .caption{
+    margin-top: 24px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .caption > textarea{
+    width: 90%;
+    background-color: rgb(50, 50, 50);
+    border-radius: 4px;
+    color: white;
+  }
+  
+  .forms > button{
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 24px;
+  }
+  
+  .button{
+    color: white;
+    margin-top: 24px;
+    border: aqua 1.5px solid;
+    border-bottom:  rgb(0, 153, 153) 1.5px solid;
+    border-right:  rgb(0, 182, 182) 1.5px solid;
+    border-radius: 4px;
+    height: 36px;
+    width: 80px;
+  }
+
+ }

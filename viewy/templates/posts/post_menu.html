@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylepost_menu.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="big-logo">V</div>
+<div class="sub-title">最高のコンテンツをシェアしよう</div>
+<div class="menu">
+  <a class="video" href="{% url 'posts:video_create' %}">
+    <i class="fa-solid fa-video"></i>
+    <div>動画を投稿</div>
+  </a>
+  <a class="manga" href="{% url 'posts:manga_create'%}">
+    <i class="fa-solid fa-book-open"></i>
+    <div>マンガを投稿</div>
+  </a>
+</div>
+
+<style>
+  .add-post{
+    border-top: solid 2px aqua;
+      }
+</style>
+{% endblock %}

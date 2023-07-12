@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewer</title>
+  <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+  <link rel="stylesheet" href="{% static 'css/stylecheck_age.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<body>
+  <div class="screen">
+
+    <div class="ask">
+      <div class="age-check">年齢認証</div>
+      <div class="question">あなたは１８歳以上ですか？</div>
+      <div class="warning">ここから先は、アダルトコンテンツが視聴可能です。<br>18歳未満の方のアクセスは固くお断りしています。</div>
+      <div class="answer">
+        <a id="no-button" class="no">いいえ</a>
+        <form method="POST" style="display: inline;" class="yes">
+          <a href="#" onclick="this.parentNode.submit()" class="yes">はい</a>
+          {% csrf_token %}
+        </form>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- いいえを押したらブラウザバックする -->
+  <script>
+    document.getElementById("no-button").addEventListener("click", function(e) {
+      e.preventDefault();
+      window.history.back();
+    });
+  </script>
+
+
+{% block script %}
+
+{% endblock %}
+
+</body>
+</html>

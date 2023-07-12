@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+*.sqlite3
+*.py[cod]
+*_test.py
+settings.py

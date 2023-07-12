@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylecreate.css' %}">
+{% endblock %}
+{% block content %}
+<div class="mid-logo">V</div>
+<div class="sub-title">動画を投稿する</div>
+
+<div class="forms">
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="error">
+      {% for error in form.non_field_errors %}
+          <div>{{ error }}</div>
+      {% endfor %}
+      {% for error in video_form.non_field_errors %}
+          <div>{{ error }}</div>
+      {% endfor %}
+    </div>
+    <input type="file" name="{{ video_form.video.name }}" id="{{ video_form.video.auto_id }}">
+    <div class="error">{{ video_form.video.errors }}</div> 
+    <!-- ここにビデオフォームのエラー表示を追加 -->
+    <div class="title">
+      {{ form.title }}
+      <div class="error">{{ form.title.errors }}</div> 
+    </div>
+    <div class="url">
+      {{ form.url }}
+      <div class="error">{{ form.url.errors }}</div>
+    </div>
+    <div class="hashtags">
+    #{{ form.hashtag1 }}
+    #{{ form.hashtag2 }}
+    #{{ form.hashtag3 }}
+    <div class="error">{{ form.hashtag1.errors }}</div>
+    <div class="error">{{ form.hashtag2.errors }}</div>
+    <div class="error">{{ form.hashtag3.errors }}</div>
+    </div>
+    <div class="caption">
+      {{ form.caption }}
+      <div class="error">{{ form.caption.errors }}</div>
+    </div>
+    <input class="button" type="submit" value="投稿する">
+  </form>
+</div>
+
+
+<div class="bottom-space"></div>
+
+
+<style>
+  .add-post{
+    border-top: solid 2px aqua;
+  }
+</style>
+{% endblock %}

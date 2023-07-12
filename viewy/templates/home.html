@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+  {{message.message}}
+{% endfor %}
+{% endif %}
+<p>ホーム画面です</p>
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {{ form.field_name.errors }}
+  <input type="submit" value="投稿する">
+</form>
+{% endblock %}

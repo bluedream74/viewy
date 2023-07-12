@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylelist.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="maintag"><span class="tag">#</span>{{hashtag}}</div>
+
+
+<div class="list-area">
+  {% if posts %}
+    {% for post in posts %}
+    <a class="post" href="{% url 'posts:hashtag_list' hashtag %}?post_id={{ post.id }}">
+    {% if post.ismanga %}
+     <div class="book">
+      {% for visual in post.visuals_list|slice:":1" %}
+        <img class="manga-page" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      {% endfor %}
+      <i class="fa-solid fa-book-open manga-icon"></i>
+     </div>
+      
+    {% else %}
+      {% for video in post.videos_list %}
+        {% if video.thumbnail %}
+        <img class="post-video" src="{{ video.thumbnail.url }}" alt="">
+        {% else %}
+        <video class="post-video" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+        {% endif %} 
+      {% endfor %}
+    {% endif %}
+    <div class="title">
+      <div>{{post.title}}</div>
+      <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
+    </div>
+
+    </a>
+    {% endfor %}
+  {% else %}
+    <div class="no-content">そのハッシュタグがついた投稿はありません</div>
+  {% endif %}
+</div>
+
+<div class="bottom-space"></div>
+
+<div class="logo">V</div>
+
+
+
+<style>
+  .serch{
+    border-top: solid 2px aqua;
+      }
+</style>
+{% endblock %}

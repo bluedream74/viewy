@@ -1,0 +1,381 @@
+.follow-poster{
+  display: flex;
+  color: white;
+  width: 100%;
+  margin-bottom: 16px;
+  font-size: 16px;
+  position: relative;
+}
+
+.poster-img{
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin-left: 24px;
+  background-color: white;
+}
+
+.info{
+  margin-left: 24px;
+}
+
+.caption{
+  width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8px;
+  padding-bottom: 4px;
+  font-size: 12px;
+  color: white;
+}
+
+.followed{
+  width: 80px;
+  height: 24px;
+  font-size: 12px;
+  border-radius: 4px;
+  background-color: rgb(110, 110, 110);
+  text-align: center;
+  line-height: 24px;
+  padding: 2px 4px;
+  margin-left: 16px;
+  margin-top: 12px;
+  position: absolute;
+  right: 24px;
+}
+
+.follow{
+  width: 80px;
+  height: 24px;
+  font-size: 12px;
+  border-radius: 4px;
+  background-color: aqua;
+  text-align: center;
+  line-height: 24px;
+  padding: 2px 4px;
+  margin-left: 16px;
+  margin-top: 12px;
+  position: absolute;
+  right: 24px;
+}
+
+.follow-button{
+  display: none;
+}
+
+.counter{
+  position: absolute;
+  bottom: 24px;
+  left: 110px;
+  font-size: 12px;
+}
+
+.urls{
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: left;
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
+
+.url{
+  width: 40px;
+  height: 40px;
+  margin-right: 16px;
+  border-radius: 50%;
+  background-color: white;
+  font-size: 24px;
+  text-align: center;
+  line-height: 40px;
+}
+
+.url:hover{
+  opacity: 0.7;
+}
+
+.url > a{
+  font-size: 20px;
+  color: rgb(120, 120, 120);
+}
+
+.link-logo{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 0px;
+}
+
+.add-link{
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: white 2px solid;
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  line-height: 36px;
+}
+label:hover{
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* タイトルのハッシュタグ */
+.maintag{
+  width: 100%;
+  height: 80px;
+  text-align: center;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 80px;
+}
+
+.tag{
+  color: aqua;
+}
+
+.list-area{
+  width: 350px;
+  min-height: 560px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.post{
+  height: 186px;
+  min-height: 186px;
+  width: 116px;
+  position: relative;
+  overflow: hidden;
+}
+
+.manga-page, .post-video{
+  height: 186px;
+  min-height: 186px;
+  width: 116px;
+  min-width: 116px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* コントロールバーを消す */
+video::-webkit-media-controls {
+  display:none !important;
+}
+video::-webkit-media-controls-enclosure {
+  display:none !important;
+}
+
+.manga-icon{
+  position: absolute;
+  top: 6px;
+  left: 4px;
+  color:  aqua;
+  font-size: 13px;
+  text-shadow: gray 0px 1px 2px;
+}
+
+.delete{
+  position: relative;
+}
+
+.delete-form{
+  position: absolute;
+}
+
+.delete-btn{
+  width: 18px;
+  height: 18px;
+  padding: 0px;
+  margin-left: 4px;
+  margin-top: 4px;
+  background-color: rgba(240, 248, 255, 0);
+  border: none;
+}
+
+
+@keyframes blinking {
+  0% { color: rgb(221, 221, 221); }
+  50% { color: rgb(255, 77, 0); }
+  100% { color: rgb(221, 221, 221); }
+}
+
+.delete-button {
+  color: rgb(221, 221, 221);
+  font-size: 18px;
+  text-shadow: gray 0px 1px 2px;
+  width: fit-content;
+}
+
+.delete-button:hover {
+  animation: blinking 1.5s infinite;
+}
+/* 非表示アイコン */
+.hidden-icon{
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: rgb(255, 77, 0);
+  font-size: 16px;
+  text-shadow: gray 0px 1px 2px;
+}
+
+
+
+.title{
+  color: white;
+  text-shadow: 1px 0px 2px rgb(0, 0, 0);
+  position: absolute;
+  bottom: 2px;
+  left: 8px;
+  font-size: 12px;
+}
+
+/* トップスペース */
+.top-space{
+  width: 100%;
+  height: 40px;
+}
+
+.top-space2{
+  width: 100%;
+  height: 80px;
+}
+
+.top-space3{
+  width: 100%;
+  height: 60px;
+}
+
+.my-post-tab{
+  width: 100%;
+  height: 60px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 60px;
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-color: aqua; 
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* いいねかフォローか */
+.likeorfollow{
+  width: 360px;
+  height: 32px;
+  position: fixed;
+  top: 24px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.tolike{
+  height: 32px;
+  font-size: 18px;
+  border-right: 2px white solid;
+  line-height: 32px;
+  padding-right: 8px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  text-decoration-line: 2px;
+  text-shadow: 0px 0px 3px gray;
+}
+
+.tolike:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.tofollow{
+  height: 32px;
+  font-size: 18px;
+  line-height: 32px;
+  padding-left: 8px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+  text-decoration: none;
+  text-shadow: 0px 0px 3px gray;
+}
+
+.tofollow:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+/* ボトムスペース */
+
+.bottom-space{
+  width: 100%;
+  height: 50px;
+}
+
+/* コンテンツがないとき */
+.no-content{
+  width: 100%;
+  margin-top: 120px;
+  text-align: center;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .likeorfollow{
+    width: 100%;
+  }
+
+  .follow-poster{
+    padding-top: 4px;
+  }
+
+  .follow, .followed{
+    position: absolute;
+    right: 80px;
+    top:-2px;
+    font-weight: bold;
+  }
+
+  .caption{
+    width: 80%;
+    font-size: 14px;
+  }
+
+.url{
+  height: 48px;
+  width: 48px;
+  line-height: 48px;
+}
+
+.list-area{
+  width: 100%;
+}
+
+.post{
+  height: 200px;
+  min-height: 186px;
+  width: 33%;
+}
+
+.manga-page, .post-video{
+  height: 200px;
+  /* min-height: 186px; */
+  width: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+ }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewer</title>
+  <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styleverify.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  
+</head>
+<body>
+  <div class="screen">
+
+    <div class="verify">
+      <div class="sub-title">認証コード入力</div>
+      <div class="please">入力したメールアドレス宛てに送信された<br>５桁の認証コードを入力してください</div>
+  
+      <form method="POST">
+        {% csrf_token %}
+        <input type="number" id="input1" name="input1" pattern="[0-9]{1}" maxlength="1" size="1" autofocus>
+        <input type="number" id="input2" name="input2" pattern="[0-9]{1}" maxlength="1" size="1">
+        <input type="number" id="input3" name="input3" pattern="[0-9]{1}" maxlength="1" size="1">
+        <input type="number" id="input4" name="input4" pattern="[0-9]{1}" maxlength="1" size="1">
+        <input type="number" id="input5" name="input5" pattern="[0-9]{1}" maxlength="1" size="1">
+        <div><button type="submit">送信</button></div>
+      </form>
+    </div>
+  </div>
+  
+  </body>
+  <script>
+    function addInputListener(inputId, nextInputId, previousInputId) {
+      var inputElement = document.getElementById(inputId);
+      inputElement.addEventListener('input', function(e) {
+        if (e.target.value.length === e.target.maxLength) {
+          if (nextInputId) {
+            document.getElementById(nextInputId).focus();
+          } else {
+            e.target.blur(); // This will remove focus if there is no next input field
+          }
+          e.target.value = e.target.value.slice(0, 1);
+        }
+      });
+      inputElement.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && e.target.value.length === 0) {
+          if (previousInputId) {
+            document.getElementById(previousInputId).focus();
+          }
+        }
+      });
+    }
+  
+    addInputListener('input1', 'input2');
+    addInputListener('input2', 'input3', 'input1');
+    addInputListener('input3', 'input4', 'input2');
+    addInputListener('input4', 'input5', 'input3');
+    addInputListener('input5', null, 'input4');
+  </script>
+  
+</html>

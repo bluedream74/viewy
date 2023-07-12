@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewer</title>
+  <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<body>
+  <div class="screen">
+
+    {% block content %}
+
+    {% endblock %}
+
+
+    <div class="tab-bar">
+      {% if user.is_authenticated %}
+        <a class="home" href="{% url 'posts:postlist'%}"><i class="fa-solid fa-house fa-xs"></i></a>
+        <a class="serch" href="{% url 'posts:searchpage'%}"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+        <a class="add-post" 
+        {% if request.user and request.user|is_poster %}
+        href="{% url 'posts:add_post'%}"
+        {% else %}
+        href="{% url 'posts:be_partner'%}"
+        {% endif %}
+        >
+        <i class="fa-solid fa-square-plus fa-sm"></i>
+        </a>
+        <a class="like" href="{% url 'posts:favorite_page'%}"><i class="fa-solid fa-star fa-xs"></i></a>
+        <a class="my-account" href="{% url 'posts:my_account'%}"><i class="fa-solid fa-user fa-xs"></i></a>
+      {% else %}
+        <a class="home" href="{% url 'posts:postlist'%}"><i class="fa-solid fa-house fa-xs"></i></a>
+        <a class="serch visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+        <a class="add-post visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-square-plus fa-sm"></i></a>
+        <a class="like visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-star fa-xs"></i></a>
+        <a class="my-account visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-user fa-xs"></i></a>
+      {% endif %}
+
+    </div>
+  </div>
+
+
+
+
+{% block script %}
+
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+.mid-logo{
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 48px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding-top: 48px;
+  /* text-decoration: underline aqua; */
+  text-shadow: aqua 1px 1px 2px;
+}
+
+.sub-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  color: white;
+}
+
+.form{
+  width: 100%;
+  text-align: center;
+  margin-top: 36px;
+}
+
+form input{
+  background-color: rgb(50, 50, 50);
+  color: white;
+  margin-bottom: 16px;
+}
+
+.username > input, .email > input, .password > input{
+  width: 70%;
+  height: 24px;
+}
+
+.error-message{
+  color: orangered;
+  font-size: 12px;
+  /* list-style-type: none; */
+  text-align: left;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8px;
+}
+
+li{
+  list-style-type: none;
+}
+
+.button{
+  color: white;
+  margin-top: 16px;
+  border: aqua 1.5px solid;
+  border-bottom:  rgb(0, 153, 153) 1.5px solid;
+  border-right:  rgb(0, 182, 182) 1.5px solid;
+  border-radius: 4px;
+}
+
+.guide{
+  width: 80%;
+  margin-top: 36px;
+  font-size: 14px;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
+  text-align: center;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .mid-logo{
+    padding-top: 72px;
+    font-size: 60px;
+  }
+
+  .username > input, .email > input, .password > input{
+    width: 80%;
+    height: 36px;
+  }
+
+  .button{
+    font-size: 14px;
+    height: 36px;
+    width: 100px;
+    text-align: center;
+  }
+ }

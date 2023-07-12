@@ -1,0 +1,110 @@
+
+.search-bar{
+  color: white;
+  width: 100%;
+  display: flex;
+  height: 24px;
+  padding-top: 24px;
+}
+
+.search-bar > input{
+  width: 80%;
+  background-color: rgb(51, 51, 51);
+  border-radius: 4px;
+  color: white;
+  margin-right: 4px;
+  margin-bottom: 8px;
+}
+
+.glass{
+  position: relative;
+  top: 8px;
+  margin-right: 4px;
+}
+
+.button{
+  color: white;
+  margin-top: 1px;
+  margin-left: 2px;
+  background-color: rgb(31, 31, 31);
+  border: aqua 1.5px solid;
+  border-bottom:  rgb(0, 153, 153) 1.5px solid;
+  border-right:  rgb(0, 182, 182) 1.5px solid;
+  border-radius: 4px;
+  height: 28px;
+  width: 48px;
+}
+
+
+li{
+  font-size: 16px;
+  list-style-type: none;
+  margin-bottom: 4px;
+  margin-top: 16px;
+  color: rgb(40, 40, 40);
+}
+
+li:hover{
+  cursor: pointer;
+  color: gray;
+}
+
+/* li:first-child{
+  padding-top: 4px;
+} */
+
+li:last-child{
+  padding-bottom: 4px;
+}
+
+ul{
+  background-color: aliceblue;
+  width: 70%;
+  border-radius: 4px;
+  margin-left: 48px;
+  margin-right: auto;
+  padding-left: 16px;
+  position: fixed;
+}
+
+.back-logo{
+  margin-top: 100px;
+  color: rgb(31, 31, 31);
+  width: 100%;
+  font-size: 160px;
+  text-align: center;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-weight: bold;
+  text-shadow: rgb(45, 45, 45) 4px 4px 1px;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .search-bar{
+    padding-top: 48px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .search-bar > input{
+    height: 28px;
+    margin-right: 8px;
+  }
+
+  .glass{
+    margin-right: 12px;
+    margin-top: 4px;
+  }
+
+  .button{
+    color: white;
+    margin-top: 4px;
+    padding: 0px;
+  }
+
+  .back-logo{
+    margin-top: 160px;
+  }
+ }

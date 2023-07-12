@@ -1,0 +1,112 @@
+body{
+  background-color: rgb(20, 20, 20);
+  margin: 0px;
+  font-family: 'Meiryo', sans-serif;
+}
+
+/* スクロールバーを非表示にする */
+::-webkit-scrollbar {
+  display: none;
+}
+
+a{
+  color: aqua;
+  text-decoration: none;
+}
+
+input{
+  font-size: 14px;
+}
+
+textarea{
+  font-size: 13px;
+}
+
+
+* {
+  font-family: Arial, sans-serif;
+}
+
+
+.screen{
+  background-color: rgb(10, 10, 10);
+  width: 350px;
+  min-height: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  border-radius: 8px;
+}
+
+
+/* ロゴ */
+.logo{
+  position: fixed;
+  top: 8px;
+  padding-left: 304px;
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 32px;
+  font-weight: bold;
+  /* text-decoration: underline aqua; */
+  text-shadow: aqua 1px 1px 2px;
+}
+
+.tab-bar{
+  width: 350px;
+  height: 42px;
+  position: fixed;
+  bottom: 0px;
+  display: flex;
+}
+
+.tab-bar > a{
+  width: 70px;
+  height: 100%;
+  background-color: rgb(30, 30, 30);
+  text-align: center;
+  line-height: 42px;
+  font-size: 24px;
+  color: white;
+}
+
+
+.tab-bar > div:hover{
+  background-color: rgb(20, 20, 20);
+  cursor: pointer;
+}
+
+/* ログインしていないときの表示 */
+.visitor > i{
+  color: rgb(69, 69, 69);
+}
+
+
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+  .screen {
+      width: 100%;
+      min-height: 100vh;
+  }
+
+  .tab-bar{
+    width: 100%;
+    height: 48px;
+  }
+
+  .tab-bar > a{
+    width: 20%;
+    height: 48px;
+    line-height: 48px;
+  }
+
+
+  .logo{
+    position: fixed;
+    right: 24px;
+    padding: 0px;
+    font-size: 48px;
+  }
+}
+

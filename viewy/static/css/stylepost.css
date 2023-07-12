@@ -1,0 +1,390 @@
+.screen{
+  height: 100vh; /* スクロールコンテナーの高さを指定 */
+  overflow-y: scroll; /* 縦スクロールを許可 */
+  scroll-snap-type: y mandatory; /* 縦方向にスナップするように設定 */
+}
+
+.post{
+  height: 560px;
+  width: 350px;
+  position: relative;
+  scroll-snap-align: start; /* 要素の上端をスナップ位置にする */
+  position: relative;
+  overflow: hidden;
+}
+
+/* コントロールバーを消す */
+video::-webkit-media-controls-enclosure {
+  display:none !important;
+}
+
+.manga-page, .post-video{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-width: 350px;
+  border-radius: 8px;
+  pointer-events: auto;
+}
+
+.book{
+  width: 100%;
+  height: 100%;
+  display: flex; /* 要素を横並びにする */
+  flex-direction: row-reverse; /* 要素を右から左に表示する */
+  overflow-x: scroll; /* 横スクロールを可能にする */
+  scroll-snap-type: x mandatory;
+  position: relative;
+}
+
+.manga-page{
+  scroll-snap-align: start;
+}
+
+/* サイドバー関連 */
+
+.side-bar{
+  width: 72px;
+  position: absolute;
+  bottom: 48px;
+}
+
+.poster, .favorite, .mute{
+  width: 72px;
+  height: 72px;
+  text-align: center;
+  line-height: 72px;
+  font-size: 24px;
+  color: white;
+  text-shadow: gray 0px 1px 3px;
+}
+
+.poster{
+  position: relative;
+  top: 18px;
+}
+
+.follow-poster{
+  position: relative;
+  height: 16px;
+  width: 16px;
+  text-align: center;
+  line-height: 16px;
+  left: 28px;
+  bottom: 8px;
+  background-color: aqua;
+  border-radius: 50%;
+}
+
+
+.like-label{
+  /* display: inline-block;  追加 */
+  max-height: 36px;
+}
+
+.favorite-count{
+  height: 16px;
+}
+
+.follow:hover, .like-label:hover{
+  cursor: pointer;
+}
+
+.poster-img{
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  background-color: white;
+}
+
+.mini-follow-button{
+  display: none;
+}
+
+.liked{
+  color: aqua;
+}
+
+@keyframes likedBlinking {
+  0% { color: rgb(255, 255, 255); }
+  50% { color: aqua; }
+  100% { color: rgb(255, 255, 255); }
+}
+
+.favorite:hover {
+  animation: likedBlinking 1.5s infinite;
+}
+
+.favorite-count{
+  font-size: 14px;
+  position: relative;
+  top: -64px;
+}
+
+.like-button{
+  display: none;
+}
+
+/* ミュートボタン */
+.mute-frag{
+  display: none;
+}
+
+/* キャプション関連 */
+.captions{
+  position: absolute;
+  left: 64px;
+  bottom: 24px;
+  font-size: 15px;
+  color: white;
+  text-shadow: gray 1px 1px 1px;
+}
+
+.caption{
+  font-size: 14px;
+}
+
+.hashtags{
+  margin-top: 4px;
+}
+
+.url{
+  margin-right: 16px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding-top: 3px;
+  position: relative;
+  top: 1px;
+}
+
+.url > a{
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  padding-left: 5px;
+}
+
+.hashtag{
+  margin-right: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding: 1px 2px 2px 5px;
+}
+
+.hashtag :hover{
+  cursor: pointer;
+  background-color: rgba(220, 220, 220, 0.8);
+}
+
+.hashtag > a{
+  color: white;
+  text-decoration: none;
+  padding-left: 1px;
+  padding-right: 4px;
+  font-size: 14px;
+}
+
+.likeorfollow{
+  width: 360px;
+  height: 32px;
+  position: fixed;
+  top: 24px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.tolike{
+  height: 32px;
+  font-size: 18px;
+  border-right: 2px white solid;
+  line-height: 32px;
+  padding-right: 8px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  text-decoration-line: 2px;
+  text-shadow: 0px 0px 3px gray;
+}
+
+.tolike:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.tofollow{
+  height: 32px;
+  font-size: 18px;
+  line-height: 32px;
+  padding-left: 8px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+  text-decoration: none;
+  text-shadow: 0px 0px 3px gray;
+}
+
+.tofollow:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+
+/* 報告ボタン */
+.report{
+  position: absolute;
+  bottom: 8px;
+  right: 18px;
+  color: orangered;
+}
+
+.report:hover{
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.report-menu{
+  display: none;
+  position: absolute;
+  bottom: 36px;
+  right: 16px;
+  width: 320px;
+  height: 240px;
+  background-color: rgba(255, 255, 255, 0.918);
+  border-radius: 8px;
+  text-align: center;
+  color: rgb(102, 61, 54);
+  
+}
+
+.report-title{
+  margin-top: 24px;
+  font-weight: bold;
+}
+.report-sub-title{
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.selects{
+  text-align: left;
+  margin-left: 100px;
+  margin-top: 0px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.selects > label > input{
+  margin-bottom: 8px;
+}
+
+ /* ラジオボタンを四角形にスタイリングする */
+ input[type="radio"] {
+  -webkit-appearance: none; /* Safari/Chrome用 */
+  -moz-appearance: none; /* Firefox用 */
+  appearance: none; /* 一般的なスタイル用 */
+  width: 8px; /* 幅 */
+  height: 8px; /* 高さ */
+  border: 1px solid #000; /* ボーダー */
+  position: relative;
+  top: 8px;
+  border-radius: 2px; /* 角丸 */
+  outline: none; /* フォーカス時のアウトラインを削除 */
+  transition: all 0.3s ease; /* アニメーション */
+}
+
+/* ラジオボタンがチェックされた状態 */
+input[type="radio"]:checked {
+  background-color: #ff4d00; /* 背景色 */
+}
+
+.submit-report{
+  border: rgb(102, 61, 54) 1px solid;
+  border-radius: 4px;
+  color: rgb(102, 61, 54);
+  background-color: #ffffff93;
+  font-size: 13px;
+}
+
+.submit-report:hover{
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.message{
+  font-size: 14px;
+  position: relative;
+  top: 100px;
+}
+
+
+/* 戻るボタン */
+.back{
+  position: fixed;
+  top: 28px;
+  padding-left: 28px;
+  line-height: 36px;
+  color: white;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  text-shadow: 0px 1px 1px gray;
+}
+
+/* ページ遷移関連 */
+.viewnext{
+  width: 100%;
+  height: 120px;
+  text-align: center;
+  line-height: 50px;
+  color: gray;
+  scroll-snap-align: end;
+}
+
+.trigger{
+  width: 100%;
+  height: 180px;
+  scroll-snap-align: start;
+}
+
+/* トップスペース */
+.top-space{
+  width: 100%;
+  height: 80px;
+}
+
+/* ボトムスペース */
+.bottom-space{
+  width: 100%;
+  height: 60px;
+}
+
+
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+  .likeorfollow{
+    width: 100%;
+  }
+
+
+  .post{
+   width: 100%;
+   height: calc(var(--vh, 1vh) * 100 - 42px);
+  }
+
+  .manga-page{
+    min-width: 100vw;
+    object-fit: fill;
+  }
+ 
+ 
+  .side-bar{
+    width: 60px;
+    position: absolute;
+    bottom: 80px;
+    margin-left: 0px;
+  }
+ }

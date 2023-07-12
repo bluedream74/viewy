@@ -1,0 +1,20 @@
+{% extends 'posts/base_list.html' %}
+{% load static %}
+{% block title%}
+<!-- <p>あなたがいいねした投稿が見れる画面です</p> -->
+
+
+<!-- いいねリストとフォローリストを選ぶ -->
+<div class="likeorfollow">
+  <a class="tolike" id="tomypage" href="{% url 'posts:favorite_page'%}">いいね</a>
+  <a class="tofollow" id="tofollowlist" href="{% url 'posts:follow_list'%}">フォロー</a>
+</div>
+
+
+<style>
+  .like{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script src="{% static 'js/jump_to_post.js' %}"></script>
+{% endblock %}

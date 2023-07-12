@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylewhite_regist_login.css' %}">
+{% endblock %}
+{%block content%}
+<div class="mid-logo">V</div>
+<div class="sub-title">ユーザー登録</div>
+<form method="POST">
+  {% csrf_token %}
+  <div class="form">
+    <div class="username">
+      <div class="error-message">
+        {{ form.username.errors }}
+      </div>
+      {{ form.username }}
+    </div>
+    <div class="email">
+      <div class="error-message">
+        {{ form.email.errors }}
+      </div>
+      {{ form.email }}
+    </div>
+    <div class="password">
+      <div class="error-message">
+        {{ form.password.errors }}
+      </div>
+      {{ form.password }}
+    </div>
+    <div class="password again">
+      <div class="error-message">
+        {{ form.password_confirm.errors }}
+      </div>
+      {{ form.password_confirm }}
+    </div>
+    <input class="button" type="submit" value="登録">
+  </div>
+</form>
+
+<div class="guide">
+  ユーザー登録が済んでいる方は
+  <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
+</div>
+{%endblock%}

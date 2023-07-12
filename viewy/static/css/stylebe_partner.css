@@ -1,0 +1,42 @@
+.mid-logo{
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 48px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding-top: 16px;
+  text-shadow: aqua 1px 1px 2px;
+}
+
+.sub-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 0px;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  color: white;
+}
+
+.message-box{
+  margin-top: 36px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 280px;
+  height: 160px;
+  background-color: white;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.message{
+  text-align: center;
+  font-weight: bold;
+  color: rgb(88, 88, 88);
+  width: 220px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 36px;
+}

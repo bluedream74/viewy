@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylelist.css' %}">
+{% endblock %}
+{% block content %}
+
+
+<div class="top-space3"></div>
+<div class="my-post-tab">
+  自分の投稿
+</div> 
+
+<div class="list-area">
+    {% for post in posts %}
+    <a class="post" href="{% url 'posts:poster_post_list' post.poster.pk %}?post_id={{ post.id }}">
+      <div class="delete">
+        <form method="post" action="{% url 'posts:delete_post' %}" class="delete-form">
+          {% csrf_token %}
+          <input type="hidden" name="post_id" value="{{ post.id }}">
+          <button type="submit" onclick="return confirm('本当にこの投稿を削除しますか？');" class="delete-btn">
+              <i class="fa-solid fa-xmark delete-button"></i>
+          </button>
+      </form>
+      </div>
+
+    {% if post.ismanga %}
+     <div class="book">
+      {% for visual in post.visuals_list|slice:":1" %}
+        <img class="manga-page" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      {% endfor %}
+      <!-- <i class="fa-solid fa-book-open manga-icon"></i> -->
+     </div>
+      
+    {% else %}
+      {% for video in post.videos_list %}
+        {% if video.thumbnail %}
+        <img class="post-video" src="{{ video.thumbnail.url }}" alt="">
+        {% else %}
+        <video class="post-video" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    <div class="title">
+      <div>{{post.title}}</div>
+      <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
+    </div>
+
+    {% if post.is_hidden %}
+    <i class="fa-solid fa-eye-slash hidden-icon"></i>
+    {% endif %}
+    </a>
+
+  {% endfor %}
+</div>
+
+<div class="bottom-space"></div>
+
+
+<div class="logo">V</div>
+
+
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+<script src="{% static 'js/delete_mypost.js' %}"></script>
+{% endblock %}

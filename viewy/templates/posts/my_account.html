@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylemy_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="about-me">
+<img src="\media\accounts_prf_imgs\仮ヘッダー２.png" alt="" class="header">
+  <div class="not-caption">
+    <div class="user-img">
+      {% if user.prf_img %}
+      <img class="prf_img" src="{{user.prf_img.url}}" alt="">
+      {% else %}
+      <i class="fa-solid fa-user user"></i>
+      {% endif %}
+    </div>
+    <div class="name-grade">
+      <div>{{user.username}}</div>
+      {% if request.user and request.user|is_poster %}
+      <div class="grade partner">パートナー</div>
+      {% elif request.user and request.user|is_premium %}
+      <div class="grade premium">プレミアム</div>
+      {% else %}
+      <div class="grade basic">ベーシック</div>
+      {% endif %}
+    </div>
+  </div>
+  {% if request.user and request.user|is_poster %}
+    {% if user.caption %}
+    <div class="caption">
+      {{user.caption|linebreaksbr }}
+    </div>
+    {% endif %}
+    {% if user.url1 %}
+    <div class="urls">
+      {% if user.url1 %}
+      <div class="url"><a href="{{ user.url1 }}">
+        {% if user.get_url1_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif user.get_url1_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif user.get_url1_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif user.get_url1_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif user.get_url1_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+      {% endif %}
+      {% if user.url2 %}
+      <div class="url"><a href="{{ user.url2 }}">
+        {% if user.get_url2_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif user.get_url2_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif user.get_url2_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif user.get_url2_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif user.get_url2_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+      {% endif %}
+      {% if user.url3 %}
+      <div class="url"><a href="{{ user.url3 }}">
+        {% if user.get_url3_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif user.get_url3_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif user.get_url3_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif user.get_url3_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif user.get_url3_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+      {% endif %}
+    {% if user.url4 %}
+      <div class="url"><a href="{{ user.url4 }}">
+        {% if user.get_url4_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif user.get_url4_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif user.get_url4_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif user.get_url4_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif user.get_url4_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+    {% endif %}
+    {% if user.url5 %}
+    <div class="url"><a href="{{ user.url5 }}">
+      {% if user.get_url5_prefix == 'twitter' %}
+      <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+      {% elif user.get_url5_prefix == 'youtube' %}
+      <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+      {% elif user.get_url5_prefix == 'pixiv' %}
+      <p class="link-logo">P</p>
+      {% elif user.get_url5_prefix == 'fantia' %}
+      <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+      {% elif user.get_url5_prefix == 'myfans' %}
+      <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+      {% else %}
+      <i class="fas fa-link"></i>
+      {% endif %}
+    </a></div>
+    {% else %}
+    <div class="add-link"><a href="{% url 'accounts:edit_prf' %}"><i class="fa-solid fa-plus fa-2xs"></i></a></div>
+    {% endif %}
+    
+    </div>
+    {% endif %}
+  {% endif %}
+</div>
+
+<div class="menu-list">
+  {% if request.user and request.user|is_poster %}
+  <div class="">
+    <i class="fa-solid fa-pen-to-square fa-lg mini-logo"></i><a href="{% url 'accounts:edit_prf' %}">プロフィール編集</a>
+   <div class="line"></div>
+  </div>  
+  {% elif request.user and request.user|is_premium %}
+  {% else %}
+  <div class="be-premium">
+    プレミアムユーザーになる
+   <div class="line"></div>
+  </div>  
+  {% endif %}
+
+  {% if request.user and request.user|is_poster %}
+  <div class="my-posts">
+   <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i></i>自分の投稿</a>
+      <div class="line"></div>
+  </div>  
+  {% endif %}
+  <div class="setting">
+    <i class="fa-solid fa-gear fa-lg mini-logo"></i>設定
+   <div class="line"></div>
+  </div> 
+  <div class="logout">
+    <a href="{% url 'accounts:user_logout'%}"><i class="fa-solid fa-arrow-right-from-bracket fa-lg mini-logo"></i>ログアウト</a>
+   <div class="line"></div>
+  </div>
+</div>
+
+<div class="logo">V</div>
+
+
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+{% endblock %}

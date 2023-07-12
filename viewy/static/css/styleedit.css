@@ -1,0 +1,138 @@
+.mid-logo{
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 36px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding-top: 16px;
+  /* text-decoration: underline aqua; */
+  text-shadow: aqua 1px 1px 2px;
+}
+
+.sub-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 0px;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  color: white;
+}
+
+form input{
+  background-color: rgb(50, 50, 50);
+  border-radius: 4px;
+  color: white;
+}
+
+.forms{
+  width: 100%;
+  margin-left: auto;
+  margin-left: auto;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.title{
+  margin-top: 36px;
+}
+
+.title > input{
+  width: 80%;
+}
+
+.url{
+  margin-top: 24px;
+}
+
+.url > input{
+  width: 280px;
+}
+
+.hashtags{
+  color: white;
+  margin-top: 24px;
+}
+
+.hashtags > input{
+  width: 80px;
+}
+
+.caption{
+  margin-top: 24px;
+  width: 100%;
+  text-align: center;
+}
+
+.caption > textarea{
+  width: 90%;
+  background-color: rgb(50, 50, 50);
+  border-radius: 4px;
+  color: white;
+}
+
+
+.button{
+  color: white;
+  margin-top: 24px;
+  border: aqua 1.5px solid;
+  border-bottom:  rgb(0, 153, 153) 1.5px solid;
+  border-right:  rgb(0, 182, 182) 1.5px solid;
+  border-radius: 4px;
+  /* なぜかわからんけどボタンがずれてるから無理やり修正 */
+  margin-left: 32px;
+}
+
+.current-img{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+  background-color: white;
+}
+
+.current-img > img{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+}
+
+.urls > input{
+  width: 280px;
+  margin-top: 8px;
+}
+
+.error-list{
+  width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 12px;
+  color: rgb(255, 55, 0);
+  list-style-type: none;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.bottom-space{
+  width: 100%;
+  height: 80px;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .mid-logo{
+    padding-top: 24px;
+    font-size: 60px;
+  }
+
+  .sub-title{
+    font-size: 16px;
+    margin-bottom: 32px;
+  }
+
+}

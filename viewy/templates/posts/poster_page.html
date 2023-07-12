@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylelist.css' %}">
+{% endblock %}
+{% block content %}
+<!-- <p>投稿者の詳細画面です</p> -->
+
+<div class="top-space"></div>
+
+<div class="follow-poster">
+  <div>
+    <a href="{% url 'posts:poster_page' about_poster.pk %}">
+      <img class="poster-img" src="{{about_poster.prf_img.url}}">
+    </a>
+  </div>
+  <div class="info">
+    <a href="{% url 'posts:poster_page' about_poster.pk %}">
+     <div>{{about_poster.username}}</div>
+    </a>
+  </div>
+  <div>
+    <form  data-pk="{{ about_poster.pk }}" action="{% url 'accounts:follow' pk=about_poster.pk %}" method="POST">
+      {% csrf_token %}
+      <div class="counter">フォロワー <span class="follow-count">{{ about_poster.follow_count }}</span>人</div>
+      <input type="hidden" name="poster_pk" value="{{ about_poster.pk }}">
+      <label>
+        {% if user in about_poster.follow.all %}
+        <div class="followed">フォロー中</div>
+        {% else %}
+        <div class="follow">フォローする</div>
+        {% endif %}
+
+        <input 
+        type="checkbox"
+        class="follow-button"
+        {% if user in about_poster.follow.all %}checked{% endif %}
+        >
+      </label>
+    </form>
+  </div>
+</div>
+{% if about_poster.caption %}
+  <div class="caption">
+    {{ about_poster.caption|linebreaksbr  }}
+  </div>
+{% endif %}
+{% if about_poster.url1 %}
+    <div class="urls">
+      {% if about_poster.url1 %}
+      <div class="url"><a href="{{ about_poster.url1 }}">
+        {% if about_poster.get_url1_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url1_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url1_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif about_poster.get_url1_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url1_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+      {% endif %}
+      {% if about_poster.url2 %}
+      <div class="url"><a href="{{ about_poster.url2 }}">
+        {% if about_poster.get_url2_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url2_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url2_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif about_poster.get_url2_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url2_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+      {% endif %}
+      {% if about_poster.url3 %}
+      <div class="url"><a href="{{ about_poster.url3 }}">
+        {% if about_poster.get_url3_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url3_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url3_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif about_poster.get_url3_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url3_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+      </a></div>
+      {% endif %}
+    {% if about_poster.url4 %}
+      <div class="url"><a href="{{ about_poster.url4 }}">
+        {% if about_poster.get_url4_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url4_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url4_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif about_poster.get_url4_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url4_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+        </a></div>
+        {% endif %}
+    {% if about_poster.url5 %}
+      <div class="url"><a href="{{ about_poster.url5 }}">
+        {% if about_poster.get_url5_prefix == 'twitter' %}
+        <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url5_prefix == 'youtube' %}
+        <img src="\media\link_logo\youtube_logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url5_prefix == 'pixiv' %}
+        <p class="link-logo">P</p>
+        {% elif about_poster.get_url5_prefix == 'fantia' %}
+        <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
+        {% elif about_poster.get_url5_prefix == 'myfans' %}
+        <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% else %}
+        <i class="fas fa-link"></i>
+        {% endif %}
+        </a></div>
+    {% endif %}
+  </div>
+{% endif %}
+
+
+<div class="list-area">
+    {% for post in posts %}
+    <a class="post" href="{% url 'posts:poster_post_list' about_poster.pk %}?post_id={{ post.id }}">
+    {% if post.ismanga %}
+     <div class="book">
+      {% for visual in post.visuals_list|slice:":1" %}
+        <img class="manga-page" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      {% endfor %}
+      <i class="fa-solid fa-book-open manga-icon"></i>
+     </div>
+      
+    {% else %}
+      {% for video in post.videos_list %}
+      {% if video.thumbnail %}
+      <img class="post-video" src="{{ video.thumbnail.url }}" alt="">
+      {% else %}
+      <video class="post-video" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+      {% endif %}
+      {% endfor %}
+    {% endif %}
+    <div class="title">
+      <div>{{post.title}}</div>
+      <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
+    </div>
+
+    </a>
+  {% endfor %}
+</div>
+
+<div class="bottom-space"></div>
+
+
+<div class="logo">V</div>
+
+
+
+<style>
+  .home{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+{% endblock %}

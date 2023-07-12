@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+  <link rel="stylesheet" href="{% static 'css/styleserch.css' %}">
+{% endblock %}
+{% block content %}
+
+
+<form method="POST" action="{% url 'posts:searchpage' %}" class="search-bar">
+  {% csrf_token %}
+  <i class="fa-solid fa-magnifying-glass glass"></i>
+  {{ form }}
+  <button class="button" type="submit">検索</button>
+</form>
+
+<ul id="search-results">
+  <!-- Search results will be appended here by jQuery -->
+</ul>
+
+<div class="back-logo">V</div>
+
+<style>
+  .serch{
+    border-top: solid 2px aqua;
+  }
+</style>
+{% endblock %}
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'js/auto_correct.js' %}"></script>
+{% endblock %}

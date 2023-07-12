@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+  <link rel="stylesheet" href="{% static 'css/stylefollow_list.css' %}">
+{% endblock %}
+{% block content %}
+<!-- <p>あなたがフォローしたアカウントのリストです</p> -->
+
+<div class="top-space"></div>
+
+{% if follow_posters %}
+{% for poster in follow_posters %}
+<div class="follow-poster">
+  <div>
+    <a href="{% url 'posts:poster_page' poster.pk %}">
+      <img class="poster-img" src="{{poster.prf_img.url}}">
+    </a>
+  </div>
+  <div class="caption">
+    <a href="{% url 'posts:poster_page' poster.pk %}">
+     <div>{{poster.username}}</div>
+    </a>
+  </div>
+  <div>
+    <form data-pk="{{ poster.pk }}" action="{% url 'accounts:follow' pk=poster.pk %}" method="POST">
+      {% csrf_token %}
+      <div class="counter">フォロワー <span class="follow-count">{{ poster.follow_count }}</span>人</div>
+      <input type="hidden" name="poster_pk" value="{{ poster.pk }}">
+      <label>
+        {% if user in poster.follow.all %}
+        <div class="followed">フォロー中</div>
+        {% else %}
+        <div class="follow">フォローする</div>
+        {% endif %}
+
+        <input 
+        type="checkbox"
+        class="follow-button"
+        {% if user in poster.follow.all %}checked{% endif %}
+        >
+      </label>
+    </form>
+  </div>
+</div>
+
+{% endfor %}
+<div class="bottom-space"></div>
+{% else %}
+<div class="no-content">フォローしたアカウントはありません</div>
+{% endif %}
+
+<!-- いいねリストとフォローリストを選ぶ -->
+<div class="likeorfollow">
+  <a class="tolike" id="tomypage" href="{% url 'posts:favorite_page'%}">いいね</a>
+  <a class="tofollow" id="tofollowlist" href="{% url 'posts:follow_list'%}">フォロー</a>
+</div>
+
+<div class="logo">V</div>
+
+<style>
+  .like{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+{% endblock %}

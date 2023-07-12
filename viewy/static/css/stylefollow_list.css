@@ -1,0 +1,142 @@
+.top-space{
+  width: 100%;
+  height: 80px;
+}
+
+.likeorfollow{
+  width: 360px;
+  height: 32px;
+  position: fixed;
+  top: 24px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.tolike{
+  height: 32px;
+  font-size: 18px;
+  border-right: 2px white solid;
+  line-height: 32px;
+  padding-right: 8px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+  text-decoration:none;
+  text-shadow: 0px 0px 3px gray;
+}
+
+.tolike:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.tofollow{
+  height: 32px;
+  font-size: 18px;
+  line-height: 32px;
+  padding-left: 8px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  text-decoration-line: 2px;
+  text-shadow: 0px 0px 3px gray;
+}
+
+.tofollow:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.follow-poster{
+  display: flex;
+  color: white;
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.poster-img{
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-left: 24px;
+  background-color: white;
+}
+
+.caption{
+  margin-left: 24px;
+  font-size: 16px;
+}
+
+.counter{
+  position: absolute;
+  bottom: 20px;
+  left: 100px;
+  font-size: 13px;
+}
+
+.followed{
+  width: 80px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  background-color: rgb(173, 173, 173);
+  text-align: center;
+  line-height: 24px;
+  margin-left: 16px;
+  margin-top: 8px;
+  position: absolute;
+  right: 24px;
+}
+
+.follow{
+  width: 80px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  background-color: aqua;
+  text-align: center;
+  line-height: 24px;
+  margin-left: 16px;
+  margin-top: 8px;
+  position: absolute;
+  right: 24px;
+}
+
+.follow-button{
+  display: none;
+}
+
+
+label:hover{
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* コンテンツがないとき */
+.no-content{
+  width: 100%;
+  margin-top: 120px;
+  text-align: center;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .likeorfollow{
+    width: 100%;
+  }
+
+  .poster-img{
+    height: 54px;
+    width: 54px;
+  }
+
+}

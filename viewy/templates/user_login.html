@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylewhite_regist_login.css' %}">
+{% endblock %}
+{%block content%}
+<div class="mid-logo">V</div>
+<div class="sub-title">ログイン</div>
+<div class="describe">いいね・フォロー機能を使用するには<br>無料ログインが必要です。</div>
+<form method="POST">
+  {% csrf_token %}
+  {% if messages %}
+  <div class="error-message">
+      {% for message in messages %}
+      {{ message }}
+      {% endfor %}
+  </div>
+  {% endif %}
+  <div class="form">
+    <div class="email">
+      {{ form.email }}
+    </div>
+    <div class="password">
+      {{ form.password }}
+    </div>
+    <input class="button" type="submit" value="ログイン">
+  </div>
+</form>
+
+<div class="guide">
+  ユーザー登録がまだの方は
+  <div><a href="{% url 'accounts:regist'%}">新規登録</a></div>
+</div>
+{%endblock%}

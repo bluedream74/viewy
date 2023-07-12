@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/styleedit.css' %}">
+{% endblock %}
+{% block content %}
+<div class="mid-logo">V</div>
+<div class="sub-title">プロフィール編集</div>
+{% if form.errors %}
+    <ul class="error-list">
+    {% for field in form %}
+        {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+        {% endfor %}
+    {% endfor %}
+    </ul>
+{% endif %}
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="forms">
+    <div class="prf-img">
+      <div class="current-img">
+        <img src="{{ form.instance.prf_img.url }}" alt="変更前の画像">
+      </div>
+    </div>
+    <input type="file" name="prf_img">
+
+    <div class="caption">
+      {{ form.caption }}
+    </div>
+
+    <div  class="urls">
+      {{form.url1}}
+      {{form.url2}}
+      {{form.url3}}
+      {{form.url4}}
+      {{form.url5}}
+    </div>
+    <input type="submit" class="button">変更</input>
+  </div>
+
+  <div class="bottom-space"></div>
+
+</form>
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+{% endblock %}
