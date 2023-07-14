@@ -55,6 +55,18 @@ class Posts(models.Model):
   def get_report_count(self):
         return self.report_count
 
+class Ads(models.Model):
+    title = models.CharField(max_length=50)
+    hashtag1 = models.CharField(max_length=30, default='')
+    hashtag2 = models.CharField(max_length=30, default='')
+    hashtag3 = models.CharField(max_length=30, default='')
+    caption = models.CharField(max_length=300, default='')
+    url = models.URLField(max_length=200, null=True, blank=True)
+    ad_tag = models.TextField()  # 広告タグを保存するフィールドを追加
+    
+    class Meta:
+        db_table = 'ads'
+
 class Visuals(models.Model):
   # related_name引数を使用して、PostオブジェクトからVisualオブジェクトにアクセスするための逆参照名を設定している
   post = models.ForeignKey(

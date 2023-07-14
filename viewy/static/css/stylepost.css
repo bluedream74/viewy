@@ -7,7 +7,6 @@
 .post{
   height: 560px;
   width: 350px;
-  position: relative;
   scroll-snap-align: start; /* 要素の上端をスナップ位置にする */
   position: relative;
   overflow: hidden;
@@ -388,3 +387,11 @@ input[type="radio"]:checked {
     margin-left: 0px;
   }
  }
+
+/* アフィリエイト広告用のスタイル */
+.ad-page {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

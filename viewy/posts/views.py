@@ -21,7 +21,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads
 
 
 
@@ -46,18 +46,24 @@ class BasePostListView(ListView):
         context['posts'] = posts
         return context
 
-
 class PostListView(BasePostListView):
     def get_queryset(self):
         posts = super().get_queryset().filter(is_hidden=False)
         post_ids = list(posts.values_list('id', flat=True))
-        random_ids = random.sample(post_ids, min(len(post_ids), 10))
+        random_ids = random.sample(post_ids, min(len(post_ids), 9))  # ここを9に変更
+
         # ランダムな順序で投稿を取得するためのCase文を作成
         ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(random_ids)])
-        
         return posts.filter(id__in=random_ids).order_by(ordering)
 
-
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['ad'] = self.get_ad()
+        return context
 
 class FavoritePostListView(BasePostListView):
     template_name = os.path.join('posts', 'favorite_list.html')
@@ -106,7 +112,7 @@ class HashtagPostListView(BasePostListView):
         context = super().get_context_data(**kwargs)
         context['hashtag'] = self.kwargs['hashtag']
         return context
-    
+
 class HashtagPageView(HashtagPostListView):
     template_name = os.path.join('posts', 'hashtag_page.html')
 
