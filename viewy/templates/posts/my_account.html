@@ -48,6 +48,8 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url1_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url1_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
@@ -65,6 +67,8 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url2_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url2_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
@@ -82,6 +86,8 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url3_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url3_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
@@ -99,13 +105,15 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url4_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url4_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
       </a></div>
     {% endif %}
     {% if user.url5 %}
-    <div class="url"><a href="{{ user.url5 }}">
+    <div class="url5"><a href="{{ user.url5 }}">
       {% if user.get_url5_prefix == 'twitter' %}
       <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
       {% elif user.get_url5_prefix == 'youtube' %}
@@ -116,6 +124,8 @@
       <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
       {% elif user.get_url5_prefix == 'myfans' %}
       <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+      {% elif user.get_url5_prefix == 'pornhub' %}
+      <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
       {% else %}
       <i class="fas fa-link"></i>
       {% endif %}

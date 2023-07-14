@@ -101,7 +101,6 @@
         <div class="title">{{post.title}}</div>
         <div class="caption">{{post.caption}}</div>
         <div class="hashtags">
-          {% if user.is_authenticated %}
           <!-- URLがあればアプリに応じたアイコンを表示する -->
           {% if post.url %}
             <span class="url"><a href="{{post.url}}" target="_blank">
@@ -123,28 +122,6 @@
           {% if post.hashtag3 %}
             <span class="hashtag"><a href="{% url 'posts:hashtag' post.hashtag3 %}">#{{post.hashtag3}}</a></span>
           {% endif %}
-        {% else %}
-          {% if post.url %}
-            <span class="url"><a href="{{post.url}}" target="_blank">
-              {% if post.get_url_prefix == 'twitter' %}
-                <i class="fab fa-twitter"></i>
-              {% elif post.get_url_prefix == 'youtube' %}
-                <i class="fab fa-youtube"></i>
-              {% else %}
-                <i class="fas fa-link"></i>
-              {% endif %}
-            </a></span>
-          {% endif %}
-          {% if post.hashtag1 %}
-            <span class="hashtag"> <a href="{% url 'accounts:user_login'%}">#{{post.hashtag1}}</a></span>
-          {% endif %}
-          {% if post.hashtag2 %}
-            <span class="hashtag"> <a href="{% url 'accounts:user_login'%}">#{{post.hashtag2}}</a></span>
-          {% endif %}
-          {% if post.hashtag3 %}
-            <span class="hashtag"><a href="{% url 'accounts:user_login'%}">#{{post.hashtag3}}</a></span>
-          {% endif %}
-        {% endif %}
         
         </div>
       </div>

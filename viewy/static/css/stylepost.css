@@ -166,14 +166,14 @@ video::-webkit-media-controls-enclosure {
 
 .hashtag{
   margin-right: 4px;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.306);
   border-radius: 4px;
   padding: 1px 2px 2px 5px;
 }
 
 .hashtag :hover{
   cursor: pointer;
-  background-color: rgba(220, 220, 220, 0.8);
+  background-color: rgba(220, 220, 220, 0.68);
 }
 
 .hashtag > a{
