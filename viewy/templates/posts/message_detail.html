@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylemessage_detail.css' %}">
+{% endblock %}
+{%block content%}
+
+<div class="title">運営からのメッセージ</div>
+
+<div class="top-space"></div>
+
+<div class="message-space">
+  <div class="message-title">
+    <p class="words">{{ message.title}}</p>
+  </div>
+  <div class="message-content">{{ message.content|linebreaks }}</div>
+</div>
+<div class="position"><button class="close" id="closeButton">閉じる</button></div>
+
+<script>
+  document.getElementById("closeButton").addEventListener("click", function() {
+    window.location.href = "{% url 'accounts:message_list' %}";
+  });
+</script>
+{%endblock%}
+

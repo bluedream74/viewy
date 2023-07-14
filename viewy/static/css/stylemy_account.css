@@ -79,7 +79,7 @@ a{
 
 
 .urls{
-  width: 80%;
+  width: 78%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -91,6 +91,18 @@ a{
   height: 40px;
   margin-right: 16px;
   border-radius: 50%;
+  border: 1px white solid;
+  background-color: white;
+  font-size: 24px;
+  text-align: center;
+  line-height: 40px;
+}
+
+.url5{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px white solid;
   background-color: white;
   font-size: 24px;
   text-align: center;
@@ -105,6 +117,16 @@ a{
   font-size: 20px;
   color: rgb(120, 120, 120);
 }
+
+.url5:hover{
+  opacity: 0.7;
+}
+
+.url5 > a{
+  font-size: 20px;
+  color: rgb(120, 120, 120);
+}
+
 
 .link-logo{
   width: 40px;
@@ -144,6 +166,17 @@ a{
   margin-right: 16px;
 }
 
+.unread{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-left: 8px;
+  position: relative;
+  top: -2px;
+  background-color: aqua;
+  display: inline-block
+}
+
 .line{
   width: 290px;
   height: 1px;
@@ -179,6 +212,11 @@ a{
     width: 72px;
   }
 
+  .name-grade{
+    margin-top: 32px;
+    position: relative;
+  }
+
 
   .menu-list{
     font-size: 14px;
@@ -196,6 +234,29 @@ a{
   .url{
     height: 48px;
     width: 48px;
-    line-height: 50px;
+    line-height: 48px;
+  }
+
+  .url5{
+    height: 48px;
+    width: 48px;
+    line-height: 48px;
+  }
+
+  
+
+  .url > a > img{
+    height: 48px;
+    width: 48px;
+  }
+
+  .url5 > a > img{
+    height: 48px;
+    width: 48px;
+  }
+
+
+  .add-link{
+    margin-top: 4px;
   }
 }

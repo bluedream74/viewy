@@ -10,13 +10,20 @@
 <form method="POST">
   {% csrf_token %}
   {% if messages %}
-  <div class="error-message">
+  <div class="message">
       {% for message in messages %}
-      {{ message }}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
       {% endfor %}
   </div>
   {% endif %}
   <div class="form">
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-error message">
+      {{ form.non_field_errors|safe }}
+    </div>
+    {% endif %}
+
     <div class="email">
       {{ form.email }}
     </div>
@@ -25,10 +32,10 @@
     </div>
     <input class="button" type="submit" value="ログイン">
   </div>
-</form>
-
+  
 <div class="guide">
   ユーザー登録がまだの方は
   <div><a href="{% url 'accounts:regist'%}">新規登録</a></div>
 </div>
 {%endblock%}
+

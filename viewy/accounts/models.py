@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
 from django.urls import reverse_lazy
 import random
 import string
-
+from django.contrib.auth import get_user_model
 
 
 class UserManager(BaseUserManager):
@@ -70,75 +70,84 @@ class Users(AbstractBaseUser, PermissionsMixin):
         return self.view_post_count
     
     def get_url1_prefix(self):
-        if self.url1.startswith('https://twitter.com'):
+        if 'twitter' in self.url1:
             return 'twitter'
-        elif self.url1.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url1:
             return 'youtube'
-        elif self.url1.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url1:
             return 'pixiv'
-        elif self.url1.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url1:
             return 'fantia'
-        elif self.url1.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url1:
             return 'myfans'
+        elif 'pornhub' in self.url1:
+            return 'pornhub'        
         else:
             return 'default'
 
     def get_url2_prefix(self):
-        if self.url2.startswith('https://twitter.com'):
+        if 'twitter' in self.url2:
             return 'twitter'
-        elif self.url2.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url2:
             return 'youtube'
-        elif self.url2.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url2:
             return 'pixiv'
-        elif self.url2.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url2:
             return 'fantia'
-        elif self.url2.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url2:
             return 'myfans'
+        elif 'pornhub' in self.url2:
+            return 'pornhub'                
         else:
             return 'default'
 
     def get_url3_prefix(self):
-        if self.url3.startswith('https://twitter.com'):
+        if 'twitter' in self.url3:
             return 'twitter'
-        elif self.url3.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url3:
             return 'youtube'
-        elif self.url3.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url3:
             return 'pixiv'
-        elif self.url3.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url3:
             return 'fantia'
-        elif self.url3.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url3:
             return 'myfans'
+        elif 'pornhub' in self.url3:
+            return 'pornhub'        
         else:
             return 'default'
-        
+
     def get_url4_prefix(self):
-        if self.url4.startswith('https://twitter.com'):
+        if 'twitter' in self.url4:
             return 'twitter'
-        elif self.url4.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url4:
             return 'youtube'
-        elif self.url4.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url4:
             return 'pixiv'
-        elif self.url4.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url4:
             return 'fantia'
-        elif self.url4.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url4:
             return 'myfans'
+        elif 'pornhub' in self.url4:
+            return 'pornhub'        
         else:
             return 'default'
 
     def get_url5_prefix(self):
-        if self.url5.startswith('https://twitter.com'):
+        if 'twitter' in self.url5:
             return 'twitter'
-        elif self.url5.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url5:
             return 'youtube'
-        elif self.url5.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url5:
             return 'pixiv'
-        elif self.url5.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url5:
             return 'fantia'
-        elif self.url5.startswith('https://www.myfans.jp'):
-            return 'myfans'        
+        elif 'myfans' in self.url5:
+            return 'myfans'
+        elif 'pornhub' in self.url5:
+            return 'pornhub'        
         else:
             return 'default'
-
         
     def increment_report_count(self):
         self.report_count += 1
@@ -157,3 +166,17 @@ class Follows(models.Model):
   poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='follow_received')
   user = models.ForeignKey(Users, on_delete=models.CASCADE)
   created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+#運営からのメッセージ機能
+class Messages(models.Model):
+    recipient = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='received_messages')  # 受信者
+    title = models.TextField() #件名
+    content = models.TextField()  # メッセージ内容
+    is_read = models.BooleanField(default=False)  # 未読・既読ステータス
+    sent_at = models.DateTimeField(auto_now_add=True)  # 送信日時
+    
+    def __str__(self):
+        return self.title

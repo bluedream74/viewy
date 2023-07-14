@@ -71,7 +71,7 @@
 }
 
 .urls{
-  width: 80%;
+  width: 78%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -85,6 +85,19 @@
   height: 40px;
   margin-right: 16px;
   border-radius: 50%;
+  border: 1px white solid;
+  background-color: white;
+  font-size: 24px;
+  text-align: center;
+  line-height: 40px;
+}
+
+
+.url5{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px white solid;
   background-color: white;
   font-size: 24px;
   text-align: center;
@@ -96,6 +109,15 @@
 }
 
 .url > a{
+  font-size: 20px;
+  color: rgb(120, 120, 120);
+}
+
+.url5:hover{
+  opacity: 0.7;
+}
+
+.url5 > a{
   font-size: 20px;
   color: rgb(120, 120, 120);
 }
@@ -359,6 +381,25 @@ video::-webkit-media-controls-enclosure {
   width: 48px;
   line-height: 48px;
 }
+
+
+.url5{
+  height: 48px;
+  width: 48px;
+  line-height: 48px;
+}
+
+
+.url > a > img{
+  height: 48px;
+  width: 48px;
+}
+
+.url5 > a > img{
+  height: 48px;
+  width: 48px;
+}
+
 
 .list-area{
   width: 100%;

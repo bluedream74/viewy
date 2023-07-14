@@ -11,7 +11,10 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Case, Exists, OuterRef, Q, When
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
 from django.urls import reverse, reverse_lazy
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
@@ -136,6 +139,7 @@ class DeletePostView(View):
 class BasePostCreateView(UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = PostForm
     success_url = reverse_lazy('posts:postlist')
+    success_message = "投稿が成功しました。"
 
     def form_valid(self, form):
         form.instance.poster = self.request.user
@@ -199,11 +203,6 @@ class VideoCreateView(BasePostCreateView):
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
-
-
-
-
-
 
 
 # いいね（非同期）

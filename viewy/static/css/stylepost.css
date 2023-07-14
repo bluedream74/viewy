@@ -165,14 +165,14 @@ video::-webkit-media-controls-enclosure {
 
 .hashtag{
   margin-right: 4px;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.306);
   border-radius: 4px;
   padding: 1px 2px 2px 5px;
 }
 
 .hashtag :hover{
   cursor: pointer;
-  background-color: rgba(220, 220, 220, 0.8);
+  background-color: rgba(220, 220, 220, 0.68);
 }
 
 .hashtag > a{
@@ -360,6 +360,20 @@ input[type="radio"]:checked {
   height: 60px;
 }
 
+/* 投稿成功メッセージ */
+.alert-success{
+  position: fixed;
+  top: 0px;
+  width: 350px;
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+  font-size: 15px;
+  z-index: 9999;  /* Ensure it sits over other content */
+  background-color: rgba(39, 236, 236, 0.897);
+  border-radius: 2px;
+  color: rgb(255, 255, 255);
+}
 
 
 /* スマートフォン用のスタイル */

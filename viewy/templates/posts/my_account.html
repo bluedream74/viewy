@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load unread_tags %}
 {% load custom_tags %}
 {% block static %}
 <link rel="stylesheet" href="{% static 'css/stylemy_account.css' %}">
@@ -47,6 +48,8 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url1_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url1_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
@@ -64,6 +67,8 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url2_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url2_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
@@ -81,6 +86,8 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url3_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url3_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
@@ -98,13 +105,15 @@
         <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
         {% elif user.get_url4_prefix == 'myfans' %}
         <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+        {% elif user.get_url4_prefix == 'pornhub' %}
+        <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
         {% else %}
         <i class="fas fa-link"></i>
         {% endif %}
       </a></div>
     {% endif %}
     {% if user.url5 %}
-    <div class="url"><a href="{{ user.url5 }}">
+    <div class="url5"><a href="{{ user.url5 }}">
       {% if user.get_url5_prefix == 'twitter' %}
       <img src="\media\link_logo\twitter_logo.png" alt="" class="link-logo">
       {% elif user.get_url5_prefix == 'youtube' %}
@@ -115,6 +124,8 @@
       <img src="\media\link_logo\fantia-logo.png" alt="" class="link-logo">
       {% elif user.get_url5_prefix == 'myfans' %}
       <img src="\media\link_logo\myfans_logo.png" alt="" class="link-logo">
+      {% elif user.get_url5_prefix == 'pornhub' %}
+      <img src="\media\link_logo\pornhub_logo.png" alt="" class="link-logo">
       {% else %}
       <i class="fas fa-link"></i>
       {% endif %}
@@ -144,9 +155,22 @@
 
   {% if request.user and request.user|is_poster %}
   <div class="my-posts">
-   <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i></i>自分の投稿</a>
+   <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
       <div class="line"></div>
   </div>  
+
+{% load unread_tags %}
+
+  <div class="messages">
+    <a href="{% url 'accounts:message_list' %}">
+      <i class="fa-regular fa-envelope fa-lg mini-logo"></i>運営からのメッセージ
+      {% if request.user|has_unread_messages %}
+        <div class="unread"></div>  <!-- add your blue dot here -->
+      {% endif %}
+    </a>
+       <div class="line"></div>
+   </div>  
+
   {% endif %}
   <div class="setting">
     <i class="fa-solid fa-gear fa-lg mini-logo"></i>設定

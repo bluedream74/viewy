@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import (
-  Users, Follows,
+  Users, Follows, Messages
 )
 
 admin.site.register(
-  [Users,Follows,]
+  [Users,Follows,Messages]
 )

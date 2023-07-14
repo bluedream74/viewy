@@ -1,0 +1,84 @@
+.title{
+  width: 350px;
+  height: 60px;
+  background-color: rgb(10, 10, 10);
+  position: fixed;
+  top: 0px;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 60px;
+  text-decoration: underline;
+  text-decoration-line: 2px;
+  text-decoration-color: aqua;
+}
+
+.top-space{
+  margin: 0px;
+  height: 60px;
+  width: 100%;
+}
+
+.message {
+  display: inline-flex;
+  position: relative;
+  margin: 0px;
+  width: 100%;
+  height: 56px;
+  background-color: rgb(27, 27, 27);
+}
+
+.message-title {
+  margin: 0px;
+  margin-left: 32px;
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 56px;
+  overflow: hidden;
+  position: relative;
+}
+
+.unread {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  position: absolute;
+  left: 16px;
+  top: 24px;
+  background-color: aqua;
+  visibility: visible; /* for unread messages */
+}
+
+.message.read .unread {
+  visibility: hidden; /* for read messages */
+}
+
+.delete {
+  position: absolute;
+  right: 0px;
+  width: 40px;
+  height: 40px;
+  line-height: 56px;
+  text-align: center;
+  color: white;
+}
+
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .title{
+    width: 100%;
+    height: 80px;
+    line-height: 80px;
+    font-size: 18px;
+  }
+
+  .top-space{
+    height: 80px;
+  }
+
+
+}

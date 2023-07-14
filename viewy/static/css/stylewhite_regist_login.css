@@ -66,8 +66,12 @@ form input{
   top: -12px;
 }
 
-.error-message{
-  color: orangered;
+.errorlist{
+  margin: 0px;
+  padding: 0px;
+}
+
+.message{
   font-size: 12px;
   /* list-style-type: none; */
   text-align: center;
@@ -76,6 +80,16 @@ form input{
   margin-right: auto;
   margin-top: 8px;
 }
+
+.alert-error{
+  color: orangered;
+}
+
+.alert-success{
+  color: rgb(43, 232, 75);
+}
+
+
 
 li{
   list-style-type: none;
