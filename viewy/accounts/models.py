@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
 from django.urls import reverse_lazy
 import random
 import string
-
+from django.contrib.auth import get_user_model
 
 
 class UserManager(BaseUserManager):
@@ -157,3 +157,17 @@ class Follows(models.Model):
   poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='follow_received')
   user = models.ForeignKey(Users, on_delete=models.CASCADE)
   created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+#運営からのメッセージ機能
+class Messages(models.Model):
+    recipient = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='received_messages')  # 受信者
+    title = models.TextField() #件名
+    content = models.TextField()  # メッセージ内容
+    is_read = models.BooleanField(default=False)  # 未読・既読ステータス
+    sent_at = models.DateTimeField(auto_now_add=True)  # 送信日時
+    
+    def __str__(self):
+        return self.title

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylemessage_list.css' %}">
+{% endblock %}
+{%block content%}
+
+<div class="title">運営からのメッセージ</div>
+
+<div class="top-space"></div>
+
+{% for message in messages %}
+  <a href="{% url 'accounts:message_detail' message.id %}" class="message {% if message.is_read %}read{% endif %}">
+    <div class="unread {% if message.is_read %}hidden{% endif %}"></div>
+    <p class="message-title">{{ message.title|truncatechars:20 }}</p> <!-- 長いと...になる -->
+    <a href="{% url 'accounts:message_delete' message.id %}" class="delete"><i class="fa-solid fa-xmark"></i></a>
+  </a>
+{% endfor %}
+
+
+
+{%endblock%}

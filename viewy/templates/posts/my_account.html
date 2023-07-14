@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load unread_tags %}
 {% load custom_tags %}
 {% block static %}
 <link rel="stylesheet" href="{% static 'css/stylemy_account.css' %}">
@@ -144,9 +145,22 @@
 
   {% if request.user and request.user|is_poster %}
   <div class="my-posts">
-   <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i></i>自分の投稿</a>
+   <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
       <div class="line"></div>
   </div>  
+
+{% load unread_tags %}
+
+  <div class="messages">
+    <a href="{% url 'accounts:message_list' %}">
+      <i class="fa-regular fa-envelope fa-lg mini-logo"></i>運営からのメッセージ
+      {% if request.user|has_unread_messages %}
+        <div class="unread"></div>  <!-- add your blue dot here -->
+      {% endif %}
+    </a>
+       <div class="line"></div>
+   </div>  
+
   {% endif %}
   <div class="setting">
     <i class="fa-solid fa-gear fa-lg mini-logo"></i>設定

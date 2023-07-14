@@ -144,6 +144,17 @@ a{
   margin-right: 16px;
 }
 
+.unread{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-left: 8px;
+  position: relative;
+  top: -2px;
+  background-color: aqua;
+  display: inline-block
+}
+
 .line{
   width: 290px;
   height: 1px;
@@ -179,6 +190,11 @@ a{
     width: 72px;
   }
 
+  .name-grade{
+    margin-top: 32px;
+    position: relative;
+  }
+
 
   .menu-list{
     font-size: 14px;
@@ -196,6 +212,10 @@ a{
   .url{
     height: 48px;
     width: 48px;
-    line-height: 50px;
+    line-height: 48px;
+  }
+
+  .add-link{
+    margin-top: 4px;
   }
 }

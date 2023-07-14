@@ -1,0 +1,99 @@
+.title{
+  width: 350px;
+  height: 60px;
+  background-color: rgb(10, 10, 10);
+  position: fixed;
+  top: 0px;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 60px;
+  text-decoration: underline;
+  text-decoration-line: 2px;
+  text-decoration-color: aqua;
+}
+
+.top-space{
+  margin: 0px;
+  height: 60px;
+  width: 100%;
+}
+
+.message-space{
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8px;
+  border: 2px rgb(90, 90, 90) solid;
+  border-radius: 4px;
+}
+
+.message-title{
+  width: 100%;
+  min-height: 32px;
+  border-bottom: 2px rgb(90, 90, 90) solid;
+
+}
+
+.words{
+  overflow: scroll;
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  margin-left: 16px;
+}
+
+.message-content{
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  color: white;
+  font-size: 12px;
+  max-height: 280px;
+  overflow: scroll;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.2); /* horizontal, vertical, blur, spread, color */
+}
+
+.message-content::-webkit-scrollbar {
+  display: block; /* スクロールバーを表示 */
+  width: 5px;     /* スクロールバーの幅を設定 */
+}
+
+.position{
+  width: 100%;
+  text-align: center;
+}
+
+.close{
+  width: 100px;
+  height: 36px;
+  margin-top: 40px;
+  border-radius: 50px;
+  background-color: rgb(42, 231, 231);
+  color: white;
+  font-weight: bold;
+  border: none
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .title{
+    width: 100%;
+    height: 80px;
+    line-height: 80px;
+    font-size: 18px;
+  }
+
+  .top-space{
+    height: 80px;
+  }
+
+  .message-space{
+    margin-top: 24px;
+  }
+
+}

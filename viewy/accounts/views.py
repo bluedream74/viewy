@@ -1,22 +1,24 @@
 # Python standard library
 from django.core.mail import send_mail
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse
 
 # Third-party Django
 from django import forms
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm
-from .models import Follows
+from .models import Follows, Messages
 
 
 
@@ -57,7 +59,7 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         send_mail(
             'あなたの認証コードです',
             f'あなたの認証コードは {form.instance.verification_code}です',
-            'yuuma0568@gmail.com',
+            'info@front-front.com',
             [form.instance.email],
             fail_silently=False,
         )
@@ -146,3 +148,52 @@ class FollowView(LoginRequiredMixin, View):
       poster.save()
       data = {'follow_count': poster.follow_count}
       return JsonResponse(data)
+  
+  
+  
+class MessageListView(ListView):
+    template_name = 'posts/message_list.html'
+    context_object_name = 'messages'
+
+    def get_queryset(self):
+        User = get_user_model()
+        current_user = User.objects.get(id=self.request.user.id)
+        
+        universal_user = User.objects.get(id=1) #ID＝1に送られたメッセージは全員への一斉送信として扱う
+
+        return Messages.objects.filter(
+            Q(recipient=current_user) | Q(recipient=universal_user)
+        ).order_by('-sent_at')
+        
+        
+class MessageDetailView(DetailView):
+    template_name = 'posts/message_detail.html'
+    context_object_name = 'message'
+    model = Messages
+
+    def get_object(self):
+        obj = super().get_object()
+        if not obj.is_read:
+            obj.is_read = True
+            obj.save()
+        return obj
+    
+    
+
+
+class MessageDeleteView(DeleteView):
+    model = Messages
+    success_url = reverse_lazy('accounts:message_list')  # メッセージ削除後にリダイレクトするURLを指定します。
+
+    def get_queryset(self):
+        User = get_user_model()
+        current_user = User.objects.get(id=self.request.user.id)
+        universal_user = User.objects.get(id=1)  # ID＝1に送られたメッセージは全員への一斉送信として扱う
+        return Messages.objects.filter(
+            Q(recipient=current_user) | Q(recipient=universal_user)
+        )
+
+    def get(self, *args, **kwargs):
+        response = self.delete(*args, **kwargs)
+        return HttpResponseRedirect(self.success_url)
+
