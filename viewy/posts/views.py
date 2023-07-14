@@ -133,6 +133,7 @@ class DeletePostView(View):
 class BasePostCreateView(UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = PostForm
     success_url = reverse_lazy('posts:postlist')
+    success_message = "投稿が成功しました。"
 
     def form_valid(self, form):
         form.instance.poster = self.request.user

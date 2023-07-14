@@ -361,6 +361,20 @@ input[type="radio"]:checked {
   height: 60px;
 }
 
+/* 投稿成功メッセージ */
+.alert-success{
+  position: fixed;
+  top: 0px;
+  width: 350px;
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+  font-size: 15px;
+  z-index: 9999;  /* Ensure it sits over other content */
+  background-color: rgba(39, 236, 236, 0.897);
+  border-radius: 2px;
+  color: rgb(255, 255, 255);
+}
 
 
 /* スマートフォン用のスタイル */

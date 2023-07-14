@@ -70,75 +70,74 @@ class Users(AbstractBaseUser, PermissionsMixin):
         return self.view_post_count
     
     def get_url1_prefix(self):
-        if self.url1.startswith('https://twitter.com'):
+        if 'twitter' in self.url1:
             return 'twitter'
-        elif self.url1.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url1:
             return 'youtube'
-        elif self.url1.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url1:
             return 'pixiv'
-        elif self.url1.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url1:
             return 'fantia'
-        elif self.url1.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url1:
             return 'myfans'
         else:
             return 'default'
 
     def get_url2_prefix(self):
-        if self.url2.startswith('https://twitter.com'):
+        if 'twitter' in self.url2:
             return 'twitter'
-        elif self.url2.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url2:
             return 'youtube'
-        elif self.url2.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url2:
             return 'pixiv'
-        elif self.url2.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url2:
             return 'fantia'
-        elif self.url2.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url2:
             return 'myfans'
         else:
             return 'default'
 
     def get_url3_prefix(self):
-        if self.url3.startswith('https://twitter.com'):
+        if 'twitter' in self.url3:
             return 'twitter'
-        elif self.url3.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url3:
             return 'youtube'
-        elif self.url3.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url3:
             return 'pixiv'
-        elif self.url3.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url3:
             return 'fantia'
-        elif self.url3.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url3:
             return 'myfans'
         else:
             return 'default'
-        
+
     def get_url4_prefix(self):
-        if self.url4.startswith('https://twitter.com'):
+        if 'twitter' in self.url4:
             return 'twitter'
-        elif self.url4.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url4:
             return 'youtube'
-        elif self.url4.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url4:
             return 'pixiv'
-        elif self.url4.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url4:
             return 'fantia'
-        elif self.url4.startswith('https://www.myfans.jp'):
+        elif 'myfans' in self.url4:
             return 'myfans'
         else:
             return 'default'
 
     def get_url5_prefix(self):
-        if self.url5.startswith('https://twitter.com'):
+        if 'twitter' in self.url5:
             return 'twitter'
-        elif self.url5.startswith('https://www.youtube.com'):
+        elif 'youtube' in self.url5:
             return 'youtube'
-        elif self.url5.startswith('https://www.pixiv.net'):
+        elif 'pixiv' in self.url5:
             return 'pixiv'
-        elif self.url5.startswith('https://www.fantia.jp'):
+        elif 'fantia' in self.url5:
             return 'fantia'
-        elif self.url5.startswith('https://www.myfans.jp'):
-            return 'myfans'        
+        elif 'myfans' in self.url5:
+            return 'myfans'
         else:
             return 'default'
-
         
     def increment_report_count(self):
         self.report_count += 1
