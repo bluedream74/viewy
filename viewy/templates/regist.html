@@ -10,25 +10,25 @@
   {% csrf_token %}
   <div class="form">
     <div class="username">
-      <div class="error-message">
+      <div class="message alert-error">
         {{ form.username.errors }}
       </div>
       {{ form.username }}
     </div>
     <div class="email">
-      <div class="error-message">
+      <div class="message alert-error">
         {{ form.email.errors }}
       </div>
       {{ form.email }}
     </div>
     <div class="password">
-      <div class="error-message">
+      <div class="message alert-error">
         {{ form.password.errors }}
       </div>
       {{ form.password }}
     </div>
     <div class="password again">
-      <div class="error-message">
+      <div class="message alert-error">
         {{ form.password_confirm.errors }}
       </div>
       {{ form.password_confirm }}

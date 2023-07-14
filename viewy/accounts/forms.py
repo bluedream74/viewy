@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.shortcuts import redirect
+from django.utils.safestring import mark_safe
 
 
 # ユーザー登録処理
@@ -60,8 +61,17 @@ class VerifyForm(forms.Form):
   
   
 class UserLoginForm(forms.Form):
-  email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
-  password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
+  
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
+
+        user = authenticate(email=email, password=password)
+        if not user or not user.is_active:
+            self.add_error(None, mark_safe('メールアドレスかパスワードが間違っています。<br>再度入力してください。'))
   
   
 class EditPrfForm(forms.ModelForm):

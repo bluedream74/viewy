@@ -18,7 +18,7 @@ from django.views.generic.list import ListView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm
-from .models import Follows, Messages
+from .models import Follows, Messages, Users
 
 
 
@@ -98,16 +98,10 @@ class UserLoginView(FormView):
     form_class = UserLoginForm
 
     def form_valid(self, form):
-        email = form.cleaned_data['email']
-        password = form.cleaned_data['password']
-        user = authenticate(email=email, password=password)
+        user = Users.objects.get(email=form.cleaned_data['email'])
+        login(self.request, user)
+        return redirect('posts:postlist')
 
-        if user is not None and user.is_active:
-            login(self.request, user)
-            return redirect('posts:postlist')
-        else:
-            messages.error(self.request, 'メールアドレスかパスワードが間違っています。再度入力してください。')
-            return self.form_invalid(form)
     
 
 class UserLogoutView(View):
