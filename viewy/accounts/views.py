@@ -11,6 +11,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+import datetime
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView, DeleteView
@@ -19,7 +21,8 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm
 from .models import Follows, Messages, Users
-from .utils import send_email_ses  # utils.pyから関数をインポートします
+from .utils import send_email_ses, generate_verification_code
+
 
 import os
 from .models import Users
@@ -50,6 +53,11 @@ class RegistUserView(SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         # Save form
         response = super().form_valid(form)
+        
+        # Generate a new verification code
+        form.instance.verification_code = generate_verification_code()
+        form.instance.verification_code_generated_at = timezone.now()
+        form.instance.save()
 
         # Save email to session
         self.request.session['email'] = form.instance.email
@@ -58,7 +66,7 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         mail_sent = send_email_ses(
             to_email=form.instance.email,
             subject='あなたの認証コードです',
-            body=f'あなたの認証コードは {form.instance.verification_code}です'
+            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は５分です。'
         )
         
         if mail_sent:
@@ -81,11 +89,18 @@ class VerifyView(FormView):
         # Combine the 5 input fields into one code
         code = form.cleaned_data['input1'] + form.cleaned_data['input2'] + form.cleaned_data['input3'] + form.cleaned_data['input4'] + form.cleaned_data['input5']
 
+        # Check if the verification code has expired
+        if user.verification_code_generated_at + datetime.timedelta(minutes=5) < timezone.now():
+            form.add_error(None, 'Your verification code has expired.')
+            return self.form_invalid(form)
+
         if user.verification_code == code:
             user.is_active = True
             user.verification_code = None
             user.save()
 
+            # Add a success message
+            messages.success(self.request, 'ユーザー登録が完了しました')
         else:
             form.add_error(None, 'Invalid verification code.')
             return self.form_invalid(form)
@@ -101,8 +116,31 @@ class UserLoginView(FormView):
 
     def form_valid(self, form):
         user = Users.objects.get(email=form.cleaned_data['email'])
+
+        # Check if user is active
+        if not user.is_active:
+            # Generate a new verification code
+            user.verification_code = generate_verification_code()  # replace with your code generation function
+            user.verification_code_generated_at = timezone.now()  # update the time when the code was generated
+            user.save()
+
+            # Send the verification code by email
+            send_email_ses(
+                to_email=user.email,
+                subject='あなたの認証コードです',
+                body=f'あなたの認証コードは {user.verification_code}です'
+            )
+
+            # Save email to session
+            self.request.session['email'] = user.email
+
+            # Redirect to verification page
+            return redirect('accounts:verify')
+
+        # If user is active, log in and redirect to postlist
         login(self.request, user)
         return redirect('posts:postlist')
+
 
     
 

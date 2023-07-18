@@ -3,8 +3,6 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin,
 )
 from django.urls import reverse_lazy
-import random
-import string
 from django.contrib.auth import get_user_model
 
 
@@ -41,13 +39,14 @@ class Users(AbstractBaseUser, PermissionsMixin):
     url3 = models.URLField(max_length=200, null=True, blank=True) 
     url4 = models.URLField(max_length=200, null=True, blank=True) 
     url5 = models.URLField(max_length=200, null=True, blank=True) 
-    is_active = models.BooleanField(default=True)  # 有効化が大変なのでいったん初めから有効にしておく
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     view_post_count = models.PositiveIntegerField(default=0)  # 視聴ポスト数のフィールド
     follow = models.ManyToManyField('self', through='Follows', symmetrical=False, related_name='followed_by')
     follow_count = models.PositiveIntegerField(default=0)
     report_count = models.PositiveIntegerField(default=0)  # 報告回数のフィールド
     verification_code = models.CharField(max_length=5, null=True, blank=True)   # 認証用のコード
+    verification_code_generated_at = models.DateTimeField(null=True)
 
     
     USERNAME_FIELD = 'email'
@@ -155,10 +154,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     def get_report_count(self):
         return self.report_count
-
-# ユーザー登録時にランダムな5桁の認証コードを生成
-    def generate_verification_code(self):
-        self.verification_code = ''.join(random.choices(string.digits, k=5))
 
     
     

@@ -1,5 +1,7 @@
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
+import random
+import string
 
 def send_email_ses(to_email, subject, body):
     client = boto3.client('ses', region_name="ap-northeast-1")  # リージョン名を東京のものに変更しました
@@ -30,3 +32,7 @@ def send_email_ses(to_email, subject, body):
 
     return True
 
+
+# ユーザー登録時にランダムな5桁の認証コードを生成
+def generate_verification_code():
+    return ''.join(random.choices(string.digits, k=5))

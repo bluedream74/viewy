@@ -63,15 +63,30 @@ class VerifyForm(forms.Form):
 class UserLoginForm(forms.Form):
     email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
-  
+
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
 
-        user = authenticate(email=email, password=password)
-        if not user or not user.is_active:
+        # Try to get the user
+        try:
+            user = Users.objects.get(email=email)
+        except Users.DoesNotExist:
+            # If user does not exist, raise error
             self.add_error(None, mark_safe('メールアドレスかパスワードが間違っています。<br>再度入力してください。'))
+            return cleaned_data
+
+        # If user is not active, allow form to pass and handle in the view
+        if not user.is_active:
+            return cleaned_data
+
+        # If user is active, authenticate
+        user = authenticate(email=email, password=password)
+        if not user:
+            self.add_error(None, mark_safe('メールアドレスかパスワードが間違っています。<br>再度入力してください。'))
+
+        return cleaned_data
   
   
 class EditPrfForm(forms.ModelForm):
