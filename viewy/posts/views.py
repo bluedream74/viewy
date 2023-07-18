@@ -368,5 +368,3 @@ class SubmitReportView(View):
 
     def get(self, request):
         return JsonResponse({'error': 'GETメソッドは許可されていません'})
-
-# githubいけてる?？

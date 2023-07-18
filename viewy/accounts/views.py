@@ -19,9 +19,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm
 from .models import Follows, Messages, Users
-
-
-
+from .utils import send_email_ses  # utils.pyから関数をインポートします
 
 import os
 from .models import Users
@@ -42,6 +40,7 @@ class CheckAgeView(TemplateView):
         response.set_cookie('is_over_18', 'true', max_age=60*60*24*3)  # このクッキーは３日間続く
         return response
   
+
 class RegistUserView(SuccessMessageMixin, CreateView):
     template_name = 'regist.html'
     form_class = RegistForm
@@ -55,14 +54,17 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         # Save email to session
         self.request.session['email'] = form.instance.email
 
-        # Send verification code to user's email
-        send_mail(
-            'あなたの認証コードです',
-            f'あなたの認証コードは {form.instance.verification_code}です',
-            'info@front-front.com',
-            [form.instance.email],
-            fail_silently=False,
+        # Send verification code to user's email using Amazon SES
+        mail_sent = send_email_ses(
+            to_email=form.instance.email,
+            subject='あなたの認証コードです',
+            body=f'あなたの認証コードは {form.instance.verification_code}です'
         )
+        
+        if mail_sent:
+            print("Mail sent successfully!")
+        else:
+            print("There was an error while sending the mail.")
 
         return response
 
