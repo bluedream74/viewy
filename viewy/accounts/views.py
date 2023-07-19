@@ -47,7 +47,6 @@ class CheckAgeView(TemplateView):
 class RegistUserView(SuccessMessageMixin, CreateView):
     template_name = 'regist.html'
     form_class = RegistForm
-    success_message = 'ユーザー登録が完了しました'
     success_url = reverse_lazy('accounts:verify')
 
     def form_valid(self, form):

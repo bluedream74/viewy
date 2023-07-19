@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
+from .utils import generate_verification_code
+
 
 
 # ユーザー登録処理
@@ -44,7 +46,7 @@ class RegistForm(forms.ModelForm):
         user = super().save(commit=False)
         validate_password(self.cleaned_data['password'], user) # パスワードのバリデーションをより詳しく行う
         user.set_password(self.cleaned_data['password']) # パスワードのハッシュ化
-        user.generate_verification_code()   # 認証コードを生成
+        user.verification_code = generate_verification_code()   # 認証コードを生成
         if commit:
             user.save()
         return user
