@@ -289,7 +289,7 @@ class AddPostView(TemplateView):
 
 # 検索ページ
 class SearchPageView(FormView):
-    template_name = os.path.join('posts', 'search.html')
+    template_name = os.path.join('posts', 'searchpage.html')
     form_class = SearchForm
 
     def form_valid(self, form):
