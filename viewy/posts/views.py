@@ -285,11 +285,11 @@ class MyAccountView(TemplateView):
   
 # 投稿ページ
 class AddPostView(TemplateView):
-  template_name = os.path.join('posts', 'post_menu.html')
+  template_name = os.path.join('posts', 'add_post.html')
 
 # 検索ページ
 class SearchPageView(FormView):
-    template_name = os.path.join('posts', 'search.html')
+    template_name = os.path.join('posts', 'searchpage.html')
     form_class = SearchForm
 
     def form_valid(self, form):
