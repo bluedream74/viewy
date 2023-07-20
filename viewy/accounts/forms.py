@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate
 from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
 from .utils import generate_verification_code
+from django.contrib.auth.password_validation import validate_password, MinimumLengthValidator, NumericPasswordValidator, CommonPasswordValidator, UserAttributeSimilarityValidator
+
 
 
 
@@ -40,6 +42,30 @@ class RegistForm(forms.ModelForm):
       if email and Users.objects.filter(email=email).exists():
           raise forms.ValidationError("このメールアドレスは既に使用されています。別のメールアドレスを入力してください。")
       return email
+  
+  def clean_password(self):
+        password = self.cleaned_data.get('password')
+        email = self.cleaned_data.get('email')
+        if password and email:
+            errors = []
+            validators = [
+                {"validator": MinimumLengthValidator(8), "message": "パスワードは8文字以上でなければなりません。"},
+                {"validator": NumericPasswordValidator(), "message": "パスワードは数字だけではいけません。"},
+                {"validator": CommonPasswordValidator(), "message": "一般的すぎるパスワードは使用できません。"},
+                {"validator": UserAttributeSimilarityValidator(user_attributes=["email"]), "message": "パスワードがメールアドレスと似すぎています。"},
+            ]
+            user = self._meta.model(email=email)  # Create a temporary user instance to validate password.
+            for v in validators:
+                try:
+                    if isinstance(v["validator"], UserAttributeSimilarityValidator):
+                        v["validator"].validate(password, user)
+                    else:
+                        v["validator"].validate(password)
+                except forms.ValidationError:
+                    errors.append(forms.ValidationError(v["message"], code='invalid'))
+            if errors:
+                raise forms.ValidationError(errors)
+        return password
   
   def save(self, commit=True):  # commit=Trueをデフォルトにする
         # もともと備わっているセーブ機能を一回止めるたのち、ハッシュ化する処理
