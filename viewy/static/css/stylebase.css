@@ -58,6 +58,7 @@ textarea{
   position: fixed;
   bottom: 0px;
   display: flex;
+  z-index: 9999;
 }
 
 .tab-bar > a{

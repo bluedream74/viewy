@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import CheckAgeView
+from accounts.views import CheckAgeView, GuideView
 from . import settings
 from django.contrib.staticfiles.urls import static
 
@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')), 
     path('posts/', include('posts.urls')),
+    path('guide/', GuideView.as_view(), name='guide'),
     path('', CheckAgeView.as_view(), name='home'),
 ]
 

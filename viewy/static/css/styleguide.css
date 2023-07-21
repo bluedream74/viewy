@@ -1,0 +1,57 @@
+.screen{
+  background-color: rgb(255, 255, 255);
+  color: rgb(70, 70, 70);
+  text-align: center;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.art{
+  max-width: 100px;
+  margin-bottom: 24px;
+}
+
+.image{
+  max-width: 160px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8px;
+  margin-bottom: 36px;
+  border-radius: 4px;
+  box-shadow: 0px 1px 3px gray;
+}
+
+.title{
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-decoration: underline;
+  text-decoration-line: 3px;
+  text-decoration-color: aqua;
+}
+
+.content{
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+p{
+  text-align: left;
+}
+
+.button{
+  color: rgb(255, 255, 255);
+  display: inline-block;
+  margin-top: 36px;
+  background-color: rgb(39, 237, 237);
+  font-size: 14px;
+  border: none;
+  height: 36px;
+  width: 150px;
+  line-height: 36px;
+  border-radius: 50px;
+  font-weight: bold;
+}

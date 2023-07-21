@@ -7,6 +7,7 @@ import os
 from django.core.files.base import ContentFile
 from django.db import models
 from moviepy.editor import VideoFileClip
+from tempfile import NamedTemporaryFile
 from PIL import Image
 
 # Local application/library specific
@@ -115,13 +116,8 @@ class Videos(models.Model):
         super().save(*args, **kwargs)
         
     def create_thumbnail(self):
-        from moviepy.editor import VideoFileClip
-        from PIL import Image
-        from io import BytesIO
-        from django.core.files.base import ContentFile
-        from tempfile import NamedTemporaryFile
-        import os
-        from datetime import datetime
+      
+      # 画面収録で撮影したり、LINEなどから保存した動画（つまりあらかじめ圧縮されたいた動画）はサムネイルがもともとうまくいっていた。問題が起きているのはそのスマホで撮影した動画を投稿するときである。しかしスマホが圧縮している段階に介入して操作するのはめんどっちいから、バグった比率のサムネイルを検出して無理やり変形して適応することにした。
 
         with NamedTemporaryFile(delete=False) as temp:
             for chunk in self.video.chunks():
@@ -135,6 +131,17 @@ class Videos(models.Model):
             # PIL.Imageを使用してframeを画像として保存
             img = Image.fromarray(frame)
             thumbnail_io = BytesIO()
+            
+            # オリジナルの画像の解像度を取得
+            original_size = img.size  # (width, height) のタプルが返されます
+
+            # オリジナルの画像が1920:1440（比率が反転してるバグ画像）をもっているか確認
+            if original_size[0] / original_size[1] == 1920 / 1440:
+              
+                # 画像のサイズを指定した値に変更
+                new_size = (720,960)  # このサイズは適切に調整してください
+                img = img.resize(new_size)
+            
             img.save(thumbnail_io, format='JPEG')
 
             # ContentFileを使用してDjango Fileオブジェクトを生成
@@ -148,13 +155,13 @@ class Videos(models.Model):
             temp.close()  # ファイルを閉じる
             os.remove(temp_path)  # 一時ファイルを削除
 
-
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.thumbnail:
             self.create_thumbnail()
             self.save()
+  
+  
   
 class Favorites(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='favorite_received')

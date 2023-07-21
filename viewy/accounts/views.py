@@ -42,6 +42,9 @@ class CheckAgeView(TemplateView):
         response = redirect('posts:postlist')
         response.set_cookie('is_over_18', 'true', max_age=60*60*24*3)  # このクッキーは３日間続く
         return response
+    
+class GuideView(TemplateView):
+    template_name = 'guide.html'
   
 
 class RegistUserView(SuccessMessageMixin, CreateView):

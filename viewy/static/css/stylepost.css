@@ -375,9 +375,23 @@ input[type="radio"]:checked {
   color: rgb(255, 255, 255);
 }
 
+/* アフィリエイト広告用のスタイル */
+.ad-page {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
+
+  .tab-bar{
+    z-index: 999;
+  }
+
+
   .likeorfollow{
     width: 100%;
   }
@@ -393,19 +407,34 @@ input[type="radio"]:checked {
     object-fit: fill;
   }
  
+  video{
+    z-index: -999;
+  }
  
   .side-bar{
     width: 60px;
     position: absolute;
     bottom: 80px;
     margin-left: 0px;
+    z-index: 99;
+  }
+
+  .captions{
+    z-index: 99;
+  }
+
+  .report{
+    z-index: 99;
+  }
+
+  .report-menu{
+    z-index: 99;
+  }
+
+  .alert-success{
+    width: 100%;
   }
  }
 
-/* アフィリエイト広告用のスタイル */
-.ad-page {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+
+
