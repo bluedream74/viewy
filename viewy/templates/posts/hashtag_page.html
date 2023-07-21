@@ -15,7 +15,7 @@
     {% if post.ismanga %}
      <div class="book">
       {% for visual in post.visuals_list|slice:":1" %}
-        <img class="manga-page" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+        <img class="manga-page" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
       {% endfor %}
       <i class="fa-solid fa-book-open manga-icon"></i>
      </div>
@@ -23,9 +23,9 @@
     {% else %}
       {% for video in post.videos_list %}
         {% if video.thumbnail %}
-        <img class="post-video" src="{{ video.thumbnail.url }}" alt="">
+        <img class="post-video" loading="lazy" src="{{ video.thumbnail.url }}" alt="">
         {% else %}
-        <video class="post-video" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+        <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
         {% endif %} 
       {% endfor %}
     {% endif %}
@@ -52,4 +52,5 @@
     border-top: solid 2px aqua;
       }
 </style>
+<script src="{% static 'js/lazyload.js' %}"></script>
 {% endblock %}

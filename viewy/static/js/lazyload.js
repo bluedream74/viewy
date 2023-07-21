@@ -1,7 +1,7 @@
 'use strict'
 
 document.addEventListener("DOMContentLoaded", function() {
-  var lazyloadImages = document.querySelectorAll(".lazyload");    
+  var lazyloadMedia = document.querySelectorAll(".lazyload");    
   var lazyloadThrottleTimeout;
   
   function lazyload () {
@@ -11,13 +11,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
     lazyloadThrottleTimeout = setTimeout(function() {
         var scrollTop = window.pageYOffset;
-        lazyloadImages.forEach(function(img) {
-            if(img.offsetTop < (window.innerHeight + scrollTop)) {
-              img.src = img.dataset.src;
-              img.classList.remove('lazyload');
+        lazyloadMedia.forEach(function(media) {
+            if(media.offsetTop < (window.innerHeight + scrollTop)) {
+              if (media.tagName.toLowerCase() === 'img') {
+                media.src = media.dataset.src;
+              } else if (media.tagName.toLowerCase() === 'video') {
+                media.src = media.dataset.src;
+                media.load();
+              }
+              media.classList.remove('lazyload');
             }
         });
-        if(lazyloadImages.length == 0) { 
+        if(lazyloadMedia.length == 0) { 
           document.removeEventListener("scroll", lazyload);
           window.removeEventListener("resize", lazyload);
           window.removeEventListener("orientationChange", lazyload);

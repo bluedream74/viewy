@@ -173,8 +173,9 @@ class Favorites(models.Model):
 # 報告のモデル
 class Report(models.Model):
     REASON_CHOICES = (
-        ('spam', 'スパム'),
-        ('abuse', '虐待的な内容'),
+        ('underage', '未成年者が出演している'),
+        ('insufficient_mosaic', 'モザイク処理が十分でない'),
+        ('violent', '暴力的な内容'),
         ('inappropriate', '不適切な内容'),
         ('other', 'その他'),
     )
@@ -186,3 +187,6 @@ class Report(models.Model):
 
     class Meta:
         db_table = 'reports'
+        
+    def __str__(self):
+      return self.post.poster.username + ' : ' + self.post.title + ' : ' + self.reason

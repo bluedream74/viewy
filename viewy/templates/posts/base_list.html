@@ -24,8 +24,9 @@
     {% endfor %}
     {% else %}
     {% for video in post.videos_list %}
-    <video class="post-video" width="200px" heigh="400px" src="{{ video.video.url }}" loading="lazy" playsinline loop
-      muted></video>
+    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="1" value="0">
+    <br>
     {% endfor %}
     {% endif %}
 
@@ -143,11 +144,15 @@
 
         <div class="selects">
           <label>
-            <input type="radio" name="reason" value="spam"> スパム
+            <input type="radio" name="reason" value="underage"> 未成年者が出演している
           </label>
           <br>
           <label>
-            <input type="radio" name="reason" value="abuse"> 虐待的な内容
+            <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
+          </label>
+          <br>
+          <label>
+            <input type="radio" name="reason" value="violent"> 暴力的な内容
           </label>
           <br>
           <label>
@@ -159,6 +164,7 @@
           </label>
           <br>
         </div>
+        
 
         <!-- その他のフォームフィールド -->
 
@@ -261,6 +267,7 @@
   <script src="{% static 'js/auto_focus.js' %}"></script>
   <script src="{% static 'js/auto_play.js' %}"></script>
   <script src="{% static 'js/control_video.js' %}"></script>
+  <script src="{% static 'js/custom_controlbar.js' %}"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="{% static 'js/lazyload.js' %}"></script>
   <script src="{% static 'js/mute.js' %}"></script>

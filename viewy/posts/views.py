@@ -91,7 +91,7 @@ class PosterPageView(BasePostListView):
     
     def get_queryset(self):
         self.poster = get_object_or_404(Users, pk=self.kwargs['pk'])
-        return Posts.objects.filter(poster=self.poster, is_hidden=False)
+        return Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,12 +109,15 @@ class HashtagPostListView(BasePostListView):
     
     def get_queryset(self):
         hashtag = self.kwargs['hashtag']   # この一行が重要
-        return Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | Posts.objects.filter(hashtag2=hashtag, is_hidden=False) | Posts.objects.filter(hashtag3=hashtag, is_hidden=False)
+        return (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
+                Posts.objects.filter(hashtag2=hashtag, is_hidden=False) | 
+                Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['hashtag'] = self.kwargs['hashtag']
         return context
+    
 
 class HashtagPageView(HashtagPostListView):
     template_name = os.path.join('posts', 'hashtag_page.html')
@@ -126,7 +129,7 @@ class MyPostView(BasePostListView):
 
     def get_queryset(self):
         user = self.request.user
-        return super().get_queryset().filter(poster=user)
+        return super().get_queryset().filter(poster=user).order_by('-posted_at')
     
 class DeletePostView(View):
     def post(self, request, *args, **kwargs):
