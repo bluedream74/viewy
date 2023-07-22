@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView
 )
 
 app_name = 'posts'
@@ -9,6 +9,7 @@ urlpatterns = [
    path('manga_create/', MangaCreateView.as_view(), name='manga_create'),
    path('video_create/', VideoCreateView.as_view(), name='video_create'),
    path('postlist/', PostListView.as_view(), name='postlist'),
+   path('get_more_posts/', GetMorePostsView.as_view(), name='get_more_posts'),
    path('favorite/<int:pk>/', FavoriteView.as_view(), name='favorite'),
    path('fovorite_page/', FavoritePageView.as_view(), name='favorite_page'),
    path('fovorite_list/', FavoritePostListView.as_view(), name='favorite_list'),

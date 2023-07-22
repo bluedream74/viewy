@@ -200,19 +200,22 @@ input[type=range]::-moz-range-thumb {
 }
 
 .url{
-  margin-right: 16px;
+  margin-right: 8px;
   background-color: rgba(255, 255, 255, 0.5);
   border-radius: 4px;
-  padding-top: 3px;
+  height: 28px;
+  width: 36px;
+  line-height: 28px;
+  text-align: center;
   position: relative;
   top: 1px;
+  display: inline-block;
 }
 
 .url > a{
   color: white;
   text-decoration: none;
   font-size: 16px;
-  padding-left: 5px;
 }
 
 .hashtag{
@@ -286,7 +289,7 @@ input[type=range]::-moz-range-thumb {
 /* 報告ボタン */
 .report{
   position: absolute;
-  bottom: 8px;
+  bottom: 18px;
   right: 18px;
   color: orangered;
 }
@@ -412,6 +415,20 @@ input[type="radio"]:checked {
 .bottom-space{
   width: 100%;
   height: 60px;
+}
+
+.adjust-trigger{
+  position: relative;
+  width: 100%;
+  height: 8px;
+}
+
+.load-trigger{
+  width: 100%;
+  height: 1500px;
+  position: absolute;
+  bottom: 0px;
+  z-index: -99;
 }
 
 /* 投稿成功メッセージ */

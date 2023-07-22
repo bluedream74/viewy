@@ -1,21 +1,4 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block static %}
-<script>
-  // ビューポートの高さを取得
-  let vh = window.innerHeight * 0.01;
-  // 現在のビューポートの高さをCSS変数として設定
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-</script>
-<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
-{% endblock %}
-{% block content %}
-{% block title %}
-
-{% endblock %}
-
 {% for post in posts %}
-
 <div class="post" data-post-id="{{ post.id }}">
   {% if post.ismanga %}
   <div class="book">
@@ -183,13 +166,7 @@
 
 
   </div>
-
-
   {% endfor %}
-
-
-
-
 
   <div class="post">
     <div class="ad-page">
@@ -240,43 +217,3 @@
     </div>
 
   </div>
-
-  <div id="posts"></div>
-
-
-
-
-
-  <div class="bottom-space"></div>
-  <div class="adjust-trigger">
-    <div class="load-trigger"></div>
-  </div>
-  <div class="logo">V</div>
-  <!-- <a href="{% url 'posts:back' %}" class="back"><i class="fa-solid fa-chevron-left"></i></a> -->
-
-  <!-- 戻るボタンをHTTP_REFERERで一旦解決 -->
-  <a href="{% if request.META.HTTP_REFERER %}{{request.META.HTTP_REFERER}}{% else %}{% url 'posts:postlist' %}{% endif %}"
-    class="back"><i class="fa-solid fa-chevron-left"></i></a>
-
-
-  {% block bottom %}
-
-  {% endblock %}
-
-
-
-  {% endblock %}
-
-  {% block script %}
-  <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
-  <script src="{% static 'js/auto_focus.js' %}"></script>
-  <!-- <script src="{% static 'js/auto_play.js' %}"></script> -->
-  <script src="{% static 'js/control_video.js' %}"></script>
-  <script src="{% static 'js/custom_controlbar.js' %}"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="{% static 'js/lazyload.js' %}"></script>
-  <script src="{% static 'js/mute.js' %}"></script>
-  <script src="{% static 'js/report.js' %}"></script>
-  <!-- <script src="{% static 'js/viewnext.js' %}"></script> -->
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  {% endblock %}

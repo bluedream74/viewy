@@ -1,4 +1,5 @@
 {% extends 'posts/base_list.html' %}
+{% load static %}
 {% block title %}
 <!-- <p>投稿が見れる画面です</p> -->
 
@@ -11,8 +12,8 @@
 
 
 
-<div class="viewnext">次の投稿を見る</div>
-<div class="trigger"></div>
+<!-- <div class="viewnext">次の投稿を見る</div>
+<div class="trigger"></div> -->
 
 
 {% if messages %}
@@ -34,6 +35,8 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="{% static 'js/more_posts.js' %}"></script>
+
 <script>
 $(function() {
     window.setTimeout(function() {
@@ -43,6 +46,8 @@ $(function() {
     }, 3000);  // 3 secs
 });
 </script>
+
+
 {% endblock %}
 
 

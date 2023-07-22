@@ -1,9 +1,9 @@
 'use strict'
 
 
-const likeButtons = document.querySelectorAll('.like-button');
-likeButtons.forEach(likeButton => {
-  likeButton.addEventListener('change', () => {
+document.addEventListener('change', event => {
+  if (event.target.matches('.like-button')) {
+    const likeButton = event.target;
     const form = likeButton.closest('form');
     const postPk = form.dataset.pk;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -36,37 +36,39 @@ likeButtons.forEach(likeButton => {
         }
       })
       .catch(error => console.log(error));
-  });
+  }
 });
 
-{
-  const FollowButtons = document.querySelectorAll('.mini-follow-button');
-  FollowButtons.forEach(FollowButton => {
-    FollowButton.addEventListener('change', () => {
-      const form = FollowButton.closest('form');
-      const posterPk = form.dataset.pk;
-      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-      const url = form.action;
-      const formData = new FormData(form);
-      formData.append('csrfmiddlewaretoken', csrftoken);
 
-      fetch(url, {
-        method: 'POST',
-        body: formData,
-      })
+document.addEventListener('change', event => {
+  if (event.target.matches('.mini-follow-button')) {
+    const FollowButton = event.target;
+    const form = FollowButton.closest('form');
+    const posterPk = form.dataset.pk;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const url = form.action;
+    const formData = new FormData(form);
+    formData.append('csrfmiddlewaretoken', csrftoken);
 
-        const followed = form.querySelector('.fa-solid.fa-check');
-        const notFollowed = form.querySelector('.fa-solid.fa-plus');
-        if (FollowButton.checked) {
-          notFollowed.classList.add('fa-check');
-          notFollowed.classList.remove('fa-plus');
-        } else {
-          followed.classList.remove('fa-check');
-          followed.classList.add('fa-plus');
-        }
-    });
-  });
-}
+    fetch(url, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(() => {  // 応答を待たないと次のコードが正常に動作しない場合
+      const followed = form.querySelector('.fa-solid.fa-check');
+      const notFollowed = form.querySelector('.fa-solid.fa-plus');
+      if (FollowButton.checked) {
+        notFollowed.classList.add('fa-check');
+        notFollowed.classList.remove('fa-plus');
+      } else {
+        followed.classList.remove('fa-check');
+        followed.classList.add('fa-plus');
+      }
+    })
+    .catch(error => console.log(error));  // エラー処理を追加
+  }
+});
+
 
 
 {

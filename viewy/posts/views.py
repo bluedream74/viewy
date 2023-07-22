@@ -8,9 +8,11 @@ from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core import serializers
 from django.db.models import Case, Exists, OuterRef, Q, When
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.urls import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
@@ -67,6 +69,32 @@ class PostListView(BasePostListView):
         context = super().get_context_data(**kwargs)
         context['ad'] = self.get_ad()
         return context
+    
+    
+class GetMorePostsView(PostListView):
+    def get(self, request, *args, **kwargs):
+        # セッションIDとユーザー名をログに出力
+        print(f"Session ID: {request.session.session_key}")
+        print(f"User: {request.user}")
+        print(request.user.is_authenticated)
+        
+        # 基底クラスのget_querysetメソッドを使用して、９個の投稿と１個の広告を取得
+        queryset = super().get_queryset()
+        for post in queryset:
+            post.visuals_list = post.visuals.all()
+            post.videos_list = post.videos.all()
+        # 投稿をHTMLフラグメントとしてレンダリング
+        # print(queryset)
+        for post in queryset:
+            visuals = post.visuals_list.all()  
+            videos = post.videos_list.all()
+
+        html = render_to_string('posts/get_more_posts.html', {'posts': queryset, 'user': request.user}, request=request)
+        
+        # HTMLフラグメントをJSONとして返す
+        return JsonResponse({'html': html}, content_type='application/json')
+    
+    
 
 class FavoritePostListView(BasePostListView):
     template_name = os.path.join('posts', 'favorite_list.html')
