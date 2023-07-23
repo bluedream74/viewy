@@ -252,12 +252,165 @@ class PosterPageView(BasePostListView):
 
 
 
-class PosterPostListView(PosterPageView):
+class PosterPostListView(BasePostListView):
     template_name = os.path.join('posts', 'poster_post_list.html')
 
+    def get_queryset(self):
+        # URLから'post_id'パラメータを取得
+        selected_post_id = int(self.request.GET.get('post_id', 0))
 
-class HashtagPostListView(BasePostListView):
-    template_name = os.path.join('posts', 'hashtag_list.html')
+        # ポスターが投稿した全ての投稿を取得
+        self.poster = get_object_or_404(Users, pk=self.kwargs['pk'])
+        poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        post_ids = [post.id for post in poster_posts]
+        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+
+        # 選択した投稿がリストの中にあるか確認
+        if selected_post_id in post_ids:
+            # 選択した投稿のインデックスを見つける
+            selected_post_index = post_ids.index(selected_post_id)
+            # 選択した投稿とそれに続く投稿のIDを取得
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+9]
+            # querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
+            queryset = [post for post in queryset if post.id in selected_post_ids]
+
+        # querysetがselected_post_idsの順番と同じになるようにソート
+        queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+
+        return queryset
+
+    def get_ad(self):
+        # ランダムに1つの広告を取得
+        return Ads.objects.order_by('?').first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # contextに広告を追加
+        context['ad'] = self.get_ad()
+        return context
+
+
+class GetMorePosterPostsView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        last_post_id = int(self.request.POST.get('last_post_id', 0))
+
+        # Get the pk from POST data
+        poster_pk = self.request.POST.get('pk')
+        if not poster_pk:
+            return Posts.objects.none()  # Return an empty queryset if no pk is provided
+
+        # posterを設定
+        self.poster = get_object_or_404(Users, pk=poster_pk)
+
+
+        poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        post_ids = list(poster_posts.values_list('id', flat=True))
+
+
+        if last_post_id:
+            last_poster_index = post_ids.index(last_post_id)
+            next_post_ids = post_ids[last_poster_index+1:last_poster_index+10]  # ここを10から9に変更
+
+            queryset = super().get_queryset().filter(id__in=next_post_ids)
+            queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        return queryset[:9]  # ここを追加して、最初の9つの投稿だけを返す
+
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+    
+    
+    
+    
+class GetMorePreviousPosterPostsView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        # 親クラスのdispatchメソッドを呼び出す
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        # POSTデータから最初の投稿IDを取得
+        first_post_id = int(self.request.POST.get('first_post_id', 0))
+
+        # POSTデータからpkを取得
+        poster_pk = self.request.POST.get('pk')
+        if not poster_pk:
+            return Posts.objects.none()  # pkが提供されていない場合、空のクエリセットを返す
+
+        # ポスターを設定
+        self.poster = get_object_or_404(Users, pk=poster_pk)
+
+        # ポスターの投稿を取得し、投稿日時で並べ替える
+        poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        post_ids = list(poster_posts.values_list('id', flat=True))
+
+        if first_post_id:
+            # 最初の投稿IDのインデックスを取得
+            first_post_index = post_ids.index(first_post_id)
+            # 最初の投稿より前の10個の投稿IDを取得
+            prev_post_ids = post_ids[max(0, first_post_index - 10):first_post_index] 
+
+            # querysetを取得し、投稿IDがprev_post_idsに含まれるものだけをフィルタリング
+            queryset = super().get_queryset().filter(id__in=prev_post_ids)
+            # querysetをprev_post_idsの順に並べ替え、順序を逆にする
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))  
+        else:
+            # 最初の投稿IDが存在しない場合、全ての投稿を取得
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        return queryset[:9]  # 最初の9個の投稿だけを返す
+
+    def get_ad(self):
+        # ランダムな広告を取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        # クエリセットを取得
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加の投稿が存在する場合のみ広告を取得
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTML生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+   
+    
+    
+
+class HashtagPageView(BasePostListView):
+    template_name = os.path.join('posts', 'hashtag_page.html')
     
     def get_queryset(self):
         hashtag = self.kwargs['hashtag']   # この一行が重要
@@ -270,10 +423,156 @@ class HashtagPostListView(BasePostListView):
         context['hashtag'] = self.kwargs['hashtag']
         return context
     
+    
 
-class HashtagPageView(HashtagPostListView):
-    template_name = os.path.join('posts', 'hashtag_page.html')
 
+class HashtagPostListView(BasePostListView):
+    template_name = os.path.join('posts', 'hashtag_list.html')
+    
+    def get_queryset(self):
+        # URLから'post_id'パラメータを取得
+        selected_post_id = int(self.request.GET.get('post_id', 0))
+
+        # 指定したハッシュタグが含まれる全ての投稿を取得
+        hashtag = self.kwargs['hashtag']
+        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
+                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False) | 
+                         Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        post_ids = [post.id for post in hashtag_posts]
+        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+
+        # 選択した投稿がリストの中にあるか確認
+        if selected_post_id in post_ids:
+            # 選択した投稿のインデックスを見つける
+            selected_post_index = post_ids.index(selected_post_id)
+            # 選択した投稿とそれに続く投稿のIDを取得
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+9]
+            # querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
+            queryset = [post for post in queryset if post.id in selected_post_ids]
+
+        # querysetがselected_post_idsの順番と同じになるようにソート
+        queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+
+        return queryset
+
+    def get_ad(self):
+        # ランダムに1つの広告を取得
+        return Ads.objects.order_by('?').first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # contextに広告を追加
+        context['ad'] = self.get_ad()
+        
+        # 隠しコンテナにハッシュタグの値を渡す
+        context['hashtag'] = self.kwargs['hashtag']
+        return context
+    
+
+class GetMoreHashtagView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        last_post_id = int(self.request.POST.get('last_post_id', 0))
+        hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
+
+        if not hashtag:
+            return Posts.objects.none()  # Return an empty queryset if no hashtag is provided
+
+        # Get all posts with the provided hashtag, ordered by date
+        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
+                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False) |
+                         Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        
+        post_ids = list(hashtag_posts.values_list('id', flat=True))
+
+        if last_post_id:
+            last_poster_index = post_ids.index(last_post_id)
+            next_post_ids = post_ids[last_poster_index+1:last_poster_index+10]
+
+            queryset = super().get_queryset().filter(id__in=next_post_ids)
+            queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        return queryset[:9]
+
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+
+
+
+class GetMorePreviousHashtagView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        first_post_id = int(self.request.POST.get('first_post_id', 0))
+        hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
+
+        if not hashtag:
+            return Posts.objects.none()  # Return an empty queryset if no hashtag is provided
+
+        # Get all posts with the provided hashtag, ordered by date
+        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
+                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False) |
+                         Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        
+        post_ids = list(hashtag_posts.values_list('id', flat=True))
+
+        if first_post_id:
+            first_post_index = post_ids.index(first_post_id)
+            prev_post_ids = post_ids[max(0, first_post_index - 10):first_post_index] 
+
+            queryset = super().get_queryset().filter(id__in=prev_post_ids)
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        return queryset[:9]
+
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
     
 
 class MyPostView(BasePostListView):

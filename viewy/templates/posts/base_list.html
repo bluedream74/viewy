@@ -40,7 +40,7 @@
       <div class="poster">
         <div>
           <!-- <p>投稿者:{{post.poster.username}}</p> -->
-          <a href="{% url 'posts:poster_page' post.poster.pk %}">
+          <a href="{% url 'posts:poster_page' post.poster.pk %}" class="poster_pk">
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </a>
         </div>
@@ -275,7 +275,7 @@
   {% block script %}
   <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
   <script src="{% static 'js/auto_focus.js' %}"></script>
-  <!-- <script src="{% static 'js/auto_play.js' %}"></script> -->
+  <script src="{% static 'js/auto_play.js' %}"></script>
   <script src="{% static 'js/control_video.js' %}"></script>
   <script src="{% static 'js/custom_controlbar.js' %}"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

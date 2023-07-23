@@ -29,16 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const allPosts = document.querySelectorAll('.not-ad');
     const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
 
-  
+    // ハッシュタグを取得 hashtag_list.htmlの下のdivに隠してある
+    const hashtag = document.querySelector('#hashtagContainer').dataset.hashtag;
+
+
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
   
-    fetch(`/posts/get_more_favorite/`, { //次の投稿を読み込むビューに送信！
+    let data = new FormData();
+    data.append('last_post_id', lastPostId);
+    data.append('hashtag', hashtag);  // Add the hashtag
+
+    fetch(`/posts/get_more_hashtag/`, { //次の投稿を読み込むビューに送信！
       method: 'POST', // メソッドをPOSTに変更
-      body: `last_post_id=${lastPostId}`, // 最後の投稿のIDを送信
+      body: data, // データを送信
       credentials: 'include', // クッキーを含める
       headers: {
         'X-CSRFToken': csrftoken, //これをつけないとブロックされちゃう
-        'Content-Type': 'application/x-www-form-urlencoded', // 追加
       },
     })
       .then(response => {
@@ -48,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
         addHere.insertAdjacentHTML('beforebegin', html);
 
@@ -88,42 +93,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
 document.addEventListener('DOMContentLoaded', () => {
 
-  const topTrigger = document.querySelector('.top-load-trigger');
-  const topAddHere = document.querySelector('.top-space');
-  
-  let isTopLoading = false; // セマフォア変数を追加
-  
+  const trigger = document.querySelector('.top-load-trigger');
+  const addHere = document.querySelector('.top-space');
+
+  let isLoading = false;
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
   function loadPreviousPost() {
     console.log('loadPreviousPost called');
-    // 既にロード中の場合はリターン
-    if (isTopLoading) {
+    if (isLoading) {
       return;
     }
-    // ロード中フラグを立てる
-    isTopLoading = true;
+    isLoading = true;
     console.log('Loading previous post...');
-  
+
     const allPosts = document.querySelectorAll('.not-ad');
     const firstPostId = allPosts[0].dataset.postId;
 
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-    
-    const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
+    const hashtag = document.querySelector('#hashtagContainer').dataset.hashtag;
 
+    const csrftoken = getCookie('csrftoken');
+  
+    let data = new FormData();
+    data.append('first_post_id', firstPostId);
+    data.append('hashtag', hashtag);
 
-    fetch(`/posts/get_more_previous_favorite/`, {
+    fetch(`/posts/get_more_previous_hashtag/`, {
       method: 'POST',
-      body: `first_post_id=${firstPostId}`,
+      body: data,
       credentials: 'include',
       headers: {
         'X-CSRFToken': csrftoken,
-        'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
       .then(response => {
@@ -133,36 +141,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
-        topAddHere.insertAdjacentHTML('afterend', html); 
-        
-        // 最初の投稿までスクロール
+        addHere.insertAdjacentHTML('afterend', html);
+
+        // Load the first post into view after fetching
         const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
         if (targetPost) {
             targetPost.scrollIntoView();
         }
       })
+      .catch(error => {
+        console.error('Error:', error);
+      })
+      .finally(() => {
+        isLoading = false;
+      });
   }
-  
-  function isTopActive(entries) {
-    console.log('Top Intersection Observer triggered');
-    if (entries[0].isIntersecting && !isTopLoading) {
+
+  function isactive(entries) {
+    console.log('Intersection Observer triggered');
+    if (entries[0].isIntersecting && !isLoading) {
       loadPreviousPost();
     }
   }
-  
-  const topOptions = {
+
+  const options = {
     threshold: 0.1,
     rootMargin: '0px 0px 0px 0px',
   };
-  
-  const topObserver = new IntersectionObserver(isTopActive, topOptions);
-  
-  topObserver.observe(topTrigger);
 
+  const observer = new IntersectionObserver(isactive, options);
 
+  observer.observe(trigger);
 });
-
-
 

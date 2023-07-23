@@ -29,16 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const allPosts = document.querySelectorAll('.not-ad');
     const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
 
-  
+    // ポスターのpkを取得
+    const posterLink = document.querySelector('.poster_pk');
+    const url = new URL(posterLink.href);
+    const posterPk = url.pathname.split('/').filter(Boolean).pop();
+
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
   
-    fetch(`/posts/get_more_favorite/`, { //次の投稿を読み込むビューに送信！
+    let data = new FormData();
+    data.append('last_post_id', lastPostId);
+    data.append('pk', posterPk);
+
+    fetch(`/posts/get_more_poster_posts/`, { //次の投稿を読み込むビューに送信！
       method: 'POST', // メソッドをPOSTに変更
-      body: `last_post_id=${lastPostId}`, // 最後の投稿のIDを送信
+      body: data, // データを送信
       credentials: 'include', // クッキーを含める
       headers: {
         'X-CSRFToken': csrftoken, //これをつけないとブロックされちゃう
-        'Content-Type': 'application/x-www-form-urlencoded', // 追加
       },
     })
       .then(response => {
@@ -48,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
         addHere.insertAdjacentHTML('beforebegin', html);
 
@@ -87,43 +93,50 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 document.addEventListener('DOMContentLoaded', () => {
+  // トリガーと追加する場所を指定
+  const trigger = document.querySelector('.top-load-trigger');
+  const addHere = document.querySelector('.top-space');
 
-  const topTrigger = document.querySelector('.top-load-trigger');
-  const topAddHere = document.querySelector('.top-space');
-  
-  let isTopLoading = false; // セマフォア変数を追加
-  
+  let isLoading = false; // セマフォア変数を追加
+
+  // CSRFトークンを取得する関数
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
   function loadPreviousPost() {
     console.log('loadPreviousPost called');
     // 既にロード中の場合はリターン
-    if (isTopLoading) {
+    if (isLoading) {
       return;
     }
     // ロード中フラグを立てる
-    isTopLoading = true;
+    isLoading = true;
     console.log('Loading previous post...');
-  
+
     const allPosts = document.querySelectorAll('.not-ad');
-    const firstPostId = allPosts[0].dataset.postId;
+    const firstPostId = allPosts[0].dataset.postId;  // 最初の投稿のIDを取得
 
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-    
+    // ポスターのpkを取得
+    const posterLink = document.querySelector('.poster_pk');
+    const url = new URL(posterLink.href);
+    const posterPk = url.pathname.split('/').filter(Boolean).pop();
+
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
+  
+    let data = new FormData();
+    data.append('first_post_id', firstPostId);
+    data.append('pk', posterPk);
 
-
-    fetch(`/posts/get_more_previous_favorite/`, {
-      method: 'POST',
-      body: `first_post_id=${firstPostId}`,
-      credentials: 'include',
+    fetch(`/posts/get_more_previous_poster_posts/`, { //前の投稿を読み込むビューに送信！
+      method: 'POST', // メソッドをPOSTに変更
+      body: data, // データを送信
+      credentials: 'include', // クッキーを含める
       headers: {
-        'X-CSRFToken': csrftoken,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrftoken, //これをつけないとブロックされる
       },
     })
       .then(response => {
@@ -133,36 +146,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
-        topAddHere.insertAdjacentHTML('afterend', html); 
-        
+        addHere.insertAdjacentHTML('afterend', html); // データを上方向に追加
+
         // 最初の投稿までスクロール
         const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
         if (targetPost) {
             targetPost.scrollIntoView();
         }
       })
+      .catch(error => {
+        console.error('Error:', error);
+      })
+      .finally(() => {
+        // ロードが完了したらフラグを戻す
+        isLoading = false;
+      });
   }
-  
-  function isTopActive(entries) {
-    console.log('Top Intersection Observer triggered');
-    if (entries[0].isIntersecting && !isTopLoading) {
+
+  // トリガーがビューポートに入ったかを監視
+  function isActive(entries) {
+    console.log('Intersection Observer triggered');
+    if (entries[0].isIntersecting && !isLoading) {
       loadPreviousPost();
     }
   }
-  
-  const topOptions = {
+
+  const options = {
     threshold: 0.1,
     rootMargin: '0px 0px 0px 0px',
   };
-  
-  const topObserver = new IntersectionObserver(isTopActive, topOptions);
-  
-  topObserver.observe(topTrigger);
 
+  const observer = new IntersectionObserver(isActive, options);
 
+  observer.observe(trigger);
 });
-
-
-
