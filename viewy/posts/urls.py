@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView
 )
 
 app_name = 'posts'
@@ -13,6 +13,8 @@ urlpatterns = [
    path('favorite/<int:pk>/', FavoriteView.as_view(), name='favorite'),
    path('fovorite_page/', FavoritePageView.as_view(), name='favorite_page'),
    path('fovorite_list/', FavoritePostListView.as_view(), name='favorite_list'),
+   path('get_more_favorite/',  GetMoreFavoriteView.as_view(), name='get_more_favorite'),
+   path('get_more_previous_favorite/',  GetMorePreviousFavoriteView.as_view(), name='get_more_previous_favorite'),
    path('poster/<int:pk>/', PosterPageView.as_view(), name='poster_page'),
    path('hashtag_list/<str:hashtag>/', HashtagPostListView.as_view(), name='hashtag_list'),
    path('hashtag/<str:hashtag>/', HashtagPageView.as_view(), name='hashtag'),

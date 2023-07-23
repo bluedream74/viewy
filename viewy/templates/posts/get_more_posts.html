@@ -1,5 +1,5 @@
 {% for post in posts %}
-<div class="post" data-post-id="{{ post.id }}">
+<div class="post not-ad" data-post-id="{{ post.id }}">
   {% if post.ismanga %}
   <div class="book">
     {% for visual in post.visuals_list %}

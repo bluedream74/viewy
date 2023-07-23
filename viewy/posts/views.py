@@ -13,6 +13,7 @@ from django.db.models import Case, Exists, OuterRef, Q, When
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.utils.dateparse import parse_datetime
 from django.utils.decorators import method_decorator
 from django.urls import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
@@ -94,11 +95,10 @@ class GetMorePostsView(PostListView):
         # HTMLフラグメントをJSONとして返す
         return JsonResponse({'html': html}, content_type='application/json')
     
-    
 
-class FavoritePostListView(BasePostListView):
-    template_name = os.path.join('posts', 'favorite_list.html')
-  
+class FavoritePageView(BasePostListView):
+    template_name = os.path.join('posts', 'favorite_page.html')
+    
     def get_queryset(self):
         user = self.request.user
         user_favorite_posts = Favorites.objects.filter(user=user).order_by('-created_at')
@@ -109,9 +109,133 @@ class FavoritePostListView(BasePostListView):
         return queryset
 
 
+class FavoritePostListView(BasePostListView):
+    template_name = os.path.join('posts', 'favorite_list.html')
 
-class FavoritePageView(FavoritePostListView):
-    template_name = os.path.join('posts', 'favorite_page.html')
+    def get_queryset(self):
+        user = self.request.user
+        # URLから'post_id'パラメータを取得
+        selected_post_id = int(self.request.GET.get('post_id', 0))
+
+        # ユーザーがお気に入りに追加した全ての投稿を取得
+        user_favorite_posts = Favorites.objects.filter(user=user).order_by('-created_at')
+        post_ids = [favorite.post_id for favorite in user_favorite_posts]
+        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+
+        # 選択した投稿がリストの中にあるか確認
+        if selected_post_id in post_ids:
+            # 選択した投稿のインデックスを見つける
+            selected_post_index = post_ids.index(selected_post_id)
+            # 選択した投稿とそれに続く投稿のIDを取得
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+9]
+            # querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
+            queryset = [post for post in queryset if post.id in selected_post_ids]
+
+        # querysetがselected_post_idsの順番と同じになるようにソート
+        queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+
+        return queryset
+
+    def get_ad(self):
+        # ランダムに1つの広告を取得
+        return Ads.objects.order_by('?').first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # contextに広告を追加
+        context['ad'] = self.get_ad()
+        return context
+    
+    
+
+class GetMoreFavoriteView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        last_post_id = int(self.request.POST.get('last_post_id', 0))
+
+        user_favorite_posts = Favorites.objects.filter(user=self.request.user).order_by('-created_at')
+        post_ids = list(user_favorite_posts.values_list('post_id', flat=True))
+
+        if last_post_id:
+            last_favorite_index = post_ids.index(last_post_id)
+            next_post_ids = post_ids[last_favorite_index+1:last_favorite_index+10]  # ここを10から9に変更
+
+            queryset = super().get_queryset().filter(id__in=next_post_ids)
+            queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        return queryset[:9]  # ここを追加して、最初の9つの投稿だけを返す
+
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+    
+
+class GetMorePreviousFavoriteView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        first_post_id = int(self.request.POST.get('first_post_id', 0))
+
+        user_favorite_posts = Favorites.objects.filter(user=self.request.user).order_by('-created_at')  # order by created_at (ascending)
+        post_ids = list(user_favorite_posts.values_list('post_id', flat=True))
+
+        if first_post_id:
+            first_favorite_index = post_ids.index(first_post_id)
+            prev_post_ids = post_ids[max(0, first_favorite_index - 10):first_favorite_index]  # get previous 10 posts
+
+            queryset = super().get_queryset().filter(id__in=prev_post_ids)
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id), reverse=True)  # reverse to maintain the correct order
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        # convert queryset to list and then reverse it
+        return list(reversed(queryset[:9]))  # return first 9 posts only in reversed order
+    
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+    
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+
     
 
 class PosterPageView(BasePostListView):
