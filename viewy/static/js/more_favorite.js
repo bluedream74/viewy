@@ -169,9 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
 
-    const scrollPositionBeforeLoad = document.documentElement.scrollTop || window.pageYOffset;
 
-  
     fetch(`/posts/get_more_previous_favorite/`, {
       method: 'POST',
       body: `first_post_id=${firstPostId}`,
@@ -190,24 +188,14 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         console.log('データの中身はこれだよ→:', data);
         const html = data.html;
-        topAddHere.insertAdjacentHTML('afterend', html); // afterbeginを使うことで上部に追加
-
-        // ロード後のスクロール位置を調整
-        window.scrollTo(0, scrollPositionBeforeLoad + topAddHere.getBoundingClientRect().height);
-  
-        // スクロール領域を手動(力技)で更新する
-        const screenElement = document.querySelector('.screen');
-        screenElement.style.display = 'none';
-        screenElement.offsetHeight;
-        screenElement.style.display = '';
+        topAddHere.insertAdjacentHTML('afterend', html); 
+        
+        // 最初の投稿までスクロール
+        const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
+        if (targetPost) {
+            targetPost.scrollIntoView();
+        }
       })
-      .catch(error => {
-        console.error('Error:', error);
-      })
-      .finally(() => {
-        // ロードが完了したらフラグを戻す
-        isTopLoading = false;
-      });
   }
   
   function isTopActive(entries) {
