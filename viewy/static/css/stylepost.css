@@ -13,9 +13,9 @@
 }
 
 /* コントロールバーを消す */
-/* video::-webkit-media-controls-enclosure {
+video::-webkit-media-controls-enclosure {
   display:none !important;
-} */
+}
 
 .custom-controlbar{
   position: absolute;

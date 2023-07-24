@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from moviepy.editor import VideoFileClip
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 import tempfile
+from multiupload.fields import MultiFileField
 
 
 
@@ -36,17 +37,21 @@ class PostForm(forms.ModelForm):
 
     
 class VisualForm(forms.Form):
-    visuals = forms.ImageField(
+    visuals = MultiFileField(
+        min_num=1, 
+        max_num=31, 
+        max_file_size=1024*1024*5,  # 5MBを超えるサイズはエラー
         label="マンガ",
-        widget=forms.ClearableFileInput(attrs={"allow_multiple_selected": True}), required=False
-        )
+        required=False
+    )
     
     def clean_visuals(self):
         visuals = self.cleaned_data.get('visuals')
-        # ここで任意のバリデーションを追加
-        # 例えば、画像サイズが大きすぎる場合はエラー
-        if visuals and visuals.size > 5 * 1024 * 1024:  # 5MBを超えるサイズはエラー
-            raise ValidationError("Image file too large ( > 5mb )")
+
+        if visuals:
+            for visual in visuals:
+                if visual.size > 5 * 1024 * 1024:  # 5MBを超えるサイズはエラー
+                    raise forms.ValidationError("Image file too large ( > 5mb )")
         return visuals
 
 

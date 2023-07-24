@@ -27,6 +27,7 @@
     {% for visual in post.visuals_list %}
     <img class="manga-page" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
     {% endfor %}
+  </div>
     {% else %}
     {% for video in post.videos_list %}
     <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
