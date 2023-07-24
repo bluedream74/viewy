@@ -1,33 +1,77 @@
 'use strict'
 
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 読み込みトリガーと、データを追加する場所を指定
+   // 読み込みトリガーと、データを追加する場所を指定
   const trigger = document.querySelector('.load-trigger');
   const addHere = document.querySelector('.bottom-space');
-
+  if (!trigger || !addHere) {
+    console.error('Trigger or insertion point not found!');
+    return;
+  }
   let isLoading = false; // セマフォア変数を追加
 
-  // CSRFトークンを取得するための関数
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+
+
+  // 以下コントロールバー関連
+
+  //  カスタムイベントの定義
+  const newPostEvent = new Event('newPostAdded')
+
+  const baseColor = '#ffffff';
+  const activeColor = 'rgb(41, 239, 239)';
+
+  function setupControlBar(video, seekSlider) {
+    video.addEventListener('loadedmetadata', () => {
+      seekSlider.max = video.duration;
+    });
+
+    video.addEventListener('timeupdate', () => {
+      seekSlider.value = video.currentTime;
+      const progress = (seekSlider.value / seekSlider.max) * 100;
+      seekSlider.style.background = `linear-gradient(to right, ${activeColor} ${progress}%, ${baseColor} ${progress}%)`;
+    });
+
+    seekSlider.addEventListener('input', () => {
+      video.currentTime = seekSlider.value;
+    });
   }
 
+  function applyControlBarToNewVideos() {
+    const videos = document.querySelectorAll('.post-video:not(.initialized)');
+    const sliders = document.querySelectorAll('.custom-controlbar:not(.initialized)');
+
+    videos.forEach((video, i) => {
+      const seekSlider = sliders[i];
+      if (video && seekSlider) {
+        video.classList.add('initialized');
+        seekSlider.classList.add('initialized');
+        setupControlBar(video, seekSlider);
+      }
+    });
+  }
+
+  // 最初の投稿にコントロールバーの設定を適用
+  applyControlBarToNewVideos();
+
+  //  カスタムイベントのリッスンと処理の実行
+  document.addEventListener('newPostAdded', applyControlBarToNewVideos);
+
+
   function loadNextPost() {
-    console.log('loadNextPost called');
     // 既にロード中の場合はリターン
-    if (isLoading) {
-      return;
-    }
+    if (isLoading) return;
+
     // ロード中フラグを立てる
     isLoading = true;
-    console.log('Loading next post...');
 
+    // CSRFトークンを取得するための関数
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
 
     fetch(`/posts/get_more_posts/`, { //次の投稿を読み込むビューに送信！
@@ -43,9 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
         addHere.insertAdjacentHTML('beforebegin', html);
+
+        // 以下コントロールバー関連
+
+        // 新しい投稿を追加した際にカスタムイベントを発行
+        // 新しく追加された動画要素にコントロールバーを適用
+        document.dispatchEvent(newPostEvent);
+
+        // 以上コントロールバー関連終わり
 
         // スクロール領域を手動(力技)で更新する
         const screenElement = document.querySelector('.screen');
@@ -53,9 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         screenElement.offsetHeight; // 強制的な再描画をトリガー
         screenElement.style.display = '';
       })
-      .catch(error => {
-        console.error('Error:', error);
-      })
+      .catch(error => console.error('Error:', error))
+
       .finally(() => {
         // ロードが完了したらフラグを戻す
         isLoading = false;
@@ -63,9 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  //トリガーをビューポーに入ったかどうかを監視
+  //トリガーをビューポートに入ったかどうかを監視
+
   function isactive(entries) {
-    console.log('Intersection Observer triggered');
     if (entries[0].isIntersecting && !isLoading) {
       loadNextPost();
     }

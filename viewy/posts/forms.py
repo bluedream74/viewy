@@ -1,6 +1,11 @@
 from django import forms
 from .models import Posts, Videos
 from django.core.exceptions import ValidationError
+from moviepy.editor import VideoFileClip
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
+import tempfile
+
+
 
 class PostForm(forms.ModelForm):
     title = forms.CharField(label='タイトル', widget=forms.TextInput(attrs={'placeholder': 'タイトル'}))
@@ -50,7 +55,7 @@ class VisualForm(forms.Form):
 class VideoForm(forms.Form):
     video = forms.FileField(
         label="動画",
-        widget=forms.ClearableFileInput(),
+        widget=forms.ClearableFileInput(attrs={'accept': 'video/*'}),
         # error_messages={
         #     'invalid': '動画を選択してください。',
         #     'missing': '動画を選択してください。',
@@ -69,8 +74,27 @@ class VideoForm(forms.Form):
         main_type = video.content_type.split('/')[0]
         if not main_type == 'video':
             raise ValidationError("動画ファイルを選択してください。")
-        # if video and video.duration > 60:  # 1分を超える長さはエラー
-        #     raise ValidationError("動画は最大１分です")
+
+        # 動画の長さをチェック
+        # InMemoryUploadedFileかTemporaryUploadedFileか判別する
+        # InMemoryUploadedFileは通常VideoFileClipを利用できないから変換
+        if isinstance(video, InMemoryUploadedFile):
+        # メモリ上のファイルの場合、一時的なファイルにデータを書き出す
+            tmp_file = tempfile.NamedTemporaryFile(delete=False)  # delete=False を追加
+            for chunk in video.chunks():
+                tmp_file.write(chunk)
+            tmp_file.close()  # ファイルをクローズ
+            clip_path = tmp_file.name
+        elif isinstance(video, TemporaryUploadedFile):
+            clip_path = video.temporary_file_path()
+
+        with VideoFileClip(clip_path) as clip:
+            if clip.duration > 120:  # 動画が120秒より長い場合
+                raise ValidationError('動画の最長の長さは2分までです。')
+                
+        if isinstance(video, InMemoryUploadedFile):
+            tmp_file.close()
+
         return video
     
     

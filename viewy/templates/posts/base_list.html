@@ -30,7 +30,7 @@
     {% else %}
     {% for video in post.videos_list %}
     <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
-    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.01" value="0">
+    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
     <br>
     {% endfor %}
     {% endif %}
@@ -282,6 +282,5 @@
   <script src="{% static 'js/lazyload.js' %}"></script>
   <script src="{% static 'js/mute.js' %}"></script>
   <script src="{% static 'js/report.js' %}"></script>
-  <!-- <script src="{% static 'js/viewnext.js' %}"></script> -->
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   {% endblock %}

@@ -9,6 +9,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLoading = false; // セマフォア変数を追加
 
+ // コントロールバー関連
+  //  カスタムイベントの定義
+  const newPostEvent = new Event('newPostAdded')
+
+  const baseColor = '#ffffff';
+  const activeColor = 'rgb(41, 239, 239)';
+
+  function setupControlBar(video, seekSlider) {
+    video.addEventListener('loadedmetadata', () => {
+      seekSlider.max = video.duration;
+    });
+
+    video.addEventListener('timeupdate', () => {
+      seekSlider.value = video.currentTime;
+      const progress = (seekSlider.value / seekSlider.max) * 100;
+      seekSlider.style.background = `linear-gradient(to right, ${activeColor} ${progress}%, ${baseColor} ${progress}%)`;
+    });
+
+    seekSlider.addEventListener('input', () => {
+      video.currentTime = seekSlider.value;
+    });
+  }
+
+  function applyControlBarToNewVideos() {
+    const videos = document.querySelectorAll('.post-video:not(.initialized)');
+    const sliders = document.querySelectorAll('.custom-controlbar:not(.initialized)');
+
+    videos.forEach((video, i) => {
+      const seekSlider = sliders[i];
+      if (video && seekSlider) {
+        video.classList.add('initialized');
+        seekSlider.classList.add('initialized');
+        setupControlBar(video, seekSlider);
+      }
+    });
+  }
+
+  // 最初の投稿にコントロールバーの設定を適用
+  applyControlBarToNewVideos();
+
+  //  カスタムイベントのリッスンと処理の実行
+  document.addEventListener('newPostAdded', applyControlBarToNewVideos);
+
+  // コントロールバー終了
+
   // CSRFトークンを取得するための関数
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -48,9 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
         addHere.insertAdjacentHTML('beforebegin', html);
+
+        // 新しく追加された動画要素にコントロールバーを適用
+        document.dispatchEvent(newPostEvent);
 
         // スクロール領域を手動(力技)で更新する
         const screenElement = document.querySelector('.screen');
@@ -94,6 +141,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const topAddHere = document.querySelector('.top-space');
   
   let isTopLoading = false; // セマフォア変数を追加
+
+ // コントロールバー関連
+  //  カスタムイベントの定義
+  const newPostEvent = new Event('newPostAdded')
+
+  const baseColor = '#ffffff';
+  const activeColor = 'rgb(41, 239, 239)';
+
+  function setupControlBar(video, seekSlider) {
+    video.addEventListener('loadedmetadata', () => {
+      seekSlider.max = video.duration;
+    });
+
+    video.addEventListener('timeupdate', () => {
+      seekSlider.value = video.currentTime;
+      const progress = (seekSlider.value / seekSlider.max) * 100;
+      seekSlider.style.background = `linear-gradient(to right, ${activeColor} ${progress}%, ${baseColor} ${progress}%)`;
+    });
+
+    seekSlider.addEventListener('input', () => {
+      video.currentTime = seekSlider.value;
+    });
+  }
+
+  function applyControlBarToNewVideos() {
+    const videos = document.querySelectorAll('.post-video:not(.initialized)');
+    const sliders = document.querySelectorAll('.custom-controlbar:not(.initialized)');
+
+    videos.forEach((video, i) => {
+      const seekSlider = sliders[i];
+      if (video && seekSlider) {
+        video.classList.add('initialized');
+        seekSlider.classList.add('initialized');
+        setupControlBar(video, seekSlider);
+      }
+    });
+  }
+
+  // 最初の投稿にコントロールバーの設定を適用
+  applyControlBarToNewVideos();
+
+  //  カスタムイベントのリッスンと処理の実行
+  document.addEventListener('newPostAdded', applyControlBarToNewVideos);
+
+  // コントロールバー終了
   
   function loadPreviousPost() {
     console.log('loadPreviousPost called');
@@ -133,9 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('データの中身はこれだよ→:', data);
         const html = data.html;
         topAddHere.insertAdjacentHTML('afterend', html); 
+
+        // 新しく追加された動画要素にコントロールバーを適用
+        document.dispatchEvent(newPostEvent);
         
         // 最初の投稿までスクロール
         const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);

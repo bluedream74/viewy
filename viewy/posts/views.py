@@ -73,6 +73,10 @@ class PostListView(BasePostListView):
     
     
 class GetMorePostsView(PostListView):
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+        
     def get(self, request, *args, **kwargs):
         # セッションIDとユーザー名をログに出力
         print(f"Session ID: {request.session.session_key}")
@@ -84,13 +88,15 @@ class GetMorePostsView(PostListView):
         for post in queryset:
             post.visuals_list = post.visuals.all()
             post.videos_list = post.videos.all()
+
+        ad = self.get_ad()  # 広告を取得
+
         # 投稿をHTMLフラグメントとしてレンダリング
-        # print(queryset)
         for post in queryset:
             visuals = post.visuals_list.all()  
             videos = post.videos_list.all()
 
-        html = render_to_string('posts/get_more_posts.html', {'posts': queryset, 'user': request.user}, request=request)
+        html = render_to_string('posts/get_more_posts.html', {'posts': queryset, 'user': request.user, 'ad': ad}, request=request)
         
         # HTMLフラグメントをJSONとして返す
         return JsonResponse({'html': html}, content_type='application/json')
@@ -581,6 +587,8 @@ class MyPostView(BasePostListView):
     def get_queryset(self):
         user = self.request.user
         return super().get_queryset().filter(poster=user).order_by('-posted_at')
+    
+    
     
 class DeletePostView(View):
     def post(self, request, *args, **kwargs):
