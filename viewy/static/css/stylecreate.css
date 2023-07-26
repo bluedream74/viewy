@@ -55,6 +55,18 @@ p{
   color: white;
 }
 
+div{
+  color: white;
+}
+
+.limit{
+  color: rgb(125, 125, 125);
+  font-size: 12px;
+  width: 100%;
+  text-align: center;
+  margin-top: 4px;
+}
+
 form input{
   background-color: rgb(50, 50, 50);
   border-radius: 4px;
@@ -70,7 +82,7 @@ form input{
 }
 
 .title{
-  margin-top: 36px;
+  margin-top: 16px;
 }
 
 .title > input{

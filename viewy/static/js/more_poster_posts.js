@@ -264,6 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // トリガーがビューポートに入ったかを監視
   function isActive(entries) {
     console.log('Intersection Observer triggered');
+    console.log('isIntersecting:', entries[0].isIntersecting);
+    console.log('isLoading:', isLoading);
     if (entries[0].isIntersecting && !isLoading) {
       loadPreviousPost();
     }

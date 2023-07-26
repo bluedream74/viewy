@@ -23,6 +23,7 @@
       {% endfor %}
     </div>
     <input type="file" name="{{ video_form.video.name }}" id="{{ video_form.video.auto_id }}">
+    <div class="limit">※最大２分まで</div>
     <div class="error">{{ video_form.video.errors }}</div> 
     <!-- ここにビデオフォームのエラー表示を追加 -->
     <div class="title">

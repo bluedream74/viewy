@@ -15,7 +15,8 @@
           <div>{{ error }}</div>
       {% endfor %}
   </div>
-      {{ visual_form.as_p }}
+      {{ visual_form.as_div }}
+      <div class="limit">※最大31ページまで</div>
       <div class="title">
         {{ form.title }}
       <div class="error">{{ form.title.errors }}</div> 
@@ -47,4 +48,18 @@
     border-top: solid 2px aqua;
   }
 </style>
+<script>
+  document.getElementById('submit-button').addEventListener('click', function(event) {
+    // スピナーを表示
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('loading').style.display = 'block';
+
+    // 送信ボタンを無効化
+    event.preventDefault();
+    this.disabled = true;
+
+    // フォーム送信
+    document.getElementById('submit-form').submit();
+  });
+</script>
 {% endblock %}

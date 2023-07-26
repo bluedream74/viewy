@@ -137,13 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const topTrigger = document.querySelector('.top-load-trigger');
-  const topAddHere = document.querySelector('.top-space');
+  const trigger = document.querySelector('.top-load-trigger');
+  const addHere = document.querySelector('.top-space');
   
-  let isTopLoading = false; // セマフォア変数を追加
+  let isLoading = false; 
 
- // コントロールバー関連
-  //  カスタムイベントの定義
   const newPostEvent = new Event('newPostAdded')
 
   const baseColor = '#ffffff';
@@ -179,43 +177,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 最初の投稿にコントロールバーの設定を適用
   applyControlBarToNewVideos();
-
-  //  カスタムイベントのリッスンと処理の実行
   document.addEventListener('newPostAdded', applyControlBarToNewVideos);
-
   // コントロールバー終了
-  
+
+
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
   function loadPreviousPost() {
     console.log('loadPreviousPost called');
-    // 既にロード中の場合はリターン
-    if (isTopLoading) {
+    if (isLoading) {
       return;
     }
-    // ロード中フラグを立てる
-    isTopLoading = true;
+    isLoading = true;
     console.log('Loading previous post...');
-  
+
     const allPosts = document.querySelectorAll('.not-ad');
     const firstPostId = allPosts[0].dataset.postId;
 
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-    
-    const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
-
+    const csrftoken = getCookie('csrftoken');
+  
+    let data = new FormData();
+    data.append('first_post_id', firstPostId);
 
     fetch(`/posts/get_more_previous_favorite/`, {
       method: 'POST',
-      body: `first_post_id=${firstPostId}`,
+      body: data,
       credentials: 'include',
       headers: {
         'X-CSRFToken': csrftoken,
-        'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
       .then(response => {
@@ -226,36 +221,43 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(data => {
         const html = data.html;
-        topAddHere.insertAdjacentHTML('afterend', html); 
+        addHere.insertAdjacentHTML('afterend', html); 
 
-        // 新しく追加された動画要素にコントロールバーを適用
+        // Apply control bar to the new video elements
         document.dispatchEvent(newPostEvent);
         
-        // 最初の投稿までスクロール
+        // Scroll to the first post
         const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
         if (targetPost) {
             targetPost.scrollIntoView();
         }
       })
+      .catch(error => {
+        console.error('Error:', error);
+      })
+      .finally(() => {
+        // ロードが完了したらフラグを戻す
+        isLoading = false;
+      });
   }
   
-  function isTopActive(entries) {
-    console.log('Top Intersection Observer triggered');
-    if (entries[0].isIntersecting && !isTopLoading) {
+  function isActive(entries) {
+    console.log('Intersection Observer triggered');
+    console.log('isIntersecting:', entries[0].isIntersecting);
+    console.log('isLoading:', isLoading);
+    if (entries[0].isIntersecting && !isLoading) {
       loadPreviousPost();
     }
   }
   
-  const topOptions = {
+  const options = {
     threshold: 0.1,
     rootMargin: '0px 0px 0px 0px',
   };
   
-  const topObserver = new IntersectionObserver(isTopActive, topOptions);
+  const observer = new IntersectionObserver(isActive, options);
   
-  topObserver.observe(topTrigger);
-
-
+  observer.observe(trigger);
 });
 
 

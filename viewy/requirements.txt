@@ -7,6 +7,7 @@ colorama==0.4.6
 decorator==4.4.2
 Django==4.2.3
 django-storages==1.13.2
+django-multiupload==0.6.1
 idna==3.4
 imageio==2.31.1
 imageio-ffmpeg==0.4.8
