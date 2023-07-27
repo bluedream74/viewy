@@ -36,154 +36,169 @@
     {% endfor %}
     {% endif %}
 
-    <div class="side-bar">
+    <div id="content-{{ post.id }}" class="content">
+      <div class="side-bar">
 
-      <div class="poster">
-        <div>
-          <!-- <p>投稿者:{{post.poster.username}}</p> -->
-          <a href="{% url 'posts:poster_page' post.poster.pk %}" class="poster_pk">
-            <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
-          </a>
+        <div class="poster">
+          <div>
+            <!-- <p>投稿者:{{post.poster.username}}</p> -->
+            <a href="{% url 'posts:poster_page' post.poster.pk %}" class="poster_pk">
+              <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
+            </a>
+          </div>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="follow-poster">
+          <form data-pk="{{ post.poster.pk }}" action="{% url 'accounts:follow' pk=post.poster.pk %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="poster_pk" value="{{ post.poster.pk }}">
+            <label>
+              {% if user in post.poster.follow.all %}
+              <i class="fa-solid fa-check fa-2xs follow"></i>
+              {% else %}
+              <i class="fa-solid fa-plus fa-2xs follow"></i>
+              {% endif %}
+              <input type="checkbox" class="mini-follow-button" {% if user in post.poster.follow.all %}checked{% endif %}>
+            </label>
+          </form>
+        </div>
+        {% else %}
+        <div class="follow-poster">
+          <a class="fa-solid fa-plus fa-2xs " href="{% url 'accounts:user_login'%}" style="color: black;"></a>
+        </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <div class="favorite">
+          <form data-pk="{{ post.pk }}" action="{% url 'posts:favorite' pk=post.pk %}" method="POST"
+            class="favorite-form">
+            {% csrf_token %}
+            <input type="hidden" name="post_pk" value="{{ post.pk }}">
+            <label class="like-label">
+              {% if user in post.favorite.all %}
+              <i class="fa-solid fa-heart liked"></i>
+              {% else %}
+              <i class="fa-regular fa-heart not-liked"></i>
+              {% endif %}
+              <p class="favorite-count">{{ post.favorite_count }}</p>
+              <input type="checkbox" class="like-button" {% if user in post.favorite.all %}checked{% endif %}>
+            </label>
+          </form>
+        </div>
+        {% else %}
+        <div class="favorite">
+          <a class="fa-regular fa-heart not-liked" href="{% url 'accounts:user_login'%}"
+            style="color: rgb(255, 255, 255);"></a>
+        </div>
+        {% endif %}
+
+
+
+        <div class="mute">
+          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+            <input type="checkbox" class="mute-frag" checked>
+          </label>
+        </div>
+
+        {% if post.ismanga %}
+        <div class="space-for-hide"></div>
+        {% endif %}
+
+      </div>
+
+      <div class="captions">
+        <div class="title">{{post.title}}</div>
+        <div class="caption">{{post.caption}}</div>
+        <div class="hashtags">
+          
+          <!-- URLがあればアプリに応じたアイコンを表示する -->
+          {% if post.url %}
+          <span class="url"><a href="{{post.url}}" target="_blank">
+              {% if post.get_url_prefix == 'twitter' %}
+              <i class="fab fa-twitter"></i>
+              {% elif post.get_url_prefix == 'youtube' %}
+              <i class="fab fa-youtube"></i>
+              {% else %}
+              <i class="fas fa-link"></i>
+              {% endif %}
+            </a></span>
+          {% endif %}
+          {% if post.hashtag1 %}
+          <span class="hashtag"> <a href="{% url 'posts:hashtag' post.hashtag1 %}">#{{post.hashtag1}}</a></span>
+          {% endif %}
+          {% if post.hashtag2 %}
+          <span class="hashtag"> <a href="{% url 'posts:hashtag' post.hashtag2 %}">#{{post.hashtag2}}</a></span>
+          {% endif %}
+          {% if post.hashtag3 %}
+          <span class="hashtag"><a href="{% url 'posts:hashtag' post.hashtag3 %}">#{{post.hashtag3}}</a></span>
+          {% endif %}
+          
+
         </div>
       </div>
-      {% if user.is_authenticated %}
-      <div class="follow-poster">
-        <form data-pk="{{ post.poster.pk }}" action="{% url 'accounts:follow' pk=post.poster.pk %}" method="POST">
-          {% csrf_token %}
-          <input type="hidden" name="poster_pk" value="{{ post.poster.pk }}">
-          <label>
-            {% if user in post.poster.follow.all %}
-            <i class="fa-solid fa-check fa-2xs follow"></i>
-            {% else %}
-            <i class="fa-solid fa-plus fa-2xs follow"></i>
-            {% endif %}
-            <input type="checkbox" class="mini-follow-button" {% if user in post.poster.follow.all %}checked{% endif %}>
-          </label>
-        </form>
-      </div>
-      {% else %}
-      <div class="follow-poster">
-        <a class="fa-solid fa-plus fa-2xs " href="{% url 'accounts:user_login'%}" style="color: black;"></a>
-      </div>
-      {% endif %}
 
       {% if user.is_authenticated %}
-      <div class="favorite">
-        <form data-pk="{{ post.pk }}" action="{% url 'posts:favorite' pk=post.pk %}" method="POST"
-          class="favorite-form">
-          {% csrf_token %}
-          <input type="hidden" name="post_pk" value="{{ post.pk }}">
-          <label class="like-label">
-            {% if user in post.favorite.all %}
-            <i class="fa-solid fa-heart liked"></i>
-            {% else %}
-            <i class="fa-regular fa-heart not-liked"></i>
-            {% endif %}
-            <p class="favorite-count">{{ post.favorite_count }}</p>
-            <input type="checkbox" class="like-button" {% if user in post.favorite.all %}checked{% endif %}>
-          </label>
-        </form>
+      {% if post.reported_by_user %}
+      <div class="report already">
+        <i class="fa-solid fa-check-circle"></i>
       </div>
       {% else %}
-      <div class="favorite">
-        <a class="fa-regular fa-heart not-liked" href="{% url 'accounts:user_login'%}"
-          style="color: rgb(255, 255, 255);"></a>
+      <div class="report not-yet">
+        <i class="fa-solid fa-circle-exclamation"></i>
       </div>
       {% endif %}
-
-
-
-      <div class="mute">
-        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-          <input type="checkbox" class="mute-frag" checked>
-        </label>
+      <div class="report-menu">
+        <form data-pk="{{ post.pk }}" action="{% url 'posts:report'%}">
+          {% csrf_token %}
+          <!-- フォームの入力フィールド -->
+          <div class="report-title">不適切なコンテンツを報告する</div>
+          <div class="report-sub-title">理由をお聞かせください</div>
+  
+          <div class="selects">
+            <label>
+              <input type="radio" name="reason" value="underage"> 未成年者が出演している
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="violent"> 暴力的な内容
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="inappropriate"> 不適切な内容
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="other"> その他
+            </label>
+            <br>
+          </div>
+          
+  
+          <!-- その他のフォームフィールド -->
+  
+          <!-- 送信ボタン -->
+          <button type="submit" class="submit-report">送信</button>
+        </form>
+        <div class="formResponse message"></div>
       </div>
+  
+  
+      {% else %}
+      {% endif %}
+
     </div>
 
-    <div class="captions">
-      <div class="title">{{post.title}}</div>
-      <div class="caption">{{post.caption}}</div>
-      <div class="hashtags">
-        
-        <!-- URLがあればアプリに応じたアイコンを表示する -->
-        {% if post.url %}
-        <span class="url"><a href="{{post.url}}" target="_blank">
-            {% if post.get_url_prefix == 'twitter' %}
-            <i class="fab fa-twitter"></i>
-            {% elif post.get_url_prefix == 'youtube' %}
-            <i class="fab fa-youtube"></i>
-            {% else %}
-            <i class="fas fa-link"></i>
-            {% endif %}
-          </a></span>
-        {% endif %}
-        {% if post.hashtag1 %}
-        <span class="hashtag"> <a href="{% url 'posts:hashtag' post.hashtag1 %}">#{{post.hashtag1}}</a></span>
-        {% endif %}
-        {% if post.hashtag2 %}
-        <span class="hashtag"> <a href="{% url 'posts:hashtag' post.hashtag2 %}">#{{post.hashtag2}}</a></span>
-        {% endif %}
-        {% if post.hashtag3 %}
-        <span class="hashtag"><a href="{% url 'posts:hashtag' post.hashtag3 %}">#{{post.hashtag3}}</a></span>
-        {% endif %}
-        
-
-      </div>
-    </div>
-
-    {% if user.is_authenticated %}
-    {% if post.reported_by_user %}
-    <div class="report already">
-      <i class="fa-solid fa-check-circle"></i>
-    </div>
-    {% else %}
-    <div class="report not-yet">
-      <i class="fa-solid fa-circle-exclamation"></i>
+    {% if post.ismanga %}
+    <div class="hide">
+      <label id="hide-label-{{ post.id }}" class="fa-regular fa-square-minus">
+        <input id="hide-input-{{ post.id }}" type="checkbox" style="display: none;">
+      </label>
     </div>
     {% endif %}
-    <div class="report-menu">
-      <form data-pk="{{ post.pk }}" action="{% url 'posts:report'%}">
-        {% csrf_token %}
-        <!-- フォームの入力フィールド -->
-        <div class="report-title">不適切なコンテンツを報告する</div>
-        <div class="report-sub-title">理由をお聞かせください</div>
-
-        <div class="selects">
-          <label>
-            <input type="radio" name="reason" value="underage"> 未成年者が出演している
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="violent"> 暴力的な内容
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="inappropriate"> 不適切な内容
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="other"> その他
-          </label>
-          <br>
-        </div>
-        
-
-        <!-- その他のフォームフィールド -->
-
-        <!-- 送信ボタン -->
-        <button type="submit" class="submit-report">送信</button>
-      </form>
-      <div class="formResponse message"></div>
-    </div>
-
-
-    {% else %}
-    {% endif %}
-
 
 
 
@@ -282,6 +297,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="{% static 'js/lazyload.js' %}"></script>
   <script src="{% static 'js/mute.js' %}"></script>
+  <script src="{% static 'js/hide_contents.js' %}"></script>
   <script src="{% static 'js/report.js' %}"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   {% endblock %}

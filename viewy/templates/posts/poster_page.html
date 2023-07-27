@@ -16,7 +16,7 @@
   </div>
   <div class="info">
     <a href="{% url 'posts:poster_page' about_poster.pk %}">
-     <div>{{about_poster.username}}</div>
+     <div class="poster-name">{{about_poster.username}}</div>
     </a>
   </div>
   <div>
@@ -143,6 +143,8 @@
         </a></div>
     {% endif %}
   </div>
+{% else %}
+  <div class="mid-space"></div>
 {% endif %}
 
 

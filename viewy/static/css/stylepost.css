@@ -20,7 +20,7 @@ video::-webkit-media-controls-enclosure {
 .custom-controlbar{
   position: absolute;
   left: 0px;
-  bottom: 12px;
+  bottom: 16px;
   width: 98%;
   z-index: 100;
   appearance: none;
@@ -109,6 +109,11 @@ input[type=range]::-moz-range-thumb {
   text-shadow: gray 0px 1px 3px;
 }
 
+.space-for-hide{
+  width: 72px;
+  height: 32px;
+}
+
 .poster{
   position: relative;
   top: 18px;
@@ -180,12 +185,33 @@ input[type=range]::-moz-range-thumb {
   display: none;
 }
 
+.hide{
+  width: 72px;
+  height: 48px;
+  text-align: center;
+  line-height: 48px;
+  font-size: 18px;
+  color: white;
+  text-shadow: gray 0px 1px 3px;
+  position: absolute;
+  left: 0px;
+  bottom: 36px;
+}
+
+.content {
+  display: block;
+}
+
+.hide label {
+  cursor: pointer;
+}
+
 /* キャプション関連 */
 .captions{
   position: absolute;
   width: 80%;
   left: 64px;
-  bottom: 24px;
+  bottom: 32px;
   font-size: 15px;
   color: white;
   text-shadow: gray 1px 1px 1px;
@@ -289,7 +315,7 @@ input[type=range]::-moz-range-thumb {
 /* 報告ボタン */
 .report{
   position: absolute;
-  bottom: 18px;
+  bottom: 24px;
   right: 18px;
   color: orangered;
 }
@@ -302,7 +328,7 @@ input[type=range]::-moz-range-thumb {
 .report-menu{
   display: none;
   position: absolute;
-  bottom: 36px;
+  bottom: 48px;
   right: 16px;
   width: 320px;
   height: 256px;

@@ -692,7 +692,7 @@ class FollowListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         user = self.request.user
-        follows = Follows.objects.filter(user=user).select_related('poster')
+        follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
         follow_posters = [f.poster for f in follows]
         return follow_posters
     

@@ -136,10 +136,15 @@ class Videos(models.Model):
             original_size = img.size  # (width, height) のタプルが返されます
 
             # オリジナルの画像が1920:1440（比率が反転してるバグ画像）をもっているか確認
-            if (original_size[0] / original_size[1] == 1920 / 1440) or (original_size[0] / original_size[1] == 1920 / 1080):
-              
+            if (original_size[0] / original_size[1] == 1920 / 1440):
                 # 画像のサイズを指定した値に変更
                 new_size = (720,960)  # このサイズは適切に調整してください
+                img = img.resize(new_size)
+                
+            # オリジナルの画像が1920:1080をもっているか確認
+            elif original_size[0] / original_size[1] == 1920 / 1080:
+                # 画像のサイズを指定した値に変更
+                new_size = (540,960)
                 img = img.resize(new_size)
             
             img.save(thumbnail_io, format='JPEG')

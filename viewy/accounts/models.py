@@ -148,6 +148,11 @@ class Users(AbstractBaseUser, PermissionsMixin):
         else:
             return 'default'
         
+    def save(self, *args, **kwargs):
+        if not self.prf_img:
+            self.prf_img = '\others\S__208183299.jpg'
+        super(Users, self).save(*args, **kwargs)
+        
     def increment_report_count(self):
         self.report_count += 1
         self.save()
