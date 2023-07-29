@@ -45,7 +45,15 @@ class CheckAgeView(TemplateView):
     
 class GuideView(TemplateView):
     template_name = 'guide.html'
-  
+    
+class GuideLineView(TemplateView):
+    template_name = 'guideline.html'
+    
+class TermsView(TemplateView):
+    template_name = 'terms.html'
+
+class PolicyView(TemplateView):
+    template_name = 'policy.html'
 
 class RegistUserView(SuccessMessageMixin, CreateView):
     template_name = 'regist.html'

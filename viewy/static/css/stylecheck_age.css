@@ -69,3 +69,17 @@
   opacity: 0.6;
 }
 
+.consent{
+  font-size: 11px;
+  color: gray;
+  margin-top: 48px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.consent > span > a {
+  color: rgb(90, 229, 229);
+  text-decoration: underline;
+}
+

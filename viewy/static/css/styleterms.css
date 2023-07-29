@@ -1,0 +1,70 @@
+.screen{
+  background-color: white;
+}
+
+.main-area{
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 32px;
+  padding-bottom: 64px;
+  text-align: center;
+  color: rgb(69, 69, 69);
+}
+
+.title{
+  font-weight: bold;
+  margin-bottom: 8px;
+  margin-top: 32px;
+}
+
+.policy{
+  margin-top: 80px;
+}
+
+.scroll-area{
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 24px;
+  height: 560px;
+  border: 2px solid rgb(23, 219, 219);
+  border-radius: 8px;
+  overflow: scroll;
+}
+
+.textarea{
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.content{
+  font-size: 12px;
+  margin-bottom: 24px;
+}
+
+
+.sub-title{
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 32px;
+}
+
+.discription{
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+
+ul{
+  padding-left: 16px;
+}
+
+li{
+  list-style: decimal;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
