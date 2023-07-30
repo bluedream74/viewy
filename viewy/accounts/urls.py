@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, HomeView, UserLoginView, UserLogoutView, FollowView, EditPrfView,CheckAgeView, VerifyView, MessageListView, MessageDetailView, MessageDeleteView
+  RegistUserView, HomeView, UserLoginView, UserLogoutView, FollowView, EditPrfView,CheckAgeView, VerifyView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView
 )
 from . import views
 
@@ -17,4 +17,7 @@ urlpatterns = [
   path('messages/', MessageListView.as_view(), name='message_list'),
   path('messages/<int:pk>/', MessageDetailView.as_view(), name='message_detail'),
   path('messages/delete/<int:pk>/', MessageDeleteView.as_view(), name='message_delete'),
+  path('search_history/', views.SearchHistoryView.as_view(), name='search_history'),
+  path('save_search_history/', views.SearchHistorySaveView.as_view(), name='save_search_history'),
+  path('hide_search_histories/', views.HideSearchHistoriesView.as_view(), name='hide_search_histories'),
 ]

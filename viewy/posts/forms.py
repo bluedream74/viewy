@@ -6,6 +6,10 @@ from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUpload
 import tempfile
 from multiupload.fields import MultiFileField
 
+from moviepy.editor import VideoFileClip
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
+import tempfile
+
 
 
 class PostForm(forms.ModelForm):
@@ -103,7 +107,6 @@ class VideoForm(forms.Form):
         return video
     
     
-    
 class SearchForm(forms.Form):
     query = forms.CharField(
         max_length=100, 
@@ -111,3 +114,10 @@ class SearchForm(forms.Form):
         label=False,  # ラベルを非表示にする
         )
     
+    
+# Masterユーザー用
+class HashTagSearchForm(forms.Form):
+    hashtag1 = forms.CharField(max_length=30, label=False, widget=forms.TextInput(attrs={'placeholder': 'ハッシュタグ１'}))
+    hashtag2 = forms.CharField(max_length=30, label=False, widget=forms.TextInput(attrs={'placeholder': 'ハッシュタグ２'}))
+    hashtag3 = forms.CharField(max_length=30, label=False, widget=forms.TextInput(attrs={'placeholder': 'ハッシュタグ３'}))
+    hashtag4 = forms.CharField(max_length=30, label=False, widget=forms.TextInput(attrs={'placeholder': 'ハッシュタグ４'}))

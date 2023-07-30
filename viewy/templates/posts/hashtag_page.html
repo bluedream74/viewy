@@ -5,6 +5,17 @@
 {% endblock %}
 {% block content %}
 
+<form method="POST" action="{% url 'posts:searchpage' %}" class="search-bar" data-user="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+  {% csrf_token %}
+  <i class="fa-solid fa-magnifying-glass glass"></i>
+  {{ form }}
+  <button class="button" type="submit">検索</button>
+</form>
+
+<ul id="search-results">
+  <!-- Search results will be appended here by jQuery -->
+</ul>
+
 <div class="maintag"><span class="tag">#</span>{{hashtag}}</div>
 
 
@@ -43,7 +54,7 @@
 
 <div class="bottom-space"></div>
 
-<div class="logo">V</div>
+<!-- <div class="logo">V</div> -->
 
 
 
@@ -52,5 +63,9 @@
     border-top: solid 2px aqua;
       }
 </style>
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
+<script src="{% static 'js/auto_correct.js' %}"></script>
+{% endblock %}
 {% endblock %}

@@ -26,9 +26,12 @@ from django.views.generic.list import ListView
 
 # Local application/library specific
 from accounts.models import Follows
-from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads
+from .forms import PostForm, SearchForm, VisualForm, VideoForm, HashTagSearchForm
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, HotHashtags
 
+from collections import defaultdict
+import logging
+logger = logging.getLogger(__name__)
 
 
 class BasePostListView(ListView):
@@ -427,6 +430,7 @@ class HashtagPageView(BasePostListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['hashtag'] = self.kwargs['hashtag']
+        context['form'] = SearchForm()  # 検索フォームを追加
         return context
     
     
@@ -763,8 +767,79 @@ class SearchPageView(FormView):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form_class()
         return context
+    
+
+# おすすめハッシュタグを検索ページに表示（一般ユーザーはいきなりこっちに入る）
+class HotHashtagView(TemplateView):
+    template_name = os.path.join('posts', 'searchpage.html')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 最新のHotHashtagsのエントリを取得
+        latest_hot_hashtags = HotHashtags.objects.latest('created_at')
+
+        # HotHashtagsエントリからハッシュタグを取得してリスト化
+        hashtags = [
+            latest_hot_hashtags.hashtag1,
+            latest_hot_hashtags.hashtag2,
+            latest_hot_hashtags.hashtag3,
+            latest_hot_hashtags.hashtag4,
+        ]
+        hashtags = [hashtag for hashtag in hashtags if hashtag]  # 空のハッシュタグを除去
+
+        # ハッシュタグに基づいてクエリセットを構築
+        queries = [Q(hashtag1=hashtag) | Q(hashtag2=hashtag) | Q(hashtag3=hashtag) for hashtag in hashtags]
+        final_query = queries.pop() if queries else Q()  # クエリがない場合は空のQオブジェクトを使用
+        for query in queries:
+            final_query |= query
+
+        posts = Posts.objects.filter(final_query, is_hidden=False).prefetch_related('visuals', 'videos')
+
+        if self.request.user.is_authenticated:
+            reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
+            posts = posts.annotate(reported_by_user=Exists(reports))
+
+        # ハッシュタグに基づいて投稿を整理
+        posts_by_hashtag = defaultdict(list)
+        for post in posts:
+            post.visuals_list = post.visuals.all()
+            post.videos_list = post.videos.all()
+            for hashtag in hashtags:
+                if hashtag in [post.hashtag1, post.hashtag2, post.hashtag3]:
+                    posts_by_hashtag[hashtag].append(post)
+
+        # 新しい投稿順にソート
+        for hashtag, posts in posts_by_hashtag.items():
+            sorted_posts = sorted(posts, key=lambda x: x.posted_at, reverse=True)
+            posts_by_hashtag[hashtag] = sorted_posts[:9]  # 最新の9個だけを取得
+            
+        context['posts_by_hashtag'] = dict(posts_by_hashtag)
+        context['form'] = SearchForm()
+        return context
 
 
+
+# おすすめハッシュタグを選択(Masterユーザー専用)
+class SearchCustomView(FormView):
+    template_name = os.path.join('posts', 'searchcustom.html')
+    form_class = HashTagSearchForm
+
+    def form_valid(self, form):
+        # フォームからハッシュタグを取得
+        hashtags = {
+            'hashtag1': form.cleaned_data['hashtag1'],
+            'hashtag2': form.cleaned_data['hashtag2'],
+            'hashtag3': form.cleaned_data['hashtag3'],
+            'hashtag4': form.cleaned_data['hashtag4']
+        }
+        
+        # 新しいホットハッシュタグをデータベースに保存
+        HotHashtags.objects.create(**hashtags)
+        
+        # ユーザーを適切なページにリダイレクト
+        url = reverse('posts:hothashtag')
+        return HttpResponseRedirect(url)
 
   
 # 検索候補表示

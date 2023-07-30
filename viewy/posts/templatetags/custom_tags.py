@@ -9,3 +9,7 @@ def is_poster(user):
 @register.filter
 def is_premium(user):
     return user.groups.filter(name='Premium').exists()
+
+@register.filter
+def is_master(user):
+    return user.groups.filter(name='Master').exists()

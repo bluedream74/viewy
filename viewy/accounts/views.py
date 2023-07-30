@@ -27,6 +27,13 @@ from .utils import send_email_ses, generate_verification_code
 import os
 from .models import Users
 
+from django.http import JsonResponse
+from .models import SearchHistorys
+import json
+
+from posts.models import Posts
+
+
 class HomeView(TemplateView):
   template_name = 'home.html'
   
@@ -241,3 +248,66 @@ class MessageDeleteView(DeleteView):
         response = self.delete(*args, **kwargs)
         return HttpResponseRedirect(self.success_url)
 
+
+class SearchHistoryView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        # visible=Trueの検索履歴のみを取得
+        history = SearchHistorys.objects.filter(user=user, visible=True).order_by('-searched_at')[:5]  # 最新の5件
+        return JsonResponse({'history': list(history.values())})
+
+class SearchHistorySaveView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        query = request.POST.get("query")
+
+        # この関数でハッシュタグが実際に存在するかを確認
+        # 存在しなかったら、400を返す
+        if not self.hashtag_exists(query):
+            return JsonResponse({"status": "error", "message": "Hashtag does not exist."}, status=400)
+
+        # 既存の検索履歴を確認
+        history, created = SearchHistorys.objects.get_or_create(user=user, query=query)
+
+        if created:
+            # 新しい検索履歴の場合、初期設定を行う
+            history.search_count = 1
+            history.visible = True
+        else:
+            # すでに存在する検索履歴の場合、visibleをTrueにし、search_countを増やす
+            history.visible = True
+            history.search_count += 1
+
+        # searched_at を現在の日時に更新
+        history.searched_at = timezone.now()
+            
+        history.save()
+        return JsonResponse({"status": "success"})
+   
+    
+    def hashtag_exists(self, query):
+
+        return Posts.objects.filter(
+            Q(hashtag1=query) | 
+            Q(hashtag2=query) | 
+            Q(hashtag3=query)
+            ).exists()
+
+# ×ボタンで表示されているすべての検索履歴を非表示にする
+class HideSearchHistoriesView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            ## ユーザーの全ての検索履歴を取得
+            histories = SearchHistorys.objects.filter(user=request.user, visible=True)
+
+            if not histories.exists():
+                return JsonResponse({"status": "error: No histories found."}, status=400)
+            
+            # 取得した検索履歴を非表示にする
+            histories.update(visible=False)
+                
+            return JsonResponse({"status": "success"})
+
+        except Exception as e:
+            print(f"Exception: {str(e)}")
+            return JsonResponse({"status": f"error: {str(e)}"}, status=500)

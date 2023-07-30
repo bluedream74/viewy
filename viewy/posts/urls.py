@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, HotHashtagView, SearchCustomView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView
 )
 
 app_name = 'posts'
@@ -32,6 +32,8 @@ urlpatterns = [
    path('my_posts/', MyPostView.as_view(), name='my_posts'),   
    path('delete_post/', DeletePostView.as_view(), name='delete_post'),
    path('searchpage/', SearchPageView.as_view(), name='searchpage'),
+   path('hothashtag/', HotHashtagView.as_view(), name='hothashtag'),
+   path('searchcustom/', SearchCustomView.as_view(), name='searchcustom'),
    path('auto_correct/', AutoCorrectView.as_view(), name='auto_correct'),
    path('be_partner/', BePartnerPageView.as_view(), name='be_partner'),
    path('view_count/', ViewCountView.as_view(), name='view_count'),

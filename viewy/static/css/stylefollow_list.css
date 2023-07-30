@@ -68,6 +68,10 @@
 
 .poster-name{
   color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 128px;
   /* text-decoration: underline;
   text-decoration-color: aqua; */
 }

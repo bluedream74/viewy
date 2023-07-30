@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
 
+from django.conf import settings
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -160,6 +161,16 @@ class Users(AbstractBaseUser, PermissionsMixin):
     def get_report_count(self):
         return self.report_count
 
+
+class SearchHistorys(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='search_histories')
+    query = models.CharField(max_length=255)
+    searched_at = models.DateTimeField(auto_now_add=True)
+    visible = models.BooleanField(default=True)
+    search_count = models.PositiveIntegerField(default=1)  
+
+    def __str__(self):
+        return f"{self.user.username} - {self.query} - {self.searched_at}"
     
     
 class Follows(models.Model):

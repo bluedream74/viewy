@@ -195,3 +195,14 @@ class Report(models.Model):
         
     def __str__(self):
       return self.post.poster.username + ' : ' + self.post.title + ' : ' + self.reason
+    
+    
+class HotHashtags(models.Model):
+    hashtag1 = models.CharField(max_length=50, blank=True)
+    hashtag2 = models.CharField(max_length=50, blank=True)
+    hashtag3 = models.CharField(max_length=50, blank=True)
+    hashtag4 = models.CharField(max_length=50, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hothashtags'

@@ -65,17 +65,139 @@ ul{
   margin-right: auto;
   padding-left: 16px;
   position: fixed;
+  z-index: 1000;
 }
 
-.back-logo{
-  margin-top: 100px;
-  color: rgb(31, 31, 31);
-  width: 100%;
-  font-size: 160px;
-  text-align: center;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+#search-history a {
+  margin-right: 10px; /* 各ハッシュタグの間隔を調整 */
+  display: inline-block; /* 横並びにするため */
+  text-decoration: none; /* アンダーラインを除去 */
+  color: rgb(255, 255, 255); /* テキストカラー */
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.411);
+  border-radius: 4px;
+  height: 24px;
+  line-height: 24px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#search-history a:active {
+  color: gray;
+}
+
+
+/* おすすめ投稿表示用のスタイル */
+.list-area{
+  width: 372px;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column; 
+  align-content: flex-start;
+  padding-left: 10px; 
+  z-index: 10; 
+}
+
+.posts-container { 
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto; 
+}
+
+.hashtag-mark{
+  color: aqua;
+}
+
+.hashtag-title {
+  font-size: 18px;
+  margin-top: 24px;
+  margin-bottom: 4px;
+  margin-left: 8px;
+  color:#ffffff;
   font-weight: bold;
-  text-shadow: rgb(45, 45, 45) 4px 4px 1px;
+}
+
+
+.post{
+  height: 146px;
+  min-height: 146px;
+  width: 92px;
+  min-width: 92px;
+  position: relative;
+  overflow: hidden;
+  margin-right: 4px;
+}
+
+
+.manga-page, .post-video{
+  height: 146px;
+  min-height: 146px;
+  width: 92px;
+  min-width: 92px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.manga-icon{
+  position: absolute;
+  top: 6px;
+  left: 4px;
+  color:  aqua;
+  font-size: 13px;
+  text-shadow: gray 0px 1px 2px;
+}
+
+
+.title{
+  color: white;
+  text-shadow: 1px 0px 2px rgb(0, 0, 0);
+  position: absolute;
+  bottom: 2px;
+  left: 8px;
+  font-size: 12px;
+}
+
+.bottom-space {
+  height: 100px;
+  width: auto;
+}
+
+
+/* 指紋アイコンの調整 */
+.more-posts-indicator {
+  width: 100%;
+  height: 100%;
+  color: white;
+  text-align: center;
+  background-color: #333333; 
+  border-radius: 4px;
+}
+
+.fa-angles-right{
+  margin-top: 56px;
+}
+
+.more-text {
+  color: white;
+  margin-top: 8px; /* 必要に応じて上部のマージンを調整 */
+  font-size: 13px; /* テキストのサイズを調整します */
+}
+
+/* 検索履歴など */
+#search-history-wrapper {
+  position: relative;
+  display: flex;
+  margin-top: 10px;
+}
+
+#search-history {
+  flex: 1;  /* 残りのスペースを全て取るように設定 */
+  max-width: calc(100% - 40px);  /* 40pxは×ボタンとのスペースを考慮。必要に応じて調整 */
+}
+
+.fa-solid.fa-xmark {
+  margin-left: 10px;
+  color: #ffffff;
 }
 
 /* スマートフォン用のスタイル */
@@ -86,6 +208,7 @@ ul{
     width: 90%;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 36px;
   }
 
   .search-bar > input{
@@ -100,8 +223,14 @@ ul{
 
   .button{
     color: white;
-    margin-top: 4px;
+    text-align: center;
+    font-size: 12px;
+    height: 36px;
+    width: 64px;
     padding: 0px;
+    border-radius: 50px;
+    border: none;
+    background-color: rgb(48, 230, 230);
   }
 
   .back-logo{

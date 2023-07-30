@@ -1,0 +1,60 @@
+.mid-logo{
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 48px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding-top: 48px;
+  /* text-decoration: underline aqua; */
+  text-shadow: aqua 1px 1px 2px;
+}
+
+.sub-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 0px;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  color: white;
+}
+
+
+.control{
+  padding-top: 32px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  width: 80%;
+}
+
+p{
+  color: white;
+}
+
+input{
+  background-color: rgb(50, 50, 50);
+  border-radius: 50px;
+  padding-left: 8px;
+  padding-right: 8px;
+  color: white;
+  font-weight: bold;
+  width: 80%;
+  height: 24px;
+  margin-bottom: 8px;
+}
+
+button{
+  color: white;
+  margin-top: 24px;
+  height: 32px;
+  width: 64px;
+  text-decoration: none; /* テキスト装飾の削除 */
+  display: inline-block;
+  background-color: rgb(38, 230, 230);
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+}
