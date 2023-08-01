@@ -6,6 +6,9 @@ import os
 # Third-party libraries
 from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
 from moviepy.editor import VideoFileClip
 from tempfile import NamedTemporaryFile
 from PIL import Image
@@ -13,48 +16,55 @@ from PIL import Image
 # Local application/library specific
 from accounts.models import Users
 
-
 class Posts(models.Model):
-  poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')  # Update the reference to Users model
-  ismanga = models.BooleanField(default=False)
-  title = models.CharField(max_length=50)
-  hashtag1 = models.CharField(max_length=30)
-  hashtag2 = models.CharField(max_length=30)
-  hashtag3 = models.CharField(max_length=30)
-  caption = models.CharField(max_length=300)
-  url = models.URLField(max_length=200, null=True)  # 新しいURLフィールド
-  posted_at = models.DateTimeField(auto_now_add=True)
-  favorite = models.ManyToManyField(Users, through='Favorites',related_name='favorite_posts')
-  favorite_count = models.PositiveIntegerField(default=0)
-  viewed_by = models.ManyToManyField(Users, related_name='viewed_posts')
-  report_count = models.PositiveIntegerField(default=0)  # 報告回数のフィールド
-  is_hidden = models.BooleanField(default=False)  # 非表示フラグ
-  
-  class Meta:
-    db_table = 'posts'
-    
-  def __str__(self):
-    return self.title
-  
-  def get_url_prefix(self):
-    if self.url.startswith('https://twitter.com'):
-        return 'twitter'
-    elif self.url.startswith('https://www.youtube.com'):
-        return 'youtube'
-    # 追加の条件分岐を行うこともできます
-    # 他のアプリのURLに対してもアイコンを設定する場合は、適宜追加してください
-    else:
-        return 'default'
-      
-  def increment_report_count(self):
-        self.report_count += 1
-        self.save()
-        if self.report_count > 5:
-          self.is_hidden = True
-        self.save()
+    poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')
+    ismanga = models.BooleanField(default=False)
+    title = models.CharField(max_length=50)
+    hashtag1 = models.CharField(max_length=30)
+    hashtag2 = models.CharField(max_length=30)
+    hashtag3 = models.CharField(max_length=30)
+    caption = models.CharField(max_length=300)
+    url = models.URLField(max_length=200, null=True)
+    posted_at = models.DateTimeField(auto_now_add=True)
+    favorite = models.ManyToManyField(Users, through='Favorites', related_name='favorite_posts')
+    favorite_count = models.PositiveIntegerField(default=0)
+    views_count = models.PositiveIntegerField(default=0)
+    viewed_by = models.ManyToManyField(Users, related_name='viewed_posts')
+    report_count = models.PositiveIntegerField(default=0)
+    is_hidden = models.BooleanField(default=False)
+    favorite_rate = models.FloatField(default=0.0)  # 追加
 
-  def get_report_count(self):
-        return self.report_count
+    class Meta:
+      db_table = 'posts'
+
+    def __str__(self):
+      return self.title
+
+    def get_url_prefix(self):
+      if self.url.startswith('https://twitter.com'):
+          return 'twitter'
+      elif self.url.startswith('https://www.youtube.com'):
+          return 'youtube'
+      else:
+          return 'default'
+        
+    def increment_report_count(self):
+      self.report_count += 1
+      self.save()
+      if self.report_count > 5:
+        self.is_hidden = True
+      self.save()
+
+    def get_report_count(self):
+      return self.report_count
+
+    def update_favorite_rate(self):
+        if self.views_count == 0:
+            self.favorite_rate = 0
+        else:
+            self.favorite_rate = (self.favorite_count / self.views_count) * 100
+        self.save()  # Here, we are saving the favorite_rate right after updating it
+
 
 class Ads(models.Model):
     title = models.CharField(max_length=50)
@@ -64,9 +74,19 @@ class Ads(models.Model):
     caption = models.CharField(max_length=300, default='')
     url = models.URLField(max_length=200, null=True, blank=True)
     ad_tag = models.TextField()  # 広告タグを保存するフィールドを追加
+    views_count = models.PositiveIntegerField(default=0)
+    click_count = models.PositiveIntegerField(default=0)
+    click_rate = models.FloatField(default=0.0)  # 追加
     
     class Meta:
         db_table = 'ads'
+        
+    def update_click_rate(self):
+      if self.views_count == 0:
+          self.click_rate = 0
+      else:
+          self.click_rate = (self.click_count / self.views_count) * 100
+      self.save()  # Here, we are saving the favorite_rate right after updating it
 
 class Visuals(models.Model):
   # related_name引数を使用して、PostオブジェクトからVisualオブジェクトにアクセスするための逆参照名を設定している

@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, HotHashtagView, SearchCustomView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, HotHashtagView, SearchCustomView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdViewCount, AdClickCount
+
 )
 
 app_name = 'posts'
@@ -36,6 +37,9 @@ urlpatterns = [
    path('searchcustom/', SearchCustomView.as_view(), name='searchcustom'),
    path('auto_correct/', AutoCorrectView.as_view(), name='auto_correct'),
    path('be_partner/', BePartnerPageView.as_view(), name='be_partner'),
+   path('increment_view_count/<int:post_id>', IncrementViewCount.as_view(), name='increment_view_count'),
+   path('ad_view_count/<int:ad_id>', AdViewCount.as_view(), name='ad_view_count'),
+   path('ad_click_count/<int:ad_id>', AdClickCount.as_view(), name='ad_click_count'),
    path('view_count/', ViewCountView.as_view(), name='view_count'),
    path('report/', SubmitReportView.as_view(), name='report'),
 ]

@@ -3,7 +3,6 @@
   color: white;
   width: 100%;
   display: flex;
-  height: 24px;
   padding-top: 24px;
 }
 
@@ -14,6 +13,7 @@
   color: white;
   margin-right: 4px;
   margin-bottom: 8px;
+  height: 24px;
 }
 
 .glass{
@@ -59,17 +59,18 @@ li:last-child{
 
 ul{
   background-color: aliceblue;
-  width: 70%;
+  width: 280px;
   border-radius: 4px;
-  margin-left: 48px;
+  margin-top: 0px;
+  margin-left: 16px;
   margin-right: auto;
   padding-left: 16px;
-  position: fixed;
+  position: absolute;
   z-index: 1000;
 }
 
 #search-history a {
-  margin-right: 10px; /* 各ハッシュタグの間隔を調整 */
+  margin-left: 8px; /* 各ハッシュタグの間隔を調整 */
   display: inline-block; /* 横並びにするため */
   text-decoration: none; /* アンダーラインを除去 */
   color: rgb(255, 255, 255); /* テキストカラー */
@@ -78,6 +79,7 @@ ul{
   border-radius: 4px;
   height: 24px;
   line-height: 24px;
+  margin-bottom: 8px;
   padding-left: 4px;
   padding-right: 4px;
 }
@@ -236,4 +238,22 @@ ul{
   .back-logo{
     margin-top: 160px;
   }
+
+  .result-list{
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  ul{
+    position: absolute;
+    top: 96px;
+    width: 70%;
+    z-index: 1000;
+    margin-left: 0px;
+  }
+
+  li{
+    z-index: 1000;
+  };
  }

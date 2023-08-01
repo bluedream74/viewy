@@ -50,6 +50,9 @@ class CheckAgeView(TemplateView):
         response.set_cookie('is_over_18', 'true', max_age=60*60*24*3)  # このクッキーは３日間続く
         return response
     
+class AboutViewyView(TemplateView):
+    template_name = 'about_viewy.html'    
+
 class GuideView(TemplateView):
     template_name = 'guide.html'
     

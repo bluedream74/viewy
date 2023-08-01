@@ -187,8 +187,8 @@
   </div>
   {% endfor %}
 
-  <div class="post ad">
-    <div class="ad-page">
+  <div class="post ad" data-ad-id="{{ ad.id }}">
+    <div class="ad-page" data-ad-id="{{ ad.id }}">
       {{ ad.ad_tag|safe }}
     </div>
 

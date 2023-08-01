@@ -680,6 +680,7 @@ class FavoriteView(LoginRequiredMixin, View):
             if not created:
                 favorite.delete()
             post.favorite_count = post.favorite.count()
+            post.update_favorite_rate()  # 更新
             post.save()
             data = {'favorite_count': post.favorite_count}
         except Exception as e:
@@ -868,6 +869,56 @@ class AutoCorrectView(View):
 # パートナー催促ページ
 class BePartnerPageView(TemplateView):
     template_name = os.path.join('posts', 'be_partner.html')
+    
+
+# 単純な視聴回数カウント
+class IncrementViewCount(View):
+    def post(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+
+        try:
+            post = Posts.objects.get(id=post_id)
+        except Posts.DoesNotExist:
+            return JsonResponse({'error': 'Post not found'}, status=404)
+
+        post.views_count += 1
+        post.update_favorite_rate()  # 更新
+        post.save()
+
+        return JsonResponse({'message': 'Successfully incremented view count'})
+    
+
+class AdViewCount(View):
+    def post(self, request, *args, **kwargs):
+        ad_id = kwargs.get('ad_id')
+
+        try:
+            ad = Ads.objects.get(id=ad_id)
+        except Ads.DoesNotExist:
+            return JsonResponse({'error': 'Ad not found'}, status=404)
+
+        ad.views_count += 1
+        ad.update_click_rate()  # 更新
+        ad.save()
+
+        return JsonResponse({'message': 'Successfully ad view count'})
+
+
+class AdClickCount(View):
+    def post(self, request, *args, **kwargs):
+        ad_id = kwargs.get('ad_id')
+
+        try:
+            ad = Ads.objects.get(id=ad_id)
+        except Ads.DoesNotExist:
+            return JsonResponse({'error': 'Ad not found'}, status=404)
+
+        ad.click_count += 1
+        ad.update_click_rate()  # 更新
+        ad.save()
+
+        return JsonResponse({'message': 'Successfully ad click count'})
+
 
 
 # 報告処理

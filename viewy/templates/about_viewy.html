@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewer</title>
+  <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styleabout_viewy.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<body>
+
+  <div class="screen">
+    <div class="header">
+      <img class="main-img" src="\media\others\メイン.png" alt="">
+      <div class="catch-right">スマホ専用の、</div>
+      <div class="catch-left">大人のサイト。</div>
+        <!-- <div class="sub-catch">縦長の動画とマンガが楽しめる<br>
+          新登場のアダルトサイト</div> -->
+    </div>
+    <div class="main">
+
+      <div class="sub-catch">動画とマンガが投稿可能</div>
+
+      <div class="be-partner1"><a href="{% url 'guide' %}">パートナーになる</a></div>
+      <div class="warning">18歳未満の方のご利用はお断りしています。</div>
+
+      <hr>
+
+      <div class="part">
+        <div class="item">
+          <div class="title right">あなたはもっと<br>知られるべき</div>
+          <div class="content right"><span>最大２分の動画と31ページのマンガ</span>という、コンパクトな投稿が次々視聴可能なシステムは、あなたの存在とその魅力を多くの人々に伝えてくれます。</div>
+        </div>
+        <img class="sub-img" src="\media\others\ホーム.png" alt="">
+      </div>
+
+      <div class="part">
+        <img class="sub-img" src="\media\others\いいね.png" alt="">
+        <div class="item">
+
+          <div class="title">獲得したファンは逃さない</div>
+          <div class="content">各投稿とご自身のプロフィールには、
+            <span>数多くのアプリやファンサイトのリンクが掲載可能</span>です。Viewyなしでは出会わなかった新たなファンを、ファンクラブや本編購入のサイトに滑らかに誘導し、あなたが稼ぐチャンスをもっと増やしましょう。</div>
+        </div>
+
+      </div>
+
+      <div class="part">
+        <div class="item">
+          <div class="title right">刺激の邪魔はさせない</div>
+          <div class="content right"><span>邪魔な広告やあやしい広告は一切ありません。</span>ユーザーは快適かつ集中してあなたの作品を楽しめます</div>
+        </div>
+        <img class="sub-img" src="\media\others\プロフ.png" alt="">
+      </div>
+
+      <div class="part">
+        <img class="sub-img" src="\media\others\ホーム.png" alt="">
+        <div class="item">
+          <div class="title">アダルトサイトにこそ秩序を</div>
+          <div class="content"><span>投稿はパートナーのみが可能です。</span>安心して使える快適なサイトを目指しています。</div>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div class="sub-catch">９月中の登録で永久に有効な特権を手にしよう</div>
+
+      <div class="be-partner2"><a href="{% url 'guide' %}">パートナーになる</a></div>
+
+      <div class="warning">18歳未満の方のご利用はお断りしています。</div>
+
+    </div>
+  </div>
+
+{% block script %}
+
+{% endblock %}
+
+</body>
+</html>

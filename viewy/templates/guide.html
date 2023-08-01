@@ -15,12 +15,89 @@
   {% block static %}
   {% endblock %}
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-C5HF2NBPEV');
+</script>
 <body>
   <div class="screen">
-    <div class="title">ようこそViewyへ！</div>
+
+    <div class="theme">パートナー登録までの流れ</div>
+
     <img class="art" src="\media\guide\おちゃんこ.png" alt="">
 
-    <div class="content">
+    <div class="main">
+
+      <div class="step">
+        <div class="header">
+          <div class="step-logo">1</div>
+          <div class="title">ユーザー登録</div>
+        </div>
+        <div class="content">
+          <img class="img" src="\media\guide\スクリーンショット (155).png" alt="">
+          <div class="description"><p>このページの一番下のボタンからユーザー登録に進みます。</p>
+          <p>ユーザーネーム、メースアドレス、パスワードを入力してください。</p></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="header">
+          <div class="step-logo">2
+          </div>
+          <div class="title">認証コード入力</div>
+        </div>
+        <div class="content">
+          <div class="description">
+            <p>入力したメールアドレス宛に５桁の認証コードが届きます。</p>
+            <p>（迷惑メールに入っている可能性もあります。届かない場合は確認してみてください。）</p>
+            <p>そのコードを入力して認証してください。</p>
+          </div>
+          <img class="img" src="\media\guide\スクリーンショット (156).png" alt="">
+        </div>
+      </div>
+      
+
+      <div class="step">
+        <div class="header">
+          <div class="step-logo">3
+          </div>
+          <div class="title">DMにユーザーネーム送信【重要】</div>
+        </div>
+        <div class="content">
+          <img class="img" src="\media\guide\スクリーンショット (159).png" alt="">
+          <div class="description"><p>ログインが完了したら、<br><span>招待が届いたDMに、自身が作成したアカウントのユーザーネーム（またはメールアドレス）を送信してください。</span></p>
+            <p>２４時間以内にパートナーモードに切り替わります。</p></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="header">
+          <div class="step-logo">4
+          </div>
+          <div class="title">動画やマンガを投稿しよう</div>
+        </div>
+        <div class="content">
+          <div class="description">
+            <p>切り替わったら、いよいよ投稿ができます！</p>
+            <p>素敵な投稿お待ちしております！</p>
+          </div>
+          <img class="img" src="\media\guide\スクリーンショット (158).png" alt="">
+        </div>
+      </div>
+
+
+      <a class="button" href="{% url 'accounts:regist'%}">パートナー登録へ</a>
+
+    </div>
+    <!-- <div class="title">ようこそViewyへ！</div>
+    <img class="art" src="\media\guide\おちゃんこ.png" alt=""> -->
+
+    <!-- <div class="content">
       <p>これからパートナーになるまでの手順を簡単に説明します！</p>
       <p>このページの一番下のボタンからユーザー登録に進み、ユーザーネーム、メースアドレス、パスワードを入力してください。</p>
       <img class="image" src="\media\guide\スクリーンショット (155).png" alt="">
@@ -36,9 +113,9 @@
       <p>切り替わったら、いよいよ投稿ができます！</p>
       <img class="image" src="\media\guide\スクリーンショット (158).png" alt="">
       <p>素敵な投稿お待ちしております！</p>
-    </div>
+    </div> -->
 
-    <a class="button" href="{% url 'accounts:regist'%}">パートナー登録へ</a>
+
   </div>
 
 

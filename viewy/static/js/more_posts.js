@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         screenElement.style.display = 'none';
         screenElement.offsetHeight; // 強制的な再描画をトリガー
         screenElement.style.display = '';
+        
       })
       .catch(error => console.error('Error:', error))
 
