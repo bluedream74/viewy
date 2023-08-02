@@ -749,6 +749,11 @@ class MyAccountView(TemplateView):
         is_poster = user.groups.filter(name='Poster').exists()
         context['is_poster'] = is_poster
         return context
+    
+class SettingView(TemplateView):
+    template_name = os.path.join('posts', 'setting.html')
+    
+
   
 # 投稿ページ
 class AddPostView(TemplateView):

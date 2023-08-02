@@ -1,5 +1,3 @@
-'use strict'
-
 $(document).ready(function() {
   // 初期状態をミュートかどうか確認して設定
   var isMuted = $('video').prop('muted');

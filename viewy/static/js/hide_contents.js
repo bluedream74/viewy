@@ -1,28 +1,33 @@
 'use strict'
 
 document.addEventListener('click', function(e) {
-  // Check if the clicked element is a hide label
-  if (e.target.tagName === 'LABEL' && e.target.id.startsWith('hide-label-')) {
-    var postId = e.target.id.split('-')[2];  // Get the post id from the label id
-    toggleSidebarAndCaptions(postId);
+  if (e.target.classList.contains('hide-label')) {
+    var content = e.target.previousElementSibling;
+
+    if (!content) {
+      console.error('Content element not found');
+      return;
+    }
+
+    toggleSidebarAndCaptions(content, e.target);
   }
 });
 
-function toggleSidebarAndCaptions(postId) {
-  var content = document.getElementById('content-' + postId);
-  var label = document.getElementById('hide-label-' + postId);
-  var input = document.getElementById('hide-input-' + postId);
+function toggleSidebarAndCaptions(content, label) {
+  var input = label.querySelector('.hide-input');
 
-  // Check if the content is currently visible
-  if (content.style.display !== 'none') {
-    // If the content is visible, hide it and change the label
+  if (!input) {
+    console.error('Input element not found');
+    return;
+  }
+
+  if (getComputedStyle(content).display !== 'none') {
     content.style.display = 'none';
-    label.className = 'fa-regular fa-square-plus';
+    label.classList.replace('fa-square-minus', 'fa-square-plus');
     input.checked = true;
   } else {
-    // If the content is hidden, show it and change the label back
     content.style.display = 'block';
-    label.className = 'fa-regular fa-square-minus';
+    label.classList.replace('fa-square-plus', 'fa-square-minus');
     input.checked = false;
   }
 }

@@ -168,10 +168,12 @@
    </div>  
 
   {% endif %}
-  <!-- <div class="setting">
-    <i class="fa-solid fa-gear fa-lg mini-logo"></i>設定
+
+  <div class="setting">
+    <a href="{% url 'posts:setting'%}"><i class="fa-solid fa-gear fa-lg mini-logo"></i>設定</a>
    <div class="line"></div>
-  </div>  -->
+  </div> 
+
   <div class="logout">
     <a href="{% url 'accounts:user_logout'%}"><i class="fa-solid fa-arrow-right-from-bracket fa-lg mini-logo"></i>ログアウト</a>
    <div class="line"></div>

@@ -1,0 +1,74 @@
+.big-logo{
+  color: orangered;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 64px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding-top: 24px;
+  /* text-decoration: underline aqua; */
+  text-shadow: red 1px 1px 2px;
+}
+
+.sub-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: orangered;
+  color: white;
+  margin-bottom: 48px;
+}
+
+
+.delete-user{
+  background-color: white;
+  border-radius: 8px;
+  text-align: center;
+  padding: 32px 8px 32px 8px;
+}
+
+.guide{
+  margin-bottom: 32px;
+  font-size: 12px;
+}
+
+.delete-form{
+  margin-bottom: 32px;
+}
+
+input{
+  border: none;
+  border: red 1px solid;
+  height: 24px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.delete-button{
+  background-color: orangered;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  padding: 4px 8px;
+}
+
+.cancel-button{
+  background-color: rgb(168, 168, 168);
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 16px;
+}
+
+.error{
+  font-size: 12px;
+  margin-top: 16px;
+  color: orangered;
+}

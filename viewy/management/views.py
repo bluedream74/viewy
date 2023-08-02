@@ -37,17 +37,17 @@ class Account(SuperUserCheck, TemplateView):
         context = super().get_context_data(**kwargs)
         
         # 登録されている総ユーザー数
-        total_users = Users.objects.count()
+        total_users = Users.objects.filter(is_active=True).count()
         context['total_users'] = total_users
         
         # 今日登録されたユーザー数
         today = timezone.now().date()
-        new_users = Users.objects.filter(verification_code_generated_at__date=today).count()
+        new_users = Users.objects.filter(verification_code_generated_at__date=today, is_active=True).count()
         context['new_users'] = new_users
         
         # 過去7日間で一度でもいいねを押したユーザー数
-        three_days_ago = timezone.now() - timedelta(days=7)
-        active_users = Users.objects.filter(favorite_received__created_at__gte=three_days_ago).distinct().count()
+        seven_days_ago = timezone.now() - timedelta(days=7)
+        active_users = Users.objects.filter(favorite_received__created_at__gte=seven_days_ago).distinct().count()
         context['active_users'] = active_users
         
         # アクティブ率

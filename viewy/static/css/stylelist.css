@@ -385,6 +385,7 @@ video::-webkit-media-controls-enclosure {
   color: white;
   margin-right: 4px;
   margin-bottom: 8px;
+  height: 24px;
 }
 
 .glass {

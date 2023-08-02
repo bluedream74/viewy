@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView,  DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdViewCount, AdClickCount
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdViewCount, AdClickCount
 
 )
 
@@ -25,13 +25,12 @@ urlpatterns = [
    path('back/', BackView.as_view(), name='back'),
    path('poster_post_list/<int:pk>/', PosterPostListView.as_view(), name='poster_post_list'),
    path('get_more_poster_posts/',  GetMorePosterPostsView.as_view(), name='get_more_poster_posts'),
-   path('get_more_previous_poster_posts/',  GetMorePreviousPosterPostsView.as_view(), name='get_more_previous_poster_posts'),
-   # path('user_logout/', UserLogoutView.as_view(), name='user_logout'),
-   path('my_account/', MyAccountView.as_view(), name='my_account'),   
+   path('get_more_previous_poster_posts/',  GetMorePreviousPosterPostsView.as_view(), name='get_more_previous_poster_posts'), 
    path('add_post/', AddPostView.as_view(), name='add_post'),
    path('my_account/', MyAccountView.as_view(), name='my_account'),   
    path('my_posts/', MyPostView.as_view(), name='my_posts'),   
    path('delete_post/', DeletePostView.as_view(), name='delete_post'),
+   path('setting/', SettingView.as_view(), name='setting'),   
    path('searchpage/', SearchPageView.as_view(), name='searchpage'),
    path('hothashtag/', HotHashtagView.as_view(), name='hothashtag'),
    path('auto_correct/', AutoCorrectView.as_view(), name='auto_correct'),

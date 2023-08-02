@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/styledelete_user.css' %}">
+{% endblock %}
+{%block content%}
+
+<div class="big-logo">V</div>
+<div class="sub-title">アカウントを削除する</div>
+
+<div class="delete-user">
+  <div class="guide">本当に削除しますか？<br>削除する場合は<br>以下のフォームに「削除」と入力してください。</div>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="delete-form">
+      <input type="text" name="delete_confirmation" placeholder="「削除」と入力"/>
+      <button class="delete-button" type="submit">削除を実行</button>
+    </div>
+    <button class="cancel-button" type="submit" name="cancel">キャンセル</button>
+  </form>
+  {% for message in messages %}
+    <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+  {% endfor %}
+</div>
+
+
+{%endblock%}

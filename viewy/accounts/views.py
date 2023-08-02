@@ -132,7 +132,7 @@ class VerifyView(FormView):
                 record.total_users = total_users
                 record.save()
         else:
-            form.add_error(None, 'Invalid verification code.')
+            messages.error(self.request, '認証コードが正しくありません。もう一度入力してください。')
             return self.form_invalid(form)
 
         return super().form_valid(form)  # Call parent form_valid
@@ -324,3 +324,27 @@ class HideSearchHistoriesView(LoginRequiredMixin, View):
         except Exception as e:
             print(f"Exception: {str(e)}")
             return JsonResponse({"status": f"error: {str(e)}"}, status=500)
+        
+        
+class DeleteUserView(LoginRequiredMixin, DeleteView):
+    model = Users
+    success_url = reverse_lazy('accounts:user_login')
+    template_name = os.path.join('posts', 'delete_user.html')
+    
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Your account has been deleted successfully.')
+        return super().delete(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        delete_confirmation = request.POST.get('delete_confirmation', '')
+        if "cancel" in request.POST:
+            url = reverse_lazy('posts:setting')
+            return redirect(url)
+        elif delete_confirmation.lower() == '削除':
+            return super().post(request, *args, **kwargs)
+        else:
+            messages.error(request, '削除するためには"削除"と入力する必要があります。')
+            return redirect('accounts:delete_user')

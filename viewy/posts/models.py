@@ -51,7 +51,7 @@ class Posts(models.Model):
     def increment_report_count(self):
       self.report_count += 1
       self.save()
-      if self.report_count > 5:
+      if self.report_count > 50:    # 通報が５０回より多くなったら非表示にする
         self.is_hidden = True
       self.save()
 

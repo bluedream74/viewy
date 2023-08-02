@@ -37,7 +37,7 @@
   {% endfor %}
   {% endif %}
 
-  <div id="content-{{ post.id }}" class="content">
+  <div class="content">
     <div class="side-bar">
 
       <div class="poster">
@@ -194,11 +194,10 @@
   </div>
 
   {% if post.ismanga %}
-  <div class="hide">
-    <label id="hide-label-{{ post.id }}" class="fa-regular fa-square-minus">
-      <input id="hide-input-{{ post.id }}" type="checkbox" style="display: none;">
-    </label>
-  </div>
+  <label class="hide-label fa-regular fa-square-minus hide">
+    <input class="hide-input" type="checkbox" style="display: none;">
+  </label>
+
   {% endif %}
 
 

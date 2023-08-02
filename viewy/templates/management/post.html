@@ -11,6 +11,7 @@
     <tr>
         <th>タイトル</th>
         <th>投稿者</th>
+        <th>投稿日時</th>
         <th>視聴回数</th>
         <th>いいね数</th>
         <th>いいね率</th>
@@ -20,6 +21,7 @@
     <tr>
         <td>{{ post.title }}</td>
         <td>{{ post.poster.username }}</td>
+        <td style="font-size: 13px;">{{ post.posted_at }}</td>
         <td>{{ post.views_count }}</td>
         <td>{{ post.favorite_count }}</td>
         <td>{{ post.favorite_rate|floatformat:3 }}%</td>

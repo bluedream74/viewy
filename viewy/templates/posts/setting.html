@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylemy_account.css' %}">
+{% endblock %}
+{%block content%}
+
+<div class="header">設定</div>
+
+<div class="menu-list">
+
+  <div>
+    <a href="{% url 'accounts:delete_user'%}" class="delete-account"><i class="fa-solid fa-user-slash fa-lg mini-logo"></i>アカウントを削除する</a>
+   <div class="line"></div>
+  </div>
+
+</div>
+
+
+{%endblock%}

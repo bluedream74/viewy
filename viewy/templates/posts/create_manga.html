@@ -7,8 +7,13 @@
 <div class="mid-logo">V</div>
 <div class="sub-title">マンガを投稿する</div>
 
+
+<div id="spinner"></div>
+<div id="loading">投稿中です<br>この処理は数分かかる場合があります<br>投稿ボタンは一度だけ押してください</div>
+
+
 <div class="forms">
-  <form method="POST" enctype="multipart/form-data">
+  <form method="POST" enctype="multipart/form-data" id="submit-form">
     {% csrf_token %}
     <div class="error">
       {% for error in form.non_field_errors %}
@@ -37,7 +42,7 @@
         {{ form.caption }}
         <div class="error">{{ form.caption.errors }}</div>
       </div>
-    <input class="button" type="submit" value="投稿する">
+    <input class="button" type="submit" value="投稿する" id="submit-button">
   </form>
 </div>
 
