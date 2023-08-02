@@ -1,0 +1,32 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="block">
+    <table>
+        <tr>
+            <th>タイトル</th>
+            <th>URL</th>
+            <th>いいね数</th>
+            <th>クリック数</th>
+            <th>クリック率</th>
+        </tr>
+        {% for ad in ads %}
+        <tr>
+            <td>{{ ad.title }}</td>
+            <td><a href="{{ ad.url }}">{{ ad.url }}</a></td>
+            <td>{{ ad.views_count }}</td>
+            <td>{{ ad.click_count }}</td>
+            <td class="rate">{{ ad.click_rate }}%</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+{% endblock %}

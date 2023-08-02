@@ -26,7 +26,7 @@ from django.views.generic.list import ListView
 
 # Local application/library specific
 from accounts.models import Follows
-from .forms import PostForm, SearchForm, VisualForm, VideoForm, HashTagSearchForm
+from .forms import PostForm, SearchForm, VisualForm, VideoForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, HotHashtags
 
 from collections import defaultdict
@@ -821,26 +821,7 @@ class HotHashtagView(TemplateView):
 
 
 
-# おすすめハッシュタグを選択(Masterユーザー専用)
-class SearchCustomView(FormView):
-    template_name = os.path.join('posts', 'searchcustom.html')
-    form_class = HashTagSearchForm
 
-    def form_valid(self, form):
-        # フォームからハッシュタグを取得
-        hashtags = {
-            'hashtag1': form.cleaned_data['hashtag1'],
-            'hashtag2': form.cleaned_data['hashtag2'],
-            'hashtag3': form.cleaned_data['hashtag3'],
-            'hashtag4': form.cleaned_data['hashtag4']
-        }
-        
-        # 新しいホットハッシュタグをデータベースに保存
-        HotHashtags.objects.create(**hashtags)
-        
-        # ユーザーを適切なページにリダイレクト
-        url = reverse('posts:hothashtag')
-        return HttpResponseRedirect(url)
 
   
 # 検索候補表示

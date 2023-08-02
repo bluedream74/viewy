@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')), 
     path('posts/', include('posts.urls')),
+    path('management/', include('management.urls')),
     path('about_viewy/', AboutViewyView.as_view(), name='about_viewy'),
     path('guide/', GuideView.as_view(), name='guide'),
     path('guideline/', GuideLineView.as_view(), name='guideline'),

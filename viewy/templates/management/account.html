@@ -1,0 +1,67 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/management/account.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="block">
+
+  <div class="table">
+
+    <div class="item">
+      <div class="title">総アカウント数</div>
+      <div class="value">{{ total_users }}人</div>
+    </div>
+
+    <div class="item">
+      <div class="title">アクティブユーザー数</div>
+      <div class="value">{{ active_users }}人</div>
+    </div>
+
+    <div class="item">
+      <div class="title">アクティブ率</div>
+      <div class="value">{{ active_rate }}％</div>
+    </div>
+
+    <div class="item">
+      <div class="title">本日の新規ユーザー数</div>
+      <div class="value">{{ new_users }}人</div>
+    </div>
+
+  </div>
+
+  <div class="chart">
+  <canvas id="userStatsChart"></canvas>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  fetch('/management/get_user_stats/')
+      .then(response => response.json())
+      .then(userStatsList => {
+          console.log('Received data:', userStatsList);
+          const userStats = userStatsList.map(userStat => userStat.fields);
+          console.log('Parsed data:', userStats);
+          const ctx = document.getElementById('userStatsChart').getContext('2d');
+          new Chart(ctx, {
+              type: 'line',
+              data: {
+                  labels: userStats.map(stat => stat.date),
+                  datasets: [{
+                      label: '総ユーザー数',
+                      data: userStats.map(stat => stat.total_users),
+                      borderColor: 'rgb(75, 192, 192)',
+                      tension: 0
+                  }]
+              },
+          });
+      });
+</script>
+
+{% endblock %}

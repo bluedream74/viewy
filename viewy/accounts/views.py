@@ -21,6 +21,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm
 from .models import Follows, Messages, Users
+from management.models import UserStats
 from .utils import send_email_ses, generate_verification_code
 
 
@@ -121,6 +122,15 @@ class VerifyView(FormView):
 
             # Add a success message
             messages.success(self.request, 'ユーザー登録が完了しました')
+
+            # Record total users
+            today = timezone.now().date()
+            total_users = Users.objects.count()
+            record, created = UserStats.objects.get_or_create(date=today)
+
+            if not created:
+                record.total_users = total_users
+                record.save()
         else:
             form.add_error(None, 'Invalid verification code.')
             return self.form_invalid(form)

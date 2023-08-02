@@ -1,0 +1,45 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="block">
+  <table>
+      <thead>
+          <tr>
+              <th>Hashtag</th>
+              <th>Count</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for hashtag, count in hashtags %}
+              <tr>
+                  <td>{{ hashtag }}</td>
+                  <td>{{ count }}</td>
+              </tr>
+          {% empty %}
+              <tr>
+                  <td colspan="2">No hashtags found.</td>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div>
+
+<div class="block">
+  <div>おすすめハッシュタグ</div>
+  <form method="post">
+    {% csrf_token %}
+    <p class="hashtag-form">#{{ form.hashtag1 }}</p>
+    <p class="hashtag-form">#{{ form.hashtag2 }}</p>
+    <p class="hashtag-form">#{{ form.hashtag3 }}</p>
+    <p class="hashtag-form">#{{ form.hashtag4 }}</p>
+    <input class="submit" type="submit" value="設定">
+</form>
+</div>
+
+
+{% endblock %}

@@ -6,3 +6,4 @@ from .models import (
 admin.site.register(
   [Users,Follows,Messages,SearchHistorys]
 )
+

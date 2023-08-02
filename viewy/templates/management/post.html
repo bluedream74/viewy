@@ -1,0 +1,34 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="block">
+  <table>
+    <tr>
+        <th>タイトル</th>
+        <th>投稿者</th>
+        <th>視聴回数</th>
+        <th>いいね数</th>
+        <th>いいね率</th>
+        <th>報告数</th>
+    </tr>
+    {% for post in posts %}
+    <tr>
+        <td>{{ post.title }}</td>
+        <td>{{ post.poster.username }}</td>
+        <td>{{ post.views_count }}</td>
+        <td>{{ post.favorite_count }}</td>
+        <td>{{ post.favorite_rate|floatformat:3 }}%</td>
+        <td>{{ post.report_count}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+
+
+{% endblock %}

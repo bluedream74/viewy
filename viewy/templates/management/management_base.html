@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/management/management_base.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  <title>Viewy-management</title>
+  {% block head %}
+  {% endblock %}
+</head>
+<body>
+
+  <div class="screen">
+    <div class="side-menu">
+      <a href="{% url 'management:account'%}"><i class="fa-solid fa-user menu-icon"></i>アカウント</a>
+      <a href="{% url 'management:partner'%}"><i class="fa-solid fa-user-tie menu-icon"></i>パートナー</a>
+      <a href="{% url 'management:post'%}"><i class="fa-solid fa-photo-film menu-icon"></i>投稿</a>
+      <a href="{% url 'management:hashtag'%}"><i class="fa-solid fa-hashtag menu-icon"></i></i>ハッシュタグ</a>
+      <a href="{% url 'management:ad'%}"><i class="fa-solid fa-money-bill menu-icon"></i>広告</a>
+    </div>
+
+    <div class="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+  </div>
+</body>
+</html>

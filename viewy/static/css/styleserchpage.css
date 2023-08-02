@@ -91,12 +91,11 @@ ul{
 
 /* おすすめ投稿表示用のスタイル */
 .list-area{
-  width: 372px;
+  width: 340px;
   min-height: 560px;
   display: flex;
   flex-direction: column; 
   align-content: flex-start;
-  padding-left: 10px; 
   z-index: 10; 
 }
 
@@ -104,6 +103,8 @@ ul{
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto; 
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .hashtag-mark{
@@ -210,7 +211,7 @@ ul{
     width: 90%;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 36px;
+    margin-bottom: 8px;
   }
 
   .search-bar > input{
@@ -218,9 +219,24 @@ ul{
     margin-right: 8px;
   }
 
+  #search-history{
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .fa-solid.fa-xmark{
+    margin-left: 0px;
+    margin-right: 16px;
+  }
+  
+
   .glass{
     margin-right: 12px;
     margin-top: 4px;
+  }
+
+  .list-area{
+    width: 100%;
   }
 
   .button{
