@@ -107,6 +107,7 @@ hr{
   width: 176px;
   margin-left: 16px;
   margin-right: 16px;
+  border-radius: 8px;
 
 }
 
@@ -114,7 +115,7 @@ hr{
   width: 176px;
   margin-right: 16px;
   margin-left: 16px;
-
+  border-radius: 8px;
 }
 
 

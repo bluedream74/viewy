@@ -13,11 +13,11 @@ import tempfile
 
 
 class PostForm(forms.ModelForm):
-    title = forms.CharField(label='タイトル', widget=forms.TextInput(attrs={'placeholder': 'タイトル'}))
-    hashtag1 = forms.CharField(required=False, label='ハッシュタグ１', widget=forms.TextInput(attrs={'placeholder': 'タグ'}), error_messages={'max_length': "ハッシュタグは最大30字までです。",})
-    hashtag2 = forms.CharField(required=False, label='ハッシュタグ２', widget=forms.TextInput(attrs={'placeholder': ''}), error_messages={'max_length': "ハッシュタグは最大30字までです。",})
-    hashtag3 = forms.CharField(required=False, label='ハッシュタグ３', widget=forms.TextInput(attrs={'placeholder': ''}), error_messages={'max_length': "ハッシュタグは最大30字までです。",})
-    caption = forms.CharField(required=False, label='説明欄', widget=forms.Textarea(attrs={'placeholder': 'キャプション'}))
+    title = forms.CharField(label='タイトル', widget=forms.TextInput(attrs={'placeholder': 'タイトル（最大30字）'}))
+    hashtag1 = forms.CharField(required=False, label='ハッシュタグ１', widget=forms.TextInput(attrs={'placeholder': '（最大20字）'}), error_messages={'max_length': "ハッシュタグは最大30字までです。",})
+    hashtag2 = forms.CharField(required=False, label='ハッシュタグ２', widget=forms.TextInput(attrs={'placeholder': ''}), error_messages={'max_length': "ハッシュタグは最大20字までです。",})
+    hashtag3 = forms.CharField(required=False, label='ハッシュタグ３', widget=forms.TextInput(attrs={'placeholder': ''}), error_messages={'max_length': "ハッシュタグは最大20字までです。",})
+    caption = forms.CharField(required=False, label='説明欄', widget=forms.Textarea(attrs={'placeholder': 'キャプション（最大100字）'}))
     url = forms.URLField(required=False, widget=forms.TextInput(attrs={'placeholder': 'URL'}), error_messages={'invalid': '有効なURLを入力してください。',})
 
     class Meta:

@@ -118,7 +118,7 @@ class UserLoginForm(forms.Form):
   
   
 class EditPrfForm(forms.ModelForm):
-    caption = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'キャプション', 'rows': 8}), initial='',     error_messages={'max_length': "キャプションは最大300字までです。",})
+    caption = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'キャプション(最大120字)', 'rows': 8}), initial='',     error_messages={'max_length': "キャプションは最大120字までです。",})
     url1 = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'URL'}), initial='',  error_messages={'invalid': "正しいURLを入力してください。"})
     url2 = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'URL'}), initial='',  error_messages={'invalid': "正しいURLを入力してください。"})
     url3 = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'URL'}), initial='',  error_messages={'invalid': "正しいURLを入力してください。"})

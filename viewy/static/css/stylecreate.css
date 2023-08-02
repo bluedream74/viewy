@@ -239,7 +239,7 @@ form input{
     border: aqua 1.5px solid;
     border-bottom:  rgb(0, 153, 153) 1.5px solid;
     border-right:  rgb(0, 182, 182) 1.5px solid;
-    border-radius: 4px;
+    border-radius: 50px;
     height: 36px;
     width: 80px;
   }

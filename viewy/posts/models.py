@@ -19,12 +19,12 @@ from accounts.models import Users
 class Posts(models.Model):
     poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')
     ismanga = models.BooleanField(default=False)
-    title = models.CharField(max_length=50)
-    hashtag1 = models.CharField(max_length=30)
-    hashtag2 = models.CharField(max_length=30)
-    hashtag3 = models.CharField(max_length=30)
-    caption = models.CharField(max_length=300)
-    url = models.URLField(max_length=200, null=True)
+    title = models.CharField(max_length=30)
+    hashtag1 = models.CharField(max_length=20)
+    hashtag2 = models.CharField(max_length=20)
+    hashtag3 = models.CharField(max_length=20)
+    caption = models.CharField(max_length=100)
+    url = models.URLField(max_length=80, null=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     favorite = models.ManyToManyField(Users, through='Favorites', related_name='favorite_posts')
     favorite_count = models.PositiveIntegerField(default=0)
@@ -67,11 +67,11 @@ class Posts(models.Model):
 
 
 class Ads(models.Model):
-    title = models.CharField(max_length=50)
-    hashtag1 = models.CharField(max_length=30, default='')
-    hashtag2 = models.CharField(max_length=30, default='')
-    hashtag3 = models.CharField(max_length=30, default='')
-    caption = models.CharField(max_length=300, default='')
+    title = models.CharField(max_length=20)
+    hashtag1 = models.CharField(max_length=20, default='')
+    hashtag2 = models.CharField(max_length=20, default='')
+    hashtag3 = models.CharField(max_length=20, default='')
+    caption = models.CharField(max_length=100, default='')
     url = models.URLField(max_length=200, null=True, blank=True)
     ad_tag = models.TextField()  # 広告タグを保存するフィールドを追加
     views_count = models.PositiveIntegerField(default=0)
