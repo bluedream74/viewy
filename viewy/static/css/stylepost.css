@@ -500,6 +500,10 @@ input[type="radio"]:checked {
     z-index: 2;
   }
 
+  .back{
+    z-index: 3;
+  }
+
 
   .likeorfollow{
     width: 100%;

@@ -125,7 +125,9 @@ class VerifyView(FormView):
 
             # Record total users
             today = timezone.now().date()
-            total_users = Users.objects.count()
+            total_users = Users.objects.filter(is_active=True).count()
+            print(f'Total users: {total_users}')  # <--- This line is new
+
             record, created = UserStats.objects.get_or_create(date=today)
 
             if not created:

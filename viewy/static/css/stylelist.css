@@ -41,6 +41,23 @@
   color: white;
 }
 
+.visiter-follow{
+  width: 96px;
+  height: 32px;
+  font-size: 12px;
+  border-radius: 50px;
+  background-color: aqua;
+  text-align: center;
+  line-height: 32px;
+  padding: 2px 4px;
+  margin-left: 16px;
+  margin-top: 44px;
+  position: absolute;
+  left: 88px;
+  color: white;
+  font-weight: bold;
+}
+
 .followed{
   width: 96px;
   height: 32px;
@@ -54,6 +71,7 @@
   margin-top: 44px;
   position: absolute;
   left: 88px;
+  font-weight: bold;
 }
 
 .follow{
@@ -69,6 +87,7 @@
   margin-top: 44px;
   position: absolute;
   left: 88px;
+  font-weight: bold;
 }
 
 .follow-button{

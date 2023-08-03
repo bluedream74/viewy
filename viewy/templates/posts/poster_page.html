@@ -25,10 +25,15 @@
       <div class="counter">フォロワー <span class="follow-count">{{ about_poster.follow_count }}</span>人</div>
       <input type="hidden" name="poster_pk" value="{{ about_poster.pk }}">
       <label>
-        {% if user in about_poster.follow.all %}
-        <div class="followed">フォロー中</div>
+
+        {% if user.is_authenticated %}
+          {% if user in about_poster.follow.all %}
+              <div class="followed">フォロー中</div>
+          {% else %}
+              <div class="follow">フォローする</div>
+          {% endif %}
         {% else %}
-        <div class="follow">フォローする</div>
+            <a href="{% url 'accounts:user_login' %}" class="visiter-follow">フォローする</a>
         {% endif %}
 
         <input 
