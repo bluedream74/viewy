@@ -44,31 +44,18 @@ input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
 }
 
-
-/* Firefox
-input[type=range]::-moz-range-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  animate: 0.2s;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071A9;
-  border-radius: 1.3px;
-  border: 0.2px solid #010101;
+.post-video{
+  position: absolute; /* 位置を絶対位置に設定 */
+  top: 50%; /* 親要素から上に50%の位置に配置 */
+  transform: translateY(-50%); /* 要素自体をY軸に-50%移動させて中心に配置 */
+  width: 100%; /* 親要素に対して100%の幅 */
+  height: auto; /* 高さを自動で調整 */
+  object-fit: cover; /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
+  pointer-events: auto;
 }
 
-input[type=range]::-moz-range-thumb {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 18px;
-  width: 18px;
-  border-radius: 25px;
-  background: #ffffff;
-  cursor: pointer;
-} */
 
-
-.manga-page, .post-video{
+.manga-page{
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -89,6 +76,15 @@ input[type=range]::-moz-range-thumb {
 
 .manga-page{
   scroll-snap-align: start;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.page-content{
+  max-height: calc(var(--vh, 1vh) * 100 - 42px);
+  max-width: 350px;
+  object-fit: contain;
 }
 
 /* サイドバー関連 */
@@ -500,6 +496,10 @@ input[type="radio"]:checked {
     z-index: 999;
   }
 
+  .logo{
+    z-index: 2;
+  }
+
 
   .likeorfollow{
     width: 100%;
@@ -511,11 +511,31 @@ input[type="radio"]:checked {
    height: calc(var(--vh, 1vh) * 100 - 42px);
   }
 
-  .manga-page{
-    min-width: 100vw;
-    object-fit: fill;
+  .post-video{
+    position: absolute; /* 位置を絶対位置に設定 */
+    top: 50%; /* 親要素から上に50%の位置に配置 */
+    transform: translateY(-50%); /* 要素自体をY軸に-50%移動させて中心に配置 */
+    width: 100%; /* 親要素に対して100%の幅 */
+    height: auto; /* 高さを自動で調整 */
+    object-fit: cover; /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
+    pointer-events: auto;
+    z-index: 1;
   }
- 
+
+  .manga-page{
+    scroll-snap-align: start;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 100vw;
+  }
+  
+  .page-content{
+    max-height: calc(var(--vh, 1vh) * 100 - 42px);
+    max-width: 100vw;
+    object-fit: contain;
+  }
+
   video{
     z-index: -999;
   }

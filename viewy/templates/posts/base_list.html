@@ -25,7 +25,9 @@
   {% if post.ismanga %}
   <div class="book">
     {% for visual in post.visuals_list %}
-    <img class="manga-page" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+    <div class="manga-page">
+      <img class="page-content" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+    </div>
     {% endfor %}
   </div>
   {% else %}
