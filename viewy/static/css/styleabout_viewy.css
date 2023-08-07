@@ -135,6 +135,8 @@ hr{
 
 .content{
   font-size: 12px;
+  padding: 8px 0px;
+  line-height: 24px;
   color: rgb(69, 69, 69);
 }
 
