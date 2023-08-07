@@ -5,6 +5,10 @@ FROM python:3.9
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# 本番環境でproduction.pyを使用するように指定
+ENV DJANGO_SETTINGS_MODULE=viewy.settings.production
+
+
 # Set work directory in the container to /helloproject
 WORKDIR /viewy
 

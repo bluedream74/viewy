@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView
-from . import settings
+# from . import settings
+from django.conf import settings
 from django.contrib.staticfiles.urls import static
 
 urlpatterns = [

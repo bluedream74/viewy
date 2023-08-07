@@ -5,4 +5,5 @@ __pycache__
 *.py[cod]
 *_test.py
 settings.py
+settings
 viewyenv/

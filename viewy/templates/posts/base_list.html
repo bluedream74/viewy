@@ -26,7 +26,7 @@
   <div class="book">
     {% for visual in post.visuals_list %}
     <div class="manga-page">
-      <img class="page-content" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
     </div>
     {% endfor %}
   </div>
