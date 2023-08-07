@@ -10,6 +10,11 @@
 </div>
 <div class="sub-title">ログイン</div>
 <div class="describe">いいね・フォロー機能を使用するには<br>無料ログインが必要です。</div>
+{% if is_special_user %}
+<div class="invited-message">
+    DMに作成したユーザーネームを送ってください
+</div>
+{% endif %}
 <form method="POST">
   {% csrf_token %}
   {% if messages %}
