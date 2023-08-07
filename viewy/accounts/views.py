@@ -97,6 +97,39 @@ class RegistUserView(SuccessMessageMixin, CreateView):
 
         return response
 
+class InvitedRegistUserView(SuccessMessageMixin, CreateView):
+    template_name = 'regist.html'  
+    form_class = RegistForm
+    success_url = reverse_lazy('accounts:verify')  
+
+    def form_valid(self, form):
+        # Save form
+        response = super().form_valid(form)
+        
+        # 特別なユーザーであることをセッションに保存
+        self.request.session['is_special_user'] = True
+        
+        # Generate a new verification code
+        form.instance.verification_code = generate_verification_code()
+        form.instance.verification_code_generated_at = timezone.now()
+        form.instance.save()
+
+        # Save email to session
+        self.request.session['email'] = form.instance.email
+
+        # Send verification code to user's email using Amazon SES
+        mail_sent = send_email_ses(
+            to_email=form.instance.email,
+            subject='あなたの特別な認証コードです',
+            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は５分です。'
+        )
+        
+        if mail_sent:
+            print("Special mail sent successfully!")
+        else:
+            print("There was an error while sending the special mail.")
+
+        return response
   
 
 class VerifyView(FormView):
@@ -145,6 +178,15 @@ class VerifyView(FormView):
 class UserLoginView(FormView):
     template_name = 'user_login.html'
     form_class = UserLoginForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Check if user is special user
+        if self.request.session.get('is_special_user', False):
+            context['is_special_user'] = True
+
+        return context
 
     def form_valid(self, form):
         user = Users.objects.get(email=form.cleaned_data['email'])
