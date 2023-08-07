@@ -52,6 +52,13 @@ textarea{
   text-shadow: aqua 1px 1px 2px;
 }
 
+.logo-img{
+  width: 36px;
+  position: fixed;
+  top: 16px;
+  padding-left: 298px;
+}
+
 .tab-bar{
   width: 350px;
   height: 42px;
