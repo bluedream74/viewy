@@ -1,4 +1,4 @@
-.big-logo{
+/* .big-logo{
   color: white;
   font-family: Georgia, 'Times New Roman', Times, serif;
   font-size: 64px;
@@ -6,8 +6,15 @@
   width: 100%;
   text-align: center;
   padding-top: 24px;
-  /* text-decoration: underline aqua; */
+  text-decoration: underline aqua;
   text-shadow: aqua 1px 1px 2px;
+} */
+
+.big-logo{
+  width: 64px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 24px;
 }
 
 .sub-title{

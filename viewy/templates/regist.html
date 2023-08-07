@@ -4,7 +4,10 @@
 <link rel="stylesheet" href="{% static 'css/stylewhite_regist_login.css' %}">
 {% endblock %}
 {%block content%}
-<div class="mid-logo">V</div>
+<!-- <div class="mid-logo">V</div> -->
+<div class="mid-logo" >
+  <img src="\media\others\viewy-logo-colored.png" alt="">
+</div>
 <div class="sub-title">ユーザー登録</div>
 <form method="POST">
   {% csrf_token %}

@@ -1,4 +1,4 @@
-.mid-logo{
+/* .mid-logo{
   color: white;
   font-family: Georgia, 'Times New Roman', Times, serif;
   font-size: 48px;
@@ -7,6 +7,17 @@
   text-align: center;
   padding-top: 16px;
   text-shadow: aqua 1px 1px 2px;
+} */
+
+.mid-logo{
+  width: 100%;
+  text-align: center;
+  padding-top: 32px;
+  margin-bottom: 8px;
+}
+
+.mid-logo > img{
+  width: 56px;
 }
 
 .sub-title{
