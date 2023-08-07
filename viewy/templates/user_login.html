@@ -11,10 +11,19 @@
 <div class="sub-title">ログイン</div>
 <div class="describe">いいね・フォロー機能を使用するには<br>無料ログインが必要です。</div>
 {% if is_special_user %}
-<div class="invited-message">
-    DMに作成したユーザーネームを送ってください
+
+<div class="invited-message" id="invitedMessage">
+  <div class="message-content">
+    ユーザー登録ありがとうございます！<br>
+    <span class="important">作成したユーザーネームを招待メッセージが届いた<br>
+      メールかDMに送信してください。</span><br>
+    ２４時間以内にパートナーに登録させていただきます。
+  </div>
+    <button class="ok-button" id="okButton">OK</button>
 </div>
+
 {% endif %}
+
 <form method="POST">
   {% csrf_token %}
   {% if messages %}
@@ -51,6 +60,10 @@
   <span>このサイトを利用することにより、<br>あなたは当サイトの<a href="{% url 'terms'%}">利用規約</a>および<a href="{% url 'policy'%}">プライバシーポリシー</a>に<br>同意したことになります。</span>
 </div>
 
-
+<script>
+  document.getElementById('okButton').addEventListener('click', function() {
+  document.getElementById('invitedMessage').style.display = 'none';
+});
+</script>
 {%endblock%}
 
