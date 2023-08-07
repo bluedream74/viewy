@@ -106,12 +106,17 @@ class InvitedRegistUserView(SuccessMessageMixin, CreateView):
         # Save form
         response = super().form_valid(form)
         
-        # 特別なユーザーであることをセッションに保存
+        # 招待されたユーザーであることをセッションに保存
         self.request.session['is_special_user'] = True
         
         # Generate a new verification code
         form.instance.verification_code = generate_verification_code()
         form.instance.verification_code_generated_at = timezone.now()
+        
+
+        #poster_waiterをTrueにする
+        form.instance.poster_waiter = True
+
         form.instance.save()
 
         # Save email to session
@@ -213,6 +218,12 @@ class UserLoginView(FormView):
 
         # If user is active, log in and redirect to postlist
         login(self.request, user)
+
+        # セッションからInvitedのフラグを削除
+        if 'is_special_user' in self.request.session:
+            del self.request.session['is_special_user']
+            print(is_special_user)
+
         return redirect('posts:postlist')
 
 

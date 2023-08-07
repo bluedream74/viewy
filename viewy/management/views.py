@@ -8,7 +8,7 @@ from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q,
                               Sum, Value, When)
 from django.db.models.functions import Concat, TruncMonth
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -20,6 +20,8 @@ from accounts.models import Users
 from posts.models import Ads, Favorites, HotHashtags, Posts
 from .forms import HashTagSearchForm
 from .models import UserStats
+
+from django.contrib.auth.models import Group
 
 
 class SuperUserCheck(UserPassesTestMixin):
@@ -186,3 +188,32 @@ class Ad(SuperUserCheck, View):
             ad.update_click_rate()  # 各広告のクリック率を更新
         context = {'ads': ads}
         return render(request, self.template_name, context)
+
+class PosterWaiterList(ListView):
+    template_name = 'management/poster_waiter_list.html'
+    context_object_name = 'users'
+    model = Users
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(poster_waiter=True)
+        # usernameでの検索
+        username = self.request.GET.get('username')
+        if username:
+            queryset = queryset.filter(Q(username__icontains=username))
+        
+        return queryset
+
+class AddToPosterGroup(View):
+    def get(self, request, user_id):
+        user = get_object_or_404(Users, id=user_id)
+        user.poster_waiter= False
+
+        # ポスターグループを取得し、存在しない場合は作成
+        group, created = Group.objects.get_or_create(name='Poster')
+
+        # ユーザーをポスターグループに追加
+        group.user_set.add(user)
+
+        user.save()
+        return redirect('management:poster_waiter_list') # ここでリダイレクト先を指定します

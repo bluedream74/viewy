@@ -42,6 +42,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     url5 = models.URLField(max_length=200, null=True, blank=True) 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    poster_waiter = models.BooleanField(default=False)
     view_post_count = models.PositiveIntegerField(default=0)  # 視聴ポスト数のフィールド
     follow = models.ManyToManyField('self', through='Follows', symmetrical=False, related_name='followed_by')
     follow_count = models.PositiveIntegerField(default=0)
