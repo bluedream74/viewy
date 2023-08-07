@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylelist.css' %}">
+{% endblock %}
+{% block content %}
+<!-- <p>あなたがフォローしたアカウントのリストです</p> -->
+
+<div class="top-space2"></div>
+
+<div class="list-area">
+  {% if posts %}
+  {% for post in posts %}
+  <a class="post" href="{% url 'posts:follow_list' %}?post_id={{ post.id }}">
+    {% if post.ismanga %}
+    <div class="book">
+      {% for visual in post.visuals_list|slice:":1" %}
+      <img class="manga-page" src="{{ visual.visual.url }}" alt="{{ post.title }}" loading="lazy">
+      {% endfor %}
+      <i class="fa-solid fa-book-open manga-icon"></i>
+    </div>
+
+    {% else %}
+    {% for video in post.videos_list %}
+    {% if video.thumbnail %}
+    <img class="post-video" src="{{ video.thumbnail.url }}" alt="" loading="lazy">
+    {% else %}
+    <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+    {% endif %}
+    {% endfor %}
+
+    {% endif %}
+
+    <div class="title">
+      <div>{{post.title}}</div>
+      <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
+    </div>
+
+  </a>
+  {% endfor %}
+  {% else %}
+  <div class="no-content">フォローした投稿はありません</div>
+  {% endif %}
+</div>
+
+<!-- いいねリストとフォローリストを選ぶ -->
+<div class="likeorfollow">
+  <a class="tolike" id="tomypage" href="{% url 'posts:favorite_page'%}">いいね</a>
+  <a class="tofollow" id="tofollowlist" href="{% url 'posts:follow_page'%}">フォロー</a>
+</div>
+
+<div class="bottom-space"></div>
+
+<div class="logo">V</div>
+
+<style>
+  .like {
+    border-top: solid 2px aqua;
+  }
+
+  .tolike {
+    text-decoration: none;
+    text-shadow: 0px 0px 3px gray;
+  }
+
+  .tofollow {
+    text-decoration: underline;
+    text-decoration-color: aqua;
+    text-decoration-line: 2px;
+    text-shadow: 0px 0px 3px gray;
+  }
+</style>
+<script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+<script src="{% static 'js/lazyload.js' %}"></script>
+{% endblock %}

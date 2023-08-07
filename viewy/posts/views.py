@@ -690,17 +690,65 @@ class FavoriteView(LoginRequiredMixin, View):
 
 
 # フォロー
-class FollowListView(LoginRequiredMixin, ListView):
+class FollowPageView(BasePostListView):
+    template_name = os.path.join('posts', 'follow_page.html')
+    
+    def get_queryset(self):
+        user = self.request.user
+        follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
+        followed_user_ids = [follow.poster.id for follow in follows]
+        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
+        queryset = sorted(queryset, key=lambda post: followed_user_ids.index(post.poster.id))
+        return queryset
+
+class FollowListView(BasePostListView):
+    template_name = os.path.join('posts', 'follow_list.html')
+    
+    def get_queryset(self):
+        user = self.request.user
+        selected_user_id = int(self.request.GET.get('user_id', 0))
+
+        # ユーザーがフォローした全ての投稿者を取得
+        follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
+        followed_user_ids = [follow.poster.id for follow in follows]
+        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
+
+        selected_user_ids = followed_user_ids  # 全フォロー投稿者のIDをデフォルトに設定
+
+        # 選択した投稿者がリストの中にあるか確認
+        if selected_user_id in followed_user_ids:
+            # 選択した投稿者のインデックスを見つける
+            selected_user_index = followed_user_ids.index(selected_user_id)
+            # 選択した投稿者とそれに続く投稿者のIDを取得
+            selected_user_ids = followed_user_ids[selected_user_index:selected_user_index+9]
+            # querysetが選択した投稿者とそれに続く投稿者のみを含むようにフィルタリング
+            queryset = [post for post in queryset if post.poster.id in selected_user_ids]
+
+        # querysetがselected_user_idsの順番と同じになるようにソート
+        queryset = sorted(queryset, key=lambda post: selected_user_ids.index(post.poster.id))
+
+        return queryset
+
+    def get_ad(self):
+        # ランダムに1つの広告を取得
+        return Ads.objects.order_by('?').first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # contextに広告を追加
+        context['ad'] = self.get_ad()
+        return context
+    
+class MyFollowListView(LoginRequiredMixin, ListView):
     model = Follows
     context_object_name = 'follow_posters'
-    template_name = os.path.join('posts', 'follow_list.html')
+    template_name = os.path.join('posts', 'my_follow_list.html')
     
     def get_queryset(self):
         user = self.request.user
         follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
         follow_posters = [f.poster for f in follows]
         return follow_posters
-    
     
 # 戻るボタン（未完成）
 class BackView(RedirectView):

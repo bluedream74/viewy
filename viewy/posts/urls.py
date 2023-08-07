@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, BackView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdViewCount, AdClickCount
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, FollowPageView, BackView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdViewCount, AdClickCount, MyFollowListView
 
 )
 
@@ -21,14 +21,16 @@ urlpatterns = [
    path('hashtag_list/<str:hashtag>/', HashtagPostListView.as_view(), name='hashtag_list'),
    path('get_more_hashtag/', GetMoreHashtagView.as_view(), name='get_more_hashtag'),
    path('get_more_previous_hashtag/', GetMorePreviousHashtagView.as_view(), name='get_more_previous_hashtag'),
-   path('follow_list/', FollowListView.as_view(), name='follow_list'),
+   path('posts/follow_list/', FollowListView.as_view(), name='follow_list'),
+   path('follow_page/', FollowPageView.as_view(), name='follow_page'),
    path('back/', BackView.as_view(), name='back'),
    path('poster_post_list/<int:pk>/', PosterPostListView.as_view(), name='poster_post_list'),
    path('get_more_poster_posts/',  GetMorePosterPostsView.as_view(), name='get_more_poster_posts'),
    path('get_more_previous_poster_posts/',  GetMorePreviousPosterPostsView.as_view(), name='get_more_previous_poster_posts'), 
    path('add_post/', AddPostView.as_view(), name='add_post'),
    path('my_account/', MyAccountView.as_view(), name='my_account'),   
-   path('my_posts/', MyPostView.as_view(), name='my_posts'),   
+   path('my_posts/', MyPostView.as_view(), name='my_posts'), 
+   path('my_follow_list/', MyFollowListView.as_view(), name='my_follow_list'),
    path('delete_post/', DeletePostView.as_view(), name='delete_post'),
    path('setting/', SettingView.as_view(), name='setting'),   
    path('searchpage/', SearchPageView.as_view(), name='searchpage'),
