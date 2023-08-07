@@ -701,31 +701,36 @@ class FollowPageView(BasePostListView):
         queryset = sorted(queryset, key=lambda post: followed_user_ids.index(post.poster.id))
         return queryset
 
+
+
 class FollowListView(BasePostListView):
     template_name = os.path.join('posts', 'follow_list.html')
     
     def get_queryset(self):
         user = self.request.user
-        selected_user_id = int(self.request.GET.get('user_id', 0))
+        # URLから'post_id'パラメータを取得
+        selected_post_id = int(self.request.GET.get('post_id', 0))
 
-        # ユーザーがフォローした全ての投稿者を取得
-        follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
+        # ユーザーがフォローしている全てのユーザーの投稿を取得
+        follows = Follows.objects.filter(user=user).select_related('poster')
         followed_user_ids = [follow.poster.id for follow in follows]
         queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
 
-        selected_user_ids = followed_user_ids  # 全フォロー投稿者のIDをデフォルトに設定
+        # querysetを投稿日時の降順に並び替え
+        queryset = queryset.order_by('-posted_at')
 
-        # 選択した投稿者がリストの中にあるか確認
-        if selected_user_id in followed_user_ids:
-            # 選択した投稿者のインデックスを見つける
-            selected_user_index = followed_user_ids.index(selected_user_id)
-            # 選択した投稿者とそれに続く投稿者のIDを取得
-            selected_user_ids = followed_user_ids[selected_user_index:selected_user_index+9]
-            # querysetが選択した投稿者とそれに続く投稿者のみを含むようにフィルタリング
-            queryset = [post for post in queryset if post.poster.id in selected_user_ids]
+        # 選択した投稿のユーザーIDがフォローリストの中にあるか確認
+        selected_post = queryset.filter(id=selected_post_id).first()
 
-        # querysetがselected_user_idsの順番と同じになるようにソート
-        queryset = sorted(queryset, key=lambda post: selected_user_ids.index(post.poster.id))
+        # 選択した投稿以降の投稿のみを含むようにフィルタリング
+        if selected_post and selected_post.poster.id in followed_user_ids:
+            # querysetからPythonのリストを作成
+            post_list = list(queryset)
+            # 選択した投稿のインデックスを見つける
+            selected_post_index = post_list.index(selected_post)
+            # 選択した投稿に続く9件の投稿を取得
+            post_list = post_list[selected_post_index:selected_post_index+9]
+            queryset = post_list
 
         return queryset
 
@@ -738,8 +743,115 @@ class FollowListView(BasePostListView):
         # contextに広告を追加
         context['ad'] = self.get_ad()
         return context
+   
+
+class GetMoreFollowView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        last_post_id = int(self.request.POST.get('last_post_id', 0))
+
+        # ユーザーがフォローしている全てのユーザーの投稿を取得
+        follows = Follows.objects.filter(user=self.request.user).select_related('poster')
+        followed_user_ids = [follow.poster.id for follow in follows]
+
+        # フォローしているユーザーの投稿を取得
+        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
+
+        # 投稿日時の降順に並び替え
+        queryset = queryset.order_by('-posted_at')
+
+        if last_post_id:
+            # last_post_id以降の投稿を取得
+            post_ids = list(queryset.values_list('id', flat=True))
+            last_post_index = post_ids.index(last_post_id)
+            next_post_ids = post_ids[last_post_index+1:last_post_index+10]
+
+            queryset = queryset.filter(id__in=next_post_ids)
+            queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
+        else:
+            queryset = queryset.filter(id__in=post_ids)
+
+        return queryset[:9]  # 最初の9つの投稿だけを返す
+
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})   
+   
+   
+class GetMorePreviousFollowView(BasePostListView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        first_post_id = int(self.request.POST.get('first_post_id', 0))
+
+        # ユーザーがフォローしている全てのユーザーの投稿を取得
+        follows = Follows.objects.filter(user=self.request.user).select_related('poster')
+        followed_user_ids = [follow.poster.id for follow in follows]
+
+        # フォローしているユーザーの投稿を取得
+        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
+
+        # 投稿日時の降順に並び替え
+        queryset = queryset.order_by('-posted_at')
+
+        if first_post_id:
+            post_ids = list(queryset.values_list('id', flat=True))
+            first_post_index = post_ids.index(first_post_id)
+            prev_post_ids = post_ids[max(0, first_post_index - 10):first_post_index]  # get previous 10 posts
+
+            queryset = queryset.filter(id__in=prev_post_ids)
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id), reverse=True)  # reverse to maintain the correct order
+        else:
+            queryset = queryset.filter(id__in=post_ids)
+
+        return list(reversed(queryset[:9]))  # return first 9 posts only in reversed order
+
+    def get_ad(self):
+        # 広告を1つランダムに取得
+        return Ads.objects.order_by('?').first()
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+
+            ad = self.get_ad()  # 広告を取得
+
+            # HTMLの生成部分を更新し、広告も送信
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+
+
     
-class MyFollowListView(LoginRequiredMixin, ListView):
+class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたアカウントのリスト
     model = Follows
     context_object_name = 'follow_posters'
     template_name = os.path.join('posts', 'my_follow_list.html')

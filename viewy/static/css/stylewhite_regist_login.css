@@ -9,19 +9,9 @@ a{
 .screen{
   background-color: rgb(255, 255, 255);
   min-height: 724px;
+  position: relative;
 }
 
-.mid-logo{
-  color: var(--primary-color);
-  font-family: Georgia, 'Times New Roman', Times, serif;
-  font-size: 48px;
-  font-weight: bold;
-  width: 100%;
-  text-align: center;
-  padding-top: 48px;
-  /* text-decoration: underline aqua; */
-  text-shadow: rgb(70, 236, 236) 1px 1px 2px;
-}
 
 .mid-logo{
   width: 100%;
@@ -102,6 +92,55 @@ form input{
 }
 
 
+.invited-message{
+  position: absolute;
+  top: 160px;
+  left: 7px;
+  width: 300px;
+  padding: 32px 16px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: white;
+  border: rgb(74, 232, 232) 2px solid;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0px 3px 3px gray;
+
+  /* 追加 */
+  opacity: 0; 
+  animation: fadeIn ease 0.5s; /* 2秒かけてフェードイン */
+  animation-fill-mode: forwards; /* アニメーション終了後もスタイルを維持 */
+}
+
+@keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+.message-content{
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 32px;
+}
+
+.important{
+  font-weight: bold;
+}
+
+.ok-button{
+  color: rgb(255, 255, 255);
+  margin-top: 16px;
+  background-color: var(--primary-color);
+  border: none;
+  height: 36px;
+  width: 96px;
+  line-height: 24px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
 
 li{
   list-style-type: none;
@@ -162,6 +201,32 @@ li{
     height: 32px;
     border-radius: 50px;
     padding-left: 24px;
+  }
+
+  .invited-message{
+    position: absolute;
+    top: 160px;
+    left: 50%;
+    transform: translateX(-50%); /* 自身の幅の半分分を左にずらすことで真ん中に配置 */
+    width: 80%;
+    padding: 32px 16px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    border: rgb(74, 232, 232) 2px solid;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0px 3px 3px gray;
+  
+    /* 追加 */
+    opacity: 0; 
+    animation: fadeIn ease 0.5s; /* 2秒かけてフェードイン */
+    animation-fill-mode: forwards; /* アニメーション終了後もスタイルを維持 */
+  }
+  
+  @keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
   }
 
   .button{
