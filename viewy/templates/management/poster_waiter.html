@@ -1,0 +1,34 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/management/poster_waiter.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<!-- <h1>認証待ちから町ユーザー</h1> -->
+
+<!-- 検索フォーム -->
+<div class="serch">
+  <form method="get">
+    <label for="username"></label>
+    <input type="text" id="username" name="username" value="{{ request.GET.username|default:'' }}">
+    <button type="submit">検索</button>
+  </form>
+</div>
+
+<div class="block">
+  <ul class="wait-list">
+    {% for user in object_list %}
+    <li><a href="{% url 'management:add_to_poster_group' user.id %}" onclick="return confirm('このユーザーをポスターグループに追加しますか？');">{{ user.username }} - {{ user.email }}</a></li> 
+    {% empty %}
+    <li>特別なユーザーが見つかりません。</li>
+    {% endfor %}
+  </ul>
+</div>
+
+
+
+
+
+{% endblock %}

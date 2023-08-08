@@ -1,0 +1,13 @@
+.content{
+  display: block;
+  min-width: 600px;
+}
+
+ul{
+  padding-left: 16px;
+}
+
+li{
+  list-style: none;
+}
+

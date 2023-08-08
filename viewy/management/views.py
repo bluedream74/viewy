@@ -190,7 +190,7 @@ class Ad(SuperUserCheck, View):
         return render(request, self.template_name, context)
 
 class PosterWaiterList(ListView):
-    template_name = 'management/poster_waiter_list.html'
+    template_name = 'management/poster_waiter.html'
     context_object_name = 'users'
     model = Users
 
