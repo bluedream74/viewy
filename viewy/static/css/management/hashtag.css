@@ -1,0 +1,12 @@
+.content{
+  display: inline-flex; /* This makes the children (i.e., .block) line up horizontally */
+  align-items: flex-start; /* This aligns the children to the top of the container */
+  justify-content: baseline; /* This creates equal space between the children */
+  flex-wrap: nowrap; /* This prevents the blocks from wrapping to the next line */
+  text-align: center;
+}
+
+.block {
+  width: 32%; /* 各ブロックの幅を設定（必要に応じて調整） */
+}
+

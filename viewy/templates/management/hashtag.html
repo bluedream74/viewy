@@ -1,11 +1,11 @@
 {% extends 'management/management_base.html' %}
 {% load static %}
 {% block head %}
+<link rel="stylesheet" href="{% static 'css/management/hashtag.css' %}">
 {% endblock %}
 
 
 {% block content %}
-
 <div class="block">
     <div>投稿数ランキング</div>
     <table>
@@ -69,6 +69,5 @@
         <input class="submit" type="submit" value="設定">
     </form>
 </div>
-
 
 {% endblock %}
