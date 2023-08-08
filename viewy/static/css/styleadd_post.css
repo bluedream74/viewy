@@ -11,10 +11,14 @@
 } */
 
 .big-logo{
-  width: 64px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 24px;
+  width: 100%;
+  text-align: center;
+  padding-top: 16px;
+  margin-bottom: 8px;
+}
+
+.big-logo > img{
+  width: 56px;
 }
 
 .sub-title{
@@ -87,7 +91,6 @@
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
   .big-logo{
-    padding-top: 72px;
-    font-size: 80px;
+    padding-top: 32px;
   }
 }

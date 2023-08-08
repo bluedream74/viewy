@@ -160,6 +160,10 @@ form input{
   list-style-type: none;
 }
 
+.error > ul{
+  padding-left: 0px;
+}
+
 .error > ul >li{
   list-style-type: none;
 }
