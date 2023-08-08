@@ -16,7 +16,7 @@ from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
-from accounts.models import Users
+from accounts.models import Users, SearchHistorys
 from posts.models import Ads, Favorites, HotHashtags, Posts
 from .forms import HashTagSearchForm
 from .models import UserStats
@@ -139,9 +139,22 @@ class Hashtag(SuperUserCheck, TemplateView):
 
         hashtag_counts = {i: hashtags_list.count(i) for i in hashtags_list}
 
-        sorted_hashtags = sorted(hashtag_counts.items(), key=lambda x: x[1], reverse=True)
+        #SearchHistorysから検索回数を取得
+        search_counts = SearchHistorys.objects.values('query').annotate(search_count=Sum('search_count')).order_by('-search_count')
 
-        context['hashtags'] = sorted_hashtags
+        # Combine post hashtag counts with search counts
+        for hashtag, count in hashtag_counts.items():
+            search_count = next((item['search_count'] for item in search_counts if item['query'] == hashtag), 0)
+
+            hashtag_counts[hashtag] = (count, search_count)
+
+        # 投稿数でソート
+        sorted_by_post_counts = sorted(hashtag_counts.items(), key=lambda x: x[1][0], reverse=True)
+        context['hashtags_by_post'] = sorted_by_post_counts
+
+        # 検索回数でソート
+        sorted_by_search_counts = sorted(hashtag_counts.items(), key=lambda x: x[1][1], reverse=True)
+        context['hashtags_by_search'] = sorted_by_search_counts
 
         # Get the latest hot hashtags
         try:
