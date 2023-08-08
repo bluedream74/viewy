@@ -695,10 +695,14 @@ class FollowPageView(BasePostListView):
     
     def get_queryset(self):
         user = self.request.user
-        follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
+        # ユーザーがフォローしている全てのユーザーを取得
+        follows = Follows.objects.filter(user=user).select_related('poster')
         followed_user_ids = [follow.poster.id for follow in follows]
+
+        # フォローしているユーザーの投稿を投稿日時の降順で取得
         queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
-        queryset = sorted(queryset, key=lambda post: followed_user_ids.index(post.poster.id))
+        queryset = queryset.order_by('-posted_at')
+
         return queryset
 
 

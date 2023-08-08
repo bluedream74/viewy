@@ -17,30 +17,30 @@
     {% csrf_token %}
     <div class="error">
       {% for error in form.non_field_errors %}
-          <div>{{ error }}</div>
+          <div class="error">{{ error }}</div>
       {% endfor %}
   </div>
       {{ visual_form.as_div }}
       <div class="limit">※最大31ページまで</div>
       <div class="title">
+        <div class="error">{{ form.title.errors }}</div> 
         {{ form.title }}
-      <div class="error">{{ form.title.errors }}</div> 
       </div>
       <div class="url">
-        {{ form.url }}
         <div class="error">{{ form.url.errors }}</div>
+        {{ form.url }}
       </div>
       <div class="hashtags">
+        <div class="error">{{ form.hashtag1.errors }}</div>
+        <div class="error">{{ form.hashtag2.errors }}</div>
+        <div class="error">{{ form.hashtag3.errors }}</div>
       #{{ form.hashtag1 }}
       #{{ form.hashtag2 }}
       #{{ form.hashtag3 }}
-      <div class="error">{{ form.hashtag1.errors }}</div>
-      <div class="error">{{ form.hashtag2.errors }}</div>
-      <div class="error">{{ form.hashtag3.errors }}</div>
       </div>
       <div class="caption">
-        {{ form.caption }}
         <div class="error">{{ form.caption.errors }}</div>
+        {{ form.caption }}
       </div>
     <input class="button" type="submit" value="投稿する" id="submit-button">
   </form>
