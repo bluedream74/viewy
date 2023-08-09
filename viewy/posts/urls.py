@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, BackView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdViewCount, AdClickCount, MyFollowListView
+ MangaCreateView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, BackView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, ViewCountView, SubmitReportView, MyPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView
 
 )
 
@@ -40,8 +40,10 @@ urlpatterns = [
    path('auto_correct/', AutoCorrectView.as_view(), name='auto_correct'),
    path('be_partner/', BePartnerPageView.as_view(), name='be_partner'),
    path('increment_view_count/<int:post_id>', IncrementViewCount.as_view(), name='increment_view_count'),
-   path('ad_view_count/<int:ad_id>', AdViewCount.as_view(), name='ad_view_count'),
-   path('ad_click_count/<int:ad_id>', AdClickCount.as_view(), name='ad_click_count'),
+   path('ads_view_count/<int:ad_id>', AdsViewCount.as_view(), name='ads_view_count'),
+   path('wideads_view_count/<int:ad_id>', WideAdsViewCount.as_view(), name='wideads_view_count'),
+   path('ads_click_count/<int:ad_id>', AdsClickCount.as_view(), name='ads_click_count'),
+   path('wideads_click_count/<int:ad_id>', WideAdsClickCount.as_view(), name='Wideads_click_count'),
    path('view_count/', ViewCountView.as_view(), name='view_count'),
    path('report/', SubmitReportView.as_view(), name='report'),
 ]

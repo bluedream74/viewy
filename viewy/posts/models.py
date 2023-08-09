@@ -88,6 +88,24 @@ class Ads(models.Model):
           self.click_rate = (self.click_count / self.views_count) * 100
       self.save()  # Here, we are saving the favorite_rate right after updating it
 
+class WideAds(models.Model):
+    title = models.CharField(max_length=20)
+    url = models.URLField(max_length=200, null=True, blank=True)
+    ad_tag = models.TextField()  # 広告タグを保存するフィールド
+    views_count = models.PositiveIntegerField(default=0)
+    click_count = models.PositiveIntegerField(default=0)
+    click_rate = models.FloatField(default=0.0)
+
+    class Meta:
+        db_table = 'wideads'
+
+    def update_click_rate(self):
+        if self.views_count == 0:
+            self.click_rate = 0
+        else:
+            self.click_rate = (self.click_count / self.views_count) * 100
+        self.save()  # ここで、更新されたクリック率を保存
+        
 class Visuals(models.Model):
   # related_name引数を使用して、PostオブジェクトからVisualオブジェクトにアクセスするための逆参照名を設定している
   post = models.ForeignKey(

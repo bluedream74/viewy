@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (entry.isIntersecting) {
               const adId = entry.target.getAttribute('data-ad-id');
 
-              fetch(`/posts/ad_view_count/${adId}`, {
+              fetch(`/posts/ads_view_count/${adId}`, {
                   method: 'POST',
                   headers: {
                       'X-CSRFToken': getCookie('csrftoken'),
@@ -79,7 +79,7 @@ document.querySelector('.screen').addEventListener('click', event => {
   if (ad) {
       const adId = ad.getAttribute('data-ad-id');
 
-      fetch(`/posts/ad_click_count/${adId}`, {
+      fetch(`/posts/ads_click_count/${adId}`, {
           method: 'POST',
           headers: {
               'X-CSRFToken': getCookie('csrftoken'),
