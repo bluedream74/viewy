@@ -35,6 +35,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     prf_img = models.ImageField(upload_to='accounts_prf_imgs', null=True, blank=True)
     caption = models.CharField(max_length=120, null=True, blank=True)
+    displayname = models.CharField(max_length=30, null=True, blank=True)
     url1 = models.URLField(max_length=200, null=True, blank=True) 
     url2 = models.URLField(max_length=200, null=True, blank=True) 
     url3 = models.URLField(max_length=200, null=True, blank=True) 

@@ -16,7 +16,12 @@
   </div>
   <div class="info">
     <a href="{% url 'posts:poster_page' about_poster.pk %}">
-     <div class="poster-name">{{about_poster.username}}</div>
+      {% if about_poster.displayname %}
+      <div class="poster-name">{{about_poster.displayname}}</div>
+      {% else %}
+      <div class="poster-name">{{about_poster.username}}</div>
+      {% endif %}      
+
     </a>
   </div>
   <div>
@@ -185,7 +190,8 @@
 <div class="bottom-space"></div>
 
 
-<div class="logo">V</div>
+<img class="logo-img" src="\media\others\viewy-logo.png" alt="">
+
 
 
 

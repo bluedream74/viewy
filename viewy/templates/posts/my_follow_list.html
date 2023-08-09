@@ -22,7 +22,11 @@
   </div>
   <div class="caption">
     <a href="{% url 'posts:poster_page' poster.pk %}">
-     <div class="poster-name">{{poster.username}}</div>
+      {% if poster.displayname %}
+        <div class="poster-name">{{poster.displayname}}</div>
+      {% else %}
+        <div class="poster-name">{{poster.username}}</div>
+      {% endif %}
     </a>
   </div>
   <div>

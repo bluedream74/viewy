@@ -1,3 +1,4 @@
+import re
 from django import forms
 from .models import Users
 from django.contrib.auth.password_validation import validate_password
@@ -13,7 +14,7 @@ from django.contrib.auth.password_validation import validate_password, MinimumLe
 
 # ユーザー登録処理
 class RegistForm(forms.ModelForm):
-  username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ユーザーネーム'}))
+  username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ユーザーネーム（英数字と_のみ）'}))
   email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
   password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
   password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード（確認）'}))  # 新しいフィールド
@@ -36,6 +37,12 @@ class RegistForm(forms.ModelForm):
           self.add_error('password_confirm', 'パスワードが一致しません。')  # 一致しない場合はエラーメッセージを表示
 
       return cleaned_data
+  
+  def clean_username(self):
+      username = self.cleaned_data.get('username')
+      if username and not re.match(r'^[a-zA-Z0-9]+$', username):
+          raise forms.ValidationError("ユーザーネームは英数字のみが使用可能です。")
+      return username
 
   def clean_email(self):
       email = self.cleaned_data.get('email')
@@ -118,7 +125,8 @@ class UserLoginForm(forms.Form):
   
   
 class EditPrfForm(forms.ModelForm):
-    caption = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'キャプション(最大120字)', 'rows': 8}), initial='',     error_messages={'max_length': "キャプションは最大120字までです。",})
+    displayname = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'placeholder': '表示名'})) 
+    caption = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': 'キャプション(最大120字)', 'rows': 8}), initial='',     error_messages={'max_length': "キャプションは最大120字までです。",})
     url1 = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'URL'}), initial='',  error_messages={'invalid': "正しいURLを入力してください。"})
     url2 = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'URL'}), initial='',  error_messages={'invalid': "正しいURLを入力してください。"})
     url3 = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'URL'}), initial='',  error_messages={'invalid': "正しいURLを入力してください。"})
@@ -128,4 +136,4 @@ class EditPrfForm(forms.ModelForm):
   
     class Meta:
         model = Users
-        fields = ['prf_img', 'caption','url1', 'url2', 'url3', 'url4', 'url5']
+        fields = ['displayname','prf_img', 'caption','url1', 'url2', 'url3', 'url4', 'url5']
