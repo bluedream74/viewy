@@ -1,45 +1,73 @@
 {% extends 'management/management_base.html' %}
 {% load static %}
 {% block head %}
+<link rel="stylesheet" href="{% static 'css/management/hashtag.css' %}">
 {% endblock %}
 
 
 {% block content %}
-
 <div class="block">
-  <table>
-      <thead>
-          <tr>
-              <th>ハッシュタグ</th>
-              <th>投稿数</th>
-          </tr>
-      </thead>
-      <tbody>
-          {% for hashtag, count in hashtags %}
-              <tr>
-                  <td>{{ hashtag }}</td>
-                  <td>{{ count }}</td>
-              </tr>
-          {% empty %}
-              <tr>
-                  <td colspan="2">No hashtags found.</td>
-              </tr>
-          {% endfor %}
-      </tbody>
-  </table>
+    <div>投稿数ランキング</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Hashtag</th>
+                <th>投稿数</th>
+                <th>検索回数</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hashtag, counts in hashtags_by_post %}
+            <tr>
+                <td>{{ hashtag }}</td>
+                <td>{{ counts.0 }}</td>
+                <td>{{ counts.1 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No hashtags found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div class="block">
-  <div>おすすめハッシュタグ</div>
-  <form method="post">
-    {% csrf_token %}
-    <p class="hashtag-form">#{{ form.hashtag1 }}</p>
-    <p class="hashtag-form">#{{ form.hashtag2 }}</p>
-    <p class="hashtag-form">#{{ form.hashtag3 }}</p>
-    <p class="hashtag-form">#{{ form.hashtag4 }}</p>
-    <input class="submit" type="submit" value="設定">
-</form>
+    <div>検索回数ランキング</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Hashtag</th>
+                <th>検索回数</th>
+                <th>投稿数</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hashtag, counts in hashtags_by_search %}
+            <tr>
+                <td>{{ hashtag }}</td>
+                <td>{{ counts.1 }}</td>
+                <td>{{ counts.0 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No hashtags found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
+<div class="block">
+    <div>おすすめハッシュタグ</div>
+    <form method="post">
+        {% csrf_token %}
+        <p class="hashtag-form">#{{ form.hashtag1 }}</p>
+        <p class="hashtag-form">#{{ form.hashtag2 }}</p>
+        <p class="hashtag-form">#{{ form.hashtag3 }}</p>
+        <p class="hashtag-form">#{{ form.hashtag4 }}</p>
+        <input class="submit" type="submit" value="設定">
+    </form>
+</div>
 
 {% endblock %}

@@ -47,7 +47,8 @@ class CheckAgeView(TemplateView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        response = redirect('posts:postlist')
+        next_url = request.GET.get('next', 'posts:postlist') # クエリパラメータから戻り先のURLを取得
+        response = redirect(next_url)
         response.set_cookie('is_over_18', 'true', max_age=60*60*24*3)  # このクッキーは３日間続く
         return response
     

@@ -27,12 +27,14 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, HotHashtags
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, HotHashtags, KanjiHiraganaSet
 
 from collections import defaultdict
 import logging
 logger = logging.getLogger(__name__)
 
+import jaconv
+import re
 
 class BasePostListView(ListView):
     model = Posts
@@ -999,22 +1001,39 @@ class AutoCorrectView(View):
     def get(request):
         query = request.GET.get('search_text', None)
 
-        # Use set to keep hashtags unique
+        # クエリが空もしくは空白のみの場合、何も返さない
+        if not query or query.isspace():
+            return JsonResponse([], safe=False)
+        
+        hiragana_query = jaconv.kata2hira(jaconv.z2h(query.lower()))
+        katakana_query = jaconv.hira2kata(hiragana_query)
+        
+        hashtag_queries = [hiragana_query, katakana_query]
+
+        # クエリがアルファベットの場合の処理
+        if query.isalpha():
+            hashtag_queries.append(query.upper())
+            hashtag_queries.append(query.lower())
+
         hashtags_set = set()
 
-        hashtag_results = Posts.objects.filter(Q(hashtag1__icontains=query) | Q(hashtag2__icontains=query) | Q(hashtag3__icontains=query))
-        for post in hashtag_results:
-            for hashtag in [post.hashtag1, post.hashtag2, post.hashtag3]:
-                if hashtag and query.lower() in hashtag.lower():
-                    hashtags_set.add(hashtag)
+        for search_query in hashtag_queries:
+            hashtag_results = Posts.objects.filter(
+                Q(hashtag1__istartswith=search_query) |
+                Q(hashtag2__istartswith=search_query) |
+                Q(hashtag3__istartswith=search_query))
+            hashtags_set.update([hashtag for post in hashtag_results for hashtag in [post.hashtag1, post.hashtag2, post.hashtag3] if hashtag.startswith(search_query)])
 
-        # Prepare data for JsonResponse
-        data = [{"type": "hashtag", "value": hashtag} for hashtag in hashtags_set]
+        # 特定のひらがなクエリで対応する漢字を追加
+        kanji_mappings = KanjiHiraganaSet.objects.all()
+        for mapping in kanji_mappings:
+            hiragana_queries = mapping.hiragana.split(',')
+            if hiragana_query in hiragana_queries:
+                hashtags_set.add(mapping.kanji)
 
-        data = data[:10]  # Limit to first 10 results
+        data = [{"type": "hashtag", "value": hashtag} for hashtag in list(hashtags_set)[:10]]
 
         return JsonResponse(data, safe=False)
-
   
 # パートナー催促ページ
 class BePartnerPageView(TemplateView):

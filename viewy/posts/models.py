@@ -226,3 +226,10 @@ class HotHashtags(models.Model):
 
     class Meta:
         db_table = 'hothashtags'
+
+class KanjiHiraganaSet(models.Model):
+    kanji = models.CharField(max_length=100, unique=True)
+    hiragana = models.TextField()  # 複数のひらがなクエリをカンマ区切りなどで保存することができます。
+    
+    def __str__(self):
+        return self.kanji

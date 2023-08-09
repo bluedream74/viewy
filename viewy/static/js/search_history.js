@@ -14,6 +14,7 @@ function isUserLoggedIn() {
   return $('.search-bar').data('user') === true;
 }
 
+// 以下ログインユーザー用の関数
 // データベースから検索履歴を取得する（ログインユーザー用）
 function getDBSearchHistory() {
   return new Promise((resolve, reject) => {
@@ -31,6 +32,7 @@ function getDBSearchHistory() {
   });
 }
 
+// 以下非ログインユーザー用の関数
 // ローカルストレージから検索履歴を取得する（非ログインユーザー用）
 function getLocalSearchHistory() {
   return JSON.parse(localStorage.getItem('search_history') || '[]');
@@ -55,6 +57,10 @@ function saveLocalSearchHistory(query) {
   localStorage.setItem('search_history', JSON.stringify(history));
 }
 
+// ローカルストレージから検索履歴をクリアする
+function clearLocalSearchHistory() {
+  localStorage.removeItem('search_history');
+}
 
 
 // 検索履歴を表示する関数
@@ -149,10 +155,10 @@ function populateSearchHistory(history) {
   updateXmarkVisibility();
 }
 
-// ローカルストレージから検索履歴をクリアする
-function clearLocalSearchHistory() {
-  localStorage.removeItem('search_history');
-}
+// // ローカルストレージから検索履歴をクリアする
+// function clearLocalSearchHistory() {
+//   localStorage.removeItem('search_history');
+// }
 
 
 
