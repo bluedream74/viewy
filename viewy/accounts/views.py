@@ -54,6 +54,9 @@ class CheckAgeView(TemplateView):
     
 class AboutViewyView(TemplateView):
     template_name = 'about_viewy.html'    
+    
+class ForInvitedView(TemplateView):
+    template_name = 'for_invited.html'    
 
 class GuideView(TemplateView):
     template_name = 'guide.html'

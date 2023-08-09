@@ -1,13 +1,11 @@
 .mid-logo{
-  color: white;
-  font-family: Georgia, 'Times New Roman', Times, serif;
-  font-size: 36px;
-  font-weight: bold;
   width: 100%;
   text-align: center;
-  padding-top: 16px;
-  /* text-decoration: underline aqua; */
-  text-shadow: aqua 1px 1px 2px;
+  padding-top: 32px;
+}
+
+.mid-logo > img{
+  width: 48px;
 }
 
 .sub-title{
@@ -43,14 +41,6 @@ form input{
   width: 80%;
 }
 
-.url{
-  margin-top: 24px;
-}
-
-.url > input{
-  width: 280px;
-}
-
 .hashtags{
   color: white;
   margin-top: 24px;
@@ -58,6 +48,17 @@ form input{
 
 .hashtags > input{
   width: 80px;
+}
+
+.displayname{
+  margin-top: 24px;
+}
+
+.displayname > input{
+  width: 240px;
+  border-radius: 50px;
+  padding: 0px 12px;
+  height: 24px;
 }
 
 .caption{
@@ -69,18 +70,20 @@ form input{
 .caption > textarea{
   width: 90%;
   background-color: rgb(50, 50, 50);
-  border-radius: 4px;
+  border-radius: 8px;
   color: white;
 }
 
 
 .button{
   color: white;
+  font-weight: bold;
+  height: 28px;
+  width: 64px;
+  background-color: rgb(70, 233, 233);
+  border: none;
   margin-top: 24px;
-  border: aqua 1.5px solid;
-  border-bottom:  rgb(0, 153, 153) 1.5px solid;
-  border-right:  rgb(0, 182, 182) 1.5px solid;
-  border-radius: 4px;
+  border-radius: 50px;
   /* なぜかわからんけどボタンがずれてるから無理やり修正 */
   margin-left: 32px;
 }
@@ -104,6 +107,9 @@ form input{
 .urls > input{
   width: 280px;
   margin-top: 8px;
+  border-radius: 50px;
+  padding: 0px 12px;
+  height: 24px;
 }
 
 .error-list{

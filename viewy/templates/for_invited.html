@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewy</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+  <link rel="stylesheet" href="{% static 'css/for_invited.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<body>
+
+  <div class="screen">
+    <div class="header">
+      <img class="main-img" src="\media\others\スマホ素材ロゴ付きアクア光.png" alt="">
+      <div class="catch-right">スマホ専用の、</div>
+      <div class="catch-left">大人のサイト。</div>
+        <!-- <div class="sub-catch">縦長の動画とマンガが楽しめる<br>
+          新登場のアダルトサイト</div> -->
+    </div>
+    <div class="main">
+
+      <div class="sub-catch">ユーザーネームを決めて簡単登録</div>
+
+      <div class="be-partner1"><a href="{% url 'guide' %}">パートナーになる</a></div>
+      <div class="warning">18歳未満の方のご利用はお断りしています。</div>
+
+      <hr>
+
+      <div class="big-title">Viewyとは？</div>
+      <div class="img-box">
+        <img src="\media\others\ホーム.png" alt="">
+        <img src="\media\others\いいね欄.png" alt="">
+        <img src="\media\others\検索画面.png" alt="">
+        <img src="\media\others\プロフィール.png" alt="">
+        <img src="\media\others\投稿画面.png" alt="">
+
+      </div>
+        <div class="big-content">
+          Viewyとは、<br><span>最大２分の動画</span>と<span>最大３１ページのマンガ</span>が投稿・視聴できる、<span>スマホ向け無料ウェブサービス</span>です。<br>
+          スマホ向けにデザインされ、投稿は<span>リール形式で表示</span>されます。
+        </div>
+
+      <div class="part partner">
+        <div class="title">パートナーになって、<br>新たなファンを増やしませんか？</div>
+          <div class="content"><span>投稿は運営がパートナーとして登録したユーザーのみが可能</span>になっています。<br>
+
+            パートナーになると投稿ができることはもちろん、<span>各投稿やプロフィールにご自身のファインサイト等のリンクを貼ることができます。</span><br>
+            これにより<span>Viewyなしでは出会わなかった新たなファンをスムーズにファンサイトに誘導</span>できます。<br>
+        </div>
+        <div class="case">
+          <div class="case-title">一般的なSNSの場合</div>
+          <img src="\media\others\SNSの場合.png" alt="">
+          <div class="description">アダルトコンテンツ専用ではないため、別のことに関心がある人がほとんど。<br>
+            予期せぬアカウント凍結の可能性も。</div>
+        </div>
+        <div class="case">
+          <div class="case-title">無料の違法アダルトサイトの場合</div>
+          <img src="\media\others\違法サイトの場合.png" alt="">
+          <div class="description">全員がアダルトコンテンツに関心があるが、ファンサイトへの誘導は当然なく、
+            利用者が多くても作者の稼ぎにはつながらない。そもそも違法。</div>
+        </div>
+        <div class="case solution">
+          <div class="case-title solution-title">Viewyの場合</div>
+          <img src="\media\others\Viewyの場合.png" alt="">
+          <div class="description">無料で使えるため訪問者が多い。<br>
+            全員がアダルトコンテンツに関心がある、あなたの潜在的なファン。<br>
+            Viewyは、獲得した新たなファンを、投稿とプロフィールに添付されているリンクから、スムーズにあなたのファンサイトへと誘導。
+            さらなる収益につながります。</div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="title">
+          ユーザーネームを送信するだけの、簡単なパートナー登録
+        </div>
+        <div class="content">
+          本来パートナー登録には、本人確認などの手順が必要ですが、特別招待の場合は
+          このリンクが送信されたDMかメールに
+          <span>ご自身が決めたユーザーネームを送るだけで登録が完了</span>します。</div>
+          
+          <div class="chat-img">
+            <div class="example">※X（Twitter）の場合</div>
+            <img src="\media\others\ツイッターのやりとり.jpg" alt="">
+          </div>
+        </div>
+
+        <div class="part special">
+          <div class="title">
+            早めの登録で、３倍稼ごう
+          </div>
+
+          <div class="content">
+            特別招待された方に限り、<span>８月３１日まで</span>に<span>パートナー登録および、最低３つの投稿</span>をしていただければ、<br>
+            <span style="font-size: 20px; text-decoration: underline; text-decoration-color: rgb(79, 235, 235);">Viewyにおける投稿の表示率が永久に３倍になる</span>というプレミアを付与させていただきます。<br>
+            このプレミアを手に入れることで、<span>このサイトを通した収益が永久に３倍になる</span>ことが見込まれます。ぜひともお早めの登録、投稿をよろしくお願いします。
+          </div>
+        </div>
+        <div class="table">
+          <div class="table-title">表示率３倍までのステップ</div>
+          <div class="step">ユーザー登録し、ユーザーネームを送る</div>
+          ↓
+          <div class="step">パートナー登録が完了する</div>
+          ↓
+          <div class="step">８月３１日までに３つ以上の投稿をする</div>
+          ↓
+          <div class="step goal">投稿の表示率が永久に３倍に！！</div>
+        </div>
+
+
+
+
+
+      <hr>
+
+      <div class="sub-catch">ユーザーネームを決めて簡単登録</div>
+
+      <div class="be-partner2"><a href="{% url 'guide' %}">パートナーになる</a></div>
+
+      <div class="warning">18歳未満の方のご利用はお断りしています。</div>
+
+    </div>
+  </div>
+
+{% block script %}
+
+{% endblock %}
+
+</body>
+</html>

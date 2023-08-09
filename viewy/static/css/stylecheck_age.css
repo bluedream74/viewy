@@ -5,7 +5,7 @@
 .mid-logo{
   width: 100%;
   text-align: center;
-  padding-top: 40px;
+  padding-top: 80px;
   margin-bottom: 16px;
 }
 
@@ -42,7 +42,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 64px;
+  margin-top: 8px;
   font-weight: bold;
 }
 
@@ -62,6 +62,16 @@
   color: rgb(84, 84, 84); 
 }
 
+.art{
+  margin-top: 16px;
+  text-align: center;
+}
+
+.art > img{
+  width: 64px;
+  opacity: 0.9;
+}
+
 .yes{
   background-color: rgb(91, 240, 240);
   height: 36px;
@@ -79,10 +89,12 @@
   opacity: 0.6;
 }
 
+
+
 .consent{
   font-size: 11px;
   color: gray;
-  margin-top: 48px;
+  margin-top: 16px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;

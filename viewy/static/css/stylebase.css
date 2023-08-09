@@ -116,5 +116,13 @@ textarea{
     padding: 0px;
     font-size: 48px;
   }
+
+  .logo-img{
+    width: 40px;
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 0px;
+  }
 }
 

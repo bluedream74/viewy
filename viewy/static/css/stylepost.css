@@ -95,6 +95,13 @@ input[type=range]::-webkit-slider-thumb {
   bottom: 48px;
 }
 
+/* スマホでクリックしたとき一瞬色が変わるのを防ぐ */
+label{
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  outline: none;
+}
+
 .poster, .favorite, .mute{
   width: 72px;
   height: 72px;
@@ -156,11 +163,6 @@ input[type=range]::-webkit-slider-thumb {
   color: aqua;
 }
 
-@keyframes likedBlinking {
-  0% { color: rgb(255, 255, 255); }
-  50% { color: aqua; }
-  100% { color: rgb(255, 255, 255); }
-}
 
 .favorite:hover {
   animation: likedBlinking 1.5s infinite;

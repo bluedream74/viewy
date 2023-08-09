@@ -18,7 +18,12 @@
       {% endif %}
     </div>
     <div class="name-grade">
-      <div>{{user.username}}</div>
+      {% if user.displayname %}
+        <div>{{ user.displayname }}</div>
+        <div class="sub-info">{{user.username}}</div>
+      {% else %}
+        <div>{{user.username}}</div>
+      {% endif %}
       {% if request.user and request.user|is_poster %}
       <div class="grade partner">パートナー</div>
       {% elif request.user and request.user|is_premium %}

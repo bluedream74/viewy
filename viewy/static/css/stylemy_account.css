@@ -47,6 +47,13 @@ a{
   background-color: white;
 }
 
+.sub-info{
+  font-size: 14px;
+  color: rgb(129, 129, 129);
+  position: relative;
+  top: -4px;
+}
+
 .name-grade{
   margin-top: 8px;
   position: relative;

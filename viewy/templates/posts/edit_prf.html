@@ -4,7 +4,9 @@
 <link rel="stylesheet" href="{% static 'css/styleedit.css' %}">
 {% endblock %}
 {% block content %}
-<div class="mid-logo">V</div>
+<div class="mid-logo" >
+  <img src="\media\others\ベースロゴ.png" alt="">
+</div>
 <div class="sub-title">プロフィール編集</div>
 {% if form.errors %}
     <ul class="error-list">
@@ -24,6 +26,10 @@
       </div>
     </div>
     <input type="file" name="prf_img">
+
+    <div class="displayname">
+      {{ form.displayname }}
+    </div>
 
     <div class="caption">
       {{ form.caption }}
