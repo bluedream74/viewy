@@ -17,7 +17,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys
-from posts.models import Ads, Favorites, HotHashtags, Posts
+from posts.models import Ads, Favorites, HotHashtags, Posts, KanjiHiraganaSet
 from .forms import HashTagSearchForm
 from .models import UserStats
 
@@ -190,6 +190,25 @@ class Hashtag(SuperUserCheck, TemplateView):
         # If the form is not valid, re-render the page with the form errors
         return self.get(request, *args, **kwargs)
 
+class KanjiRegist(View):
+    template_name = 'management/kanji_regist.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        kanji = request.POST['kanji']
+        hiragana = request.POST['hiragana']
+
+        # 逐次的なひらがなクエリを生成
+        hiragana_queries = [hiragana[:i+1] for i in range(len(hiragana))]
+
+        # モデルに保存
+        obj = KanjiHiraganaSet(kanji=kanji, hiragana=','.join(hiragana_queries))
+        obj.save()
+
+        # 保存後のリダイレクト
+        return redirect('management:kanji_regist')
 
 
 class Ad(SuperUserCheck, View):
