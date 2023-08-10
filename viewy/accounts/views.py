@@ -226,7 +226,6 @@ class UserLoginView(FormView):
         # セッションからInvitedのフラグを削除
         if 'is_special_user' in self.request.session:
             del self.request.session['is_special_user']
-            print(is_special_user)
 
         return redirect('posts:postlist')
 

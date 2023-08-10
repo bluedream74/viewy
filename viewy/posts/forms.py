@@ -99,7 +99,7 @@ class VideoForm(forms.Form):
 
         with VideoFileClip(clip_path) as clip:
             if clip.duration > 120:  # 動画が120秒より長い場合
-                raise ValidationError('動画の最長の長さは2分までです。')
+                raise ValidationError('２分以上の動画は投稿できません。')
                 
         if isinstance(video, InMemoryUploadedFile):
             tmp_file.close()

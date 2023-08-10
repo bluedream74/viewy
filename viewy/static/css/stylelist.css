@@ -191,6 +191,8 @@ label:hover{
   max-width: 380px;
 }
 
+
+
 .tag{
   color: aqua;
 }
@@ -426,35 +428,31 @@ video::-webkit-media-controls-enclosure {
   width: 48px;
 }
 
-li {
+li{
   font-size: 16px;
+  line-height: 32px;
   list-style-type: none;
   margin-bottom: 4px;
-  margin-top: 16px;
+  margin-top: 4px;
   color: rgb(40, 40, 40);
+  padding: 0px;
 }
 
-li:hover {
+li:hover{
   cursor: pointer;
   color: gray;
 }
 
-/* li:first-child{
-  padding-top: 4px;
-} */
 
-li:last-child {
-  padding-bottom: 4px;
-}
-
-ul {
+ul{
   background-color: aliceblue;
-  width: 70%;
+  width: 272px;
   border-radius: 4px;
-  margin-left: 48px;
+  margin-top: 12px;
+  margin-left: 16px;
   margin-right: auto;
   padding-left: 16px;
-  position: fixed;
+  position: absolute;
   z-index: 1000;
 }
 
@@ -539,6 +537,12 @@ ul {
 .glass {
   margin-right: 12px;
   margin-top: 4px;
+}
+
+.maintag{
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .button {

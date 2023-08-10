@@ -76,9 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
 
     // ポスターのpkを取得
-    const posterLink = document.querySelector('.poster_pk');
-    const url = new URL(posterLink.href);
-    const posterPk = url.pathname.split('/').filter(Boolean).pop();
+    const posterInput = document.querySelector('.poster_pk');
+    const posterPk = posterInput.value;
 
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
   
@@ -215,9 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstPostId = allPosts[0].dataset.postId;  // 最初の投稿のIDを取得
 
     // ポスターのpkを取得
-    const posterLink = document.querySelector('.poster_pk');
-    const url = new URL(posterLink.href);
-    const posterPk = url.pathname.split('/').filter(Boolean).pop();
+    const posterInput = document.querySelector('.poster_pk');
+    const posterPk = posterInput.value;
 
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
   

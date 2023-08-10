@@ -45,7 +45,7 @@
       <div class="poster">
         <div>
           <!-- <p>投稿者:{{post.poster.username}}</p> -->
-          <a href="{% url 'posts:poster_page' post.poster.pk %}" class="poster_pk">
+          <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </a>
         </div>
@@ -54,7 +54,7 @@
       <div class="follow-poster">
         <form data-pk="{{ post.poster.pk }}" action="{% url 'accounts:follow' pk=post.poster.pk %}" method="POST">
           {% csrf_token %}
-          <input type="hidden" name="poster_pk" value="{{ post.poster.pk }}">
+          <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
           <label>
             {% if user in post.poster.follow.all %}
             <i class="fa-solid fa-check fa-2xs follow"></i>
@@ -110,7 +110,15 @@
     </div>
 
     <div class="captions">
-      <div class="title">{{post.title}}</div>
+      <div class="title">
+        {{post.title}}
+
+        {% if post.ismanga %}
+        <span class="page-count">{{ post.visuals_list|length }}</span>
+        {% endif %}
+
+      </div>
+
       <div class="caption">{{post.caption}}</div>
       <div class="hashtags" data-user="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 

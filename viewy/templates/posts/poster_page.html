@@ -10,12 +10,12 @@
 
 <div class="follow-poster">
   <div>
-    <a href="{% url 'posts:poster_page' about_poster.pk %}">
+    <a href="{% url 'posts:poster_page' username=about_poster.username %}">
       <img class="poster-img" src="{{about_poster.prf_img.url}}">
     </a>
   </div>
   <div class="info">
-    <a href="{% url 'posts:poster_page' about_poster.pk %}">
+    <a href="{% url 'posts:poster_page' username=about_poster.username %}">
       {% if about_poster.displayname %}
       <div class="poster-name">{{about_poster.displayname}}</div>
       {% else %}
@@ -160,7 +160,7 @@
 
 <div class="list-area">
     {% for post in posts %}
-    <a class="post" href="{% url 'posts:poster_post_list' about_poster.pk %}?post_id={{ post.id }}">
+    <a class="post" href="{% url 'posts:poster_post_list' username=about_poster.username %}?post_id={{ post.id }}">
     {% if post.ismanga %}
      <div class="book">
       {% for visual in post.visuals_list|slice:":1" %}

@@ -71,6 +71,7 @@ form input{
 .errorlist{
   margin: 0px;
   padding: 0px;
+  margin-bottom: 8px;
 }
 
 .message{

@@ -57,18 +57,28 @@
     </div>
 
 
-  </div>
+    <div class="keep-out">
+      <div>18歳未満の方はご利用いただけません。</div>
+      <button class="close">閉じる</button>
+    </div>
 
-  <!-- いいえを押したらブラウザバックする -->
-  <script>
-    document.getElementById("no-button").addEventListener("click", function(e) {
-      e.preventDefault();
-      window.history.back();
-    });
-  </script>
+
+  </div>
 
 
 {% block script %}
+
+<script>
+  document.getElementById('no-button').addEventListener('click', function() {
+    // "いいえ"がクリックされたら、keep-outクラスの要素を表示する
+    document.querySelector('.keep-out').style.display = 'block';
+  });
+
+  document.querySelector('.close').addEventListener('click', function() {
+    // "閉じる"がクリックされたら、keep-outクラスの要素を非表示にする
+    document.querySelector('.keep-out').style.display = 'none';
+  });
+</script>
 
 {% endblock %}
 
