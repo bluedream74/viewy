@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, HomeView, UserLoginView, UserLogoutView, FollowView, EditPrfView,CheckAgeView, VerifyView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, InvitedRegistUserView
+  RegistUserView, HomeView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, InvitedRegistUserView
 )
 from . import views
 
@@ -11,6 +11,10 @@ urlpatterns = [
   path('invited_regist/', InvitedRegistUserView.as_view(), name='invited_regist'),
   path('user_login/', UserLoginView.as_view(), name='user_login'),  
   path('user_logout/', UserLogoutView.as_view(), name='user_logout'),
+  path('password_reset/', PasswordResetView.as_view(), name='password_reset'),
+  path('password_reset_send/', PasswordResetSendView.as_view(), name='password_reset_send'),
+  path('password_reset_confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+  path('password_reset_complete/', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
   path('follow/<int:pk>/', FollowView.as_view(), name='follow'),
   path('edit_prf/', EditPrfView.as_view(), name='edit_prf'),
   path('check_age/', CheckAgeView.as_view(), name='check_age'),

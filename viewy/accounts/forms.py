@@ -9,8 +9,8 @@ from django.utils.safestring import mark_safe
 from .utils import generate_verification_code
 from django.contrib.auth.password_validation import validate_password, MinimumLengthValidator, NumericPasswordValidator, CommonPasswordValidator, UserAttributeSimilarityValidator
 
-
-
+from django.contrib.auth.forms import PasswordResetForm as AuthPasswordResetForm
+from django.contrib.auth.forms import SetPasswordForm as AuthSetPasswordForm
 
 # ユーザー登録処理
 class RegistForm(forms.ModelForm):
@@ -122,6 +122,19 @@ class UserLoginForm(forms.Form):
             self.add_error(None, mark_safe('メールアドレスかパスワードが間違っています。<br>再度入力してください。'))
 
         return cleaned_data
+
+class PasswordResetForm(AuthPasswordResetForm):
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and not Users.objects.filter(email=email).exists():
+            raise forms.ValidationError("このメールアドレスは登録されていません。")
+        return email
+
+class SetPasswordForm(AuthSetPasswordForm):
+    new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': '新しいパスワード'}))
+    new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': '新しいパスワード（確認）'}))
   
   
 class EditPrfForm(forms.ModelForm):

@@ -19,10 +19,18 @@ from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 
 # Local application/library specific
-from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm
+from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm
 from .models import Follows, Messages, Users
 from management.models import UserStats
-from .utils import send_email_ses, generate_verification_code
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from accounts.models import Users
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
 
 
 import os
@@ -33,6 +41,26 @@ from .models import SearchHistorys
 import json
 
 from posts.models import Posts
+
+class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        return super()._make_hash_value(user, timestamp) + str(int(timestamp) + 5 * 60)  # 5分の有効期限
+
+custom_token_generator = CustomPasswordResetTokenGenerator()
+
+# ユーザー登録時にランダムな5桁の認証コードを生成
+def generate_verification_code():
+    return ''.join(random.choices(string.digits, k=5))
+
+def send_email_ses(to_email, subject, body):
+    send_mail(
+        subject,
+        body,
+        'regist@viewy.net',  # From
+        [to_email],  # To
+        fail_silently=False,
+    )
+
 
 
 class HomeView(TemplateView):
@@ -241,7 +269,81 @@ class UserLogoutView(View):
   
 class PostListView(TemplateView):
   template_name = 'posts/postlist.html'
-  
+
+
+# パスワードリセット関連
+
+
+def send_password_reset_email(email):
+    user = Users.objects.get(email=email)
+    uid = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
+    token = custom_token_generator.make_token(user)
+    reset_url = reverse('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+    full_reset_url = f'http://127.0.0.1:8000{reset_url}'
+    subject = 'Viewyパスワード再設定のお知らせ'
+    message = render_to_string('password_reset_email.html',{'password_reset_link': full_reset_url, 'user': user}) # userをコンテキストに追加
+    send_mail(subject, message, 'regist@viewy.net', [email], fail_silently=False)
+
+class PasswordResetView(FormView):
+    template_name = 'password_reset.html'
+    form_class = PasswordResetForm
+    success_url = reverse_lazy('accounts:password_reset_send')
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        send_password_reset_email(email)
+        return super().form_valid(form)
+    
+
+class PasswordResetSendView(TemplateView):
+    template_name = 'password_reset_send.html'
+
+class PasswordResetConfirmView(FormView):
+    template_name = 'password_reset_confirm.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('accounts:password_reset_complete')
+
+    def dispatch(self, *args, **kwargs):
+        self.user = self.get_user(kwargs['uidb64'])
+        self.validlink = False
+        if self.user:
+            self.validlink = custom_token_generator.check_token(self.user, kwargs['token']) # カスタムジェネレータを使用
+            if not self.validlink:
+                print("トークンが無効です。期限切れの可能性があります。")
+        else:
+            print("User not found")
+        return super().dispatch(*args, **kwargs)
+
+    def get_user(self, uidb64):
+        User = get_user_model()
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            return User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            print("Error retrieving user:", e)
+            return None
+
+    def form_valid(self, form):
+        if self.validlink:
+            password = form.cleaned_data['new_password1']
+            self.user.set_password(password)
+            self.user.save()
+        else:
+            print("無効なlinkだよん, passwordはアップデートされませんでした") # リンク無効、パスワード未更新
+        return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['validlink'] = self.validlink
+        return context
+
+class PasswordResetCompleteView(TemplateView):
+    template_name = 'password_reset_complete.html'
   
   
 class EditPrfView(View):

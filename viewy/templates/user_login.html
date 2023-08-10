@@ -5,7 +5,7 @@
 {% endblock %}
 {%block content%}
 <!-- <div class="mid-logo">V</div> -->
-<div class="mid-logo" >
+<div class="mid-logo">
   <img src="\media\others\Viewy-full-logo-aqua.png" alt="">
 </div>
 <div class="sub-title">ログイン</div>
@@ -19,7 +19,7 @@
       メールかDMに送信してください。</span><br>
     ２４時間以内にパートナーに登録させていただきます。
   </div>
-    <button class="ok-button" id="okButton">OK</button>
+  <button class="ok-button" id="okButton">OK</button>
 </div>
 
 {% endif %}
@@ -28,9 +28,9 @@
   {% csrf_token %}
   {% if messages %}
   <div class="message">
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
   </div>
   {% endif %}
   <div class="form">
@@ -49,21 +49,25 @@
     </div>
     <input class="button" type="submit" value="ログイン">
   </div>
-  
+</form>
+
 <div class="guide">
   ユーザー登録がまだの方は
   <div><a href="{% url 'accounts:regist'%}">新規登録</a></div>
 </div>
-
+<div class="guide">
+  パスワードをお忘れの場合は
+  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
+</div>
 
 <div class="consent">
-  <span>このサイトを利用することにより、<br>あなたは当サイトの<a href="{% url 'terms'%}">利用規約</a>および<a href="{% url 'policy'%}">プライバシーポリシー</a>に<br>同意したことになります。</span>
+  <span>このサイトを利用することにより、<br>あなたは当サイトの<a href="{% url 'terms'%}">利用規約</a>および<a
+      href="{% url 'policy'%}">プライバシーポリシー</a>に<br>同意したことになります。</span>
 </div>
 
 <script>
-  document.getElementById('okButton').addEventListener('click', function() {
-  document.getElementById('invitedMessage').style.display = 'none';
-});
+  document.getElementById('okButton').addEventListener('click', function () {
+    document.getElementById('invitedMessage').style.display = 'none';
+  });
 </script>
 {%endblock%}
-
