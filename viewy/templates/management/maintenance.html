@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewy</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+  <link rel="stylesheet" href="{% static 'css/stylecheck_age.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+
+  gtag('config', 'G-C5HF2NBPEV');
+</script>
+
+<body>
+  <div class="screen">
+
+    <div class="mid-logo">
+      <img src="\media\others\Viewy-full-logo-aqua.png" alt="">
+    </div>
+
+    <div class="ask">
+      <div class="age-check">メンテナンス中...</div>
+      <div class="question"></div>
+      <div class="warning">ただいまメンテナンス中です。<br>全力で応援お願いします。</div>
+
+      <div class="art">
+        <img src="\media\others\監視影なし.png" alt="">
+      </div>
+
+      <div class="answer">
+        <a id="no-button" class="no">まつ</a>
+        <a id="yes-button" class="yes">まつ</a>
+      </div>
+
+
+
+      <div class="consent">
+        <span>このサイトはただいま利用することができません。<br>運営チームが精を出しておりますので、<br>いましばらくお待ちください。</span>
+      </div>
+    </div>
+
+
+    <div class="keep-out keep-out-no">
+      <div>18歳未満の方はご利用いただけません。</div>
+      <button class="close">閉じる</button>
+    </div>
+
+    <div class="keep-out keep-out-yes">
+      <div>じっくり待ってね。</div>
+      <button class="close">閉じる</button>
+    </div>
+
+
+  </div>
+
+
+  {% block script %}
+
+  <script>
+    document.getElementById('no-button').addEventListener('click', function () {
+      // "いいえ"がクリックされたら、keep-outクラスの要素を表示する
+      document.querySelector('.keep-out-no').style.display = 'block';
+    });
+
+    document.getElementById('yes-button').addEventListener('click', function () {
+      // "はい"がクリックされたら、keep-outクラスの要素を表示する
+      document.querySelector('.keep-out-yes').style.display = 'block';
+    });
+
+    document.querySelectorAll('.close').forEach(function (closeButton) {
+      closeButton.addEventListener('click', function () {
+        // "閉じる"がクリックされたら、全てのkeep-outクラスの要素を非表示にする
+        document.querySelectorAll('.keep-out').forEach(function (keepOutDiv) {
+          keepOutDiv.style.display = 'none';
+        });
+      });
+    });
+
+  </script>
+
+  {% endblock %}
+
+</body>
+
+</html>
