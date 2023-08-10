@@ -224,7 +224,7 @@
   </div>
 
   <div class="logout">
-    <a href="{% url 'accounts:user_logout'%}"><i
+    <a href="{% url 'accounts:user_logout'%}" id="logout-button"><i
         class="fa-solid fa-arrow-right-from-bracket fa-lg mini-logo"></i>ログアウト</a>
     <div class="line"></div>
   </div>
@@ -237,4 +237,13 @@
     border-top: solid 2px aqua;
   }
 </style>
+<script>
+  document.getElementById('logout-button').addEventListener('click', function(e) {
+  e.preventDefault(); // 既定のリンク動作をキャンセル
+  var isConfirmed = window.confirm('本当にログアウトしますか？'); // 確認ダイアログを表示
+  if (isConfirmed) {
+    window.location.href = "{% url 'accounts:user_logout' %}"; // ユーザーが「OK」をクリックした場合、ログアウトURLへリダイレクト
+  }
+});
+</script>
 {% endblock %}
