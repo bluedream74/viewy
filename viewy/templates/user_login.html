@@ -55,14 +55,16 @@
   ユーザー登録がまだの方は
   <div><a href="{% url 'accounts:regist'%}">新規登録</a></div>
 </div>
-<div class="guide">
-  パスワードをお忘れの場合は
-  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
-</div>
+
 
 <div class="consent">
   <span>このサイトを利用することにより、<br>あなたは当サイトの<a href="{% url 'terms'%}">利用規約</a>および<a
       href="{% url 'policy'%}">プライバシーポリシー</a>に<br>同意したことになります。</span>
+</div>
+
+<div class="forget">
+  パスワードをお忘れの場合は
+  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
 </div>
 
 <script>

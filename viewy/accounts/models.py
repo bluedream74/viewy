@@ -77,30 +77,59 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'twitter'
         elif 'youtube' in self.url1:
             return 'youtube'
-        elif 'pixiv' in self.url1:
-            return 'pixiv'
         elif 'fantia' in self.url1:
             return 'fantia'
         elif 'myfans' in self.url1:
             return 'myfans'
         elif 'pornhub' in self.url1:
-            return 'pornhub'        
+            return 'pornhub'      
+        elif 'candfans' in self.url1:
+            return 'candfans'            
+        elif 'lit.link' in self.url1:
+            return 'lit.link'      
+        elif 'dlsite' in self.url1:
+            return 'dlsite'      
+        elif 'amazon' in self.url1:
+            return 'amazon'      
+        elif 'fanza' in self.url1:
+            return 'fanza'      
+        elif 'skeb' in self.ur1l:
+            return 'skeb'      
+        elif 'dlsite' in self.url1:
+            return 'dlsite'      
+        elif 'shikoshiko' in self.url1:
+            return 'cherrylive'      
         else:
             return 'default'
+
 
     def get_url2_prefix(self):
         if 'twitter' in self.url2:
             return 'twitter'
         elif 'youtube' in self.url2:
             return 'youtube'
-        elif 'pixiv' in self.url2:
-            return 'pixiv'
         elif 'fantia' in self.url2:
             return 'fantia'
         elif 'myfans' in self.url2:
             return 'myfans'
         elif 'pornhub' in self.url2:
-            return 'pornhub'                
+            return 'pornhub'      
+        elif 'candfans' in self.url2:
+            return 'candfans'            
+        elif 'lit.link' in self.url2:
+            return 'lit.link'      
+        elif 'dlsite' in self.url2:
+            return 'dlsite'      
+        elif 'amazon' in self.url2:
+            return 'amazon'      
+        elif 'fanza' in self.url2:
+            return 'fanza'      
+        elif 'skeb' in self.url2:
+            return 'skeb'      
+        elif 'dlsite' in self.url2:
+            return 'dlsite'      
+        elif 'shikoshiko' in self.url2:
+            return 'cherrylive'      
         else:
             return 'default'
 
@@ -109,14 +138,28 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'twitter'
         elif 'youtube' in self.url3:
             return 'youtube'
-        elif 'pixiv' in self.url3:
-            return 'pixiv'
         elif 'fantia' in self.url3:
             return 'fantia'
         elif 'myfans' in self.url3:
             return 'myfans'
         elif 'pornhub' in self.url3:
-            return 'pornhub'        
+            return 'pornhub'      
+        elif 'candfans' in self.url3:
+            return 'candfans'            
+        elif 'lit.link' in self.url3:
+            return 'lit.link'      
+        elif 'dlsite' in self.url3:
+            return 'dlsite'      
+        elif 'amazon' in self.url3:
+            return 'amazon'      
+        elif 'fanza' in self.url3:
+            return 'fanza'      
+        elif 'skeb' in self.url3:
+            return 'skeb'     
+        elif 'dlsite' in self.url3:
+            return 'dlsite'      
+        elif 'shikoshiko' in self.url3:
+            return 'cherrylive'      
         else:
             return 'default'
 
@@ -125,14 +168,28 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'twitter'
         elif 'youtube' in self.url4:
             return 'youtube'
-        elif 'pixiv' in self.url4:
-            return 'pixiv'
         elif 'fantia' in self.url4:
             return 'fantia'
         elif 'myfans' in self.url4:
             return 'myfans'
         elif 'pornhub' in self.url4:
-            return 'pornhub'        
+            return 'pornhub'      
+        elif 'candfans' in self.url4:
+            return 'candfans'            
+        elif 'lit.link' in self.url4:
+            return 'lit.link'      
+        elif 'dlsite' in self.url4:
+            return 'dlsite'      
+        elif 'amazon' in self.url4:
+            return 'amazon'      
+        elif 'fanza' in self.url4:
+            return 'fanza'      
+        elif 'skeb' in self.url4:
+            return 'skeb'     
+        elif 'dlsite' in self.url4:
+            return 'dlsite'      
+        elif 'shikoshiko' in self.url4:
+            return 'cherrylive'      
         else:
             return 'default'
 
@@ -141,14 +198,28 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'twitter'
         elif 'youtube' in self.url5:
             return 'youtube'
-        elif 'pixiv' in self.url5:
-            return 'pixiv'
         elif 'fantia' in self.url5:
             return 'fantia'
         elif 'myfans' in self.url5:
             return 'myfans'
         elif 'pornhub' in self.url5:
-            return 'pornhub'        
+            return 'pornhub'      
+        elif 'candfans' in self.url5:
+            return 'candfans'            
+        elif 'lit.link' in self.url5:
+            return 'lit.link'      
+        elif 'dlsite' in self.url5:
+            return 'dlsite'      
+        elif 'amazon' in self.url5:
+            return 'amazon'      
+        elif 'fanza' in self.url5:
+            return 'fanza'      
+        elif 'skeb' in self.url5:
+            return 'skeb'      
+        elif 'dlsite' in self.url5:
+            return 'dlsite'      
+        elif 'shikoshiko' in self.url5:
+            return 'cherrylive'      
         else:
             return 'default'
         

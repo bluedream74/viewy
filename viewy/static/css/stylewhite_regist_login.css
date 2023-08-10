@@ -189,6 +189,81 @@ li{
   text-decoration: underline;
 }
 
+.forget{
+  width: 100%;
+  text-align: center;
+  margin-top: 32px;
+  font-size: 12px;
+  color: gray;
+}
+
+.guide-title{
+  width: 100%;
+  text-align: center;
+  padding-top: 80px;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color);
+  color: rgb(60, 60, 60);
+}
+
+
+.done-title{
+  width: 100%;
+  text-align: center;
+  padding-top: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color);
+  color: rgb(69, 69, 69);
+}
+
+.send-title{
+  width: 100%;
+  text-align: center;
+  margin-top: 48px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color);
+  color: rgb(69, 69, 69);
+}
+
+.art{
+  margin-top: 32px;
+  text-align: center;
+}
+
+.art > img{
+  width: 64px;
+  opacity: 0.9;
+}
+
+.guide-message{
+  font-size: 12px;
+  color: rgb(69, 69, 69);
+  margin-top: 32px;
+  width: 100%;
+  text-align: center;
+}
+
+.guide-message2{
+  font-size: 12px;
+  color: rgb(69, 69, 69);
+  margin-top: 32px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  line-height: 24px;
+}
+
+a{
+  color: rgb(90, 229, 229);
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 

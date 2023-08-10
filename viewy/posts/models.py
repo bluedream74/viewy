@@ -57,6 +57,12 @@ class Posts(models.Model):
             return 'lit.link'      
         elif 'dlsite' in self.url:
             return 'dlsite'      
+        elif 'amazon' in self.url:
+            return 'amazon'      
+        elif 'fanza' in self.url:
+            return 'fanza'      
+        elif 'skeb' in self.url:
+            return 'skeb'      
         elif 'shikoshiko' in self.url:
             return 'cherrylive'      
         else:
