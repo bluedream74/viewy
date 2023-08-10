@@ -41,12 +41,26 @@ class Posts(models.Model):
       return self.title
 
     def get_url_prefix(self):
-      if self.url.startswith('https://twitter.com'):
-          return 'twitter'
-      elif self.url.startswith('https://www.youtube.com'):
-          return 'youtube'
-      else:
-          return 'default'
+        if 'twitter' in self.url:
+            return 'twitter'
+        elif 'youtube' in self.url:
+            return 'youtube'
+        elif 'fantia' in self.url:
+            return 'fantia'
+        elif 'myfans' in self.url:
+            return 'myfans'
+        elif 'pornhub' in self.url:
+            return 'pornhub'      
+        elif 'candfans' in self.url:
+            return 'candfans'            
+        elif 'lit.link' in self.url:
+            return 'lit.link'      
+        elif 'dlsite' in self.url:
+            return 'dlsite'      
+        elif 'shikoshiko' in self.url:
+            return 'cherrylive'      
+        else:
+            return 'default'
         
     def increment_report_count(self):
       self.report_count += 1

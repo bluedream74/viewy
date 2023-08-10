@@ -13,7 +13,12 @@
 
 <div class="list-area">
     {% for post in posts %}
-    <a class="post" href="{% url 'posts:poster_post_list' post.poster.pk %}?post_id={{ post.id }}">
+      {% if post.is_hidden %}
+      <a class="post" href="{% url 'posts:hidden_post' %}?post_id={{ post.id }}">
+      {% else %}
+      <a class="post" href="{% url 'posts:poster_post_list' username=post.poster.username %}?post_id={{ post.id }}">
+      {% endif %}
+
       <div class="delete">
         <form method="post" action="{% url 'posts:delete_post' %}" class="delete-form">
           {% csrf_token %}
@@ -59,7 +64,6 @@
 
 
 <div class="logo">V</div>
-
 
 <style>
   .my-account{

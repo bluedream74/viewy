@@ -204,6 +204,13 @@ label{
   cursor: pointer;
 }
 
+.page-count{
+  background-color:rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin-left: 8px;
+}
+
 /* キャプション関連 */
 .captions{
   position: absolute;
@@ -240,6 +247,12 @@ label{
   color: white;
   text-decoration: none;
   font-size: 16px;
+}
+
+.url-icon{
+  width: 20px;
+  position: relative;
+  top: 4px;
 }
 
 .hashtag{

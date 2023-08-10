@@ -105,3 +105,52 @@
   text-decoration: underline;
 }
 
+.keep-out{
+  display: none;
+  position: absolute;
+  top: 360px;
+  left: 7px;
+  width: 300px;
+  padding: 36px 16px 24px;
+  font-size: 14px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: white;
+  border: rgb(74, 232, 232) 2px solid;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0px 3px 3px gray;
+}
+
+.close{
+  color: rgb(255, 255, 255);
+  margin-top: 16px;
+  background-color: rgb(74, 232, 232);
+  border: none;
+  height: 40px;
+  width: 120px;
+  line-height: 24px;
+  border-radius: 50px;
+  font-weight: bold;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .keep-out{
+    position: absolute;
+    top: 368px;
+    left: 50%;
+    transform: translateX(-50%); /* 自身の幅の半分分を左にずらすことで真ん中に配置 */
+    width: 80%;
+    padding: 36px 16px 24px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    border: rgb(74, 232, 232) 2px solid;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0px 3px 3px gray;
+  }
+
+ }

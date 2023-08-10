@@ -253,7 +253,7 @@ class PosterPageView(BasePostListView):
     template_name = os.path.join('posts', 'poster_page.html')
     
     def get_queryset(self):
-        self.poster = get_object_or_404(Users, pk=self.kwargs['pk'])
+        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
         return Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
 
     def get_context_data(self, **kwargs):
@@ -271,7 +271,7 @@ class PosterPostListView(BasePostListView):
         selected_post_id = int(self.request.GET.get('post_id', 0))
 
         # ポスターが投稿した全ての投稿を取得
-        self.poster = get_object_or_404(Users, pk=self.kwargs['pk'])
+        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
         poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
         post_ids = [post.id for post in poster_posts]
         queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
@@ -594,6 +594,16 @@ class MyPostView(BasePostListView):
         user = self.request.user
         return super().get_queryset().filter(poster=user).order_by('-posted_at')
     
+class HiddenPostView(BasePostListView):
+    template_name = os.path.join('posts', 'hidden_post.html')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        post_id = self.request.GET.get('post_id')
+        if post_id:
+            queryset = queryset.filter(id=post_id)
+        return queryset
+
     
     
 class DeletePostView(View):

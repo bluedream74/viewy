@@ -16,12 +16,12 @@
 {% for poster in follow_posters %}
 <div class="follow-poster">
   <div>
-    <a href="{% url 'posts:poster_page' poster.pk %}">
+    <a href="{% url 'posts:poster_page' username=poster.username %}">
       <img class="poster-img" src="{{poster.prf_img.url}}">
     </a>
   </div>
   <div class="caption">
-    <a href="{% url 'posts:poster_page' poster.pk %}">
+    <a href="{% url 'posts:poster_page' username=poster.username %}">
       {% if poster.displayname %}
         <div class="poster-name">{{poster.displayname}}</div>
       {% else %}

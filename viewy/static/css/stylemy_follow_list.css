@@ -5,7 +5,7 @@
   position: fixed;
   top: 0px;
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   text-align: center;
   font-weight: bold;
   line-height: 60px;
@@ -109,6 +109,10 @@ label:hover{
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
+
+  .title{
+    width: 100%;
+  }
 
   .poster-img{
     height: 54px;
