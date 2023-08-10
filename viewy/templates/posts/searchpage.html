@@ -73,10 +73,14 @@
     </a>
   </div>
 
-  <!-- 広告を挿入する部分 -->
-  {% if forloop.counter == 2 or forloop.counter == 4 %}
-  <div class="ad-space">
-    <p>ここに広告</p>
+
+  {% if forloop.counter == 2 %}
+  <div class="ad-space wide-ad" data-ad-id="{{ random_ad2.id }}">
+    {{ random_ad2.ad_tag|safe }}
+  </div>
+  {% elif forloop.counter == 4 %}
+  <div class="ad-space wide-ad" data-ad-id="{{ random_ad4.id }}">
+    {{ random_ad4.ad_tag|safe }}
   </div>
   {% endif %}
 
@@ -101,4 +105,5 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{% static 'js/auto_correct.js' %}"></script>
 <script src="{% static 'js/search_history.js' %}"></script>
+<script src="{% static 'js/widead_response_count.js' %}"></script>
 {% endblock %}

@@ -27,7 +27,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, HotHashtags, KanjiHiraganaSet
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet
 
 from collections import defaultdict
 import logging
@@ -985,6 +985,13 @@ class HotHashtagView(TemplateView):
         for hashtag, posts in posts_by_hashtag.items():
             sorted_posts = sorted(posts, key=lambda x: x.posted_at, reverse=True)
             posts_by_hashtag[hashtag] = sorted_posts[:9]  # 最新の9個だけを取得
+        
+        # WideAdsからすべての広告を取得
+        wide_ads = list(WideAds.objects.all())
+
+        # 広告が存在する場合のみランダムに選ぶ
+        context['random_ad2'] = random.choice(wide_ads) if wide_ads else None
+        context['random_ad4'] = random.choice(wide_ads) if wide_ads else None
             
         context['posts_by_hashtag'] = dict(posts_by_hashtag)
         context['form'] = SearchForm()
@@ -1057,13 +1064,15 @@ class IncrementViewCount(View):
         return JsonResponse({'message': 'Successfully incremented view count'})
     
 
-class AdViewCount(View):
+class AdViewCountBase(View):
+    model = None  # 具体的なモデルは具象ビュークラスで指定
+
     def post(self, request, *args, **kwargs):
         ad_id = kwargs.get('ad_id')
 
         try:
-            ad = Ads.objects.get(id=ad_id)
-        except Ads.DoesNotExist:
+            ad = self.model.objects.get(id=ad_id)
+        except self.model.DoesNotExist:
             return JsonResponse({'error': 'Ad not found'}, status=404)
 
         ad.views_count += 1
@@ -1072,14 +1081,15 @@ class AdViewCount(View):
 
         return JsonResponse({'message': 'Successfully ad view count'})
 
+class AdClickCountBase(View):
+    model = None
 
-class AdClickCount(View):
     def post(self, request, *args, **kwargs):
         ad_id = kwargs.get('ad_id')
 
         try:
-            ad = Ads.objects.get(id=ad_id)
-        except Ads.DoesNotExist:
+            ad = self.model.objects.get(id=ad_id)
+        except self.model.DoesNotExist:
             return JsonResponse({'error': 'Ad not found'}, status=404)
 
         ad.click_count += 1
@@ -1088,6 +1098,17 @@ class AdClickCount(View):
 
         return JsonResponse({'message': 'Successfully ad click count'})
 
+class AdsViewCount(AdViewCountBase):
+    model = Ads
+
+class WideAdsViewCount(AdViewCountBase):
+    model = WideAds
+
+class AdsClickCount(AdClickCountBase):
+    model = Ads
+
+class WideAdsClickCount(AdClickCountBase):
+    model = WideAds
 
 
 # 報告処理

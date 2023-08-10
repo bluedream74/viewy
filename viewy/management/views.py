@@ -17,7 +17,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys
-from posts.models import Ads, Favorites, HotHashtags, Posts, KanjiHiraganaSet
+from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet
 from .forms import HashTagSearchForm
 from .models import UserStats
 
@@ -215,10 +215,15 @@ class Ad(SuperUserCheck, View):
     template_name = 'management/ad.html'
 
     def get(self, request, *args, **kwargs):
-        ads = Ads.objects.all()  # すべての広告を取得
+        ads = Ads.objects.all()
         for ad in ads:
-            ad.update_click_rate()  # 各広告のクリック率を更新
-        context = {'ads': ads}
+            ad.update_click_rate()
+
+        wide_ads = WideAds.objects.all()
+        for wide_ad in wide_ads:
+            wide_ad.update_click_rate()
+
+        context = {'ads': ads, 'wide_ads': wide_ads}
         return render(request, self.template_name, context)
 
 class PosterWaiterList(ListView):
