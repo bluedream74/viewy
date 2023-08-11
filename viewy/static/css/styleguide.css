@@ -124,3 +124,12 @@ span{
   font-weight: bold;
   box-shadow: 0px 2px 3px gray;
 }
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .screen{
+    width: 100%;
+  }
+
+}

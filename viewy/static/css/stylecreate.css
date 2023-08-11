@@ -28,6 +28,17 @@
 
 }
 
+.big-logo{
+  width: 100%;
+  text-align: center;
+  padding-top: 16px;
+  margin-bottom: 8px;
+}
+
+.big-logo > img{
+  width: 56px;
+}
+
 .mid-logo{
   color: white;
   font-family: Georgia, 'Times New Roman', Times, serif;
@@ -186,7 +197,9 @@ form input{
     left: 27%;
   }
   
-
+  .screen{
+    min-height: 750px;
+  }
 
   .mid-logo{
     padding-top: 36px;

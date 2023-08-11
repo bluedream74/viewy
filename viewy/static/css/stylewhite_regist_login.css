@@ -8,7 +8,7 @@ a{
 
 .screen{
   background-color: rgb(255, 255, 255);
-  min-height: 724px;
+  min-height: 880px;
   position: relative;
 }
 
@@ -200,7 +200,7 @@ li{
 .guide-title{
   width: 100%;
   text-align: center;
-  padding-top: 80px;
+  padding-top: 120px;
   font-size: 18px;
   font-weight: bold;
   text-decoration: underline;

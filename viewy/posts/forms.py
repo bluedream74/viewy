@@ -45,7 +45,7 @@ class VisualForm(forms.Form):
         min_num=1, 
         max_num=31, 
         max_file_size=1024*1024*5,  # 5MBを超えるサイズはエラー
-        label="マンガ",
+        label="画像",
         required=False
     )
     

@@ -40,15 +40,15 @@
   </div>
 </form>
 
-<div class="guide">
-  パスワードを忘れた場合
-  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
-</div>
-
 
 <div class="guide">
   ユーザー登録が済んでいる方は
   <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
+</div>
+
+<div class="forget">
+  パスワードを忘れた場合
+  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
 </div>
 
 {%endblock%}

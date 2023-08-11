@@ -1,3 +1,7 @@
+.screen{
+  min-height: 750px;
+}
+
 .mid-logo{
   width: 100%;
   text-align: center;
@@ -78,8 +82,8 @@ form input{
 .button{
   color: white;
   font-weight: bold;
-  height: 28px;
-  width: 64px;
+  height: 36px;
+  width: 80px;
   background-color: rgb(69, 218, 218);
   border: none;
   margin-top: 24px;

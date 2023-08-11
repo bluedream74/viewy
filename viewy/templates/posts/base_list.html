@@ -110,6 +110,13 @@
     </div>
 
     <div class="captions">
+      <div class="poster-name">
+        {% if post.poster.displayname %}
+        <div class="poster-name">＠ {{post.poster.displayname}}</div>
+        {% else %}
+        <div class="poster-name">＠ {{post.poster.username}}</div>
+        {% endif %}      
+      </div>
       <div class="title">
         {{post.title}}
 
@@ -126,7 +133,7 @@
         {% if post.url %}
         <span class="url"><a href="{{post.url}}" target="_blank">
             {% if post.get_url_prefix == 'twitter' %}
-            <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
+            <img class="url-icon" src="\media\link_logo\x_white.png" alt="">
             {% elif post.get_url_prefix == 'youtube' %}
             <i class="fab fa-youtube"></i>
             {% elif post.get_url_prefix == 'fantia' %}

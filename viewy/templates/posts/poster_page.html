@@ -8,194 +8,191 @@
 
 <div class="top-space"></div>
 
-<div class="follow-poster">
-  <div>
-    <a href="{% url 'posts:poster_page' username=about_poster.username %}">
-      <img class="poster-img" src="{{about_poster.prf_img.url}}">
-    </a>
-  </div>
-  <div class="info">
-    <a href="{% url 'posts:poster_page' username=about_poster.username %}">
-      {% if about_poster.displayname %}
-      <div class="poster-name">{{about_poster.displayname}}</div>
-      {% else %}
-      <div class="poster-name">{{about_poster.username}}</div>
-      {% endif %}      
-
-    </a>
-  </div>
-  <div>
-    <form  data-pk="{{ about_poster.pk }}" action="{% url 'accounts:follow' pk=about_poster.pk %}" method="POST">
-      {% csrf_token %}
-      <div class="counter">フォロワー <span class="follow-count">{{ about_poster.follow_count }}</span>人</div>
-      <input type="hidden" name="poster_pk" value="{{ about_poster.pk }}">
-      <label>
-
-        {% if user.is_authenticated %}
-          {% if user in about_poster.follow.all %}
-              <div class="followed">フォロー中</div>
-          {% else %}
-              <div class="follow">フォローする</div>
-          {% endif %}
+<div class="profile">
+  <div class="main-info">
+    <div class="poster-img">
+      <img src="{{about_poster.prf_img.url}}">
+    </div>
+    <div class="right-div">
+      <div class="poster-name">
+        {% if about_poster.displayname %}
+        <div class="poster-name">{{about_poster.displayname}}</div>
         {% else %}
-            <a href="{% url 'accounts:user_login' %}" class="visiter-follow">フォローする</a>
-        {% endif %}
-
-        <input 
-        type="checkbox"
-        class="follow-button"
-        {% if user in about_poster.follow.all %}checked{% endif %}
-        >
-      </label>
-    </form>
+        <div class="poster-name">{{about_poster.username}}</div>
+        {% endif %}      
+      </div>
+      <div class="follow-container">
+        <form  data-pk="{{ about_poster.pk }}" action="{% url 'accounts:follow' pk=about_poster.pk %}" method="POST">
+          {% csrf_token %}
+          <div class="counter">フォロワー <span class="follow-count">{{ about_poster.follow_count }}</span>人</div>
+          <input type="hidden" name="poster_pk" value="{{ about_poster.pk }}">
+          <label>
+    
+            {% if user.is_authenticated %}
+              {% if user in about_poster.follow.all %}
+                  <div class="main-button followed">フォロー中</div>
+              {% else %}
+                  <div class="main-button follow">フォローする</div>
+              {% endif %}
+            {% else %}
+                <a href="{% url 'accounts:user_login' %}" class="main-button visitor">フォローする</a>
+            {% endif %}
+    
+            <input 
+            type="checkbox"
+            class="follow-button"
+            {% if user in about_poster.follow.all %}checked{% endif %}
+            >
+          </label>
+      </div>
+    </div>
   </div>
-</div>
-{% if about_poster.caption %}
+  {% if about_poster.caption %}
   <div class="caption">
     {{ about_poster.caption|linebreaksbr  }}
   </div>
-{% endif %}
-{% if about_poster.url1 %}
-    <div class="urls">
-      {% if about_poster.url1 %}
-      <div class="url"><a href="{{ about_poster.url1 }}">
-        {% if about_poster.get_url1_prefix == 'twitter' %}
-        <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'youtube' %}
-        <i class="fab fa-youtube"></i>
-        {% elif about_poster.get_url1_prefix == 'fantia' %}
-        <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'myfans' %}
-        <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'candfans' %}
-        <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'lit.link' %}
-        <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'fanza' %}
-        <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'amazon' %}
-        <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'skeb' %}
-        <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
-        {% elif about_poster.get_url1_prefix == 'dlsite' %}
-        <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
-        {% else %}
-        <i class="fas fa-link"></i>
-        {% endif %}
-      </a></div>
+  {% endif %}
+  {% if about_poster.url1 %}
+  <div class="urls">
+    {% if about_poster.url1 %}
+    <div class="url"><a href="{{ about_poster.url1 }}">
+      {% if about_poster.get_url1_prefix == 'twitter' %}
+      <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'youtube' %}
+      <i class="fab fa-youtube"></i>
+      {% elif about_poster.get_url1_prefix == 'fantia' %}
+      <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'myfans' %}
+      <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'candfans' %}
+      <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'lit.link' %}
+      <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'fanza' %}
+      <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'amazon' %}
+      <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'skeb' %}
+      <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
+      {% elif about_poster.get_url1_prefix == 'dlsite' %}
+      <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
+      {% else %}
+      <i class="fas fa-link"></i>
       {% endif %}
-      {% if about_poster.url2 %}
-      <div class="url"><a href="{{ about_poster.url2 }}">
-        {% if about_poster.get_url2_prefix == 'twitter' %}
-        <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'youtube' %}
-        <i class="fab fa-youtube"></i>
-        {% elif about_poster.get_url2_prefix == 'fantia' %}
-        <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'myfans' %}
-        <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'candfans' %}
-        <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'lit.link' %}
-        <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'fanza' %}
-        <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'amazon' %}
-        <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'skeb' %}
-        <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
-        {% elif about_poster.get_url2_prefix == 'dlsite' %}
-        <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
-        {% else %}
-        <i class="fas fa-link"></i>
-        {% endif %}
-      </a></div>
-      {% endif %}
-      {% if about_poster.url3 %}
-      <div class="url"><a href="{{ about_poster.url3 }}">
-        {% if about_poster.get_url3_prefix == 'twitter' %}
-        <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'youtube' %}
-        <i class="fab fa-youtube"></i>
-        {% elif about_poster.get_url3_prefix == 'fantia' %}
-        <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'myfans' %}
-        <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'candfans' %}
-        <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'lit.link' %}
-        <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'fanza' %}
-        <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'amazon' %}
-        <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'skeb' %}
-        <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
-        {% elif about_poster.get_url3_prefix == 'dlsite' %}
-        <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
-        {% else %}
-        <i class="fas fa-link"></i>
-        {% endif %}
-      </a></div>
-      {% endif %}
-    {% if about_poster.url4 %}
-      <div class="url"><a href="{{ about_poster.url4 }}">
-        {% if about_poster.get_url4_prefix == 'twitter' %}
-        <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'youtube' %}
-        <i class="fab fa-youtube"></i>
-        {% elif about_poster.get_url4_prefix == 'fantia' %}
-        <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'myfans' %}
-        <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'candfans' %}
-        <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'lit.link' %}
-        <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'fanza' %}
-        <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'amazon' %}
-        <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'skeb' %}
-        <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
-        {% elif about_poster.get_url4_prefix == 'dlsite' %}
-        <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
-        {% else %}
-        <i class="fas fa-link"></i>
-        {% endif %}
-        </a></div>
-        {% endif %}
-    {% if about_poster.url5 %}
-      <div class="url5"><a href="{{ about_poster.url5 }}">
-        {% if about_poster.get_url5_prefix == 'twitter' %}
-        <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'youtube' %}
-        <i class="fab fa-youtube"></i>
-        {% elif about_poster.get_url5_prefix == 'fantia' %}
-        <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'myfans' %}
-        <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'candfans' %}
-        <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'lit.link' %}
-        <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'fanza' %}
-        <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'amazon' %}
-        <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'skeb' %}
-        <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
-        {% elif about_poster.get_url5_prefix == 'dlsite' %}
-        <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
-        {% else %}
-        <i class="fas fa-link"></i>
-        {% endif %}
-        </a></div>
+    </a></div>
     {% endif %}
+    {% if about_poster.url2 %}
+    <div class="url"><a href="{{ about_poster.url2 }}">
+      {% if about_poster.get_url2_prefix == 'twitter' %}
+      <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'youtube' %}
+      <i class="fab fa-youtube"></i>
+      {% elif about_poster.get_url2_prefix == 'fantia' %}
+      <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'myfans' %}
+      <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'candfans' %}
+      <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'lit.link' %}
+      <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'fanza' %}
+      <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'amazon' %}
+      <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'skeb' %}
+      <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
+      {% elif about_poster.get_url2_prefix == 'dlsite' %}
+      <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
+      {% else %}
+      <i class="fas fa-link"></i>
+      {% endif %}
+    </a></div>
+    {% endif %}
+    {% if about_poster.url3 %}
+    <div class="url"><a href="{{ about_poster.url3 }}">
+      {% if about_poster.get_url3_prefix == 'twitter' %}
+      <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'youtube' %}
+      <i class="fab fa-youtube"></i>
+      {% elif about_poster.get_url3_prefix == 'fantia' %}
+      <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'myfans' %}
+      <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'candfans' %}
+      <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'lit.link' %}
+      <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'fanza' %}
+      <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'amazon' %}
+      <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'skeb' %}
+      <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
+      {% elif about_poster.get_url3_prefix == 'dlsite' %}
+      <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
+      {% else %}
+      <i class="fas fa-link"></i>
+      {% endif %}
+    </a></div>
+    {% endif %}
+  {% if about_poster.url4 %}
+    <div class="url"><a href="{{ about_poster.url4 }}">
+      {% if about_poster.get_url4_prefix == 'twitter' %}
+      <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'youtube' %}
+      <i class="fab fa-youtube"></i>
+      {% elif about_poster.get_url4_prefix == 'fantia' %}
+      <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'myfans' %}
+      <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'candfans' %}
+      <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'lit.link' %}
+      <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'fanza' %}
+      <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'amazon' %}
+      <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'skeb' %}
+      <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
+      {% elif about_poster.get_url4_prefix == 'dlsite' %}
+      <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
+      {% else %}
+      <i class="fas fa-link"></i>
+      {% endif %}
+      </a></div>
+      {% endif %}
+  {% if about_poster.url5 %}
+    <div class="url5"><a href="{{ about_poster.url5 }}">
+      {% if about_poster.get_url5_prefix == 'twitter' %}
+      <img class="url-icon" src="\media\link_logo\x_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'youtube' %}
+      <i class="fab fa-youtube"></i>
+      {% elif about_poster.get_url5_prefix == 'fantia' %}
+      <img class="url-icon" src="\media\link_logo\fantia_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'myfans' %}
+      <img class="url-icon" src="\media\link_logo\myfans_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'candfans' %}
+      <img class="url-icon" src="\media\link_logo\candfans_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'lit.link' %}
+      <img class="url-icon" src="\media\link_logo\litlink_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'fanza' %}
+      <img class="url-icon" src="\media\link_logo\fanza_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'amazon' %}
+      <img class="url-icon" src="\media\link_logo\amazon_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'skeb' %}
+      <img class="url-icon" src="\media\link_logo\skeb_black.png" alt="">
+      {% elif about_poster.get_url5_prefix == 'dlsite' %}
+      <img class="url-icon" src="\media\link_logo\dlsite_black.png" alt="">
+      {% else %}
+      <i class="fas fa-link"></i>
+      {% endif %}
+      </a></div>
+  {% endif %}
   </div>
-{% else %}
-  <div class="mid-space"></div>
-{% endif %}
+  {% endif %}
+</div>
+
 
 
 <div class="list-area">

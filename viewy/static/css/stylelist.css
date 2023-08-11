@@ -7,29 +7,74 @@
   position: relative;
 }
 
-.poster-name{
+.profile{
+  width: 100%;
+  padding: 24px 0px 32px;
   color: white;
-  font-weight: bold;
-  /* text-decoration: underline;
-  text-decoration-color: aqua; */
+}
+
+.main-info{
+  display: flex;
+  padding: 0px 16px;
 }
 
 .poster-img{
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
+  margin-left: 16px;
   border-radius: 50%;
-  margin-left: 24px;
   background-color: white;
 }
 
-.info{
-  margin-left: 24px;
+.poster-img > img{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
 }
 
-.mid-space{
-  width: 100%;
-  height: 24px;
+.right-div{
+  display: block;
+  margin-left: 16px;
 }
+
+.poster-name{
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.counter{
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.main-button{
+  width: 160px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 8px 0px;
+  margin: 8px 0px;
+  border-radius: 50px;
+}
+
+.followed{
+  background-color: rgb(173, 173, 173);
+}
+
+.follow, .visitor{
+  background-color: aqua;
+}
+
+.visitor{
+  display: block;
+  color: white;
+}
+
+.follow-button{
+  display: none;
+}
+
 
 .caption{
   width: 300px;
@@ -41,65 +86,7 @@
   color: white;
 }
 
-.visiter-follow{
-  width: 96px;
-  height: 32px;
-  font-size: 12px;
-  border-radius: 50px;
-  background-color: aqua;
-  text-align: center;
-  line-height: 32px;
-  padding: 2px 4px;
-  margin-left: 16px;
-  margin-top: 44px;
-  position: absolute;
-  left: 88px;
-  color: white;
-  font-weight: bold;
-}
 
-.followed{
-  width: 96px;
-  height: 32px;
-  font-size: 12px;
-  border-radius: 50px;
-  background-color: rgb(110, 110, 110);
-  text-align: center;
-  line-height: 32px;
-  padding: 2px 4px;
-  margin-left: 16px;
-  margin-top: 44px;
-  position: absolute;
-  left: 88px;
-  font-weight: bold;
-}
-
-.follow{
-  width: 96px;
-  height: 32px;
-  font-size: 12px;
-  border-radius: 50px;
-  background-color: aqua;
-  text-align: center;
-  line-height: 32px;
-  padding: 2px 4px;
-  margin-left: 16px;
-  margin-top: 44px;
-  position: absolute;
-  left: 88px;
-  font-weight: bold;
-}
-
-.follow-button{
-  display: none;
-}
-
-.counter{
-  position: absolute;
-  bottom: 20px;
-  left: 110px;
-  font-size: 12px;
-}
 
 .urls{
   width: 78%;
@@ -108,7 +95,6 @@
   display: flex;
   justify-content: left;
   margin-top: 16px;
-  margin-bottom: 32px;
 }
 
 .url{
@@ -174,6 +160,13 @@ label:hover{
   cursor: pointer;
   opacity: 0.8;
 }
+
+.mid-space{
+  width: 100%;
+  height: 24px;
+}
+
+
 
 /* タイトルのハッシュタグ */
 .maintag{
@@ -463,45 +456,41 @@ ul{
     width: 100%;
   }
 
-  .follow-poster{
-    padding-top: 4px;
-  }
-
-  .follow, .followed{
-    position: absolute;
-    right: 80px;
-    top:8px;
-    font-weight: bold;
-  }
-
   .caption{
     width: 80%;
     font-size: 14px;
   }
 
-.url{
-  height: 48px;
-  width: 48px;
-  line-height: 48px;
-}
+  .urls{
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+
+  .url{
+    height: 52px;
+    width: 52px;
+    line-height: 52px;
+  }
 
 
-.url5{
-  height: 48px;
-  width: 48px;
-  line-height: 48px;
-}
+  .url5{
+    height: 52px;
+    width: 52px;
+    line-height: 52px;
+  }
 
 
-.url > a > img{
-  height: 48px;
-  width: 48px;
-}
+  .url > a > img{
+    height: 52px;
+    width: 52px;
+  }
 
-.url5 > a > img{
-  height: 48px;
-  width: 48px;
-}
+  .url5 > a > img{
+    height: 52px;
+    width: 52px;
+  }
 
 
 .list-area{

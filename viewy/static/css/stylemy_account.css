@@ -5,6 +5,10 @@
   margin-bottom: 24px;
 }
 
+.screen{
+  min-height: 800px;
+}
+
 a{
   color: white;
 }
@@ -255,6 +259,10 @@ a{
     font-size: 14px;
   }
 
+  .urls{
+    justify-content: center;
+  }
+
   .url{
     height: 48px;
     width: 48px;
@@ -288,6 +296,10 @@ a{
 
 @media only screen and (max-width: 350px) {
       
+  .urls{
+    justify-content: center;
+  }
+
   .url{
     height: 40px;
     width: 40px;

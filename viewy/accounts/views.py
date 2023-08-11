@@ -1,4 +1,7 @@
 # Python standard library
+import os
+import random
+import string
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse
 
@@ -33,7 +36,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 
 
-import os
+
 from .models import Users
 
 from django.http import JsonResponse
@@ -41,6 +44,7 @@ from .models import SearchHistorys
 import json
 
 from posts.models import Posts
+
 
 class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
@@ -318,7 +322,7 @@ class PasswordResetConfirmView(FormView):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             return User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
             print("Error retrieving user:", e)
             return None
 
