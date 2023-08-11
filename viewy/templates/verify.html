@@ -42,8 +42,12 @@
         <input type="number" id="input5" name="input5" pattern="[0-9]{1}" maxlength="1" size="1">
         <div><button type="submit">送信</button></div>
       </form>
+
+      <a class="resend" href="{% url 'accounts:resend_verification' %}">認証コードを再送する</a>
+
     </div>
   </div>
+
   
   </body>
   <script>

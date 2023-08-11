@@ -48,7 +48,7 @@ from posts.models import Posts
 
 class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
-        return super()._make_hash_value(user, timestamp) + str(int(timestamp) + 5 * 60)  # 5分の有効期限
+        return super()._make_hash_value(user, timestamp) + str(int(timestamp) + 60 * 60)  # １時間の有効期限
 
 custom_token_generator = CustomPasswordResetTokenGenerator()
 
@@ -123,7 +123,7 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         mail_sent = send_email_ses(
             to_email=form.instance.email,
             subject='あなたの認証コードです',
-            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は５分です。'
+            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は１時間です。'
         )
         
         if mail_sent:
@@ -162,7 +162,7 @@ class InvitedRegistUserView(SuccessMessageMixin, CreateView):
         mail_sent = send_email_ses(
             to_email=form.instance.email,
             subject='あなたの特別な認証コードです',
-            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は５分です。'
+            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は１時間です。'
         )
         
         if mail_sent:
@@ -185,7 +185,7 @@ class VerifyView(FormView):
         code = form.cleaned_data['input1'] + form.cleaned_data['input2'] + form.cleaned_data['input3'] + form.cleaned_data['input4'] + form.cleaned_data['input5']
 
         # Check if the verification code has expired
-        if user.verification_code_generated_at + datetime.timedelta(minutes=5) < timezone.now():
+        if user.verification_code_generated_at + datetime.timedelta(minutes=60) < timezone.now():
             form.add_error(None, 'Your verification code has expired.')
             return self.form_invalid(form)
 
@@ -214,6 +214,27 @@ class VerifyView(FormView):
         return super().form_valid(form)  # Call parent form_valid
 
 
+class ResendVerificationCodeView(View):
+    def get(self, request, *args, **kwargs):
+        email = request.session['email']
+        user = Users.objects.get(email=email)
+
+        # Generate a new verification code
+        user.verification_code = generate_verification_code()
+        user.verification_code_generated_at = timezone.now()
+        user.save()
+
+        # Send verification code to user's email using Amazon SES
+        send_email_ses(
+            to_email=user.email,
+            subject='あなたの認証コードです',
+            body=f'あなたの認証コードは {user.verification_code} です。このコードの有効期間は１時間です。'
+        )
+
+        # Add a success message
+        messages.success(request, '認証コードを再送しました。')
+
+        return HttpResponseRedirect(reverse('accounts:verify'))
           
   
 class UserLoginView(FormView):

@@ -33,6 +33,15 @@
   color: orangered;
 }
 
+.success{
+  margin-top: 8px;
+  width: 184px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 13px;
+  color: rgb(43, 232, 75);
+}
+
 input{
   border: none;
   border-bottom: 2px aqua solid;
@@ -63,4 +72,12 @@ button{
   border-radius: 50px;
   color: white;
   background-color: rgb(59, 232, 224);
+}
+
+.resend{
+  display: block;
+  text-decoration: underline;
+  margin-top: 32px;
+  font-size: 14px;
+  color: rgb(59, 232, 224);
 }

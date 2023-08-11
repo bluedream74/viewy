@@ -240,7 +240,7 @@
 <script>
   document.getElementById('logout-button').addEventListener('click', function(e) {
   e.preventDefault(); // 既定のリンク動作をキャンセル
-  var isConfirmed = window.confirm('本当にログアウトしますか？'); // 確認ダイアログを表示
+  var isConfirmed = window.confirm('ログアウトしますか？'); // 確認ダイアログを表示
   if (isConfirmed) {
     window.location.href = "{% url 'accounts:user_logout' %}"; // ユーザーが「OK」をクリックした場合、ログアウトURLへリダイレクト
   }
