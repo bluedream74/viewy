@@ -10,3 +10,27 @@
   width: 32%; /* 各ブロックの幅を設定（必要に応じて調整） */
 }
 
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+  .content{
+    display: block;
+  }
+
+  .rank{
+    display: flex;
+
+  }
+
+  .block{
+    padding: 16px 32px;
+  }
+
+  .select{
+    min-width: max-content;
+    margin-bottom: 120px;
+  }
+
+  p{
+    max-width: 100%;
+  }
+}

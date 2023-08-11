@@ -1,0 +1,21 @@
+.block{
+  padding: 40px 32px 32px;
+}
+
+.form{
+  margin-bottom: 32px;
+}
+
+input{
+  height: 24px;
+  font-size: 18px;
+}
+
+button{
+  font-weight: bold;
+  border-radius: 50px;
+  padding: 8px 32px;
+  margin-left: 8ox;
+  border: none;
+  border: 1px rgb(32, 41, 43) solid;
+}

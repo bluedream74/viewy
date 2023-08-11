@@ -9,7 +9,7 @@ body{
 }
 
 .side-menu{
-  width: 24%;
+  width: 160px;
   height: 73vh;
   min-width: 180px;
   min-height: 400px;
@@ -44,7 +44,11 @@ body{
   justify-content: space-between;   /* This creates equal space between the children */
   flex-wrap: wrap;   /* This allows the blocks to wrap to the next line if the container's width isn't enough */
   text-align: center;
+  max-height: 100vh;
+  min-height: 100vh;
+  overflow: scroll;
 }
+
 
 .block{
   max-height: 450px;
@@ -116,4 +120,42 @@ p > input{
   height: 24px;
   padding: 0px 16px;
   border-radius: 50px;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .content{
+    min-height: 100vh;
+  }
+
+  .side-menu{
+    text-align: center;
+    width: auto;
+    min-width: 40px;
+    min-width: auto;
+    min-height: auto;
+    height: calc(var(--vh, 1vh) * 100 - 160px);
+  }
+
+  .side-menu > a{
+    text-align: center;
+    display: block;
+    width: 48px;
+    padding-left: 16px;
+  }
+
+  .menu-title{
+    display: none;
+  }
+
+  table{
+    font-size: 11px;
+  }
+
+  .block{
+    margin: 4px;
+    margin-top: 40px;
+    padding: 4px;
+  }
 }

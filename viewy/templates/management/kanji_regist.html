@@ -1,23 +1,29 @@
 {% extends 'management/management_base.html' %}
 {% load static %}
 {% block head %}
+<link rel="stylesheet" href="{% static 'css/management/kanji.css' %}">
 {% endblock %}
 
 
 {% block content %}
-<h1>漢字とひらがなの追加</h1>
-
+<div class="block">
     <form action="{% url 'management:kanji_regist' %}" method="post">
         {% csrf_token %}
-        <label for="hiragana">ひらがな読み：</label>
-        <input type="text" id="hiragana" name="hiragana" required><br>
+        <div class="form">
+            <label for="hiragana">ひらがな読み：</label>
+            <input type="text" id="hiragana" name="hiragana" required>
+        </div>
 
-        <label for="kanji">漢字（漢字から始まる単語はすべて登録　例：足フェチ
-        途中で漢字が出てくる単語は登録しない　例：ハメ撮り）：</label>
-        <input type="text" id="kanji" name="kanji" required><br>
-
+        <div class="form">
+            <label for="kanji">漢字：</label>
+            <input type="text" id="kanji" name="kanji" required>
+        </div>
+        
         <button type="submit">保存</button>
     </form>
+</div>
+
+
 
 
 

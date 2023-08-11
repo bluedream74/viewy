@@ -1,0 +1,15 @@
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .content{
+    display: block;
+  }
+
+  #second{
+    margin-top: 16px;
+  }
+
+  .url{
+    display: none;
+  }
+}
