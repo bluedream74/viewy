@@ -303,13 +303,6 @@
 <div class="adjust-trigger">
   <div class="load-trigger"></div>
 </div>
-<!-- <div class="logo">V</div> -->
-<!-- <a href="{% url 'posts:back' %}" class="back"><i class="fa-solid fa-chevron-left"></i></a> -->
-<!-- <img class="logo-img" src="\media\others\viewy-logo.png" alt=""> -->
-
-<!-- 戻るボタンをHTTP_REFERERで一旦解決 -->
-<a href="{% if request.META.HTTP_REFERER %}{{request.META.HTTP_REFERER}}{% else %}{% url 'posts:postlist' %}{% endif %}"
-  class="back"><i class="fa-solid fa-chevron-left"></i></a>
 
 
 {% block bottom %}

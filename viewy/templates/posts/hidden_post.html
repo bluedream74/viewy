@@ -18,6 +18,7 @@
 </div>
 <div class="top-space"></div>
 
+<div class="hidden-title"><i class="fa-solid fa-eye-slash hidden-icon"></i> 非表示の投稿</div>
 
 {% for post in posts %}
 
@@ -225,6 +226,7 @@
 
 
 
+
 </div>
 
 
@@ -235,9 +237,6 @@
 
 
 <div class="bottom-space"></div>
-<div class="adjust-trigger">
-  <div class="load-trigger"></div>
-</div>
 
 <!-- 戻るボタンをHTTP_REFERERで一旦解決 -->
 <a href="{% if request.META.HTTP_REFERER %}{{request.META.HTTP_REFERER}}{% else %}{% url 'posts:postlist' %}{% endif %}"
@@ -257,8 +256,11 @@
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/mute.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
+<script src="{% static 'js/ad_response_count.js' %}"></script>
 <script src="{% static 'js/report.js' %}"></script>
 <script src="{% static 'js/hashtag_history.js' %}"></script>
 {% endblock %}

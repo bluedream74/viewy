@@ -233,6 +233,7 @@ label{
 
 .hashtags{
   margin-top: 4px;
+  line-height: 28px;
 }
 
 .url{
@@ -265,6 +266,7 @@ label{
   background-color: rgba(255, 255, 255, 0.306);
   border-radius: 4px;
   padding: 1px 2px 2px 5px;
+  white-space: nowrap;
 }
 
 .hashtag :hover{
@@ -506,6 +508,24 @@ input[type="radio"]:checked {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+
+.hidden-title{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%); /* 自身の幅の半分分を左にずらすことで真ん中に配置 */
+  top: 24px;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-line: 2px;
+  text-decoration-color: orangered;
+}
+
+.hidden-icon{
+  color: orangered;
 }
 
 
