@@ -267,6 +267,7 @@ video::-webkit-media-controls-enclosure {
 .delete-button:hover {
   animation: blinking 1.5s infinite;
 }
+
 /* 非表示アイコン */
 .hidden-icon{
   position: absolute;
@@ -479,7 +480,7 @@ ul{
   }
 
   .urls{
-    width: 90%;
+    width: 80%;
     margin-left: auto;
     margin-right: auto;
     justify-content: left;
@@ -566,6 +567,10 @@ ul{
  }
 
  @media only screen and (max-width: 400px) {
+
+  .urls{
+    width: 90%;
+  }
       
   .url{
     height: 40px;

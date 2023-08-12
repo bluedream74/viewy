@@ -21,27 +21,64 @@
   width: 400px;
   margin-left: auto;
   margin-right: auto;
+  opacity: 0; /* 初期の透明度 */
+  transition: opacity 1s ease; /* 透明度の変化を1秒かけて */
 }
 
-.catch-right{
+/* ページ読み込み後すぐにアニメーションを開始するためのクラス */
+.main-img.loaded {
+  opacity: 1; /* 最終的な透明度 */
+}
+
+/* ページが読み込まれたらすぐにアニメーションを開始 */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.main-img {
+  opacity: 0; /* 初期の透明度 */
+  animation: fadeIn 1s ease forwards 0.5s; /* 2秒後に開始 */
+}
+
+.catch-right,
+.catch-left {
   font-size: 48px;
   font-weight: bold;
   writing-mode: vertical-rl;
   position: absolute;
+  line-height: 48px;
+  opacity: 0;
+  transition: all 1s ease; /* 1秒かけて変化 */
+}
+
+.catch-right {
   margin-right: 4px;
   right: 0px;
   top: 0px;
-  line-height: 48px;
+  transform: translateY(-80px); /* 初期位置を少し上に設定 */
 }
 
-.catch-left{
-  font-size: 48px;
-  font-weight: bold;
-  writing-mode: vertical-rl;
-  position: absolute;
+.catch-left {
   left: 0px;
   top: 0px;
   line-height: 56px;
+  transform: translateY(80px); /* 初期位置を少し下に設定 */
+}
+
+/* このアニメーションを追加 */
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0); /* 最終位置 */
+  }
+}
+
+/* アニメーションの適用 */
+.catch-right,
+.catch-left {
+  animation: slideIn 1s ease forwards;
 }
 
 
@@ -52,6 +89,17 @@
   padding: 24px 0px 80px 0px;
   border-radius: 24px 24px 8px 8px;
   background-color: rgb(253, 253, 253);
+}
+
+.block {
+  opacity: 0;
+  transform: translateY(16px); /* 初期位置を少し下に設定 */
+  transition: all 0.8s ease; /* 0.5秒かけて変化 */
+}
+
+.block.visible {
+  opacity: 1;
+  transform: translateY(0); /* 最終位置 */
 }
 
 span{
