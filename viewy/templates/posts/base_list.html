@@ -165,12 +165,6 @@
       </div>
     </div>
 
-    <div class="page-count">
-      {% if post.ismanga %}
-      <span id="current-page">1</span>/<span class="total-page">{{ post.visuals_list|length }}</span>
-      {% endif %}
-    </div>
-
     {% if user.is_authenticated %}
     {% if post.reported_by_user %}
     <div class="report already">
@@ -227,13 +221,16 @@
   </div>
 
   {% if post.ismanga %}
-  <label class="hide-label fa-regular fa-square-minus hide">
+  <label class="hide-label fa-solid fa-angle-down hide">
     <input class="hide-input" type="checkbox" style="display: none;">
   </label>
-
   {% endif %}
 
-
+  <div class="page-count">
+    {% if post.ismanga %}
+    <span id="current-page">1</span>/<span class="total-page">{{ post.visuals_list|length }}</span>
+    {% endif %}
+  </div>
 
 
 </div>

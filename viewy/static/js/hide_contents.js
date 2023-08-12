@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('hide-label')) {
@@ -21,13 +21,21 @@ function toggleSidebarAndCaptions(content, label) {
     return;
   }
 
-  if (getComputedStyle(content).display !== 'none') {
-    content.style.display = 'none';
-    label.classList.replace('fa-square-minus', 'fa-square-plus');
+  if (getComputedStyle(content).opacity !== '0') {
+    content.classList.add('hidden');
+    label.classList.replace('fa-angle-down', 'fa-angle-up');
     input.checked = true;
+
+    // 完全に非表示にする
+    setTimeout(function() {
+      if (content.classList.contains('hidden')) {
+        content.style.display = 'none';
+      }
+    }, 500); // トランジションと同じ時間
   } else {
     content.style.display = 'block';
-    label.classList.replace('fa-square-plus', 'fa-square-minus');
+    content.classList.remove('hidden');
+    label.classList.replace('fa-angle-up', 'fa-angle-down');
     input.checked = false;
   }
 }

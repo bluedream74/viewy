@@ -452,6 +452,18 @@ ul{
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
+  ul{
+    background-color: aliceblue;
+    width: 68%;
+    border-radius: 4px;
+    margin-top: 12px;
+    margin-left: 9%;
+    margin-right: auto;
+    padding-left: 16px;
+    position: absolute;
+    z-index: 1000;
+  }
+
   .likeorfollow{
     width: 100%;
   }
@@ -493,57 +505,57 @@ ul{
   }
 
 
-.list-area{
-  width: 100%;
-}
+  .list-area{
+    width: 100%;
+  }
 
-.post{
-  height: 200px;
-  min-height: 186px;
-  width: 33%;
-}
+  .post{
+    height: 200px;
+    min-height: 186px;
+    width: 33%;
+  }
 
-.manga-page, .post-video{
-  height: 200px;
-  /* min-height: 186px; */
-  width: 100%;
-  border-radius: 4px;
-  object-fit: cover;
-}
+  .manga-page, .post-video{
+    height: 200px;
+    /* min-height: 186px; */
+    width: 100%;
+    border-radius: 4px;
+    object-fit: cover;
+  }
 
-.search-bar {
-  padding-top: 48px;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-}
+  .search-bar {
+    padding-top: 48px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-.search-bar>input {
-  height: 28px;
-  margin-right: 8px;
-}
+  .search-bar>input {
+    height: 28px;
+    margin-right: 8px;
+  }
 
-.glass {
-  margin-right: 12px;
-  margin-top: 4px;
-}
+  .glass {
+    margin-right: 12px;
+    margin-top: 4px;
+  }
 
-.maintag{
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-}
+  .maintag{
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-.button {
-  color: white;
-  text-align: center;
-  font-size: 12px;
-  height: 36px;
-  width: 64px;
-  padding: 0px;
-  border-radius: 50px;
-  border: none;
-  background-color: rgb(48, 230, 230);
+  .button {
+    color: white;
+    text-align: center;
+    font-size: 12px;
+    height: 36px;
+    width: 64px;
+    padding: 0px;
+    border-radius: 50px;
+    border: none;
+    background-color: rgb(48, 230, 230);
 }
 
  }

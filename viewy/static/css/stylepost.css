@@ -216,8 +216,19 @@ label{
 }
 
 .content {
-  display: block;
+  opacity: 1;
+  transition: opacity 0.1s ease; /* 0.1秒でフェード */
+  /* 他の必要なスタイルもここに追加 */
 }
+
+.content.hidden {
+  opacity: 0;
+  display: block !important; /* 非表示にする前にblockにする */
+  pointer-events: none; /* 非表示要素をクリック不可にする */
+}
+
+
+
 
 .hide label {
   cursor: pointer;
@@ -225,9 +236,11 @@ label{
 
 .page-count{
   position: absolute;
-  bottom: 40px;
-  right: 18px;
-  color: rgb(255, 0, 0);
+  bottom: 24px;
+  left: 8px;
+  font-size: 12px;
+  color: rgb(255, 255, 255);
+  text-shadow: gray 0px 1px 3px;
 }
 
 /* キャプション関連 */
