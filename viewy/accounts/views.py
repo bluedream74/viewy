@@ -33,6 +33,10 @@ from django.template.loader import render_to_string
 from accounts.models import Users
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import random
+import string
+
+
 
 
 
@@ -45,6 +49,10 @@ import json
 
 from posts.models import Posts
 
+from django.conf import settings
+
+BASE_URL = settings.BASE_URL
+
 
 class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
@@ -56,7 +64,12 @@ custom_token_generator = CustomPasswordResetTokenGenerator()
 def generate_verification_code():
     return ''.join(random.choices(string.digits, k=5))
 
-def send_email_ses(to_email, subject, body):
+def send_email_ses(to_email, subject, verification_code):
+    body = render_to_string('regist_email.html', {
+        'subject': subject,
+        'verification_code': verification_code
+    })
+
     send_mail(
         subject,
         body,
@@ -122,8 +135,8 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         # Send verification code to user's email using Amazon SES
         mail_sent = send_email_ses(
             to_email=form.instance.email,
-            subject='あなたの認証コードです',
-            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は１時間です。'
+            subject='【Viewy】認証コード',
+            verification_code=form.instance.verification_code
         )
         
         if mail_sent:
@@ -161,8 +174,8 @@ class InvitedRegistUserView(SuccessMessageMixin, CreateView):
         # Send verification code to user's email using Amazon SES
         mail_sent = send_email_ses(
             to_email=form.instance.email,
-            subject='あなたの特別な認証コードです',
-            body=f'あなたの認証コードは {form.instance.verification_code}です。このコードの有効期間は１時間です。'
+            subject='【Viewy】認証コード',
+            verification_code=form.instance.verification_code
         )
         
         if mail_sent:
@@ -227,8 +240,8 @@ class ResendVerificationCodeView(View):
         # Send verification code to user's email using Amazon SES
         send_email_ses(
             to_email=user.email,
-            subject='あなたの認証コードです',
-            body=f'あなたの認証コードは {user.verification_code} です。このコードの有効期間は１時間です。'
+            subject='【Viewy】認証コードの再送信',
+            verification_code=user.verification_code,
         )
 
         # Add a success message
@@ -263,8 +276,8 @@ class UserLoginView(FormView):
             # Send the verification code by email
             send_email_ses(
                 to_email=user.email,
-                subject='あなたの認証コードです',
-                body=f'あなたの認証コードは {user.verification_code}です'
+                subject='【Viewy】認証コード',
+                verification_code=user.verification_code,
             )
 
             # Save email to session
@@ -303,8 +316,8 @@ def send_password_reset_email(email):
     uid = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
     token = custom_token_generator.make_token(user)
     reset_url = reverse('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
-    full_reset_url = f'http://127.0.0.1:8000{reset_url}'
-    subject = 'Viewyパスワード再設定のお知らせ'
+    full_reset_url = f'{BASE_URL}{reset_url}'
+    subject = '【Viewy】パスワード再設定のご案内'
     message = render_to_string('password_reset_email.html',{'password_reset_link': full_reset_url, 'user': user}) # userをコンテキストに追加
     send_mail(subject, message, 'regist@viewy.net', [email], fail_silently=False)
 

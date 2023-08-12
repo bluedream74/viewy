@@ -56,10 +56,10 @@ class RegistForm(forms.ModelForm):
         if password and email:
             errors = []
             validators = [
-                {"validator": MinimumLengthValidator(8), "message": "パスワードは8文字以上でなければなりません。"},
-                {"validator": NumericPasswordValidator(), "message": "パスワードは数字だけではいけません。"},
-                {"validator": CommonPasswordValidator(), "message": "一般的すぎるパスワードは使用できません。"},
-                {"validator": UserAttributeSimilarityValidator(user_attributes=["email"]), "message": "パスワードがメールアドレスと似すぎています。"},
+                {"validator": MinimumLengthValidator(4), "message": "パスワードは4文字以上でなければなりません。"},
+                # {"validator": NumericPasswordValidator(), "message": "パスワードは数字だけではいけません。"},
+                # {"validator": CommonPasswordValidator(), "message": "一般的すぎるパスワードは使用できません。"},
+                # {"validator": UserAttributeSimilarityValidator(user_attributes=["email"]), "message": "パスワードがメールアドレスと似すぎています。"},
             ]
             user = self._meta.model(email=email)  # Create a temporary user instance to validate password.
             for v in validators:
@@ -96,8 +96,8 @@ class VerifyForm(forms.Form):
   
   
 class UserLoginForm(forms.Form):
-    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス', 'autocomplete': 'email'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード', 'autocomplete': 'current-password'}))
 
     def clean(self):
         cleaned_data = super().clean()
