@@ -22,6 +22,7 @@
 {% for post in posts %}
 
 <div class="post not-ad" data-post-id="{{ post.id }}">
+  <div class="spinner"></div>
   {% if post.ismanga %}
   <div class="book">
     {% for visual in post.visuals_list %}
@@ -314,6 +315,7 @@
 {% endblock %}
 
 {% block script %}
+
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
