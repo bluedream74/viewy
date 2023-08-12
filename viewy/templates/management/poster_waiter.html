@@ -20,7 +20,10 @@
 <div class="block">
   <ul class="wait-list">
     {% for user in object_list %}
-    <li><a href="{% url 'management:add_to_poster_group' user.id %}" onclick="return confirm('このユーザーをポスターグループに追加しますか？');">{{ user.username }} - {{ user.email }}</a></li> 
+    <li>
+      <a href="{% url 'management:add_to_poster_group' user.id %}" onclick="return confirm('{{ user.username }}をポスターグループに追加しますか？ユーザーネームをもう一度確認してください');">{{ user.username }} - {{ user.email }}</a>
+      <a href="{% url 'management:remove_from_wait_list' user.id %}" onclick="return confirm('{{ user.username }}をリストから削除しますか？ユーザーネームをもう一度確認してください');" class="delete-button">削除</a>
+    </li> 
     {% empty %}
     <li>特別なユーザーが見つかりません。</li>
     {% endfor %}

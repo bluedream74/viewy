@@ -12,7 +12,9 @@
   <div class="not-caption">
     <div class="user-img">
       {% if user.prf_img %}
-      <img class="prf_img" src="{{user.prf_img.url}}" alt="">
+      <a href="{% url 'posts:poster_page' username=user.username %}"">
+        <img class="prf_img" src="{{user.prf_img.url}}" alt="">
+      </a>
       {% else %}
       <img class="prf_img" src="\media\others\S__208183299.jpg" alt="">
       {% endif %}

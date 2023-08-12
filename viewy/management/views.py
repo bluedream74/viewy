@@ -254,3 +254,10 @@ class AddToPosterGroup(View):
 
         user.save()
         return redirect('management:poster_waiter_list') # ここでリダイレクト先を指定します
+
+class RemoveFromWaitList(View):
+    def get(self, request, user_id):
+        user = get_object_or_404(Users, id=user_id)
+        user.poster_waiter= False
+        user.save()
+        return redirect('management:poster_waiter_list')

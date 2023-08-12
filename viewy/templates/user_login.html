@@ -7,8 +7,9 @@
 <div class="mid-logo">
   <img src="\media\others\Viewy-full-logo-aqua.png" alt="">
 </div>
-<div class="sub-title">ログイン</div>
+<div class="sub-title" id="specialUserContainer" data-is-special-user="{% if is_special_user %}true{% else %}false{% endif %}">ログイン</div>
 <div class="describe">いいね・フォロー機能を使用するには<br>無料ログインが必要です。</div>
+
 {% if is_special_user %}
 
 <div class="invited-message" id="invitedMessage">
@@ -66,9 +67,5 @@
   <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
 </div>
 
-<script>
-  document.getElementById('okButton').addEventListener('click', function () {
-    document.getElementById('invitedMessage').style.display = 'none';
-  });
-</script>
+<script src="{% static 'js/user_login.js' %}"></script>
 {%endblock%}

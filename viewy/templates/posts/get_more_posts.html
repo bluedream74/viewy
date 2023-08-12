@@ -91,11 +91,6 @@
     <div class="captions">
       <div class="title">
         {{post.title}}
-
-        {% if post.ismanga %}
-        <span class="page-count">{{ post.visuals_list|length }}</span>
-        {% endif %}
-
       </div>
 
       <div class="caption">{{post.caption}}</div>
@@ -139,6 +134,12 @@
 
 
       </div>
+    </div>
+
+    <div class="page-count">
+      {% if post.ismanga %}
+      <span id="current-page">1</span>/<span class="total-page">{{ post.visuals_list|length }}</span>
+      {% endif %}
     </div>
 
     {% if user.is_authenticated %}

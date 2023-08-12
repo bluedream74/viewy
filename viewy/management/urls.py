@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (Account, RecordUserStats, GetUserStats, Partner, Post, Hashtag, Ad, KanjiRegist, PosterWaiterList, AddToPosterGroup
+from .views import (Account, RecordUserStats, GetUserStats, Partner, Post, Hashtag, Ad, KanjiRegist, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList
 )
 from . import views
 
@@ -15,4 +15,5 @@ urlpatterns = [
   path('ad/', Ad.as_view(), name='ad'),
   path('poster_waiter_list/', PosterWaiterList.as_view(), name='poster_waiter_list'),
   path('add_to_poster_group/<int:user_id>/', AddToPosterGroup.as_view(), name='add_to_poster_group'),
+  path('remove_from_wait_list/<int:user_id>/', RemoveFromWaitList.as_view(), name='remove_from_wait_list'),
 ]

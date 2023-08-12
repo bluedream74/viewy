@@ -205,10 +205,10 @@ label{
 }
 
 .page-count{
-  background-color:rgba(255, 255, 255, 0.276);
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-left: 8px;
+  position: absolute;
+  bottom: 40px;
+  right: 18px;
+  color: rgb(255, 0, 0);
 }
 
 /* キャプション関連 */
