@@ -1,6 +1,7 @@
 {% extends 'management/management_base.html' %}
 {% load static %}
 {% block head %}
+<link rel="stylesheet" href="{% static 'css/management/ad.css' %}">
 {% endblock %}
 
 
@@ -12,7 +13,7 @@
     <table>
         <tr>
             <th>タイトル</th>
-            <th>URL</th>
+            <th class="url">URL</th>
             <th>視聴回数</th>
             <th>クリック数</th>
             <th>クリック率</th>
@@ -20,7 +21,7 @@
         {% for ad in ads %}
         <tr>
             <td>{{ ad.title }}</td>
-            <td><a href="{{ ad.url }}">{{ ad.url }}</a></td>
+            <td class="url"><a href="{{ ad.url }}">{{ ad.url }}</a></td>
             <td>{{ ad.views_count }}</td>
             <td>{{ ad.click_count }}</td>
             <td class="rate">{{ ad.click_rate }}%</td>
@@ -29,12 +30,12 @@
     </table>
 </div>
 
-<div class="block">
+<div class="block" id="second">
     <div>検索画面の広告</div>
     <table>
         <tr>
             <th>タイトル</th>
-            <th>URL</th>
+            <th class="url">URL</th>
             <th>視聴回数</th>
             <th>クリック数</th>
             <th>クリック率</th>
@@ -42,7 +43,7 @@
         {% for wide_ad in wide_ads %}
         <tr>
             <td>{{ wide_ad.title }}</td>
-            <td><a href="{{ wide_ad.url }}">{{ wide_ad.url }}</a></td>
+            <td class="url"><a href="{{ wide_ad.url }}">{{ wide_ad.url }}</a></td>
             <td>{{ wide_ad.views_count }}</td>
             <td>{{ wide_ad.click_count }}</td>
             <td class="rate">{{ wide_ad.click_rate }}%</td>
