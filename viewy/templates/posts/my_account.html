@@ -12,9 +12,15 @@
   <div class="not-caption">
     <div class="user-img">
       {% if request.user and request.user|is_poster %}
-      <a href="{% url 'posts:poster_page' username=user.username %}"">
-        <img class="prf_img" src="{{user.prf_img.url}}" alt="">
-      </a>
+        {% if request.user.prf_img %}
+          <a href="{% url 'posts:poster_page' username=user.username %}"">
+            <img class="prf_img" src="{{user.prf_img.url}}" alt="">
+          </a>
+        {% else %}
+          <a href="{% url 'posts:poster_page' username=user.username %}"">
+            <img class="prf_img" src="\media\others\初期プロフ.jpg" alt="">
+          </a>
+        {% endif %}
       {% else %}
       <img class="prf_img" src="\media\others\初期プロフ.jpg" alt="">
       {% endif %}
@@ -28,10 +34,8 @@
       {% endif %}
       {% if request.user and request.user|is_poster %}
       <div class="grade partner">パートナー</div>
-      {% elif request.user and request.user|is_premium %}
-      <div class="grade premium">プレミアム</div>
       {% else %}
-      <div class="grade basic">ベーシック</div>
+      <div class="grade basic">ユーザー</div>
       {% endif %}
     </div>
   </div>
@@ -178,7 +182,7 @@
       {% endif %}
       </a></div>
     {% else %}
-    <div class="add-link"><a href="{% url 'accounts:edit_prf' %}"><i class="fa-solid fa-plus fa-2xs"></i></a></div>
+    <div class="add-link"><a href="{% url 'accounts:edit_prf' %}" class="add-button"><i class="fa-solid fa-plus fa-2xs"></i></a></div>
     {% endif %}
 
   </div>

@@ -130,10 +130,6 @@ form input{
   color: white;
 }
 
-.forms > button{
-  margin-left: auto;
-  margin-right: auto;
-}
 
 .button{
   color: white;
@@ -142,6 +138,8 @@ form input{
   border-bottom:  rgb(0, 153, 153) 1.5px solid;
   border-right:  rgb(0, 182, 182) 1.5px solid;
   border-radius: 4px;
+  margin-left: auto;
+  margin-right: auto;  
 }
 
 .current-img{
@@ -244,11 +242,6 @@ form input{
     color: white;
   }
   
-  .forms > button{
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 24px;
-  }
   
   .button{
     color: white;
@@ -257,8 +250,11 @@ form input{
     border-bottom:  rgb(0, 153, 153) 1.5px solid;
     border-right:  rgb(0, 182, 182) 1.5px solid;
     border-radius: 50px;
-    height: 36px;
-    width: 80px;
+    height: 40px;
+    width: 120px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 
  }

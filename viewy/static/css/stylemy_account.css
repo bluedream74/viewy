@@ -158,6 +158,12 @@ a{
   line-height: 36px;
 }
 
+.add-button{
+  display: inline-block;
+  width: 36px;
+  border-radius: 50%;
+}
+
 /* .space{
   width: 100%;
   height: 36px;
@@ -260,7 +266,7 @@ a{
   }
 
   .urls{
-    justify-content: center;
+    justify-content: left;
   }
 
   .url{
