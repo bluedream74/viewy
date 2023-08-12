@@ -11,12 +11,12 @@
   <img src="\media\accounts_prf_imgs\仮ヘッダー２.png" alt="" class="header">
   <div class="not-caption">
     <div class="user-img">
-      {% if user.prf_img %}
+      {% if request.user and request.user|is_poster %}
       <a href="{% url 'posts:poster_page' username=user.username %}"">
         <img class="prf_img" src="{{user.prf_img.url}}" alt="">
       </a>
       {% else %}
-      <img class="prf_img" src="\media\others\S__208183299.jpg" alt="">
+      <img class="prf_img" src="\media\others\初期プロフ.jpg" alt="">
       {% endif %}
     </div>
     <div class="name-grade">

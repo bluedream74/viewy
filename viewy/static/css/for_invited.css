@@ -3,7 +3,6 @@
   background-color: rgb(60, 235, 235);
   border-radius: 24px;
   position: relative;
-  font-weight: bold;
 }
 
 .header{
@@ -56,9 +55,7 @@
 }
 
 span{
-  /* font-weight: bold; */
-  font-size: 16px;
-  text-decoration: underline;
+  font-weight: bold;
 }
 
 .sub-catch{
@@ -114,20 +111,12 @@ hr{
   text-decoration-line: 4px;
 }
 
-.big-content{
-  margin-top: 16px;
-  margin-bottom: 8px;
-  font-size: 15px;
-  line-height: 48px;
-  color: rgb(69, 69, 69);
-  text-align: left;
-  padding: 0px 32px;
-}
 
 .content{
   margin-top: 16px;
+  margin-bottom: 16px;
   font-size: 15px;
-  line-height: 48px;
+  line-height: 28px;
   color: rgb(69, 69, 69);
   text-align: left;
   padding: 0px 32px;
@@ -135,12 +124,13 @@ hr{
 
 
 
-/* .special{
-  background-color: rgb(238, 255, 255);
-} */
+.special{
+  background-color: rgb(246, 255, 254);
+}
 
 .img-box{
   max-width: 100%;
+  margin-bottom: 48px;
   display: flex;
   overflow-x: scroll;
   padding: 0px 16px 16px;
@@ -194,9 +184,13 @@ hr{
   line-height: 24px;
 }
 
+.partner{
+  background-color: rgb(246, 255, 254);
+}
+
 .solution{
   margin-top: 80px;
-  background-color: rgb(251, 251, 251);
+  background-color: rgb(255, 255, 255);
 }
 
 .solution > img{
@@ -235,11 +229,14 @@ hr{
 
 }
 
+
 .table{
   text-align: center;
   font-size: 24px;
   font-weight: bold;
   color: rgb(184, 184, 184);
+  padding-bottom: 4px;
+  margin-bottom: 40px;
 }
 
 .table-title{

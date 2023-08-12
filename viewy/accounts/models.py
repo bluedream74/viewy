@@ -225,7 +225,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         
     def save(self, *args, **kwargs):
         if not self.prf_img:
-            self.prf_img = '\others\S__208183299.jpg'
+            self.prf_img = '\others\初期プロフ.jpg'
         super(Users, self).save(*args, **kwargs)
         
     def increment_report_count(self):

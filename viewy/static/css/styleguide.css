@@ -10,7 +10,7 @@
 
 .theme{
   background-color: white;
-  border-radius: 50px;
+  border-radius: 8px;
   width: 64%;
   height: 56px;
   line-height: 56px;
@@ -33,7 +33,7 @@
 
 .main{
   background-color: white;
-  border-radius: 24px;
+  border-radius: 8px;
   width: 96%;
   margin-left: auto;
   margin-right: auto;

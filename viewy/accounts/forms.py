@@ -40,8 +40,8 @@ class RegistForm(forms.ModelForm):
   
   def clean_username(self):
       username = self.cleaned_data.get('username')
-      if username and not re.match(r'^[a-zA-Z0-9]+$', username):
-          raise forms.ValidationError("ユーザーネームは英数字のみが使用可能です。")
+      if username and not re.match(r'^[a-zA-Z0-9_]+$', username):
+          raise forms.ValidationError("ユーザーネームは英数字と_のみが使用可能です。")
       return username
 
   def clean_email(self):
