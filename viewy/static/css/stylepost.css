@@ -228,17 +228,16 @@ label{
 }
 
 
-
-
-.hide label {
+.hide-label {
   cursor: pointer;
+  z-index: 999;
 }
 
 .page-count{
   position: absolute;
   bottom: 24px;
   left: 8px;
-  font-size: 13px;
+  font-size: 14px;
   color: rgb(255, 255, 255);
   text-shadow: gray 0px 1px 3px;
 }
