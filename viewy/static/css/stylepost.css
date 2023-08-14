@@ -217,7 +217,7 @@ label{
 
 .content {
   opacity: 1;
-  transition: opacity 0.1s ease; /* 0.1秒でフェード */
+  transition: opacity 0.2s ease; /* 0.1秒でフェード */
   /* 他の必要なスタイルもここに追加 */
 }
 

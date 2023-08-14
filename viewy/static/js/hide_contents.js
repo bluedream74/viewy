@@ -31,7 +31,7 @@ function toggleSidebarAndCaptions(content, label) {
       if (content.classList.contains('hidden')) {
         content.style.display = 'none';
       }
-    }, 500); // トランジションと同じ時間
+    }, 200); // トランジションと同じ時間
   } else {
     content.style.display = 'block';
     content.classList.remove('hidden');
