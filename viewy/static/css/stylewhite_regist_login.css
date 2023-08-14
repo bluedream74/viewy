@@ -37,7 +37,8 @@ a{
 
 .describe{
   font-size: 12px;
-  color: rgb(177, 177, 177);
+  color: rgb(60, 60, 60);
+  /* color: rgb(177, 177, 177); */
   margin-top: 16px;
   width: 100%;
   text-align: center;
