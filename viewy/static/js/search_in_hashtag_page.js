@@ -8,6 +8,32 @@ $.ajaxSetup({
   }
 });
 
+
+// ローカルストレージから検索履歴を取得する（非ログインユーザー用）
+function getLocalSearchHistory() {
+  return JSON.parse(localStorage.getItem('search_history') || '[]');
+}
+
+// 検索履歴をローカルストレージに保存する
+function saveLocalSearchHistory(query) {
+  let history = getLocalSearchHistory();
+  const index = history.indexOf(query);
+
+  // すでに存在する場合、それを削除
+  if (index !== -1) {
+    history.splice(index, 1);
+  }
+
+  history.push(query);
+
+  // 最新の5件だけを保存する
+  if (history.length > 5) {
+    history.shift();
+  }
+  localStorage.setItem('search_history', JSON.stringify(history));
+}
+
+
 $(document).ready(function () {
   console.log("DOM is loaded!");
   $('.search-bar').on('submit', function (e) {

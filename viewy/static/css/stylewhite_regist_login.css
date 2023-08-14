@@ -27,7 +27,7 @@ a{
 .sub-title{
   width: 100%;
   text-align: center;
-  margin-top: 4px;
+  margin-top: 24px;
   font-size: 16px;
   font-weight: bold;
   text-decoration: underline;
@@ -200,7 +200,7 @@ li{
 .guide-title{
   width: 100%;
   text-align: center;
-  padding-top: 120px;
+  padding-top: 40px;
   font-size: 18px;
   font-weight: bold;
   text-decoration: underline;
