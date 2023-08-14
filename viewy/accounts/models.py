@@ -99,6 +99,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'dlsite'      
         elif 'shikoshiko' in self.url1:
             return 'cherrylive'      
+        elif 'profu.link' in self.url1:
+            return 'profu.link'      
+        elif 'knip' in self.url1:
+            return 'knip'      
         else:
             return 'default'
 
@@ -130,6 +134,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'dlsite'      
         elif 'shikoshiko' in self.url2:
             return 'cherrylive'      
+        elif 'profu.link' in self.url2:
+            return 'profu.link'      
+        elif 'knip' in self.url2:
+            return 'knip'      
         else:
             return 'default'
 
@@ -160,6 +168,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'dlsite'      
         elif 'shikoshiko' in self.url3:
             return 'cherrylive'      
+        elif 'profu.link' in self.url3:
+            return 'profu.link'      
+        elif 'knip' in self.url3:
+            return 'knip'      
         else:
             return 'default'
 
@@ -190,6 +202,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'dlsite'      
         elif 'shikoshiko' in self.url4:
             return 'cherrylive'      
+        elif 'profu.link' in self.url4:
+            return 'profu.link'      
+        elif 'knip' in self.url4:
+            return 'knip'      
         else:
             return 'default'
 
@@ -220,6 +236,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'dlsite'      
         elif 'shikoshiko' in self.url5:
             return 'cherrylive'      
+        elif 'profu.link' in self.url5:
+            return 'profu.link'      
+        elif 'knip' in self.url5:
+            return 'knip'      
         else:
             return 'default'
         

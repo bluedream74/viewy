@@ -65,6 +65,10 @@ class Posts(models.Model):
             return 'skeb'      
         elif 'shikoshiko' in self.url:
             return 'cherrylive'      
+        elif 'profu.link' in self.url:
+            return 'profu.link'      
+        elif 'knip' in self.url:
+            return 'knip'      
         else:
             return 'default'
         
