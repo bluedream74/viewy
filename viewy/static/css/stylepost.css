@@ -141,8 +141,8 @@ input[type=range]::-webkit-slider-thumb {
 .horizontal-slide-icon.show-icon {
   animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); /* ベジェ曲線を使って滑らかに */
   animation-name: fade-out; /* アニメーション名を指定 */
-  animation-duration: 3.5s; /* アニメーションの持続時間を1秒に設定 */
-  animation-delay: 1.5s; /* アニメーションの開始を1秒遅らせる */
+  animation-duration: 2.0s; /* アニメーションの持続時間を1秒に設定 */
+  animation-delay: 0.5s; /* アニメーションの開始を1秒遅らせる */
   animation-fill-mode: forwards; /* アニメーション終了後に最後のフレームで止まるように設定 */
 }
 
