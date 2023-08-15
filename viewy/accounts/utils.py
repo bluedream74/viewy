@@ -41,3 +41,17 @@ def send_password_reset_email(email):
         subject = 'パスワードのリセット'
         message = render_to_string('password_reset_email.html', {'password_reset_link': full_reset_url})
         send_mail(subject, message, 'regist@viewy.net', [email], fail_silently=False)
+        
+        
+def send_delete_request_notification(delete_request):
+    """
+    削除依頼が送信された際に通知メールを送る関数。
+    
+    :param delete_request: DeleteRequestモデルのインスタンス。
+    """
+    subject = '削除依頼が送信されました'
+    message = f"新しい削除依頼が送信されました。\n\n詳細:\n\n依頼者: {delete_request.email}\n対象パートナー: {delete_request.postername}\n対象の投稿のタイトル: {delete_request.post_title}\nケースの種類: {delete_request.case_type}\n詳細: {delete_request.details}"
+    from_email = 'delete-request@viewy.net'
+    recipient_list = ['support@viewy.net']
+
+    send_mail(subject, message, from_email, recipient_list)
