@@ -35,6 +35,7 @@
   {% for video in post.videos_list %}
   <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
     loading="lazy" playsinline loop muted></video>
+  <div class="play-button"></div>  
   <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
   <br>
   {% endfor %}
@@ -337,3 +338,9 @@
 <script src="{% static 'js/hashtag_history.js' %}"></script>
 <script src="{% static 'js/mangapage_count.js' %}"></script>
 {% endblock %}
+
+
+<div class="post">
+  <video src=""></video>
+  <div class="play-button"></div>
+</div>

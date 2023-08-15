@@ -3,11 +3,14 @@
 document.body.addEventListener('click', (event) => {
   if (event.target.matches('.post-video')) {
     const targetVideo = event.target;
+    const playButton = targetVideo.nextElementSibling; // 隣接する再生ボタンを取得
 
     if (targetVideo.paused) {
       targetVideo.play();
+      playButton.style.opacity = '0'; // ボタンを非表示
     } else {
       targetVideo.pause();
+      playButton.style.opacity = '0.7'; // ボタンを表示
     }
   }
 });

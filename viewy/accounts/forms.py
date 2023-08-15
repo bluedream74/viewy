@@ -56,7 +56,7 @@ class RegistForm(forms.ModelForm):
         if password and email:
             errors = []
             validators = [
-                {"validator": MinimumLengthValidator(4), "message": "パスワードは4文字以上でなければなりません。"},
+                {"validator": MinimumLengthValidator(4), "message": "パスワードは4文字以上である必要があります。"},
                 # {"validator": NumericPasswordValidator(), "message": "パスワードは数字だけではいけません。"},
                 # {"validator": CommonPasswordValidator(), "message": "一般的すぎるパスワードは使用できません。"},
                 # {"validator": UserAttributeSimilarityValidator(user_attributes=["email"]), "message": "パスワードがメールアドレスと似すぎています。"},
@@ -109,7 +109,7 @@ class UserLoginForm(forms.Form):
             user = Users.objects.get(email=email)
         except Users.DoesNotExist:
             # If user does not exist, raise error
-            self.add_error(None, mark_safe('メールアドレスかパスワードが間違っています。<br>再度入力してください。'))
+            self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
             return cleaned_data
 
         # If user is not active, allow form to pass and handle in the view
@@ -119,7 +119,7 @@ class UserLoginForm(forms.Form):
         # If user is active, authenticate
         user = authenticate(email=email, password=password)
         if not user:
-            self.add_error(None, mark_safe('メールアドレスかパスワードが間違っています。<br>再度入力してください。'))
+            self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
 
         return cleaned_data
 
@@ -129,13 +129,16 @@ class PasswordResetForm(AuthPasswordResetForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email and not Users.objects.filter(email=email).exists():
-            raise forms.ValidationError("このメールアドレスは登録されていません。")
+            raise forms.ValidationError(mark_safe("このメールアドレスは登録されていません。<br>正しいメールアドレスを入力してください。"))
         return email
 
 class SetPasswordForm(AuthSetPasswordForm):
-    new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': '新しいパスワード'}))
-    new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': '新しいパスワード（確認）'}))
-  
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': '新しいパスワード'}),
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': '新しいパスワード（確認）'}),
+    )
   
 class EditPrfForm(forms.ModelForm):
     displayname = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'placeholder': '表示名'})) 
