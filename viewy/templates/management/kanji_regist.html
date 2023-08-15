@@ -6,27 +6,43 @@
 
 
 {% block content %}
-<h1>漢字とひらがなの追加</h1>
-    <div>※すでに追加されている単語はエラーになります</div>
-    <form action="{% url 'management:kanji_regist' %}" method="post">
-        {% csrf_token %}
 
-        <label for="kanji">漢字（漢字から始まる単語はすべて登録　例：足フェチ
-            途中で漢字が出てくる単語は登録しない　例：ハメ撮り）：</label>
-            <input type="text" id="kanji" name="kanji" required><br>
-
-        <label for="hiragana">ひらがな読み：</label>
-        <input type="text" id="hiragana" name="hiragana" required><br>
-        
-
-
-        <button type="submit">保存</button>
-    </form>
+<div class="block">
+    <div>漢字一覧</div>
+    {% for hiragana, kanji_hiragana_sets in sections.items %}
+    <div class="hiragana-header">{{ hiragana }}</div>
+    {% for kanji_hiragana_set in kanji_hiragana_sets %}
+    <div class="kanji-table">
+        <div class="kanji">{{ kanji_hiragana_set.kanji }}</div>
+        <form method="post" action="{% url 'management:kanji_delete' kanji_hiragana_set.pk %}" onsubmit="return confirm('{{ kanji_hiragana_set.kanji }} を削除してもよろしいですか？');">
+            {% csrf_token %}
+            <input type="submit" value="×" class="delete-button">
+        </form>      
+    </div>
+    {% endfor %}
+    {% endfor %}
 </div>
 
+<div class="block">
+    <div>※漢字から始まる単語はすべて登録 例：足フェチ<br>途中で漢字が出てくる単語は登録しない 例：ハメ撮り</div>
 
+    {% if error_message %}
+    <div class="error">{{ error_message }}</div>
+    {% endif %}
 
+    <form action="{% url 'management:kanji_regist' %}" method="post" class="form-group">
+        {% csrf_token %}
 
+        <label for="kanji">漢字：</label>
+        <input type="text" id="kanji" name="kanji" required class="kanji-form">
+        <br>
+
+        <label for="hiragana">読み：</label>
+        <input type="text" id="hiragana" name="hiragana" required class="hiragana-form"><br>
+
+        <button type="submit" class="submit">保存</button>
+    </form>
+</div>
 
 
 {% endblock %}

@@ -12,7 +12,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -23,6 +23,8 @@ from .models import UserStats
 
 from django.contrib.auth.models import Group
 
+from django.db import IntegrityError
+from collections import OrderedDict
 
 class SuperUserCheck(UserPassesTestMixin):
     def test_func(self):
@@ -193,8 +195,22 @@ class Hashtag(SuperUserCheck, TemplateView):
 class KanjiRegist(View):
     template_name = 'management/kanji_regist.html'
 
-    def get(self, request):
-        return render(request, self.template_name)
+    def get(self, request, error_message=None):
+        # データベースから全オブジェクトを取得
+        kanji_hiragana_sets = KanjiHiraganaSet.objects.all()
+
+        # ひらがなに基づいてソート（‘あいうえお’順）
+        sorted_kanji_hiragana_sets = sorted(kanji_hiragana_sets, key=lambda x: x.hiragana.split(',')[0])
+
+        sections = OrderedDict()
+        for set in sorted_kanji_hiragana_sets:
+            initial_hiragana = set.hiragana.split(',')[0][0]
+            if initial_hiragana not in sections:
+                sections[initial_hiragana] = []
+            sections[initial_hiragana].append(set)
+
+        # ソートされたオブジェクトをテンプレートに渡す
+        return render(request, self.template_name, {'sections': sections, 'error_message': error_message})
 
     def post(self, request):
         kanji = request.POST['kanji']
@@ -203,13 +219,23 @@ class KanjiRegist(View):
         # 逐次的なひらがなクエリを生成
         hiragana_queries = [hiragana[:i+1] for i in range(len(hiragana))]
 
-        # モデルに保存
-        obj = KanjiHiraganaSet(kanji=kanji, hiragana=','.join(hiragana_queries))
-        obj.save()
+        try:
+            # モデルに保存
+            obj = KanjiHiraganaSet(kanji=kanji, hiragana=','.join(hiragana_queries))
+            obj.save()
+        except IntegrityError:
+            # 重複エラーの場合
+            error_message = 'すでに保存されています'
+            return self.get(request, error_message=error_message) # getメソッドを呼び出してエラーメッセージを渡す
 
         # 保存後のリダイレクト
         return redirect('management:kanji_regist')
 
+class KanjiDelete(View):
+    def post(self, request, pk):
+        kanji_hiragana_set = get_object_or_404(KanjiHiraganaSet, pk=pk)
+        kanji_hiragana_set.delete()
+        return redirect('management:kanji_regist')
 
 class Ad(SuperUserCheck, View):
     template_name = 'management/ad.html'

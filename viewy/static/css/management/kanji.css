@@ -2,13 +2,16 @@
   padding: 40px 32px 32px;
 }
 
-.form{
-  margin-bottom: 32px;
-}
-
-input{
-  height: 24px;
-  font-size: 18px;
+.kanji-form, .hiragana-form{
+  height: 32px;
+  width: 200px;
+  font-weight: bold;
+  border-radius: 50px;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: 20px;
+  margin-top: 8px;
+  border: 1px rgb(32, 41, 43) solid;
 }
 
 button{
@@ -18,4 +21,52 @@ button{
   margin-left: 8ox;
   border: none;
   border: 1px rgb(32, 41, 43) solid;
+}
+
+.submit{
+  width: 100px;
+  height: 40px;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+.hiragana-header {
+  font-weight: bold;
+  margin-left: -136px;
+}
+
+.error {
+  color: red;
+}
+
+.kanji-table {
+  display: flex; /* フレックスボックスのコンテナにする */
+  align-items: center; /* 中央に配置 */
+}
+
+.kanji {
+  margin-right: 10px; /* 右側の余白を追加 */
+  width: 100px; /* この値は最も長い漢字に合わせて調整 */
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.delete-button {
+  height: 24px;
+  width: 24px;
+  border-radius: 12px;
+  border: none;
+  color: black;
+  padding: 2px 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.delete-button:hover {
+  background-color: #f44336;
+  color: white;
 }
