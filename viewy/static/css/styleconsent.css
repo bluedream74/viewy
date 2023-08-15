@@ -3,11 +3,20 @@
   /* padding: 64px 24px; */
 }
 
+.menu{
+  padding: 16px 0px 0px 16px;
+  color: rgb(69, 69, 69);
+  font-size: 14px;
+}
+
+.menu > a{
+  color: rgb(69, 69, 69);
+}
+
 .main-area{
   width: 90%;
   margin-left: auto;
   margin-right: auto;
-  padding-top: 24px;
   padding-bottom: 36px;
   color: rgb(69, 69, 69);
 }
