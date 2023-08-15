@@ -385,7 +385,6 @@ label{
   border-radius: 8px;
   text-align: center;
   color: rgb(102, 61, 54);
-  
 }
 
 .report-title{
@@ -450,18 +449,17 @@ input[type="radio"]:checked {
   top: 100px;
 }
 
-
-/* 戻るボタン */
-.back{
-  position: fixed;
-  top: 28px;
-  padding-left: 28px;
-  line-height: 36px;
+/* 停止中に表示する再生ボタン */
+.play-button{
+  font-size: 48px;
   color: white;
-  width: 36px;
-  height: 36px;
-  font-size: 20px;
-  text-shadow: 0px 1px 1px gray;
+  text-shadow: gray 0px 1px 3px;
+  opacity: 0.8;
+  position: absolute;
+  top: 50%; /* 上下方向の中心に配置 */
+  left: 50%;
+  transform: translate(-50%, -50%); /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
+  display: none;
 }
 
 /* ページ遷移関連 */

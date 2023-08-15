@@ -1,12 +1,9 @@
 'use strict'
 
-// body要素にイベントリスナーを設定
 document.body.addEventListener('click', (event) => {
-  // クリックされた要素がビデオ要素かどうかを判定
   if (event.target.matches('.post-video')) {
     const targetVideo = event.target;
 
-    // ビデオが再生中なら一時停止、一時停止中なら再生を行う
     if (targetVideo.paused) {
       targetVideo.play();
     } else {
@@ -14,4 +11,21 @@ document.body.addEventListener('click', (event) => {
     }
   }
 });
+
+
+// 停止中の再生ボタン表示の処理
+document.body.addEventListener('play', (event) => {
+  if (event.target.matches('.post-video')) {
+    const playButton = event.target.parentNode.querySelector('.play-button');
+    playButton.style.display = 'none';
+  }
+}, true);
+
+document.body.addEventListener('pause', (event) => {
+  if (event.target.matches('.post-video')) {
+    const playButton = event.target.parentNode.querySelector('.play-button');
+    playButton.style.display = 'block';
+  }
+}, true);
+
 
