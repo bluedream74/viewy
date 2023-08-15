@@ -1,6 +1,6 @@
 import re
 from django import forms
-from .models import Users
+from .models import Users, DeleteRequest
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
@@ -153,3 +153,14 @@ class EditPrfForm(forms.ModelForm):
     class Meta:
         model = Users
         fields = ['displayname','prf_img', 'caption','url1', 'url2', 'url3', 'url4', 'url5']
+
+
+class DeleteRequestForm(forms.ModelForm):
+    email = forms.EmailField(widget=forms.EmailInput())
+    postername = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '正確でなくても結構です'}))
+    post_title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '正確でなくても結構です'}))
+
+
+    class Meta:
+        model = DeleteRequest
+        fields = ['email', 'postername', 'post_title', 'case_type', 'details']

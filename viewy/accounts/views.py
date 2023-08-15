@@ -16,14 +16,15 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 import datetime
+from django.views import generic
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 
 # Local application/library specific
-from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm
-from .models import Follows, Messages, Users
+from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
+from .models import Follows, Messages, Users, DeleteRequest
 from management.models import UserStats
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
@@ -35,7 +36,7 @@ from accounts.models import Users
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import random
 import string
-
+from .utils import send_delete_request_notification
 
 
 
@@ -546,3 +547,18 @@ class DeleteUserView(LoginRequiredMixin, DeleteView):
         else:
             messages.error(request, '削除するためには"削除"と入力する必要があります。')
             return redirect('accounts:delete_user')
+        
+        
+class DeleteRequestView(generic.CreateView):
+    model = DeleteRequest
+    form_class = DeleteRequestForm
+    template_name = 'delete_request.html'
+    success_url = reverse_lazy('delete_request_success')  # 'terms'はurls.pyで定義するURL名です。
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        send_delete_request_notification(self.object)  # メール通知の送信
+        return response
+    
+class DeleteRequestSuccessView(TemplateView):
+  template_name = 'delete_request_success.html'

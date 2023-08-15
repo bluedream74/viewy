@@ -1,0 +1,106 @@
+.screen{
+  background-color: white;
+  color: rgb(69, 69, 69);
+}
+
+:root {
+  --primary-color: rgb(64, 227, 230);  /* ここでカラーを定義 */
+}
+
+.main{
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 48px;
+  padding-bottom: 48px;
+  text-align: center
+}
+
+.title{
+  width: 100%;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color);
+}
+
+.sub-title{
+  font-size: 12px;
+  text-align: left;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 24px;
+  color: rgb(96, 96, 96);
+}
+
+.form{
+  font-size: 14px;
+  text-align: left;
+  margin-top: 16px;
+  margin-left: 16px;
+  font-weight: bold;
+}
+
+input, select{
+  width: 80%;
+  height: 24px;
+}
+
+textarea{
+  width: 80%;
+}
+
+.description{
+  font-size: 12px;
+  text-align: left;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 24px;
+  color: rgb(96, 96, 96);
+}
+
+button{
+  margin-top: 16px;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
+  width: 80px;
+  height: 32px;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+button:hover{
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+
+li{
+  list-style: none;
+  font-size: 13px;
+  color: orangered;
+
+}
+
+.success-title{
+  width: 100%;
+  margin-top: 120px;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color);
+}
+
+.home{
+  color: var(--primary-color);
+  font-size: 16px;
+  display: block;
+  margin-top: 64px;
+}

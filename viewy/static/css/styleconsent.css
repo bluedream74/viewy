@@ -60,3 +60,10 @@ li{
   font-size: 12px;
   margin-bottom: 16px;
 }
+
+.delete_request{
+  font-size: 13px;
+  color: rgb(74, 215, 215);
+  text-decoration: underline;
+  text-decoration-color: rgb(79, 228, 228);
+}

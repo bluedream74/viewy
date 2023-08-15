@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView
+from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView, DeleteRequestView, DeleteRequestSuccessView
 # from . import settings
 from django.conf import settings
 from django.contrib.staticfiles.urls import static
@@ -16,6 +16,8 @@ urlpatterns = [
     path('guideline/', GuideLineView.as_view(), name='guideline'),
     path('terms/', TermsView.as_view(), name='terms'),
     path('policy/', PolicyView.as_view(), name='policy'),
+    path('delete_request/', DeleteRequestView.as_view(), name='delete_request'),
+    path('delete_request_success/', DeleteRequestSuccessView.as_view(), name='delete_request_success'),
     path('', CheckAgeView.as_view(), name='home'),
 ]
 

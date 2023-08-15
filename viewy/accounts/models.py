@@ -285,3 +285,27 @@ class Messages(models.Model):
     
     def __str__(self):
         return self.title
+    
+# 投稿の削除依頼    
+class DeleteRequest(models.Model):
+    email = models.EmailField('メールアドレス')
+    
+    CO_PERFORMER = 'co_performer'
+    ACCIDENTALLY_IN_VIDEO = 'accidentally_in_video'
+    COPYRIGHT_INFRINGEMENT = 'copyright_infringement'
+    OTHERS = 'others'
+
+    CASE_CHOICES = [
+        (CO_PERFORMER, '自身が共演している'),
+        (ACCIDENTALLY_IN_VIDEO, '自身が映り込んでいる'),
+        (COPYRIGHT_INFRINGEMENT, '自身の著作物が映っている'),
+        (OTHERS, 'その他'),
+    ]
+
+    case_type = models.CharField('ケースの種類', max_length=50, choices=CASE_CHOICES)
+    postername = models.CharField('投稿者のユーザーネーム', max_length=255)
+    post_title = models.CharField('投稿のタイトル', max_length=255)
+    details = models.TextField('詳細')
+
+    def __str__(self):
+        return self.email
