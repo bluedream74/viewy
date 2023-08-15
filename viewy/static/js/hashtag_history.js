@@ -1,7 +1,6 @@
 'use strict'
 
 let csrfToken = $('meta[name="csrf-token"]').attr('content'); // HTMLのmetaタグから取得する方法
-console.log(csrfToken);
 
 $.ajaxSetup({
   headers: {

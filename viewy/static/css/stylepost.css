@@ -106,6 +106,46 @@ input[type=range]::-webkit-slider-thumb {
   object-fit: contain;
 }
 
+@keyframes fade-out {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.horizontal-slide-icon {
+  position: absolute; /* 絶対位置を指定 */
+  top: 50%; /* 親要素（.book）の高さの50%の位置に配置 */
+  left: 50%; /* 親要素（.book）の幅の50%の位置に配置 */
+  transform: translate(-50%, -50%); /* インターフェイスが中心に配置されるように調整 */
+  z-index: 10; /* 他の要素の上に表示するためのz-index */
+  font-size: 40px; /* アイコンのサイズ。必要に応じて調整 */
+  color: #ffffff; /* アイコンの色。必要に応じて調整 */
+  text-align: center; /* 子要素を中央寄せ */
+  background-color: #282828;
+  width: 80px; 
+  height: 80px;
+  border-radius: 4px;
+  opacity: 0; /* アイコンの初期透明度を0に設定 */
+}
+
+.horizontal-slide-icon i {
+  display: block; 
+  margin-top: 16px;
+}
+
+.slide-icon-word {
+  font-size: 8px; 
+}
+
+.horizontal-slide-icon.show-icon {
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); /* ベジェ曲線を使って滑らかに */
+  animation-name: fade-out; /* アニメーション名を指定 */
+  animation-duration: 3.5s; /* アニメーションの持続時間を1秒に設定 */
+  animation-delay: 1.5s; /* アニメーションの開始を1秒遅らせる */
+  animation-fill-mode: forwards; /* アニメーション終了後に最後のフレームで止まるように設定 */
+}
+
 /* サイドバー関連 */
 
 .side-bar{

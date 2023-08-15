@@ -27,6 +27,12 @@
   <div class="book">
     {% for visual in post.visuals_list %}
     <div class="manga-page">
+      {% if post.show_icon %}
+      <div class="horizontal-slide-icon">
+        <i class="fa-solid fa-arrow-left-long"></i>
+        <div class="slide-icon-word">横読み</div>
+      </div>
+      {% endif %}
       <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
     </div>
     {% endfor %}
@@ -336,6 +342,7 @@
 <script src="{% static 'js/report.js' %}"></script>
 <script src="{% static 'js/hashtag_history.js' %}"></script>
 <script src="{% static 'js/mangapage_count.js' %}"></script>
+<script src="{% static 'js/horizontal_arrow.js' %}"></script>
 {% endblock %}
 
 

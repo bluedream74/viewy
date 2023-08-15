@@ -73,6 +73,11 @@ class PostListView(BasePostListView):
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        first_manga_found = False
+        for post in context['posts']:
+            if post.ismanga and not first_manga_found:
+                post.show_icon = True
+                first_manga_found = True
         context['ad'] = self.get_ad()
         return context
     
