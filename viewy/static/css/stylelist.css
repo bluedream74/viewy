@@ -32,6 +32,22 @@
   border-radius: 50%;
 }
 
+.copy-link{
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  color: aqua;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.copy-link:hover{
+  cursor: pointer;
+  color: rgb(0, 128, 128);
+}
+
 .right-div{
   display: block;
   margin-left: 16px;

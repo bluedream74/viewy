@@ -25,12 +25,15 @@
       <img class="prf_img" src="\media\others\初期プロフ.jpg" alt="">
       {% endif %}
     </div>
+
+
+
     <div class="name-grade">
       {% if user.displayname %}
-        <div>{{ user.displayname }}</div>
+        <div>{{ user.displayname }}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
         <div class="sub-info">{{user.username}}</div>
       {% else %}
-        <div>{{user.username}}</div>
+        <div>{{user.username}}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
       {% endif %}
       {% if request.user and request.user|is_poster %}
       <div class="grade partner">パートナー</div>
@@ -272,4 +275,22 @@
   }
 });
 </script>
+<script>
+function copyToClipboard() {
+  const username = "{{ request.user.username }}";  // Djangoテンプレートタグでユーザ名を取得
+  const link = "https://www.viewy.net/posts/poster_page/" + username;  // URLを構築
+
+  // Create a dummy input to copy the link from
+  const el = document.createElement('textarea');
+  el.value = link;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+
+  // Optional: Notify the user that the link has been copied
+  alert('プロフィールのリンクがクリップボードにコピーされました。');
+}
+</script>
+
 {% endblock %}
