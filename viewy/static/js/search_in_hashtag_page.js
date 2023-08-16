@@ -35,7 +35,6 @@ function saveLocalSearchHistory(query) {
 
 
 $(document).ready(function () {
-  console.log("DOM is loaded!");
   $('.search-bar').on('submit', function (e) {
     e.preventDefault();
 
