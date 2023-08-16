@@ -954,7 +954,7 @@ class SearchPageView(FormView):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form_class()
         return context
-    
+
 
 # おすすめハッシュタグを検索ページに表示（一般ユーザーはいきなりこっちに入る）
 class HotHashtagView(TemplateView):
@@ -1007,6 +1007,10 @@ class HotHashtagView(TemplateView):
         # 広告が存在する場合のみランダムに選ぶ
         context['random_ad2'] = random.choice(wide_ads) if wide_ads else None
         context['random_ad4'] = random.choice(wide_ads) if wide_ads else None
+
+        # おすすめユーザーの取得
+        recommended_users = Users.objects.order_by('-follow_count')[:12]
+        context['recommended_users'] = recommended_users
             
         context['posts_by_hashtag'] = dict(posts_by_hashtag)
         context['form'] = SearchForm()

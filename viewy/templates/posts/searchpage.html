@@ -30,38 +30,63 @@
   <i class="fa-solid fa-xmark"></i>
 </div>
 
-
+<div class="recommended-section">
+  <div>
+    <img src="\media\others\炎アイコン.png" alt="fire-icon" class="fire-icon">
+    <span class="recommended-title">あなたにおすすめ</span>
+  </div>
+  <div class="recommended-users">
+    <div class="recommended-user-list">
+      {% for user in recommended_users %}
+      <div class="recommended-user">
+        <a href="{% url 'posts:poster_page' username=user.username %}">
+          <img src="{{ user.prf_img.url }}" alt="{{ user.username }}" />
+          <div class="poster-name">
+            {% if user.displayname %}
+            <div class="poster-name">{{user.displayname}}</div>
+            {% else %}
+            <div class="poster-name">{{user.username}}</div>
+            {% endif %}
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 
 
 <div class="list-area">
   {% if posts_by_hashtag %}
   {% for hashtag, posts in posts_by_hashtag.items %}
-  <a href="{% url 'posts:hashtag' hashtag=hashtag %}" class="hashtag-title"><span class="hashtag-mark">#</span>{{ hashtag }}</a>
+  <a href="{% url 'posts:hashtag' hashtag=hashtag %}" class="hashtag-title">
+    <span class="hashtag-mark">#</span>
+    {{hashtag }}</a>
   <div class="posts-container">
     {% for post in posts %}
-      <a class="post" href="{% url 'posts:hashtag' hashtag=hashtag %}">
-        {% if post.ismanga %}
-          <div class="book">
-            {% for visual in post.visuals_list|slice:":1" %}
-              <img class="manga-page" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
-            {% endfor %}
-              <i class="fa-solid fa-book-open manga-icon"></i>
-          </div>
-        {% else %}
-          {% for video in post.videos.all %}
-            {% if video.thumbnail %}
-              <img class="post-video" src="{{ video.thumbnail.url }}" alt="">
-            {% else %}
-              <video class="post-video" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
-            {% endif %}
-          {% endfor %}
-        {% endif %}
+    <a class="post" href="{% url 'posts:hashtag' hashtag=hashtag %}">
+      {% if post.ismanga %}
+      <div class="book">
+        {% for visual in post.visuals_list|slice:":1" %}
+        <img class="manga-page" loading="lazy" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+        {% endfor %}
+        <i class="fa-solid fa-book-open manga-icon"></i>
+      </div>
+      {% else %}
+      {% for video in post.videos.all %}
+      {% if video.thumbnail %}
+      <img class="post-video" src="{{ video.thumbnail.url }}" alt="">
+      {% else %}
+      <video class="post-video" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
 
-        <div class="title">
-          <div>{{ post.title }}</div>
-          <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
-        </div>
-      </a>
+      <div class="title">
+        <div>{{ post.title }}</div>
+        <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
+      </div>
+    </a>
     {% endfor %}
 
     <!-- 各ハッシュタグセクションの最後に検索ページへのリンク領域を追加  -->

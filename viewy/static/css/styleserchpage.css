@@ -103,6 +103,7 @@ ul{
   overflow-x: auto; 
   padding-left: 8px;
   padding-right: 8px;
+  margin-bottom: 16px;
 }
 
 .hashtag-mark{
@@ -111,7 +112,7 @@ ul{
 
 .hashtag-title {
   font-size: 18px;
-  margin-top: 24px;
+  margin-top: 8px;
   margin-bottom: 4px;
   margin-left: 8px;
   color:#ffffff;
@@ -159,8 +160,59 @@ ul{
 }
 
 .bottom-space {
-  height: 100px;
+  height: 80px;
   width: auto;
+}
+
+
+.recommended-users {
+  overflow-x: auto;
+}
+
+
+.fire-icon {
+  width: 24px;
+  object-fit: cover;
+}
+
+.recommended-title {
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+}
+
+.recommended-user-list {
+  display: flex;
+}
+
+.recommended-user {
+  text-align: center; 
+  width: 100px;
+  height: 92px;
+}
+
+.recommended-user a {
+  color: #ffffff;
+}
+
+.recommended-user img {
+  width: 72px; 
+  height: 72px; 
+  object-fit: cover;
+  border-radius: 50%;
+  display: block; 
+  margin: 0 auto;
+}
+
+.poster-name {
+  padding-top: 2px;
+  font-size: 4px;
+  white-space: nowrap; /* 折り返しを無効にする */
+  overflow: hidden; /* コンテンツがオーバーフローしたときに隠す */
+  text-overflow: ellipsis; /* オーバーフローしたテキストを省略記号で表示 */
+  width: 100px;
+  text-align: center; /* テキストを中央揃えにする */
+  margin: 0 auto; /* 自動マージン */
 }
 
 
@@ -206,7 +258,7 @@ ul{
   display: flex; /* この要素をflexコンテナにする */
   justify-content: center; /* 水平方向の中央寄せ */
   align-items: center;     /* 垂直方向の中央寄せ */
-  padding: 20px 20px 0 20px; /* 任意の余白 */
+  padding: 10px 20px 0 20px; /* 任意の余白 */
 }
 
 /* スマートフォン用のスタイル */
