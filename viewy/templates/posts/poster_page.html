@@ -2,6 +2,17 @@
 {% load static %}
 {% block static %}
 <link rel="stylesheet" href="{% static 'css/stylelist.css' %}">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ about_poster.displayname|default:about_poster.username }} [Viewy]" />
+<meta name="twitter:description" content="Viewyの{{ about_poster.displayname|default:about_poster.username }}のプロフィールページです。" />
+<meta name="twitter:image" content="{{ about_poster.prf_img.url|default:'\media\others\初期プロフ.jpg' }}" />
+
+<meta property="og:title" content="{{ about_poster.displayname|default:about_poster.username }} [Viewy]" />
+<meta property="og:description" content="Viewyの{{ about_poster.displayname|default:about_poster.username }}のプロフィールページです。" />
+<meta property="og:image" content="{{ about_poster.prf_img.url|default:'\media\others\初期プロフ.jpg' }}" />
+<meta property="og:type" content="website" />
+
 {% endblock %}
 {% block content %}
 <!-- <p>投稿者の詳細画面です</p> -->
@@ -16,9 +27,9 @@
     <div class="right-div">
       <div class="poster-name">
         {% if about_poster.displayname %}
-        <div class="poster-name">{{about_poster.displayname}}</div>
+        <div class="poster-name">{{about_poster.displayname}}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
         {% else %}
-        <div class="poster-name">{{about_poster.username}}</div>
+        <div class="poster-name">{{about_poster.username}}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
         {% endif %}      
       </div>
       <div class="follow-container">
@@ -259,4 +270,21 @@
 </style>
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
+<script>
+  function copyToClipboard() {
+  // Get the current page's URL
+  const link = window.location.href;
+
+  // Create a dummy input to copy the link from
+  const el = document.createElement('textarea');
+  el.value = link;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+
+  // Optional: Notify the user that the link has been copied
+  alert('リンクがクリップボードにコピーされました。');
+}
+</script>
 {% endblock %}

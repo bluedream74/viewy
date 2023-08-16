@@ -51,6 +51,22 @@ a{
   background-color: white;
 }
 
+.copy-link{
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  color: aqua;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.copy-link:hover{
+  cursor: pointer;
+  color: rgb(0, 128, 128);
+}
+
 .sub-info{
   font-size: 14px;
   color: rgb(129, 129, 129);
