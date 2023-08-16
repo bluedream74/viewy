@@ -227,8 +227,9 @@ label:hover{
   min-height: 186px;
   width: 116px;
   min-width: 116px;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   object-fit: cover;
+  border: 1.5px solid rgb(12, 12, 12);
 }
 
 /* コントロールバーを消す */
@@ -541,8 +542,9 @@ ul{
     height: 200px;
     /* min-height: 186px; */
     width: 100%;
-    border-radius: 4px;
+    /* border-radius: 4px; */
     object-fit: cover;
+    border: 2px solid rgb(12, 12, 12);
   }
 
   .search-bar {
