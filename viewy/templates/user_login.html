@@ -42,10 +42,10 @@
     {% endif %}
 
     <div class="email">
-      {{ form.email }}
+      <input type="email" name="{{ form.email.name }}" placeholder="メールアドレス" autocomplete="email" value="{{ form.email.value|default_if_none:"" }}" />
     </div>
     <div class="password">
-      {{ form.password }}
+      <input type="password" name="{{ form.password.name }}" placeholder="パスワード" autocomplete="current-password" value="{{ form.password.value|default_if_none:"" }}" />
     </div>
     <input class="button" type="submit" value="ログイン">
   </div>
