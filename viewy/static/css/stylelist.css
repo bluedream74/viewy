@@ -113,10 +113,20 @@
   margin-top: 16px;
 }
 
+.url-container{
+  display: flexbox;
+  text-align: center;
+  margin-right: 16px;
+}
+
+.link-name{
+  font-size: 10px;
+  margin-top: 4px;
+}
+
 .url{
   width: 40px;
   height: 40px;
-  margin-right: 16px;
   border-radius: 50%;
   border: 1px white solid;
   background-color: white;
@@ -227,7 +237,6 @@ label:hover{
   min-height: 186px;
   width: 116px;
   min-width: 116px;
-  /* border-radius: 4px; */
   object-fit: cover;
   border: 1.5px solid rgb(12, 12, 12);
 }

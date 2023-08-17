@@ -171,8 +171,10 @@ ul{
 
 
 .fire-icon {
-  width: 24px;
+  width: 20px;
   object-fit: cover;
+  position: relative;
+  top: 2px;
 }
 
 .recommended-main{
@@ -187,6 +189,8 @@ ul{
 
 .recommended-user-list {
   display: flex;
+  padding: 0px 8px;
+  margin-top: 4px;
 }
 
 .recommended-user {

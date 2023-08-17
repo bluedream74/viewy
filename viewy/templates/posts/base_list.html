@@ -89,6 +89,7 @@
       </div>
       {% else %}
       <div class="follow-poster">
+        <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
         <a class="fa-solid fa-plus fa-2xs " href="{% url 'accounts:user_login'%}" style="color: black;"></a>
       </div>
       {% endif %}

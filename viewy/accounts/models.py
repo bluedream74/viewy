@@ -93,7 +93,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'amazon'      
         elif 'fanza' in self.url1:
             return 'fanza'      
-        elif 'skeb' in self.ur1l:
+        elif 'skeb' in self.url1:
             return 'skeb'      
         elif 'dlsite' in self.url1:
             return 'dlsite'      
@@ -104,7 +104,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'knip' in self.url1:
             return 'knip'      
         else:
-            return 'default'
+            return 'link'
 
 
     def get_url2_prefix(self):
@@ -139,7 +139,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'knip' in self.url2:
             return 'knip'      
         else:
-            return 'default'
+            return 'link'
 
     def get_url3_prefix(self):
         if 'twitter' in self.url3:
@@ -173,7 +173,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'knip' in self.url3:
             return 'knip'      
         else:
-            return 'default'
+            return 'link'
 
     def get_url4_prefix(self):
         if 'twitter' in self.url4:
@@ -207,7 +207,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'knip' in self.url4:
             return 'knip'      
         else:
-            return 'default'
+            return 'link'
 
     def get_url5_prefix(self):
         if 'twitter' in self.url5:
@@ -241,7 +241,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'knip' in self.url5:
             return 'knip'      
         else:
-            return 'default'
+            return 'link'
         
     def save(self, *args, **kwargs):
         if not self.prf_img:
