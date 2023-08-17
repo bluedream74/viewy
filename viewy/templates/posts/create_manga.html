@@ -21,6 +21,11 @@
       {% for error in form.non_field_errors %}
           <div class="error">{{ error }}</div>
       {% endfor %}
+
+      {% for error in visual_form.non_field_errors %}
+        <div class="error">{{ error }}</div>
+      {% endfor %}
+      
   </div>
       {{ visual_form.as_div }}
       <div class="limit">※最大31ページまで</div>

@@ -39,14 +39,15 @@ class PostForm(forms.ModelForm):
         
         return cleaned_data
 
+ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
     
+
 class VisualForm(forms.Form):
     visuals = MultiFileField(
         min_num=1, 
         max_num=31, 
         max_file_size=1024*1024*5,  # 5MBを超えるサイズはエラー
         label="画像",
-        required=False
     )
     
     def clean_visuals(self):
@@ -54,8 +55,17 @@ class VisualForm(forms.Form):
 
         if visuals:
             for visual in visuals:
-                if visual.size > 5 * 1024 * 1024:  # 5MBを超えるサイズはエラー
-                    raise forms.ValidationError("Image file too large ( > 5mb )")
+                # 5MBを超えるサイズはエラー
+                if visual.size > 5 * 1024 * 1024:
+                    print("File too large!")
+                    raise ValidationError("Image file too large ( > 5mb )")
+                
+                # ファイルのMIMEタイプをチェック
+                main_type = visual.content_type.split('/')[0]
+                if not main_type == 'image':
+                    print("Not an image!")
+                    raise ValidationError("画像ファイルを選択してください。")
+
         return visuals
 
 

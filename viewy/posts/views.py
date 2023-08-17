@@ -645,17 +645,21 @@ class MangaCreateView(BasePostCreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['visual_form'] = self.second_form_class()
+        if 'visual_form' not in context:
+            context['visual_form'] = self.second_form_class(self.request.POST or None, self.request.FILES or None)
         return context
 
     def form_valid(self, form):
         form.instance.ismanga = True
-        response = super().form_valid(form)
         visual_form = self.second_form_class(self.request.POST, self.request.FILES)
-        if visual_form.is_valid() and 'visuals' in self.request.FILES:
-            for visual_file in self.request.FILES.getlist('visuals'):
-                visual = Visuals(post=form.instance)
-                visual.visual.save(visual_file.name, visual_file, save=True)
+        if not visual_form.is_valid() or 'visuals' not in self.request.FILES:
+            # ビジュアルフォームが無効な場合、エラーメッセージを含めて再度フォームを表示
+            return self.form_invalid(form)
+
+        response = super().form_valid(form)
+        for visual_file in self.request.FILES.getlist('visuals'):
+            visual = Visuals(post=form.instance)
+            visual.visual.save(visual_file.name, visual_file, save=True)
         return response
 
     

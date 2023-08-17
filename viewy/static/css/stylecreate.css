@@ -177,6 +177,12 @@ form input{
   list-style-type: none;
 }
 
+.errorlist > li{
+  list-style-type: none;
+  color: rgb(239, 31, 31);
+  font-size: 12px;
+}
+
 .bottom-space{
   height: 60px;
   width: 100%;
