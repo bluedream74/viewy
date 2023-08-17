@@ -135,9 +135,9 @@
     <div class="captions">
       <div class="poster-name">
         {% if post.poster.displayname %}
-        <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠ {{post.poster.displayname}}</a>
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠{{post.poster.displayname}}</a>
         {% else %}
-        <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠ {{post.poster.username}}</a>
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠{{post.poster.username}}</a>
         {% endif %}      
       </div>
       <div class="title">

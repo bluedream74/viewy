@@ -4,7 +4,28 @@
 document.addEventListener('change', event => {
   if (event.target.matches('.like-button')) {
     const likeButton = event.target;
+    // ボタンを無効化
+    likeButton.disabled = true;
+
     const form = likeButton.closest('form');
+    const heartIcon = form.querySelector('.fa-heart');
+    const favoriteCountElement = form.querySelector('.favorite-count');
+
+    // クリック時にクラスをすぐ切り替える
+    let favoriteCount = parseInt(favoriteCountElement.textContent, 10);
+    if (likeButton.checked) {
+      favoriteCount += 1;
+      heartIcon.classList.remove('not-liked', 'fa-regular');
+      heartIcon.classList.add('liked', 'fa-solid');
+    } else {
+      favoriteCount -= 1;
+      heartIcon.classList.add('not-liked', 'fa-regular');
+      heartIcon.classList.remove('liked', 'fa-solid');
+    }
+
+    // ページ上で即座にカウントを更新
+    favoriteCountElement.textContent = favoriteCount;
+
     const postPk = form.dataset.pk;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const url = form.action;
@@ -17,25 +38,16 @@ document.addEventListener('change', event => {
     })
       .then(response => response.json())
       .then(data => {
-        const favoriteCount = data.favorite_count;
-        const favoriteCountElement = form.querySelector('.favorite-count');
-        favoriteCountElement.textContent = favoriteCount;
-
-        const heartIconNotLiked = form.querySelector('.not-liked');
-        const heartIconLiked = form.querySelector('.liked');
-        if (likeButton.checked) {
-          heartIconNotLiked.classList.remove('not-liked');
-          heartIconNotLiked.classList.add('liked');
-          heartIconNotLiked.classList.remove('fa-regular');
-          heartIconNotLiked.classList.add('fa-solid');
-        } else {
-          heartIconLiked.classList.add('not-liked');
-          heartIconLiked.classList.remove('liked');
-          heartIconLiked.classList.add('fa-regular');
-          heartIconLiked.classList.remove('fa-solid');
-        }
+        // 応答を受け取った後、ボタンを再度有効化
+        likeButton.disabled = false;
+        // サーバーからの応答を受けてカウントを更新（必要に応じて）
+        favoriteCountElement.textContent = data.favorite_count;
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error);
+        // エラーが発生した場合でも、ボタンを再度有効化
+        likeButton.disabled = false;
+      });
   }
 });
 
