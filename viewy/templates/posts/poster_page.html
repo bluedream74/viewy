@@ -6,11 +6,11 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ about_poster.displayname|default:about_poster.username }} [Viewy]" />
 <meta name="twitter:description" content="Viewyの{{ about_poster.displayname|default:about_poster.username }}のプロフィールページです。" />
-<meta name="twitter:image" content="{{ about_poster.prf_img.url|default:'{{ MEDIA_URL }}others/初期プロフ.jpg' }}" />
+<meta name="twitter:image" content="{{ about_poster.prf_img.url }}" />
 
 <meta property="og:title" content="{{ about_poster.displayname|default:about_poster.username }} [Viewy]" />
-<meta property="og:description" content="Viewyの{{ about_poster.displayname|default:about_poster.username }}のプロフィールページです。" />
-<meta property="og:image" content="{{ about_poster.prf_img.url|default:'{{ MEDIA_URL }}others/初期プロフ.jpg' }}" />
+<meta property="og:description" content="Viewyの{{ about_poster.displayname }}のプロフィールページです。" />
+<meta property="og:image" content="{{ about_poster.prf_img.url }}" />
 <meta property="og:type" content="website" />
 
 {% endblock %}
