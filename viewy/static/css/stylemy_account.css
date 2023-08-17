@@ -114,10 +114,20 @@ a{
   justify-content: left;
 }
 
+.url-container{
+  display: flexbox;
+  text-align: center;
+  margin-right: 16px;
+}
+
+.link-name{
+  font-size: 10px;
+  margin-top: 4px;
+}
+
 .url{
   width: 40px;
   height: 40px;
-  margin-right: 16px;
   border-radius: 50%;
   border: 1px white solid;
   background-color: white;

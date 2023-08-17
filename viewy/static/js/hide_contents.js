@@ -22,19 +22,17 @@ function toggleSidebarAndCaptions(content, label) {
   }
 
   if (getComputedStyle(content).opacity !== '0') {
-    content.classList.add('hidden');
+    // 直接スタイルを適用
+    content.style.opacity = '0';
+    content.style.pointerEvents = 'none';
+
     label.classList.replace('fa-angle-down', 'fa-angle-up');
     input.checked = true;
-
-    // 完全に非表示にする
-    setTimeout(function() {
-      if (content.classList.contains('hidden')) {
-        content.style.display = 'none';
-      }
-    }, 200); // トランジションと同じ時間
   } else {
-    content.style.display = 'block';
-    content.classList.remove('hidden');
+    // スタイルを元に戻す
+    content.style.opacity = '1';
+    content.style.pointerEvents = 'auto';
+
     label.classList.replace('fa-angle-up', 'fa-angle-down');
     input.checked = false;
   }

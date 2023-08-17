@@ -256,13 +256,13 @@ label{
 }
 
 .content {
-  background-color: #ffffff00;  /* 動画でもフェードアウトするためになぜか必要 */
+  background-color: #ffffff00;
   opacity: 1;
   transition: opacity 0.2s ease; /* 0.1秒でフェード */
   /* 他の必要なスタイルもここに追加 */
 }
 
-.content.hidden {
+.hidden {
   opacity: 0;
   pointer-events: none; /* 非表示要素をクリック不可にする */
 }
