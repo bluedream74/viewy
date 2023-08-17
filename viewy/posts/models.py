@@ -98,7 +98,6 @@ class Ads(models.Model):
     caption = models.CharField(max_length=100, default='')
     url = models.URLField(max_length=200, null=True, blank=True)
     ad_tag = models.TextField()  # 広告タグを保存するフィールドを追加
-    prf_img = models.ImageField(upload_to='ads_prf_imgs', null=True, blank=True)
     views_count = models.PositiveIntegerField(default=0)
     click_count = models.PositiveIntegerField(default=0)
     click_rate = models.FloatField(default=0.0)  # 追加

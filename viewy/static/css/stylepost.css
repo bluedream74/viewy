@@ -214,6 +214,14 @@ label{
   background-color: white;
 }
 
+.ad-prf{
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  background-color: white;
+  margin-left: 9px;
+}
+
 .ad-prf-img{
   width: 32px;
   position: relative;
