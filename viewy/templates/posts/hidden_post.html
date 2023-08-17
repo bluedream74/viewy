@@ -126,25 +126,29 @@
         <!-- URLがあればアプリに応じたアイコンを表示する -->
         {% if post.url %}
         <span class="url"><a href="{{post.url}}" target="_blank">
-            {% if post.get_url_prefix == 'twitter' %}
-            <i class="fab fa-twitter"></i>
-            {% elif post.get_url_prefix == 'youtube' %}
-            <i class="fab fa-youtube"></i>
-            {% elif post.get_url_prefix == 'fantia' %}
-            <img class="url-icon" src="\media\link_logo\fantia-square-logo.png" alt="">
-            {% elif post.get_url_prefix == 'myfans' %}
-            <img class="url-icon" src="\media\link_logo\myfans_icon.png" alt="">
-            {% elif post.get_url_prefix == 'candfans' %}
-            <img class="url-icon" src="\media\link_logo\candfans_icon.png" alt="">
-            {% elif post.get_url_prefix == 'lit.link' %}
-            <img class="url-icon" src="\media\link_logo\lit.link_logo.png" alt="">
-            {% elif post.get_url_prefix == 'dlsite' %}
-            <img class="url-icon" src="\media\link_logo\dlsite_logo.png" alt="">
-            {% elif post.get_url_prefix == 'cherrylive' %}
-            <img class="url-icon" src="\media\link_logo\cherrylive_logo.png" alt="">
-            {% else %}
-            <i class="fas fa-link"></i>
-            {% endif %}
+          {% if post.get_url_prefix == 'twitter' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/x_white.png" alt="">
+          {% elif post.get_url_prefix == 'youtube' %}
+          <i class="fab fa-youtube"></i>
+          {% elif post.get_url_prefix == 'fantia' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo//fantia_white.png" alt="">
+          {% elif post.get_url_prefix == 'myfans' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/myfans_white.png" alt="">
+          {% elif post.get_url_prefix == 'candfans' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/candfans_white.png" alt="">
+          {% elif post.get_url_prefix == 'lit.link' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/litlink_white.png" alt="">
+          {% elif post.get_url_prefix == 'fanza' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/fanza_white.png" alt="">
+          {% elif post.get_url_prefix == 'amazon' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/amazon_white.png" alt="">
+          {% elif post.get_url_prefix == 'skeb' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/skeb_white.png" alt="">
+          {% elif post.get_url_prefix == 'profu.link' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo/profu.link_white.png" alt="">
+          {% elif post.get_url_prefix == 'knip' %}
+          <img class="url-icon" src="{{ MEDIA_URL }}link_logo\knip_white.png" alt="">
+          {% else %}
           </a></span>
         {% endif %}
         {% if post.hashtag1 %}
