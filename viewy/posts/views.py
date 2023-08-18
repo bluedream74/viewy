@@ -317,7 +317,7 @@ class GetMorePosterPostsView(BasePostListView):
         # Get the pk from POST data
         poster_pk = self.request.POST.get('pk')
         if not poster_pk:
-            return Posts.objects.none()  # Return an empty queryset if no pk is provided
+            return Posts.objects.none()
 
         # posterを設定
         self.poster = get_object_or_404(Users, pk=poster_pk)

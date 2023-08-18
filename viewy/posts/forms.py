@@ -58,7 +58,7 @@ class VisualForm(forms.Form):
                 # 5MBを超えるサイズはエラー
                 if visual.size > 5 * 1024 * 1024:
                     print("File too large!")
-                    raise ValidationError("Image file too large ( > 5mb )")
+                    raise ValidationError("5MBを超える画像は投稿できません")
                 
                 # ファイルのMIMEタイプをチェック
                 main_type = visual.content_type.split('/')[0]
