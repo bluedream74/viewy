@@ -99,6 +99,11 @@ class UserLoginForm(forms.Form):
     email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス', 'autocomplete': 'email'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード', 'autocomplete': 'current-password'}))
 
+    def __init__(self, *args, **kwargs):
+        # Pop the 'request' argument if it is present
+        kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get("email")
@@ -115,11 +120,6 @@ class UserLoginForm(forms.Form):
         # If user is not active, allow form to pass and handle in the view
         if not user.is_active:
             return cleaned_data
-
-        # If user is active, authenticate
-        user = authenticate(email=email, password=password)
-        if not user:
-            self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
 
         return cleaned_data
 
