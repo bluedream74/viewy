@@ -357,6 +357,10 @@ a:hover{
   margin-top: 16px;
 }
 
+.mini{
+  font-size: 13px;
+  color: rgb(255, 174, 0);
+}
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
