@@ -21,6 +21,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
+from django.contrib.auth.views import LoginView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
@@ -38,6 +39,7 @@ import random
 import string
 from .utils import send_delete_request_notification
 
+from django.utils.safestring import mark_safe
 
 
 
@@ -251,7 +253,7 @@ class ResendVerificationCodeView(View):
         return HttpResponseRedirect(reverse('accounts:verify'))
           
   
-class UserLoginView(FormView):
+class UserLoginView(LoginView):
     template_name = 'user_login.html'
     form_class = UserLoginForm
 
@@ -265,7 +267,16 @@ class UserLoginView(FormView):
         return context
 
     def form_valid(self, form):
-        user = Users.objects.get(email=form.cleaned_data['email'])
+        email = form.cleaned_data['email']
+        password = form.cleaned_data['password']
+
+        user = authenticate(request=self.request, username=email, password=password)
+
+        # 認証失敗時
+        if user is None:
+            form.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。'))
+            return self.form_invalid(form)  # or redirect to a failure page, etc.
+
 
         # Check if user is active
         if not user.is_active:
