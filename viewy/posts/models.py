@@ -42,7 +42,9 @@ class Posts(models.Model):
 
     def get_url_prefix(self):
         if 'twitter' in self.url:
-            return 'twitter'
+            return 'x'
+        elif 'x.com' in self.url:
+            return 'x'
         elif 'youtube' in self.url:
             return 'youtube'
         elif 'fantia' in self.url:

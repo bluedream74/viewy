@@ -150,7 +150,7 @@
         <!-- URLがあればアプリに応じたアイコンを表示する -->
         {% if post.url %}
         <span class="url"><a href="{{post.url}}" target="_blank">
-            {% if post.get_url_prefix == 'twitter' %}
+            {% if post.get_url_prefix == 'x' %}
             <img class="url-icon" src="{{ MEDIA_URL }}link_logo/x_white.png" alt="">
             {% elif post.get_url_prefix == 'youtube' %}
             <i class="fab fa-youtube"></i>

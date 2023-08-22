@@ -74,7 +74,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
     
     def get_url1_prefix(self):
         if 'twitter' in self.url1:
-            return 'twitter'
+            return 'x'
+        elif 'x.com' in self.url1:
+            return 'x'
         elif 'youtube' in self.url1:
             return 'youtube'
         elif 'fantia' in self.url1:
@@ -109,7 +111,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     def get_url2_prefix(self):
         if 'twitter' in self.url2:
-            return 'twitter'
+            return 'x'
+        elif 'x.com' in self.url2:
+            return 'x'
         elif 'youtube' in self.url2:
             return 'youtube'
         elif 'fantia' in self.url2:
@@ -143,7 +147,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     def get_url3_prefix(self):
         if 'twitter' in self.url3:
-            return 'twitter'
+            return 'x'
+        elif 'x.com' in self.url3:
+            return 'x'
         elif 'youtube' in self.url3:
             return 'youtube'
         elif 'fantia' in self.url3:
@@ -177,7 +183,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     def get_url4_prefix(self):
         if 'twitter' in self.url4:
-            return 'twitter'
+            return 'x'
+        elif 'x.com' in self.url4:
+            return 'x'
         elif 'youtube' in self.url4:
             return 'youtube'
         elif 'fantia' in self.url4:
@@ -211,7 +219,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     def get_url5_prefix(self):
         if 'twitter' in self.url5:
-            return 'twitter'
+            return 'x'
+        elif 'x.com' in self.url5:
+            return 'x'
         elif 'youtube' in self.url5:
             return 'youtube'
         elif 'fantia' in self.url5:
