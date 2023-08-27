@@ -75,11 +75,6 @@ class VideoForm(forms.Form):
     video = forms.FileField(
         label="動画",
         widget=forms.ClearableFileInput(attrs={'accept': 'video/*'}),
-        # error_messages={
-        #     'invalid': '動画を選択してください。',
-        #     'missing': '動画を選択してください。',
-        #     'empty': '動画を選択してください。',
-        # }
         )
 
     class Meta:

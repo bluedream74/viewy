@@ -1,20 +1,28 @@
 # Python standard library
 from datetime import datetime
 from io import BytesIO
+from tempfile import NamedTemporaryFile
 import os
+import subprocess
+import json
 
 # Third-party libraries
-from django.core.files.base import ContentFile
+from django.core.files.base import File, ContentFile
+from django.core.files.storage import default_storage
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from moviepy.editor import VideoFileClip
-from tempfile import NamedTemporaryFile
 from PIL import Image
+import requests
+import imageio_ffmpeg as ffmpeg
 
-# Local application/library specific
+# Local application/library specific imports
 from accounts.models import Users
+
+
+
 
 class Posts(models.Model):
     poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')
@@ -156,6 +164,7 @@ class Visuals(models.Model):
     super().save(*args, **kwargs)
     
     
+    
 class Videos(models.Model):
     post = models.ForeignKey(
         Posts, 
@@ -164,72 +173,158 @@ class Videos(models.Model):
     )
     video = models.FileField(upload_to='posts_videos')
     thumbnail = models.ImageField(upload_to='posts_videos_thumbnails', null=True, blank=True)
-    
+    encoding_done = models.BooleanField(default=False)
+
     class Meta:
         db_table = 'videos'
-    
+
     def __str__(self):
         return self.post.title + ':' + str(self.id)
-    
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            saved_video = self.video
-            self.video = None
-            super().save(*args, **kwargs)
-            self.video = saved_video
-        super().save(*args, **kwargs)
-        
-    def create_thumbnail(self):
-      
-      # 画面収録で撮影したり、LINEなどから保存した動画（つまりあらかじめ圧縮されたいた動画）はサムネイルがもともとうまくいっていた。問題が起きているのはそのスマホで撮影した動画を投稿するときである。しかしスマホが圧縮している段階に介入して操作するのはめんどっちいから、バグった比率のサムネイルを検出して無理やり変形して適応することにした。
 
-        with NamedTemporaryFile(delete=False) as temp:
-            for chunk in self.video.chunks():
-                temp.write(chunk)
-            temp_path = temp.name
+    def save(self, *args, **kwargs):
+        print("save method started.")
+        if not self.encoding_done:
+            super().save(*args, **kwargs)  # 元のデータを保存
+            print("Original data saved.")
+
+            # エンコード処理を追加
+            original_video_name = self.video.name
+            print(f"Encoding video: {original_video_name}")
+            self.encode_video()
+
+            if not self.thumbnail:
+                print("Creating thumbnail.")
+                self.create_thumbnail()
+
+            self.encoding_done = True
+            super().save(*args, **kwargs)
+            print("Encoded data saved.")
+
+            # エンコード後、元の高画質の動画を削除
+            if default_storage.exists(original_video_name):
+                default_storage.delete(original_video_name)
+                print(f"Deleted original video: {original_video_name}")
+
+        else:
+            super().save(*args, **kwargs)
+            print("save method completed without encoding.")
+
+# エンコードの処理
+    def encode_video(self):
+        print("encode_video method started.")
+        video_url = self.video.url
+        response = requests.get(video_url, stream=True)
+        response.raise_for_status()
+
+        with NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
+            temp_path = temp_file.name
+            print(f"Video downloaded to: {temp_path}")
+
+    # コーデックを取得する関数を呼び出す（後に記述）
+        codec = self.get_video_codec(temp_path)
+        
+    # エンコード後の動画ファイルの名前に_encodedを追加
+        output_path = os.path.splitext(temp_path)[0] + "_encoded.mp4"
+
+    # 圧縮の種類（コーデック）によってエンコードの処理を分ける
+        if codec == "hevc":
+            cmd = [
+                "ffmpeg",
+                "-i", temp_path,
+                "-c:v", "libx265",
+                "-vf", "scale=-2:720",
+                output_path
+            ]
+        else:
+            cmd = [
+                "ffmpeg",
+                "-i", temp_path,
+                "-c:v", "libx264",
+                "-vf", "scale=-2:720",
+                output_path
+            ]
+
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.returncode != 0:
+            error_message = f"FFmpeg command failed with error: {result.stderr.decode()}"
+            print(error_message)
+            raise Exception(error_message)
+
+        with open(output_path, 'rb') as f:
+            encoded_video_basename = os.path.basename(self.video.name)
+            encoded_video_name = os.path.splitext(encoded_video_basename)[0] + "_encoded.mp4"
+            self.video.save(encoded_video_name, File(f), save=False)
+
+        os.remove(temp_path)
+        os.remove(output_path)
+        print("encode_video method completed.")
+
+
+# コーデックの種類を取得する関数
+    def get_video_codec(self, video_path):
+        cmd = [
+            'ffprobe',
+            '-v', 'quiet',
+            '-print_format', 'json',
+            '-show_streams',
+            video_path
+        ]
+
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = result.stdout.decode('utf-8')
+        data = json.loads(output)
+
+        for stream in data['streams']:
+            if stream['codec_type'] == 'video':
+                return stream['codec_name']
+
+        return None
+
+# サムネイルを作る関数
+    def create_thumbnail(self):
+        print("create_thumbnail method started.")
+        video_url = self.video.url
+        response = requests.get(video_url, stream=True)
+        response.raise_for_status()
+
+        with NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
+            temp_path = temp_file.name
+            print(f"Video downloaded for thumbnail: {temp_path}")
 
         try:
             clip = VideoFileClip(temp_path)
-            frame = clip.get_frame(0)  # サムネイルにするフレームを取得
+            frame = clip.get_frame(0)
+            video_aspect_ratio = clip.size[0] / clip.size[1]
 
-            video_aspect_ratio = clip.size[0] / clip.size[1]  # 動画のアスペクト比を計算
-
-            # PIL.Imageを使用してframeを画像として保存
             img = Image.fromarray(frame)
             thumbnail_io = BytesIO()
 
-            # アスペクト比が1以上の場合（横長の場合）、リサイズをスキップ
+        # 縦長の動画なのに横長のサムネイルが保存されてる場合はここで修正
             if video_aspect_ratio <= 1:
-                # オリジナルの画像が1920:1440（比率が反転してるバグ画像）をもっているか確認
-                if (video_aspect_ratio == 1920 / 1440):
-                    # 画像のサイズを指定した値に変更
-                    new_size = (720,960)  # このサイズは適切に調整してください
+                if video_aspect_ratio == 1920 / 1440:
+                    new_size = (720, 960)
                     img = img.resize(new_size)
-                        
-                # オリジナルの画像が1920:1080をもっているか確認
                 elif video_aspect_ratio == 1920 / 1080:
-                    # 画像のサイズを指定した値に変更
-                    new_size = (540,960)
+                    new_size = (540, 960)
                     img = img.resize(new_size)
 
             img.save(thumbnail_io, format='JPEG')
 
-            # ContentFileを使用してDjango Fileオブジェクトを生成
             thumbnail_file = ContentFile(thumbnail_io.getvalue())
-
-            # 動画のファイル名と現在の日時を組み合わせた名前でサムネイルを保存
             thumbnail_name = f"{os.path.splitext(self.video.name)[0]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
             self.thumbnail.save(thumbnail_name, thumbnail_file, save=False)
-        finally:
-            clip.close()  # クリップを閉じる
-            temp.close()  # ファイルを閉じる
-            os.remove(temp_path)  # 一時ファイルを削除
+            print(f"Thumbnail saved as: {thumbnail_name}")
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.thumbnail:
-            self.create_thumbnail()
-            self.save()
+        finally:
+            clip.close()
+            os.remove(temp_path)
+            print("create_thumbnail method completed.")
+
   
   
   
