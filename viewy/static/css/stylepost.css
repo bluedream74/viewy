@@ -328,7 +328,18 @@ label{
 
 .caption{
   font-size: 14px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 1行だけ表示 */
+  -webkit-box-orient: vertical;
+  cursor: pointer; /* キャプションがクリック可能であることを示すため */
 }
+
+.caption-expanded {
+  -webkit-line-clamp: unset; /* すべての行を表示 */
+}
+
+
 
 .hashtags{
   margin-top: 4px;

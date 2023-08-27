@@ -5,6 +5,11 @@ from django.contrib.auth.models import (
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
 
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
+
 from django.conf import settings
 
 class UserManager(BaseUserManager):
@@ -254,8 +259,31 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'link'
         
     def save(self, *args, **kwargs):
+        # 既存のプロフィール画像設定
         if not self.prf_img:
-            self.prf_img = '/others/初期プロフ.jpg'
+            self.prf_img = 'others/初期プロフ.jpg'
+        
+        # プロフィール画像が提供された場合のリサイズ処理
+        if self.prf_img and not self.prf_img.name == 'others/初期プロフ.jpg':
+            # 画像を開く
+            image = Image.open(self.prf_img)
+
+            # リサイズしたい解像度を設定
+            output_size = (300, 300)  # 例: 300x300
+            image.thumbnail(output_size)
+
+            # 透明度情報が含まれている場合はRGBモードに変換
+            if image.mode == 'RGBA':
+                image = image.convert('RGB')
+
+            # 画像を一時的なバイナリストリームに保存
+            output = BytesIO()
+            image.save(output, format='JPEG', quality=85)
+            output.seek(0)
+
+            # InMemoryUploadedFileに変換して、元の画像フィールドに再設定
+            self.prf_img = InMemoryUploadedFile(output, 'ImageField', f"{self.prf_img.name.split('.')[0]}.jpeg", 'image/jpeg', sys.getsizeof(output), None)
+        
         super(Users, self).save(*args, **kwargs)
         
     def increment_report_count(self):
