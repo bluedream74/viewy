@@ -17,13 +17,13 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys
-from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet
-from .forms import HashTagSearchForm
+from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser
+from .forms import HashTagSearchForm, RecommendedUserForm
 from .models import UserStats
 
 from django.contrib.auth.models import Group
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from collections import OrderedDict
 
 class SuperUserCheck(UserPassesTestMixin):
@@ -82,16 +82,45 @@ class GetUserStats(SuperUserCheck, View):
         return JsonResponse(user_stats_python, safe=False)
     
 
-class Partner(SuperUserCheck, View):
+class Partner(SuperUserCheck, TemplateView):
     template_name = 'management/partner.html'
 
     def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form = RecommendedUserForm(request.POST)
+        if form.is_valid():
+            with transaction.atomic():
+                # Check if recommended users already exist
+                if RecommendedUser.objects.exists():
+                    RecommendedUser.objects.all().delete()
+
+                # 新しいおすすめユーザーを順に追加
+                for i in range(1, 13):
+                    user_field = f"user{i}"
+                    username = form.cleaned_data[user_field]
+                    user_instance = Users.objects.get(username=username)  # ユーザーネームから Users インスタンスを取得
+                    RecommendedUser.objects.create(user=user_instance, order=i)  # Users インスタンスを設定
+
+            return redirect('management:partner')
+
+        else:
+            error_message = "エラーが発生しました。入力内容をご確認ください。"
+            
+        # If the form is not valid, re-render the page with the form errors
+        context = self.get_context_data(form=form, error_message=error_message)
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
         users = Users.objects.annotate(
             total_posts=Count('posted_posts'),
             avg_favorite_rate=Avg('posted_posts__favorite_rate'),
             total_views=Sum('posted_posts__views_count'),
-            total_favorites=Sum('posted_posts__favorite_count')
-        ).annotate(
+            total_favorites=Sum('posted_posts__favorite_count'),
             views_per_post=Case(
                 When(total_posts=0, then=Value(0)),
                 default=F('total_views') / F('total_posts'),
@@ -104,8 +133,22 @@ class Partner(SuperUserCheck, View):
             )
         ).exclude(total_posts=0)
 
-        context = {'users': users}
-        return render(request, self.template_name, context)
+        # コンテキストに `users` を追加
+        context['users'] = users
+
+        if 'error_message' in kwargs:
+            context['error_message'] = kwargs['error_message']
+
+        if 'form' in kwargs:
+            context['form'] = kwargs['form']
+        else:
+            recommended_users = RecommendedUser.objects.order_by('order')
+            initial_data = {}
+            for i, recommended_user in enumerate(recommended_users, start=1):
+                initial_data[f"user{i}"] = recommended_user.user
+            context['form'] = RecommendedUserForm(initial=initial_data)
+
+        return context
     
     
 class Post(SuperUserCheck, View):

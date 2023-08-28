@@ -373,3 +373,10 @@ class KanjiHiraganaSet(models.Model):
     
     def __str__(self):
         return self.kanji
+
+class RecommendedUser(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(unique=True)  # 各順序は一意でなければなりません
+
+    class Meta:
+        ordering = ['order']

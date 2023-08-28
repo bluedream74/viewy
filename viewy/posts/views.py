@@ -27,7 +27,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser
 
 from collections import defaultdict
 import logging
@@ -1005,6 +1005,9 @@ class HotHashtagView(TemplateView):
             sorted_posts = sorted(posts, key=lambda x: x.posted_at, reverse=True)
             posts_by_hashtag[hashtag] = sorted_posts[:9]  # 最新の9個だけを取得
         
+        # HotHashtagsの順番に基づいて、posts_by_hashtagを順序付け
+        ordered_posts_by_hashtag = {hashtag: posts_by_hashtag.get(hashtag, []) for hashtag in hashtags}
+
         # WideAdsからすべての広告を取得
         wide_ads = list(WideAds.objects.all())
 
@@ -1012,11 +1015,12 @@ class HotHashtagView(TemplateView):
         context['random_ad2'] = random.choice(wide_ads) if wide_ads else None
         context['random_ad4'] = random.choice(wide_ads) if wide_ads else None
 
-        # おすすめユーザーの取得
-        recommended_users = Users.objects.order_by('-follow_count')[:12]
+        # おすすめユーザーの取得（RecommendedUserモデルに基づいて取得）
+        recommended_user_entries = RecommendedUser.objects.select_related('user').all()
+        recommended_users = [entry.user for entry in recommended_user_entries]
         context['recommended_users'] = recommended_users
             
-        context['posts_by_hashtag'] = dict(posts_by_hashtag)
+        context['posts_by_hashtag'] = ordered_posts_by_hashtag
         context['form'] = SearchForm()
         return context
 
