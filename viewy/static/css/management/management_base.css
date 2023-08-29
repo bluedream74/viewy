@@ -121,6 +121,17 @@ p > input{
   border-radius: 50px;
 }
 
+.error{
+  font-size: 12px;
+  color: orangered;
+}
+
+.errorlist > li{
+  font-size: 12px;
+  color: orangered;
+  list-style: none;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 

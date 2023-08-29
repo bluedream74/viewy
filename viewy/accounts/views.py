@@ -274,29 +274,38 @@ class UserLoginView(LoginView):
 
         # 認証失敗時
         if user is None:
-            form.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。'))
-            return self.form_invalid(form)  # or redirect to a failure page, etc.
+            try:
+                existing_user = Users.objects.get(email=email)
+                if not existing_user.is_active:
+                    # is_activeがFalseの場合の処理
 
+                    # 新しい確認コードを生成する
+                    existing_user.verification_code = generate_verification_code()
+                    existing_user.verification_code_generated_at = timezone.now()
+                    existing_user.save()
 
-        # Check if user is active
-        if not user.is_active:
-            # Generate a new verification code
-            user.verification_code = generate_verification_code()  # replace with your code generation function
-            user.verification_code_generated_at = timezone.now()  # update the time when the code was generated
-            user.save()
+                    # 確認コードをメールで送信する
+                    send_email_ses(
+                        to_email=existing_user.email,
+                        subject='【Viewy】認証コード',
+                        verification_code=existing_user.verification_code,
+                    )
 
-            # Send the verification code by email
-            send_email_ses(
-                to_email=user.email,
-                subject='【Viewy】認証コード',
-                verification_code=user.verification_code,
-            )
+                    # メールアドレスをセッションに保存する
+                    self.request.session['email'] = existing_user.email
 
-            # Save email to session
-            self.request.session['email'] = user.email
+                    # 確認ページへリダイレクトする
+                    return redirect('accounts:verify')
+                
+                # メールアドレスは正しいがパスワードが間違っている場合
+                else:
+                    form.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。'))
+                    return self.form_invalid(form)
 
-            # Redirect to verification page
-            return redirect('accounts:verify')
+            # メールアドレスが存在しない場合
+            except Users.DoesNotExist:
+                form.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。'))
+                return self.form_invalid(form)
 
         # If user is active, log in and redirect to postlist
         login(self.request, user)

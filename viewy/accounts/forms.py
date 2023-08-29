@@ -117,10 +117,10 @@ class UserLoginForm(forms.Form):
             self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
             return cleaned_data
 
-        # If user is not active, allow form to pass and handle in the view
-        if not user.is_active:
-            return cleaned_data
-
+        # Check the password
+        if not user.check_password(password):
+            self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
+        
         return cleaned_data
 
 class PasswordResetForm(AuthPasswordResetForm):
