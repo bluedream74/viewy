@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 import os
 import subprocess
 import json
+from django.conf import settings
 
 # Third-party libraries
 from django.core.files.base import File, ContentFile
@@ -20,6 +21,10 @@ import imageio_ffmpeg as ffmpeg
 
 # Local application/library specific imports
 from accounts.models import Users
+
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
+from PIL import ImageSequence
 
 
 
@@ -156,12 +161,51 @@ class Visuals(models.Model):
     return self.post.title + ':' + str(self.id)
   
   def save(self, *args, **kwargs):
+    # 新規オブジェクトの場合、一時的に画像を保存
+    old_image_name = self.visual.name if self.visual else None  # 元の画像の名前を保存
+
+    # 新規オブジェクトの場合、一時的に画像を保存
     if self.pk is None:
         saved_image = self.visual
         self.visual = None
         super().save(*args, **kwargs)
         self.visual = saved_image
+
+    # 画像の解像度変更処理
+    if self.visual:
+        # 画像を開く
+        image = Image.open(self.visual)
+
+        # 画像のモードに応じて保存方法を分岐
+        if image.format == 'GIF':
+            output_size = 480
+            frames = [frame.copy() for frame in ImageSequence.Iterator(image)]
+            resized_frames = [frame.resize((output_size, output_size * frame.height // frame.width), Image.LANCZOS) if frame.width > frame.height else frame.resize((output_size * frame.width // frame.height, output_size), Image.LANCZOS) for frame in frames]
+            output = BytesIO()
+            resized_frames[0].save(output, format='GIF', append_images=resized_frames[1:], save_all=True, duration=image.info['duration'], loop=0)
+            output_format = 'GIF'
+            content_type = 'image/gif'
+        else:
+            output_size = (1080, 1080)
+            image.thumbnail(output_size)
+            output = BytesIO()
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+            image.save(output, format='JPEG', quality=85)
+            output_format = 'JPEG'
+            content_type = 'image/jpeg'
+
+        output.seek(0)
+
+        # InMemoryUploadedFileに変換して、元の画像フィールドに再設定
+        self.visual = InMemoryUploadedFile(output, 'ImageField', f"{self.visual.name.split('.')[0]}.{output_format.lower()}", content_type, sys.getsizeof(output), None)
+
     super().save(*args, **kwargs)
+
+    # 以前の画像を削除
+    if old_image_name and old_image_name != self.visual.name:
+        if default_storage.exists(old_image_name):
+            default_storage.delete(old_image_name)
     
     
     
