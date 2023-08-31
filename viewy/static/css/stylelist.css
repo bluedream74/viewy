@@ -30,6 +30,8 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
+  object-fit: cover; /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
+  overflow: hidden; /* 親要素を超える部分を隠します。 */
 }
 
 .copy-link{

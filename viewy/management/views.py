@@ -116,6 +116,13 @@ class Partner(SuperUserCheck, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        # Posterグループに属しているユーザーの総数を取得
+        poster_group = Group.objects.get(name='Poster')
+        poster_users_count = poster_group.user_set.count()
+        
+        # コンテキストに poster_users_count を追加
+        context['poster_users_count'] = poster_users_count
+        
         users = Users.objects.annotate(
             total_posts=Count('posted_posts'),
             avg_favorite_rate=Avg('posted_posts__favorite_rate'),
@@ -158,7 +165,11 @@ class Post(SuperUserCheck, View):
         posts = Posts.objects.all().order_by('-favorite_rate')  # すべての投稿をいいね率の高い順に取得
         for post in posts:
             post.update_favorite_rate()  # 各投稿のいいね率を更新
-        context = {'posts': posts}
+        total_posts = posts.count()  # 総投稿数を取得
+        context = {
+            'posts': posts,
+            'total_posts': total_posts  # 総投稿数をコンテキストに追加
+        }
         return render(request, self.template_name, context)
     
 

@@ -49,6 +49,8 @@ a{
   height: 56px;
   border-radius: 50%;
   background-color: white;
+  object-fit: cover; /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
+  overflow: hidden; /* 親要素を超える部分を隠します。 */
 }
 
 .copy-link{

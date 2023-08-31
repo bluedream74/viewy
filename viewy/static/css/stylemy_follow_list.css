@@ -34,6 +34,8 @@
   border-radius: 50%;
   margin-left: 24px;
   background-color: white;
+  object-fit: cover; /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
+  overflow: hidden; /* 親要素を超える部分を隠します。 */
 }
 
 .poster-name{

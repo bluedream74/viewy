@@ -132,6 +132,16 @@ p > input{
   list-style: none;
 }
 
+.total_title{
+  font-size: 14px;
+}
+
+.total_number{
+ font-size: 32px;
+ font-weight: bold;
+ color: #00c5c5;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
@@ -167,5 +177,9 @@ p > input{
     margin: 4px;
     margin-top: 40px;
     padding: 4px;
+  }
+
+  .total_table{
+    padding: 16px 32px;
   }
 }
