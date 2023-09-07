@@ -14,14 +14,14 @@
   <a class="post" href="{% url 'posts:follow_list' %}?post_id={{ post.id }}">
     {% if post.ismanga %}
     <div class="book">
-      {% for visual in post.visuals_list|slice:":1" %}
+      {% for visual in post.visuals.all|slice:":1" %}
       <img class="manga-page" src="{{ visual.visual.url }}" alt="{{ post.title }}" loading="lazy">
       {% endfor %}
       <i class="fa-solid fa-book-open manga-icon"></i>
     </div>
 
     {% else %}
-    {% for video in post.videos_list %}
+    {% for video in post.videos.all %}
     {% if video.thumbnail %}
     <img class="post-video" src="{{ video.thumbnail.url }}" alt="" loading="lazy">
     {% else %}

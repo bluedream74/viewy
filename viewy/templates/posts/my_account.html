@@ -11,7 +11,7 @@
   <img src="{{ MEDIA_URL }}accounts_prf_imgs/仮ヘッダー２.png" alt="" class="header">
   <div class="not-caption">
     <div class="user-img">
-      {% if request.user and request.user|is_poster %}
+      {% if request.user and is_poster %}
         {% if request.user.prf_img %}
           <a href="{% url 'posts:poster_page' username=user.username %}"">
             <img class="prf_img" src="{{user.prf_img.url}}" alt="">
@@ -29,20 +29,24 @@
 
 
     <div class="name-grade">
+      {% if request.user and is_poster %}
       {% if user.displayname %}
         <div>{{ user.displayname }}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
         <div class="sub-info">{{user.username}}</div>
       {% else %}
         <div>{{user.username}}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
       {% endif %}
-      {% if request.user and request.user|is_poster %}
+      {% else %}
+        <div>トム</div>
+      {% endif %}
+      {% if request.user and is_poster %}
       <div class="grade partner">パートナー</div>
       {% else %}
       <div class="grade basic">ユーザー</div>
       {% endif %}
     </div>
   </div>
-  {% if request.user and request.user|is_poster %}
+  {% if request.user and is_poster %}
   {% if user.caption %}
   <div class="caption">
     {{user.caption|linebreaksbr }}
@@ -234,7 +238,7 @@
 </div>
 
 <div class="menu-list">
-  {% if request.user and request.user|is_poster %}
+  {% if request.user and is_poster %}
   <div class="">
     <i class="fa-solid fa-pen-to-square fa-lg mini-logo"></i><a href="{% url 'accounts:edit_prf' %}">プロフィール編集</a>
     <div class="line"></div>
@@ -243,7 +247,7 @@
   {% else %}
   {% endif %}
 
-  {% if request.user and request.user|is_poster %}
+  {% if request.user and is_poster %}
   <div class="my-posts">
     <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
     <div class="line"></div>

@@ -36,24 +36,34 @@ logger = logging.getLogger(__name__)
 import jaconv
 import re
 
+from django.db.models import Prefetch
+from django.core.cache import cache
+
 class BasePostListView(ListView):
     model = Posts
     template_name = 'posts/postlist.html'
    
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.prefetch_related('visuals', 'videos')
+        queryset = queryset.select_related('poster').prefetch_related('visuals', 'videos')
         if self.request.user.is_authenticated:
+            # Annotate for reports
             reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
             queryset = queryset.annotate(reported_by_user=Exists(reports))
+            
+            # Annotate for favorites
+            favorites = Favorites.objects.filter(user=self.request.user, post=OuterRef('pk'))
+            queryset = queryset.annotate(favorited_by_user=Exists(favorites))
+            
+            # Annotate for follows
+            follows = Follows.objects.filter(user=self.request.user, poster=OuterRef('poster_id'))
+            queryset = queryset.annotate(followed_by_user=Exists(follows))
+            
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        posts = self.get_queryset()
-        for post in posts:
-            post.visuals_list = post.visuals.all()
-            post.videos_list = post.videos.all()
+        posts = context['object_list']
         context['posts'] = posts
         return context
 
@@ -258,11 +268,17 @@ class PosterPageView(BasePostListView):
     template_name = os.path.join('posts', 'poster_page.html')
     
     def get_queryset(self):
+        # まず、BasePostListViewのget_querysetメソッドを呼び出します
+        queryset = super().get_queryset()
         self.poster = get_object_or_404(Users, username=self.kwargs['username'])
-        return Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+         # その後、PosterPageViewの特定のフィルタリングを適用します
+        queryset = queryset.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # ユーザーがフォローしているかどうかの確認
+        context['is_following'] = self.request.user in self.poster.follow.all()
         context['about_poster'] = self.poster
         return context
 
@@ -429,10 +445,15 @@ class HashtagPageView(BasePostListView):
     template_name = os.path.join('posts', 'hashtag_page.html')
     
     def get_queryset(self):
-        hashtag = self.kwargs['hashtag']   # この一行が重要
-        return (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
-                Posts.objects.filter(hashtag2=hashtag, is_hidden=False) | 
-                Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        # BasePostListViewのget_querysetを呼び出す
+        queryset = super().get_queryset()
+        hashtag = self.kwargs['hashtag']
+
+        # 既存のquerysetに特定のフィルタリングを適用
+        queryset = (queryset.filter(hashtag1=hashtag, is_hidden=False) | 
+                    queryset.filter(hashtag2=hashtag, is_hidden=False) | 
+                    queryset.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -679,11 +700,15 @@ class VideoCreateView(BasePostCreateView):
             form.instance.poster = self.request.user
             form.instance.posted_at = datetime.now()
             form.instance.ismanga = False
-            form.save()
-            video_file = video_form.cleaned_data.get('video')
-            video = Videos(post=form.instance)
-            video.video.save(video_file.name, video_file, save=True)
-            return super().form_valid(form)
+            try:
+                form.save()
+                video_file = video_form.cleaned_data.get('video')
+                video = Videos(post=form.instance)
+                video.video.save(video_file.name, video_file, save=True)
+                return super().form_valid(form)
+            except Exception as e:
+                form.add_error(None, str(e))
+                return self.form_invalid(form)
         else:
             # ビデオフォームが無効な場合、エラーメッセージを含めて再度フォームを表示
             return self.form_invalid(form)
@@ -927,11 +952,24 @@ class ViewCountView(View):
 # マイアカウントページ
 class MyAccountView(TemplateView):
     template_name = os.path.join('posts', 'my_account.html')
-#   ポスターグループかどうか判断。継承して他のクラスにも適応できそう
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # 一度だけユーザーオブジェクトにアクセスする
         user = self.request.user
-        is_poster = user.groups.filter(name='Poster').exists()
+        user_id = user.id
+
+        # キャッシュから情報を取得
+        cache_key = f"is_poster_{user_id}"
+        is_poster = cache.get(cache_key)
+
+        # キャッシュに情報がなければデータベースから取得
+        if is_poster is None:
+            is_poster = self.request.user.groups.filter(name='Poster').exists()
+            # キャッシュに情報を保存 (この例では10分間キャッシュ)
+            cache.set(cache_key, is_poster, 600)  # 600 seconds = 10 minutes
+
         context['is_poster'] = is_poster
         return context
     

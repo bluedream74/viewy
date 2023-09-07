@@ -24,7 +24,7 @@ from django.views.generic.list import ListView
 from django.contrib.auth.views import LoginView
 
 # Local application/library specific
-from .forms import EditPrfForm, RegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
+from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
 from .models import Follows, Messages, Users, DeleteRequest
 from management.models import UserStats
 from django.contrib.auth.tokens import default_token_generator
@@ -150,8 +150,8 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         return response
 
 class InvitedRegistUserView(SuccessMessageMixin, CreateView):
-    template_name = 'regist.html'  
-    form_class = RegistForm
+    template_name = 'invited_regist.html'  
+    form_class = InvitedRegistForm
     success_url = reverse_lazy('accounts:verify')  
 
     def form_valid(self, form):
@@ -422,15 +422,15 @@ class EditPrfView(View):
             
         
 class FollowView(LoginRequiredMixin, View):
-  def post(self, request, *args, **kwargs):
-      poster = get_object_or_404(Users, pk=kwargs['pk'])
-      follow, created = Follows.objects.get_or_create(user=request.user, poster=poster)
-      if not created:
+    def post(self, request, *args, **kwargs):
+        poster = get_object_or_404(Users, pk=kwargs['pk'])
+        follow, created = Follows.objects.get_or_create(user=request.user, poster=poster)
+        if not created:
           follow.delete()
-      poster.follow_count = poster.follow.count()
-      poster.save()
-      data = {'follow_count': poster.follow_count}
-      return JsonResponse(data)
+        poster.follow_count = poster.follow.count()
+        poster.save()
+        data = {'follow_count': poster.follow_count}
+        return JsonResponse(data)
   
   
   
@@ -439,13 +439,8 @@ class MessageListView(ListView):
     context_object_name = 'messages'
 
     def get_queryset(self):
-        User = get_user_model()
-        current_user = User.objects.get(id=self.request.user.id)
-        
-        universal_user = User.objects.get(id=1) #ID＝1に送られたメッセージは全員への一斉送信として扱う
-
         return Messages.objects.filter(
-            Q(recipient=current_user) | Q(recipient=universal_user)
+            Q(recipient_id=self.request.user.id) | Q(recipient_id=1)
         ).order_by('-sent_at')
         
         

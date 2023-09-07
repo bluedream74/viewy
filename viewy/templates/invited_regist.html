@@ -26,12 +26,12 @@
 <form method="POST">
   {% csrf_token %}
   <div class="form">
-    <!-- <div class="username">
+    <div class="username">
       <div class="message alert-error">
         {{ form.username.errors }}
       </div>
       {{ form.username }}
-    </div> -->
+    </div>
     <div class="email">
       <div class="message alert-error">
         {{ form.email.errors }}

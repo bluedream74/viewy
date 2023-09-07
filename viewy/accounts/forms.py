@@ -1,4 +1,4 @@
-import re
+import re, uuid
 from django import forms
 from .models import Users, DeleteRequest
 from django.contrib.auth.password_validation import validate_password
@@ -14,43 +14,45 @@ from django.contrib.auth.forms import SetPasswordForm as AuthSetPasswordForm
 
 # ユーザー登録処理
 class RegistForm(forms.ModelForm):
-  username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ユーザーネーム（英数字と_のみ）'}))
-  email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
-  password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
-  password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード（確認）'}))  # 新しいフィールド
+    username = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'ユーザーネーム（英数字と_のみ）'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
+    password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード（確認）'}))  # 新しいフィールド
 
-  class Meta:
-      model = Users
-      fields = ['username', 'email', 'password', 'password_confirm']  # 新しいフィールドを追加
+    class Meta:
+        model = Users
+        fields = ['username', 'email', 'password', 'password_confirm']  # 新しいフィールドを追加
 
-  def __init__(self, *args, **kwargs):
-      super().__init__(*args, **kwargs)
-      self.fields['email'].error_messages = {'invalid': '有効なメールアドレスを入力してください。'}
-      self.fields['username'].error_messages = {'unique': 'このユーザーネームは既に使用されています。別のユーザーネームを入力してください。'}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].error_messages = {'invalid': '有効なメールアドレスを入力してください。'}
+        self.fields['username'].error_messages = {'unique': 'このユーザーネームは既に使用されています。別のユーザーネームを入力してください。'}
 
-  def clean(self):
-      cleaned_data = super().clean()
-      password = cleaned_data.get('password')
-      password_confirm = cleaned_data.get('password_confirm')
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
 
-      if password != password_confirm:  # パスワードと確認用パスワードが一致するかチェック
-          self.add_error('password_confirm', 'パスワードが一致しません。')  # 一致しない場合はエラーメッセージを表示
+        if password != password_confirm:  # パスワードと確認用パスワードが一致するかチェック
+            self.add_error('password_confirm', 'パスワードが一致しません。')  # 一致しない場合はエラーメッセージを表示
 
-      return cleaned_data
+        return cleaned_data
   
-  def clean_username(self):
-      username = self.cleaned_data.get('username')
-      if username and not re.match(r'^[a-zA-Z0-9_]+$', username):
-          raise forms.ValidationError("ユーザーネームは英数字と_のみが使用可能です。")
-      return username
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and not re.match(r'^[a-zA-Z0-9_]+$', username):
+            raise forms.ValidationError("ユーザーネームは英数字と_のみが使用可能です。")
+        return username
 
-  def clean_email(self):
-      email = self.cleaned_data.get('email')
-      if email and Users.objects.filter(email=email).exists():
-          raise forms.ValidationError("このメールアドレスは既に使用されています。別のメールアドレスを入力してください。")
-      return email
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and Users.objects.filter(email=email).exists():
+            raise forms.ValidationError("このメールアドレスは既に使用されています。別のメールアドレスを入力してください。")
+        return email
   
-  def clean_password(self):
+    def clean_password(self):
         password = self.cleaned_data.get('password')
         email = self.cleaned_data.get('email')
         if password and email:
@@ -74,16 +76,33 @@ class RegistForm(forms.ModelForm):
                 raise forms.ValidationError(errors)
         return password
   
-  def save(self, commit=True):  # commit=Trueをデフォルトにする
+    def save(self, commit=True):  # commit=Trueをデフォルトにする
         # もともと備わっているセーブ機能を一回止めるたのち、ハッシュ化する処理
         user = super().save(commit=False)
         validate_password(self.cleaned_data['password'], user) # パスワードのバリデーションをより詳しく行う
         user.set_password(self.cleaned_data['password']) # パスワードのハッシュ化
         user.verification_code = generate_verification_code()   # 認証コードを生成
+        if not user.username:
+            user.username = self.generate_unique_username()
+
         if commit:
             user.save()
         return user
     # この修正により、 RegistForm.save メソッドが呼び出されるときに commit=False が指定されていると、ユーザーはデータベースに保存されず、 RegistUserView の form_valid メソッド内の super().form_valid(form) によって保存されるようになります。
+
+    def generate_unique_username(self):
+        # 一意のユーザーネームを生成するまでループ
+        while True:
+            username = str(uuid.uuid4())[:8]
+            if not Users.objects.filter(username=username).exists():
+                return username
+
+
+class InvitedRegistForm(RegistForm):
+    username = forms.CharField(
+        required=True, 
+        widget=forms.TextInput(attrs={'placeholder': 'ユーザーネーム（英数字と_のみ）'})
+    )
 
 
 # 認証コードを入力するためのフォーム

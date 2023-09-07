@@ -55,29 +55,41 @@ document.addEventListener('change', event => {
 document.addEventListener('change', event => {
   if (event.target.matches('.mini-follow-button')) {
     const FollowButton = event.target;
+
+    // ボタンを一時的に無効化
+    FollowButton.disabled = true;
+
     const form = FollowButton.closest('form');
     const posterPk = form.dataset.pk;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const url = form.action;
     const formData = new FormData(form);
     formData.append('csrfmiddlewaretoken', csrftoken);
+  
+    const followed = form.querySelector('.fa-solid.fa-check');
+    const notFollowed = form.querySelector('.fa-solid.fa-plus');
+    if (FollowButton.checked) {
+        notFollowed.classList.add('fa-check');
+        notFollowed.classList.remove('fa-plus');
+    } else {
+        followed.classList.remove('fa-check');
+        followed.classList.add('fa-plus');
+    }
+
 
     fetch(url, {
       method: 'POST',
       body: formData,
     })
-    .then(() => {  // 応答を待たないと次のコードが正常に動作しない場合
-      const followed = form.querySelector('.fa-solid.fa-check');
-      const notFollowed = form.querySelector('.fa-solid.fa-plus');
-      if (FollowButton.checked) {
-        notFollowed.classList.add('fa-check');
-        notFollowed.classList.remove('fa-plus');
-      } else {
-        followed.classList.remove('fa-check');
-        followed.classList.add('fa-plus');
-      }
-    })
-    .catch(error => console.log(error));  // エラー処理を追加
+      .then(() => {
+      // 応答を受け取った後、ボタンを再度有効化
+      FollowButton.disabled = false;
+      })
+      .catch(error => {
+        console.log(error);
+        // エラーが発生した場合でも、ボタンを再度有効化
+        FollowButton.disabled = false;
+      });
   }
 });
 

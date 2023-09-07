@@ -4,14 +4,14 @@
   <div class="spinner"></div>
   {% if post.ismanga %}
   <div class="book">
-    {% for visual in post.visuals_list %}
+    {% for visual in post.visuals.all %}
     <div class="manga-page">
       <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
     </div>
     {% endfor %}
   </div>
   {% else %}
-  {% for video in post.videos_list %}
+  {% for video in post.videos.all %}
   <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
     loading="lazy" playsinline loop muted></video>
   <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
@@ -36,12 +36,12 @@
           {% csrf_token %}
           <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
           <label>
-            {% if user in post.poster.follow.all %}
+            {% if post.followed_by_user %}
             <i class="fa-solid fa-check fa-2xs follow"></i>
             {% else %}
             <i class="fa-solid fa-plus fa-2xs follow"></i>
             {% endif %}
-            <input type="checkbox" class="mini-follow-button" {% if user in post.poster.follow.all %}checked{% endif %}>
+            <input type="checkbox" class="mini-follow-button" {% if post.followed_by_user %}checked{% endif %}>
           </label>
         </form>
       </div>
@@ -58,13 +58,13 @@
           {% csrf_token %}
           <input type="hidden" name="post_pk" value="{{ post.pk }}">
           <label class="like-label">
-            {% if user in post.favorite.all %}
+            {% if post.favorited_by_user %}
             <i class="fa-solid fa-heart liked"></i>
             {% else %}
             <i class="fa-regular fa-heart not-liked"></i>
             {% endif %}
             <p class="favorite-count">{{ post.favorite_count }}</p>
-            <input type="checkbox" class="like-button" {% if user in post.favorite.all %}checked{% endif %}>
+            <input type="checkbox" class="like-button" {% if post.favorited_by_user %}checked{% endif %}>
           </label>
         </form>
       </div>
@@ -213,7 +213,7 @@
 
   <div class="page-count">
     {% if post.ismanga %}
-    <span id="current-page">1</span>/<span class="total-page">{{ post.visuals_list|length }}</span>
+    <span id="current-page">1</span>/<span class="total-page">{{ post.visuals.all|length }}</span>
     {% endif %}
   </div>
 
