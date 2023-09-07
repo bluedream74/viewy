@@ -251,7 +251,7 @@
 
 
 
-<div class="list-area">
+<div class="list-area" data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
     {% for post in posts %}
     <a class="post"  href="{% url 'posts:poster_post_list' username=about_poster.username %}?post_id={{ post.id }}">
     {% if post.ismanga %}
@@ -277,7 +277,17 @@
     </div>
 
     </a>
-  {% endfor %}
+    {% endfor %}
+</div>
+
+<div id="loginModal" class="login-modal">
+  <img src="{{ MEDIA_URL }}others/のぞき見.png" alt="" class="tom">
+    <div class="login-modal-content">
+        <span class="close-btn">&times;</span>
+        <div class="login-title">Viewyにログインしよう</div>
+        <div class="login-content">無制限のコンテンツの視聴に加え、<br>いいねやフォローなどができるようになります。</div>
+        <a href="{% url 'accounts:user_login' %}?next={{ request.get_full_path }}" class="login-btn">ログイン</a>
+    </div>
 </div>
 
 <div class="bottom-space"></div>
@@ -295,6 +305,44 @@
 </style>
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
+<script>
+    // 非ログインユーザーへのログイン催促モーダル
+    document.addEventListener('DOMContentLoaded', function() {
+        const listArea = document.querySelector('.list-area');
+        const isAuthenticated = listArea.getAttribute('data-is-authenticated') === 'true';
+        const loginModal = document.getElementById('loginModal');
+        const closeBtn = document.querySelector('.close-btn');
+        const loginBtn = document.querySelector('.login-btn'); // ログインボタンを参照
+
+        // post要素をクリックしたときのイベント
+        listArea.addEventListener('click', function(event) {
+            if (event.target.closest('.post') && !isAuthenticated) {
+                event.preventDefault();
+                loginModal.style.display = "block";
+            }
+        });
+
+        // モーダルのクローズボタンをクリックしたときのイベント
+        closeBtn.addEventListener('click', function() {
+            loginModal.style.display = "none";
+        });
+
+        // モーダル外のエリアをクリックしたときにモーダルを閉じるイベント
+        window.addEventListener('click', function(event) {
+            if (event.target === loginModal) {
+                loginModal.style.display = "none";
+            }
+        });
+
+        // ログインボタンをクリックしたときにnextパラメータをURLに追加するイベント
+        if (loginBtn) {
+            loginBtn.addEventListener('click', function() {
+                const returnTo = window.location.href;
+                loginBtn.setAttribute('href', `/accounts/user_login/?next=${encodeURIComponent(returnTo)}`);
+            });
+        }
+    });
+</script>
 <script>
   function copyToClipboard() {
   // Get the current page's URL

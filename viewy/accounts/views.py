@@ -223,6 +223,12 @@ class VerifyView(FormView):
             if not created:
                 record.total_users = total_users
                 record.save()
+                
+            # セッションからリダイレクト先URLを取得し、セッションからその情報を削除
+            next_url = self.request.session.pop('return_to', None)
+            if next_url:
+                return redirect(next_url)  # 元のページにリダイレクト
+            
         else:
             messages.error(self.request, '認証コードが正しくありません。もう一度入力してください。')
             return self.form_invalid(form)
@@ -265,6 +271,13 @@ class UserLoginView(LoginView):
             context['is_special_user'] = True
 
         return context
+    
+    def get(self, request, *args, **kwargs):
+        # nextパラメータが存在する場合、セッションに保存
+        if 'next' in request.GET:
+            request.session['return_to'] = request.GET['next']
+            print(f"Received return_to URL: {request.GET['next']}")  # ここでURLを出力
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         email = form.cleaned_data['email']
@@ -313,8 +326,12 @@ class UserLoginView(LoginView):
         # セッションからInvitedのフラグを削除
         if 'is_special_user' in self.request.session:
             del self.request.session['is_special_user']
+            
+        # セッションからリダイレクト先URLを取得し、セッションからその情報を削除
+        next_url = self.request.session.pop('return_to', None) or 'posts:postlist'
+        return redirect(next_url)
 
-        return redirect('posts:postlist')
+        
 
 
     
