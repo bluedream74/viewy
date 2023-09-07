@@ -17,7 +17,7 @@ urlpatterns = [
     path('policy/', PolicyView.as_view(), name='policy'),
     path('delete_request/', DeleteRequestView.as_view(), name='delete_request'),
     path('delete_request_success/', DeleteRequestSuccessView.as_view(), name='delete_request_success'),
-    path('', CheckAgeView.as_view(), name=''),
+    path('', CheckAgeView.as_view(), name='home'),
 ]
 
 if settings.DEBUG:

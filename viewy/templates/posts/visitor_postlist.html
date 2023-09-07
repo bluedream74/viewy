@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<script>
+  // ビューポートの高さを取得
+  let vh = window.innerHeight * 0.01;
+  // 現在のビューポートの高さをCSS変数として設定
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+</script>
+<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
+
+<!-- ツイッターのカード設定 -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@Viewy_official" />
+<meta name="twitter:domain" content="www.viewy.net" />
+<meta name="twitter:title" content="Viewy[ビューイー]| 動画とマンガがリール形式で楽しめる スマホ向けウェブサービス" />
+<meta name="twitter:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+<meta name="twitter:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+
+<!-- Open Graph設定 -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.viewy.net" />
+<meta property="og:title" content="Viewy[ビューイー]| 動画とマンガがリール形式で楽しめる スマホ向けウェブサービス" />
+<meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+<meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+{% endblock %}
+{% block content %}
+{% block title %}
+
+{% endblock %}
+<div class="top-adjust-trigger">
+  <div class="top-load-trigger"></div>
+</div>
+<div class="top-space"></div>
+
+{% for post in posts %}
+
+<div class="post not-ad" data-post-id="{{ post.id }}">
+  <div class="spinner"></div>
+  {% if post.ismanga %}
+  <div class="book">
+    {% for visual in post.visuals.all %}
+    <div class="manga-page">
+      {% if post.show_icon %}
+      <div class="horizontal-slide-icon">
+        <i class="fa-solid fa-arrow-left-long"></i>
+        <div class="slide-icon-word">横読み</div>
+      </div>
+      {% endif %}
+      <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  {% for video in post.videos.all %}
+  <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
+    loading="lazy" playsinline loop muted></video>
+  <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+  <br>
+  {% endfor %}
+  {% endif %}
+
+  <div class="content">
+    <div class="side-bar">
+
+      <div class="poster">
+        <div>
+          <!-- <p>投稿者:{{post.poster.username}}</p> -->
+          <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
+            <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
+          </a>
+        </div>
+      </div>
+      <div class="follow-poster">
+        <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
+        <a class="fa-solid fa-plus fa-2xs " href="{% url 'accounts:user_login'%}" style="color: black;"></a>
+      </div>
+
+      <div class="favorite">
+        <a class="fa-regular fa-heart not-liked" href="{% url 'accounts:user_login'%}"
+          style="color: rgb(255, 255, 255);"></a>
+        <p class="favorite-count">{{ post.favorite_count }}</p>
+      </div>
+
+      <div class="mute">
+        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+          <input type="checkbox" class="mute-frag" checked>
+        </label>
+      </div>
+
+      <div class="space-for-hide"></div>
+      
+    </div>
+
+    <div class="captions">
+      <div class="poster-name">
+        {% if post.poster.displayname %}
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+          class="poster-name">＠{{post.poster.displayname}}</a>
+        {% else %}
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+          class="poster-name">＠{{post.poster.username}}</a>
+        {% endif %}
+      </div>
+      <div class="title">
+        {{post.title}}
+      </div>
+
+      <div class="caption">{{post.caption}}</div>
+      <div class="hashtags" data-user="false">
+
+
+        <!-- URLがあればアプリに応じたアイコンを表示する -->
+        {% if post.url %}
+        <span class="url"><a href="{{post.url}}" target="_blank">
+            {% if post.get_url_prefix == 'x' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/x_white.png" alt="">
+            {% elif post.get_url_prefix == 'youtube' %}
+            <i class="fab fa-youtube"></i>
+            {% elif post.get_url_prefix == 'fantia' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/fantia_white.png" alt="">
+            {% elif post.get_url_prefix == 'myfans' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/myfans_white.png" alt="">
+            {% elif post.get_url_prefix == 'candfans' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/candfans_white.png" alt="">
+            {% elif post.get_url_prefix == 'lit.link' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/litlink_white.png" alt="">
+            {% elif post.get_url_prefix == 'fanza' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/fanza_white.png" alt="">
+            {% elif post.get_url_prefix == 'amazon' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/amazon_white.png" alt="">
+            {% elif post.get_url_prefix == 'skeb' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/skeb_white.png" alt="">
+            {% elif post.get_url_prefix == 'dlsite' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/dlsite_white.png" alt="">
+            {% elif post.get_url_prefix == 'profu.link' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/profu.link_white.png" alt="">
+            {% elif post.get_url_prefix == 'knip' %}
+            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/knip_white.png" alt="">
+            {% else %}
+            <i class="fas fa-link"></i>
+            {% endif %}
+          </a></span>
+        {% endif %}
+        {% if post.hashtag1 %}
+        <span class="hashtag"> <a href="{% url 'posts:hashtag' post.hashtag1 %}">#{{post.hashtag1}}</a></span>
+        {% endif %}
+        {% if post.hashtag2 %}
+        <span class="hashtag"> <a href="{% url 'posts:hashtag' post.hashtag2 %}">#{{post.hashtag2}}</a></span>
+        {% endif %}
+        {% if post.hashtag3 %}
+        <span class="hashtag"><a href="{% url 'posts:hashtag' post.hashtag3 %}">#{{post.hashtag3}}</a></span>
+        {% endif %}
+
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <label class="hide-label fa-solid fa-angle-down hide">
+    <input class="hide-input" type="checkbox" style="display: none;">
+  </label>
+
+
+  <div class="page-count">
+    {% if post.ismanga %}
+    <span id="current-page">1</span>/<span class="total-page">{{ post.visuals.all|length }}</span>
+    {% endif %}
+  </div>
+
+  {% if not post.ismanga %}
+  <div class="play-button">
+    <i class="fa-solid fa-play"></i>
+  </div>
+  {% endif %}
+
+
+</div>
+
+
+{% endfor %}
+
+<div class="bottom-space"></div>
+<div class="adjust-trigger">
+  <div class="load-trigger"></div>
+</div>
+
+{% block bottom %}
+
+{% endblock %}
+
+
+
+{% endblock %}
+
+{% block script %}
+
+<script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+<script src="{% static 'js/auto_focus.js' %}"></script>
+<script src="{% static 'js/auto_play.js' %}"></script>
+<script src="{% static 'js/control_video.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/lazyload.js' %}"></script>
+<script src="{% static 'js/mute.js' %}"></script>
+<script src="{% static 'js/hide_contents.js' %}"></script>
+<script src="{% static 'js/read_more.js' %}"></script>
+<script src="{% static 'js/ad_response_count.js' %}"></script>
+<script src="{% static 'js/report.js' %}"></script>
+<script src="{% static 'js/hashtag_history.js' %}"></script>
+<script src="{% static 'js/mangapage_count.js' %}"></script>
+<script src="{% static 'js/horizontal_arrow.js' %}"></script>
+{% endblock %}
+
+
+<div class="post">
+  <video src=""></video>
+  <div class="play-button"></div>
+</div>

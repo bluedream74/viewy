@@ -39,6 +39,8 @@ import re
 from django.db.models import Prefetch
 from django.core.cache import cache
 
+from django.db.models import Count
+
 class BasePostListView(ListView):
     model = Posts
     template_name = 'posts/postlist.html'
@@ -65,6 +67,21 @@ class BasePostListView(ListView):
         context = super().get_context_data(**kwargs)
         posts = context['object_list']
         context['posts'] = posts
+        return context
+
+class VisitorPostListView(BasePostListView):
+    template_name = 'posts/visitor_postlist.html'
+
+    def get_queryset(self):
+        # まず、いいね数の多い順に並べる
+        posts = super().get_queryset().order_by('-favorite_count')
+        # 6-10番目を取得
+        posts = posts[3:8]  
+
+        return posts
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 class PostListView(BasePostListView):
