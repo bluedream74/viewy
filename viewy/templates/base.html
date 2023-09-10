@@ -49,7 +49,7 @@
         <a class="like" href="{% url 'posts:favorite_page'%}"><i class="fa-solid fa-star fa-xs"></i></a>
         <a class="my-account" href="{% url 'posts:my_account'%}"><i class="fa-solid fa-user fa-xs"></i></a>
       {% else %}
-        <a class="home" href="{% url 'posts:postlist'%}"><i class="fa-solid fa-house fa-xs"></i></a>
+        <a class="home" href="{% url 'posts:visitor_postlist'%}"><i class="fa-solid fa-house fa-xs"></i></a>
         <a class="serch" href="{% url 'posts:hothashtag'%}"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
         <a class="add-post visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-square-plus fa-sm"></i></a>
         <a class="like visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-star fa-xs"></i></a>

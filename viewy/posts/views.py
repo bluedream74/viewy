@@ -72,11 +72,17 @@ class BasePostListView(ListView):
 class VisitorPostListView(BasePostListView):
     template_name = 'posts/visitor_postlist.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        # ユーザーがログインしている場合、PostListViewにリダイレクト
+        if request.user.is_authenticated:
+            return redirect('posts:postlist')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         # まず、いいね数の多い順に並べる
         posts = super().get_queryset().order_by('-favorite_count')
         # 6-10番目を取得
-        posts = posts[3:8]  
+        posts = posts[6:11]  
 
         return posts
 
@@ -294,8 +300,8 @@ class PosterPageView(BasePostListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['followers'] = self.poster.follow.all()
         # ユーザーがフォローしているかどうかの確認
-        context['is_following'] = self.request.user in self.poster.follow.all()
         context['about_poster'] = self.poster
         return context
 
@@ -927,6 +933,12 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
         user = self.request.user
         follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
         follow_posters = [f.poster for f in follows]
+        # 各posterが現在のユーザーにフォローされているかどうかの情報を取得
+        followed_by_user_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
+        
+        for poster in follow_posters:
+            poster.is_followed_by_current_user = poster.id in followed_by_user_ids
+
         return follow_posters
     
 # 戻るボタン（未完成）

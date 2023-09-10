@@ -40,7 +40,7 @@
           <label>
     
             {% if user.is_authenticated %}
-              {% if user in about_poster.follow.all %}
+              {% if user in followers %}
                   <div class="main-button followed">フォロー中</div>
               {% else %}
                   <div class="main-button follow">フォローする</div>
@@ -52,7 +52,7 @@
             <input 
             type="checkbox"
             class="follow-button"
-            {% if user in about_poster.follow.all %}checked{% endif %}
+            {% if user in followers %}checked{% endif %}
             >
           </label>
       </div>

@@ -135,10 +135,12 @@
     <div class="captions">
       <div class="poster-name">
         {% if post.poster.displayname %}
-        <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠{{post.poster.displayname}}</a>
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+          class="poster-name">＠{{post.poster.displayname}}</a>
         {% else %}
-        <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠{{post.poster.username}}</a>
-        {% endif %}      
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+          class="poster-name">＠{{post.poster.username}}</a>
+        {% endif %}
       </div>
       <div class="title">
         {{post.title}}
@@ -146,7 +148,7 @@
 
       <div class="caption">{{post.caption}}</div>
       <div class="hashtags" data-user="{% if user.is_authenticated %}true{% else %}false{% endif %}">
-      
+
 
         <!-- URLがあればアプリに応じたアイコンを表示する -->
         {% if post.url %}
@@ -287,18 +289,16 @@
 
     <div class="poster">
       <div class="ad-prf">
-        <a href="{{ ad.url }}">
-          <img class="ad-prf-img" src="{{ MEDIA_URL }}ads_prf_imgs/ad_icon.png" alt="">
-        </a>
+        <img class="ad-prf-img" src="{{ MEDIA_URL }}ads_prf_imgs/ad_icon.png" alt="">
       </div>
     </div>
 
     <div class="follow-poster">
-      <a class="fa-solid fa-plus fa-2xs " href="{{ ad.url }}" style="color: black;"></a>
+      <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
     </div>
 
     <div class="favorite">
-      <a class="fa-regular fa-heart not-liked" href="{{ ad.url }}" style="color: rgb(255, 255, 255);"></a>
+      <a class="fa-regular fa-heart not-liked" style="color: rgb(255, 255, 255);"></a>
     </div>
 
     <div class="mute">
