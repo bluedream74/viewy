@@ -35,7 +35,7 @@
       <div class="counter">フォロワー <span class="follow-count">{{ poster.follow_count }}</span>人</div>
       <input type="hidden" name="poster_pk" value="{{ poster.pk }}">
       <label>
-        {% if user in poster.follow.all %}
+        {% if poster.is_followed_by_current_user %}
         <div class="followed">フォロー中</div>
         {% else %}
         <div class="follow">フォローする</div>
@@ -44,7 +44,7 @@
         <input 
         type="checkbox"
         class="follow-button"
-        {% if user in poster.follow.all %}checked{% endif %}
+        {% if poster.is_followed_by_current_user %}checked{% endif %}
         >
       </label>
     </form>
