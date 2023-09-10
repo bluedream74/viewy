@@ -263,6 +263,17 @@ class Videos(models.Model):
         else:
             super().save(*args, **kwargs)
             print("save method completed without encoding.")
+    
+# 縦長か横長か判別        
+    def get_video_dimensions(self, video_path):
+        cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", 
+               "-show_entries", "stream=width,height", 
+               "-of", "csv=s=x:p=0", video_path]
+
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        dimensions = result.stdout.decode().strip().split('x')
+        return int(dimensions[0]), int(dimensions[1])
+    
 
 # エンコードの処理
     def encode_video(self):
@@ -286,13 +297,42 @@ class Videos(models.Model):
             # エンコード後の動画ファイルの名前に_encodedを追加
             output_path = os.path.splitext(temp_path)[0] + "_encoded.mp4"
 
+            width, height = self.get_video_dimensions(temp_path)
+
+            # この部分で取得した動画の解像度を出力して確認
+            print(f"Original dimensions: {width}x{height}")
+
+            # 縦長か横長かを判定
+            if width > height:  # 横長の場合
+                scale_cmd = "scale=-2:360"
+            else:  # 縦長の場合
+                scale_cmd = "scale=-2:720"
+
+            # こちらで変更後のスケールコマンドを出力して確認
+            print(f"Scaling command: {scale_cmd}")
+            
+            # 元動画のコーデックを確認
+            print(f"Detected codec: {codec}")
+
+            framerate_cmd = ["-r", "24"]  # フレームレートを30fpsに指定
+
             # 圧縮の種類（コーデック）によってエンコードの処理を分ける
             if codec == "hevc":
                 cmd = [
                     "ffmpeg",
                     "-i", temp_path,
                     "-c:v", "libx265",
-                    "-vf", "scale=-2:720",
+                    "-vf", scale_cmd,
+                    *framerate_cmd,  # リストを展開
+                    output_path
+                ]
+            elif codec == "h264":  # 入力が H.264 の場合
+                cmd = [
+                    "ffmpeg",
+                    "-i", temp_path,
+                    "-c:v", "libx264",
+                    "-vf", scale_cmd,
+                    *framerate_cmd,  # リストを展開
                     output_path
                 ]
             else:
@@ -300,9 +340,13 @@ class Videos(models.Model):
                     "ffmpeg",
                     "-i", temp_path,
                     "-c:v", "libx264",
-                    "-vf", "scale=-2:720",
+                    "-vf", scale_cmd,
+                    *framerate_cmd,  # リストを展開
                     output_path
                 ]
+
+            # この部分で実際に実行するFFmpegコマンドを出力して確認
+            print(f"FFmpeg command: {' '.join(cmd)}")
 
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
