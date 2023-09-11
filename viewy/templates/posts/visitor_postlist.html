@@ -37,6 +37,16 @@
 
 <div class="post not-ad" data-post-id="{{ post.id }}">
   <div class="spinner"></div>
+  {% if forloop.counter == 5 %}
+  <div id="loginModal" class="login-modal">
+    <img src="{{ MEDIA_URL }}others/のぞき見.png" alt="" class="tom">
+    <div class="login-modal-content">
+      <div class="login-title">Viewyにログインしよう</div>
+      <div class="login-content">無制限のコンテンツの視聴に加え、<br>いいねやフォローなどができるようになります。</div>
+      <a href="{% url 'accounts:user_login' %}" class="login-btn">ログイン</a>
+    </div>
+  </div>
+  {% endif %}
   {% if post.ismanga %}
   <div class="book">
     {% for visual in post.visuals.all %}
@@ -196,11 +206,16 @@
 {% endblock %}
 
 {% block script %}
-
+<style>
+  .home {
+    border-top: solid 2px aqua;
+  }
+</style>
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>
+<script src="{% static 'js/custom_controlbar.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/mute.js' %}"></script>
