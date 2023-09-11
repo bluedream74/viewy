@@ -33,18 +33,18 @@ from PIL import ImageSequence
 class Posts(models.Model):
     poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')
     ismanga = models.BooleanField(default=False)
+    is_real = models.BooleanField(default=False)
     title = models.CharField(max_length=30)
-    hashtag1 = models.CharField(max_length=20)
-    hashtag2 = models.CharField(max_length=20)
-    hashtag3 = models.CharField(max_length=20)
-    caption = models.CharField(max_length=100)
-    url = models.URLField(max_length=80, null=True)
+    hashtag1 = models.CharField(max_length=20, blank=True, null=True)
+    hashtag2 = models.CharField(max_length=20, blank=True, null=True)
+    hashtag3 = models.CharField(max_length=20, blank=True, null=True)
+    caption = models.CharField(max_length=100, blank=True, null=True)
+    url = models.URLField(max_length=80, blank=True, null=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     content_length = models.PositiveIntegerField(default=0)
     favorite = models.ManyToManyField(Users, through='Favorites', related_name='favorite_posts')
     favorite_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
-    viewed_by = models.ManyToManyField(Users, related_name='viewed_posts')
     report_count = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False)
     favorite_rate = models.FloatField(default=0.0)  # 追加
@@ -122,15 +122,20 @@ class Posts(models.Model):
     def stay_rate(self):
         """滞在率を算出するメソッド"""
         if self.content_length == 0:
-            return 0
-        
+            return 0      
         stay_rate_value = (self.average_duration() / self.content_length) * 100  # 100%を超えても許容
         print(f"Stay Rate: {stay_rate_value}")
         return stay_rate_value
 
-    def calculate_qp(self, factor_a=1, factor_b=1):
+    def stay_rate_point(self):
+        """滞在率に基づいた評価ポイントを算出するメソッド"""
+        point = self.stay_rate() * (1 + self.content_length / 15)
+        print(f"Stay Rate Point: {point}")
+        return point
+
+    def calculate_qp(self, factor_a=20, factor_b=1):
         """QPを算出するメソッド. factor_aとfactor_bはいいね率と滞在率の重みです"""
-        self.qp = (self.favorite_rate / 100 * factor_a) + (self.stay_rate() / 100 * factor_b)
+        self.qp = (self.favorite_rate / 100 * factor_a) + (self.stay_rate_point() / 100 * factor_b)
         print(f"QP Calculated: {self.qp}")
         self.save()
         

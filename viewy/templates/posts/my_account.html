@@ -237,6 +237,16 @@
   {% endif %}
 </div>
 
+<div class="dimension-slider">
+    <div class="labels">
+    <span>３</span>
+    <span class="mix">MIX</span>
+    <span>２</span>
+  </div>
+  <input type="range" id="dimensionRange" min="2.0" max="3.0" step="0.5" class="dimension-range" value="{{ current_dimension }}">
+
+</div>
+
 <div class="menu-list">
   {% if request.user and is_poster %}
   <div class="">
@@ -316,5 +326,72 @@ function copyToClipboard() {
   alert('リンクがクリップボードにコピーされました。');
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const dimensionRange = document.getElementById('dimensionRange');
+    
+  dimensionRange.addEventListener('input', function(event) {
+    const newDimension = event.target.value;
+    updateDimension(newDimension);
+  });
+});
 
+function updateDimension(dimension) {
+    fetch('/accounts/change_dimension/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ dimension: dimension })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Dimension updated successfully!");
+        } else {
+            console.error("Failed to update dimension.");
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}  
+
+document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.querySelector('.dimension-range');
+
+    function updateThumbColor() {
+        const value = parseFloat(slider.value);
+        let color;
+
+        if (value <= 2.25) {
+            color = 'white';
+        } else if (value <= 2.75) {
+            color = 'rgb(0, 221, 255)';
+        } else {
+            color = 'white';
+        }
+
+        slider.style.setProperty('--thumb-color', color);
+    }
+
+    slider.addEventListener('input', updateThumbColor);
+
+    // 初期値に基づいてつまみの色を更新
+    updateThumbColor();
+});
+</script>
 {% endblock %}

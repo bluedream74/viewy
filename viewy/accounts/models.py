@@ -33,12 +33,20 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
-    
-      
+
+
+DIMENSION_CHOICES = [
+    (3.0, '3'),
+    (2.5, '2.5'),
+    (2.0, '2'),
+]
+         
 class Users(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     prf_img = models.ImageField(upload_to='accounts_prf_imgs', null=True, blank=True)
+    is_real = models.BooleanField(default=False)
+    dimension = models.FloatField(choices=DIMENSION_CHOICES, default=2.5, null=True, blank=True)
     caption = models.CharField(max_length=120, null=True, blank=True)
     displayname = models.CharField(max_length=30, null=True, blank=True)
     url1 = models.URLField(max_length=200, null=True, blank=True) 

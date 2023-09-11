@@ -10,6 +10,7 @@ from django import forms
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,6 +32,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from accounts.models import Users
 
@@ -594,3 +597,21 @@ class DeleteRequestView(generic.CreateView):
     
 class DeleteRequestSuccessView(TemplateView):
   template_name = 'delete_request_success.html'
+  
+  
+# 次元変更を担うビュー
+@method_decorator(login_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class ChangeDimensionView(View):
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            new_dimension = float(data.get('dimension'))
+
+            request.user.dimension = new_dimension
+            request.user.save()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

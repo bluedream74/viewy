@@ -673,6 +673,7 @@ class BasePostCreateView(UserPassesTestMixin, LoginRequiredMixin, SuccessMessage
 
     def form_valid(self, form):
         form.instance.poster = self.request.user
+        form.instance.is_real = self.request.user.is_real  # Set the is_real value of the post based on the user's is_real value
         form.instance.posted_at = datetime.now()
         form.save()
         return super().form_valid(form)
@@ -1033,6 +1034,7 @@ class MyAccountView(TemplateView):
             cache.set(cache_key, is_poster, 600)  # 600 seconds = 10 minutes
 
         context['is_poster'] = is_poster
+        context['current_dimension'] = self.request.user.dimension
         return context
     
 class SettingView(TemplateView):

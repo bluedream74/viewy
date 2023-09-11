@@ -197,6 +197,63 @@ a{
   height: 36px;
 } */
 
+
+.dimension-slider {
+  width: 70%;
+  margin: auto;
+  padding-top: 16px;
+  padding-bottom: 28px;
+}
+
+/* スライダー全体のスタイル */
+.dimension-slider input[type="range"] {
+  -webkit-appearance: none; /* WebKitブラウザ向けのスタイルのリセット */
+  appearance: none;         
+  width: 100%;
+  height: 5px;  /* トラックの高さを変更 */
+  border-radius: 3px;
+  background: #d3d3d3;  /* トラックの背景色 */
+  outline: none;  /* アウトラインの除去 */
+  transition: background 0.3s;
+}
+
+/* スライダーのトラックのスタイル (Chrome) */
+.dimension-slider input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  background: linear-gradient(to right, white, rgb(0, 221, 255), white);
+  border-radius: 3px;
+}
+
+/* スライダーのつまみのスタイル (Chrome) */
+.dimension-slider input[type="range"]::-webkit-slider-thumb {
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: var(--thumb-color, #ffffff);  /* つまみの背景色 */
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -5px;  /* つまみの位置を中央に調整 */
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.labels > span{
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.mix{
+  text-shadow: 0px 2px 2px aqua;
+}
+
+
 .menu-list{
   margin-left: 36px;
   font-size: 13px;
