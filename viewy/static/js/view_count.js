@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
               .then(data => console.log(data.message))
               .catch(error => console.error(`Fetch error: ${error}`));
 
-              // カウントアップが終わったら監視を停止
-              observer.unobserve(entry.target);
           }
       });
   }

@@ -130,7 +130,6 @@ class Posts(models.Model):
 
     def calculate_qp(self, factor_a=1, factor_b=1):
         """QPを算出するメソッド. factor_aとfactor_bはいいね率と滞在率の重みです"""
-        self.update_favorite_rate()  # いいね率を再計算
         self.qp = (self.favorite_rate / 100 * factor_a) + (self.stay_rate() / 100 * factor_b)
         print(f"QP Calculated: {self.qp}")
         self.save()
