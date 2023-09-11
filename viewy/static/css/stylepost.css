@@ -27,18 +27,20 @@ video::-webkit-media-controls-enclosure {
   border-radius: 50px;
   height: 3px;
   transition: background 0.1s ease;
+  background-color: rgba(150, 150, 150, 0.539);
 }
 
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   cursor: pointer;
   background: transparent; /* we handle background with JS now */
+
 }
 
 input[type=range]::-webkit-slider-thumb {
   height: 8px;
   width: 8px;
-  background-color: rgb(41, 239, 239);
+  background-color: rgb(207, 207, 207);
   border-radius: 50%;
   cursor: pointer;
   -webkit-appearance: none;

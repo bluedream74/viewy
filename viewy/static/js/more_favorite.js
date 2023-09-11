@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   //  カスタムイベントの定義
   const newPostEvent = new Event('newPostAdded')
 
-  const baseColor = '#ffffff';
-  const activeColor = 'rgb(41, 239, 239)';
+  const baseColor = 'rgba(150, 150, 150, 0.539)';
+  const activeColor = 'rgba(255, 255, 255, 0.639)';
 
   function setupControlBar(video, seekSlider) {
     video.addEventListener('loadedmetadata', () => {
@@ -144,8 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const newPostEvent = new Event('newPostAdded')
 
-  const baseColor = '#ffffff';
-  const activeColor = 'rgb(41, 239, 239)';
+  const baseColor = 'rgba(150, 150, 150, 0.539)';
+  const activeColor = 'rgba(255, 255, 255, 0.639)';
 
   function setupControlBar(video, seekSlider) {
     video.addEventListener('loadedmetadata', () => {
