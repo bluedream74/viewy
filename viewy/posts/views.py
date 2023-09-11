@@ -7,6 +7,7 @@ import random
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
 from django.db.models import Case, Exists, OuterRef, Q, When
@@ -27,7 +28,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations
 
 from collections import defaultdict
 import logging
@@ -35,6 +36,8 @@ logger = logging.getLogger(__name__)
 
 import jaconv
 import re
+from moviepy.editor import VideoFileClip
+from tempfile import NamedTemporaryFile
 
 from django.db.models import Prefetch
 from django.core.cache import cache
@@ -701,7 +704,11 @@ class MangaCreateView(BasePostCreateView):
             return self.form_invalid(form)
 
         response = super().form_valid(form)
-        for visual_file in self.request.FILES.getlist('visuals'):
+        image_files = self.request.FILES.getlist('visuals')
+        # 画像の枚数に5を掛けて秒数を計算
+        form.instance.content_length = len(image_files) * 5
+        form.save()
+        for visual_file in image_files:
             visual = Visuals(post=form.instance)
             visual.visual.save(visual_file.name, visual_file, save=True)
         return response
@@ -717,21 +724,47 @@ class VideoCreateView(BasePostCreateView):
         context['video_form'] = self.video_form_class(self.request.POST or None, self.request.FILES or None)
         return context
 
+    def get_temporary_file_path(self, uploaded_file):
+        if hasattr(uploaded_file, 'temporary_file_path'):
+            return uploaded_file.temporary_file_path()
+
+        temp_file = NamedTemporaryFile(suffix=".mp4", delete=False)
+        for chunk in uploaded_file.chunks():
+            temp_file.write(chunk)
+        temp_file.flush()  # Ensure all data is written to the file
+        path = temp_file.name
+        temp_file.close()
+        return path
+
     def form_valid(self, form):
         video_form = self.get_context_data()['video_form']
         if video_form.is_valid():
             form.instance.poster = self.request.user
             form.instance.posted_at = datetime.now()
             form.instance.ismanga = False
+            
+            video_file = video_form.cleaned_data.get('video')
+            
+            print(type(video_file))  # video_file の型を表示
+            print(video_file)  # video_file の内容を表示
+            
+            temp_file_path = self.get_temporary_file_path(video_file)
             try:
+                # Use moviepy to get the duration (length) of the video
+                with VideoFileClip(temp_file_path) as clip:
+                    form.instance.content_length = int(clip.duration)  # Save the video's length in seconds
+                
                 form.save()
-                video_file = video_form.cleaned_data.get('video')
                 video = Videos(post=form.instance)
                 video.video.save(video_file.name, video_file, save=True)
                 return super().form_valid(form)
             except Exception as e:
                 form.add_error(None, str(e))
                 return self.form_invalid(form)
+            finally:
+                # Remove the temporary file if it was created
+                if not hasattr(video_file, 'temporary_file_path'):
+                    os.remove(temp_file_path)
         else:
             # ビデオフォームが無効な場合、エラーメッセージを含めて再度フォームを表示
             return self.form_invalid(form)
@@ -1152,11 +1185,48 @@ class IncrementViewCount(View):
             return JsonResponse({'error': 'Post not found'}, status=404)
 
         post.views_count += 1
-        post.update_favorite_rate()  # 更新
+        post.update_favorite_rate()  # いいね率を更新
+        post.update_qp_if_necessary()  # 必要に応じてQPを更新
         post.save()
 
         return JsonResponse({'message': 'Successfully incremented view count'})
     
+    
+# 視聴履歴、滞在時間のデータを追加するビュー    
+class ViewDurationView(View):
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            if not user.is_authenticated:
+                return JsonResponse({"message": "User not authenticated"}, status=403)
+
+            post_id = request.POST.get('post_id')
+            if not post_id:
+                return JsonResponse({"message": "post_id not provided"}, status=400)
+
+            duration = request.POST.get('duration')
+            if not duration:
+                return JsonResponse({"message": "duration not provided"}, status=400)
+            
+            post = Posts.objects.get(pk=post_id)
+            
+            content_view = ViewDurations.objects.create(
+                user=user,
+                post=post,
+                duration=duration
+            )
+
+            return JsonResponse({"message": "Success"}, status=200)
+        except Posts.DoesNotExist:
+            return JsonResponse({"message": "Post with ID: " + post_id + " does not exist"}, status=400)
+        except Exception as e:
+            return JsonResponse({"message": f"Unexpected Error: {str(e)}"}, status=500)
+    
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({"message": "Method not allowed"}, status=405)
+    
+
 
 class AdViewCountBase(View):
     model = None  # 具体的なモデルは具象ビュークラスで指定

@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.files.base import File, ContentFile
 from django.core.files.storage import default_storage
 from django.db import models
+from django.db.models import Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -39,6 +40,7 @@ class Posts(models.Model):
     caption = models.CharField(max_length=100)
     url = models.URLField(max_length=80, null=True)
     posted_at = models.DateTimeField(auto_now_add=True)
+    content_length = models.PositiveIntegerField(default=0)
     favorite = models.ManyToManyField(Users, through='Favorites', related_name='favorite_posts')
     favorite_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
@@ -46,6 +48,8 @@ class Posts(models.Model):
     report_count = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False)
     favorite_rate = models.FloatField(default=0.0)  # 追加
+    # QPのフィールドを追加
+    qp = models.FloatField(default=0.0)
 
     class Meta:
       db_table = 'posts'
@@ -101,6 +105,41 @@ class Posts(models.Model):
             self.favorite_rate = 0
         else:
             self.favorite_rate = (self.favorite_count / self.views_count) * 100
+        print(f"Favorite Rate updated to: {self.favorite_rate}")
+    
+    def average_duration(self):
+        """滞在時間の平均を返すメソッド"""
+        total_duration = self.viewed_post.aggregate(total_duration=Sum('duration'))['total_duration'] or 0
+        total_views = self.viewed_post.count()
+
+        if total_views == 0:
+            return 0
+
+        avg_duration = total_duration / total_views
+        print(f"Average Duration: {avg_duration}")
+        return avg_duration
+
+    def stay_rate(self):
+        """滞在率を算出するメソッド"""
+        if self.content_length == 0:
+            return 0
+        
+        stay_rate_value = (self.average_duration() / self.content_length) * 100  # 100%を超えても許容
+        print(f"Stay Rate: {stay_rate_value}")
+        return stay_rate_value
+
+    def calculate_qp(self, factor_a=1, factor_b=1):
+        """QPを算出するメソッド. factor_aとfactor_bはいいね率と滞在率の重みです"""
+        self.update_favorite_rate()  # いいね率を再計算
+        self.qp = (self.favorite_rate / 100 * factor_a) + (self.stay_rate() / 100 * factor_b)
+        print(f"QP Calculated: {self.qp}")
+        self.save()
+        
+    def update_qp_if_necessary(self):
+        """視聴回数に基づき、必要に応じてQPを更新するメソッド"""
+        if self.views_count <= 100 or (self.views_count > 100 and self.views_count % 30 == 0) or self.views_count == 2000:
+            print(f"Updating QP for view count: {self.views_count}")
+            self.calculate_qp()
 
 
 
@@ -487,3 +526,17 @@ class RecommendedUser(models.Model):
 
     class Meta:
         ordering = ['order']
+        
+        
+# 視聴履歴、滞在時間を管理するモデル
+class ViewDurations(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='viewed_user')
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='viewed_post')
+    duration = models.PositiveIntegerField(default=0)  # 視聴時間（秒）
+    viewed_at = models.DateTimeField(default=datetime.now)  # 視聴または閲覧された日時
+
+    class Meta:
+        unique_together = ('user', 'post', 'viewed_at')  # 同一ユーザーが同一投稿を同一日時に複数回閲覧することは考慮しない
+
+    def __str__(self):
+        return f"{self.user} - {self.post} - {self.duration}"
