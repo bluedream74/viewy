@@ -343,10 +343,10 @@ class UserLogoutView(View):
   
   def get(self, request, *args, **kwargs):
     logout(request)
-    return redirect('accounts:user_login')
+    return redirect('posts:visitor_postlist')
   
-class PostListView(TemplateView):
-  template_name = 'posts/postlist.html'
+# class PostListView(TemplateView):
+#   template_name = 'posts/postlist.html'
 
 
 # パスワードリセット関連
