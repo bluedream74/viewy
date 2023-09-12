@@ -36,6 +36,7 @@
       {% else %}
         <div>{{user.username}}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
       {% endif %}
+      <div class="counter">フォロワー <span class="follow-count">{{ user.follow_count }}</span>人</div>
       {% else %}
         <div>トム</div>
       {% endif %}
