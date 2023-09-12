@@ -33,6 +33,7 @@ from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideA
 from collections import defaultdict
 import logging
 logger = logging.getLogger(__name__)
+from random import sample
 
 import jaconv
 import re
@@ -72,6 +73,8 @@ class BasePostListView(ListView):
         context['posts'] = posts
         return context
 
+
+
 class VisitorPostListView(BasePostListView):
     template_name = 'posts/visitor_postlist.html'
 
@@ -93,56 +96,106 @@ class VisitorPostListView(BasePostListView):
         context = super().get_context_data(**kwargs)
         return context
 
-class PostListView(BasePostListView):
-    def get_queryset(self):
-        posts = super().get_queryset().filter(is_hidden=False)
-        post_ids = list(posts.values_list('id', flat=True))
-        random_ids = random.sample(post_ids, min(len(post_ids), 9))  # ここを9に変更
 
-        # ランダムな順序で投稿を取得するためのCase文を作成
-        ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(random_ids)])
-        return posts.filter(id__in=random_ids).order_by(ordering)
+
+class PostListView(BasePostListView):
 
     def get_ad(self):
-        # 広告を1つランダムに取得
         return Ads.objects.order_by('?').first()
-        
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        first_manga_found = False
-        for post in context['posts']:
-            if post.ismanga and not first_manga_found:
-                post.show_icon = True
-                first_manga_found = True
+        user = self.request.user
+
+        if user.is_authenticated:
+            posts = context['posts']
+
+            # すべてのpost_idsおよびposter_idsを取得
+            post_ids = [post.id for post in posts]
+            poster_ids = [post.poster.id for post in posts]
+
+            # すべての投稿のviewed_countを計算
+            viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
+            viewed_count_dict = {item[0]: item[1] for item in viewed_counts}
+
+            # 現在のユーザーがフォローしている投稿者のリストを取得
+            followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
+            followed_posters_set = set(followed_poster_ids)
+
+            # RPに基づいて投稿をソート
+            sorted_posts_by_rp = sorted(posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
+
+            # 最初の7つを取得
+            top_posts_by_rp = sorted_posts_by_rp[:7]
+            
+            # 新着順で上位100の投稿を取得
+            top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').order_by('-posted_at')[:100]
+            random_two_from_top_100 = sample(list(top_100_new_posts), 2)
+
+            # これらのリストを結合して結果としての9つの投稿を取得
+            final_posts = top_posts_by_rp + random_two_from_top_100
+
+            context['posts'] = final_posts
+        else:
+            # 認証されていない場合、デフォルトのクエリセットを返す
+            context['posts'] = super().get_queryset().filter(is_hidden=False)
+
+        # 広告をコンテキストに追加
         context['ad'] = self.get_ad()
         return context
+
+
     
     
 class GetMorePostsView(PostListView):
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
-        
+
     def get(self, request, *args, **kwargs):
         # セッションIDとユーザー名をログに出力
         print(f"Session ID: {request.session.session_key}")
         print(f"User: {request.user}")
         print(request.user.is_authenticated)
+
+        user = request.user
+
+        # 基底クラスのget_querysetメソッドを使用して投稿を取得
+        posts = super().get_queryset()
         
-        # 基底クラスのget_querysetメソッドを使用して、９個の投稿と１個の広告を取得
-        queryset = super().get_queryset()
-        for post in queryset:
+        if user.is_authenticated:
+            # すべてのpost_idsおよびposter_idsを取得
+            post_ids = [post.id for post in posts]
+            poster_ids = [post.poster.id for post in posts]
+
+            # すべての投稿のviewed_countを計算
+            viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
+            viewed_count_dict = {item[0]: item[1] for item in viewed_counts}
+
+            # viewed_count_dictをターミナルに表示
+            print("viewed_count_dict:", viewed_count_dict)
+
+            # 現在のユーザーがフォローしている投稿者のリストを取得
+            followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
+            followed_posters_set = set(followed_poster_ids)
+
+            # RPに基づいて投稿をソート
+            sorted_posts = sorted(posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
+            posts = sorted_posts[:9]
+        else:
+            # 認証されていない場合、デフォルトのクエリセットを返す
+            posts = posts.filter(is_hidden=False)
+
+        # 各投稿のビジュアルとビデオを取得
+        for post in posts:
             post.visuals_list = post.visuals.all()
             post.videos_list = post.videos.all()
 
         ad = self.get_ad()  # 広告を取得
 
         # 投稿をHTMLフラグメントとしてレンダリング
-        for post in queryset:
+        for post in posts:
             visuals = post.visuals_list.all()  
             videos = post.videos_list.all()
 
-        html = render_to_string('posts/get_more_posts.html', {'posts': queryset, 'user': request.user, 'ad': ad}, request=request)
+        html = render_to_string('posts/get_more_posts.html', {'posts': posts, 'user': request.user, 'ad': ad}, request=request)
         
         # HTMLフラグメントをJSONとして返す
         return JsonResponse({'html': html}, content_type='application/json')

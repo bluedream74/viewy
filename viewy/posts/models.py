@@ -133,17 +133,23 @@ class Posts(models.Model):
         print(f"Stay Rate Point: {point}")
         return point
 
-    def calculate_qp(self, factor_a=20, factor_b=1):
+    def calculate_qp(self, requesting_user=None, factor_a=20, factor_b=1):
         """QPを算出するメソッド. factor_aとfactor_bはいいね率と滞在率の重みです"""
         self.qp = (self.favorite_rate / 100 * factor_a) + (self.stay_rate_point() / 100 * factor_b)
         print(f"QP Calculated: {self.qp}")
-        self.save()
         
     def update_qp_if_necessary(self):
         """視聴回数に基づき、必要に応じてQPを更新するメソッド"""
         if self.views_count <= 100 or (self.views_count > 100 and self.views_count % 30 == 0) or self.views_count == 2000:
             print(f"Updating QP for view count: {self.views_count}")
             self.calculate_qp()
+    
+    def calculate_rp_for_user(self, user, followed_posters_set, viewed_count):
+        rp = self.qp
+        rp = rp / (2 ** viewed_count)
+        if self.poster.id in followed_posters_set:
+            rp = rp * 1.5
+        return rp
 
 
 
