@@ -103,47 +103,48 @@ class PostListView(BasePostListView):
     def get_ad(self):
         return Ads.objects.order_by('?').first()
 
+    def get_viewed_count_dict(self, user, post_ids):
+        viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
+        return {item[0]: item[1] for item in viewed_counts}
+
+    def get_followed_posters_set(self, user, poster_ids):
+        followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
+        return set(followed_poster_ids)
+
+    def get_combined_posts(self, posts, user):
+        post_ids = [post.id for post in posts]
+        poster_ids = [post.poster.id for post in posts]
+
+        viewed_count_dict = self.get_viewed_count_dict(user, post_ids)
+        followed_posters_set = self.get_followed_posters_set(user, poster_ids)
+
+        sorted_posts_by_rp = sorted(posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
+        top_posts_by_rp = sorted_posts_by_rp[:7]
+
+        top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').order_by('-posted_at')[:100]
+        random_two_from_top_100 = sample(list(top_100_new_posts), 2)
+
+        # Check for favorites and follows on random_two_from_top_100
+        random_post_ids = [post.id for post in random_two_from_top_100]
+        favorited_posts = Favorites.objects.filter(user=user, post_id__in=random_post_ids).values_list('post', flat=True)
+        favorited_posts_set = set(favorited_posts)
+
+        for post in random_two_from_top_100:
+            post.favorited_by_user = post.id in favorited_posts_set
+            post.followed_by_user = post.poster.id in followed_posters_set
+
+        return top_posts_by_rp + random_two_from_top_100
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
         if user.is_authenticated:
             posts = context['posts']
-
-            # すべてのpost_idsおよびposter_idsを取得
-            post_ids = [post.id for post in posts]
-            poster_ids = [post.poster.id for post in posts]
-
-            # すべての投稿のviewed_countを計算
-            viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
-            viewed_count_dict = {item[0]: item[1] for item in viewed_counts}
-
-            # viewed_count_dictをターミナルに表示
-            print("viewed_count_dict:", viewed_count_dict)
-
-            # 現在のユーザーがフォローしている投稿者のリストを取得
-            followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
-            followed_posters_set = set(followed_poster_ids)
-
-            # RPに基づいて投稿をソート
-            sorted_posts_by_rp = sorted(posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
-
-            # 最初の7つを取得
-            top_posts_by_rp = sorted_posts_by_rp[:7]
-
-            # 新着順で上位100の投稿を取得
-            top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').order_by('-posted_at')[:100]
-            random_two_from_top_100 = sample(list(top_100_new_posts), 2)
-
-            # これらのリストを結合して結果としての9つの投稿を取得
-            final_posts = top_posts_by_rp + random_two_from_top_100
-
-            context['posts'] = final_posts
+            context['posts'] = self.get_combined_posts(posts, user)
         else:
-            # 認証されていない場合、デフォルトのクエリセットを返す
             context['posts'] = super().get_queryset().filter(is_hidden=False)
 
-        # 広告をコンテキストに追加
         context['ad'] = self.get_ad()
         return context
 
@@ -164,26 +165,8 @@ class GetMorePostsView(PostListView):
         posts = super().get_queryset()
         
         if user.is_authenticated:
-            # すべてのpost_idsおよびposter_idsを取得
-            post_ids = [post.id for post in posts]
-            poster_ids = [post.poster.id for post in posts]
-
-            # すべての投稿のviewed_countを計算
-            viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
-            viewed_count_dict = {item[0]: item[1] for item in viewed_counts}
-
-            # viewed_count_dictをターミナルに表示
-            print("viewed_count_dict:", viewed_count_dict)
-
-            # 現在のユーザーがフォローしている投稿者のリストを取得
-            followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
-            followed_posters_set = set(followed_poster_ids)
-
-            # RPに基づいて投稿をソート
-            sorted_posts = sorted(posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
-            posts = sorted_posts[:9]
+            posts = self.get_combined_posts(posts, user)
         else:
-            # 認証されていない場合、デフォルトのクエリセットを返す
             posts = posts.filter(is_hidden=False)
 
         # 各投稿のビジュアルとビデオを取得
@@ -194,14 +177,11 @@ class GetMorePostsView(PostListView):
         ad = self.get_ad()  # 広告を取得
 
         # 投稿をHTMLフラグメントとしてレンダリング
-        for post in posts:
-            visuals = post.visuals_list.all()  
-            videos = post.videos_list.all()
-
         html = render_to_string('posts/get_more_posts.html', {'posts': posts, 'user': request.user, 'ad': ad}, request=request)
         
         # HTMLフラグメントをJSONとして返す
         return JsonResponse({'html': html}, content_type='application/json')
+
     
 
 class FavoritePageView(BasePostListView):
@@ -762,9 +742,16 @@ class MangaCreateView(BasePostCreateView):
 
         response = super().form_valid(form)
         image_files = self.request.FILES.getlist('visuals')
-        # 画像の枚数に5を掛けて秒数を計算
-        form.instance.content_length = len(image_files) * 5
+
+        # 画像の枚数が4ページ以下の場合は、content_lengthを20秒に設定
+        if len(image_files) <= 4:
+            form.instance.content_length = 20
+        else:
+            # 画像の枚数に5を掛けて秒数を計算
+            form.instance.content_length = len(image_files) * 5
+
         form.save()
+
         for visual_file in image_files:
             visual = Visuals(post=form.instance)
             visual.visual.save(visual_file.name, visual_file, save=True)
