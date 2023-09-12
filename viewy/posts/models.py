@@ -38,7 +38,7 @@ class Posts(models.Model):
     hashtag1 = models.CharField(max_length=20, blank=True, null=True)
     hashtag2 = models.CharField(max_length=20, blank=True, null=True)
     hashtag3 = models.CharField(max_length=20, blank=True, null=True)
-    caption = models.CharField(max_length=100, blank=True, null=True)
+    caption = models.CharField(max_length=100, blank=True)
     url = models.URLField(max_length=80, blank=True, null=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     content_length = models.PositiveIntegerField(default=0)
