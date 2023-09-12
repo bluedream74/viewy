@@ -47,13 +47,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 postStartTimes.set(entry.target, Date.now());
             } else if(postStartTimes.has(entry.target)) {
                 const startTime = postStartTimes.get(entry.target);
-                const duration = Math.round((Date.now() - startTime) / 1000);
+                let duration = Math.round((Date.now() - startTime) / 1000);
+
+                // ここでdurationの最大値を制限する
+                duration = Math.min(duration, 300); // 300秒（5分）を超えないように制限
 
                 sendDataToServer(entry.target.dataset.postId, duration);
                 postStartTimes.delete(entry.target);
             }
         });
     }
+
 
     const options = {
         threshold: 0.8

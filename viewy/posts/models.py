@@ -33,7 +33,6 @@ from PIL import ImageSequence
 class Posts(models.Model):
     poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')
     ismanga = models.BooleanField(default=False)
-    is_real = models.BooleanField(default=False)
     title = models.CharField(max_length=30)
     hashtag1 = models.CharField(max_length=20, blank=True, null=True)
     hashtag2 = models.CharField(max_length=20, blank=True, null=True)
@@ -146,7 +145,7 @@ class Posts(models.Model):
     
     def calculate_rp_for_user(self, user, followed_posters_set, viewed_count):
         rp = self.qp
-        rp = rp / (2 ** viewed_count)
+        rp = rp / (5 ** viewed_count)
         if self.poster.id in followed_posters_set:
             rp = rp * 1.5
         return rp
