@@ -76,6 +76,10 @@ a{
   top: -4px;
 }
 
+.counter {
+  font-size: 12px;
+}
+
 .name-grade{
   margin-top: 8px;
   position: relative;
