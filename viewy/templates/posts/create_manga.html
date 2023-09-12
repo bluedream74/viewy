@@ -11,7 +11,7 @@
 
 
 <div id="spinner"></div>
-<div id="loading">投稿中です<br>この処理は数分かかる場合があります<br>投稿ボタンは一度だけ押してください</div>
+<div id="loading">投稿中です<br>この処理は数分かかる場合があります<br>ブラウザの戻るボタンを押さないでください</div>
 
 
 <div class="forms">
@@ -19,36 +19,36 @@
     {% csrf_token %}
     <div class="error">
       {% for error in form.non_field_errors %}
-          <div class="error">{{ error }}</div>
+      <div class="error">{{ error }}</div>
       {% endfor %}
 
       {% for error in visual_form.non_field_errors %}
-        <div class="error">{{ error }}</div>
+      <div class="error">{{ error }}</div>
       {% endfor %}
-      
-  </div>
-      {{ visual_form.as_div }}
-      <div class="limit">※最大31ページまで</div>
-      <div class="title">
-        <div class="error">{{ form.title.errors }}</div> 
-        {{ form.title }}
-      </div>
-      <div class="url">
-        <div class="error">{{ form.url.errors }}</div>
-        {{ form.url }}
-      </div>
-      <div class="hashtags">
-        <div class="error">{{ form.hashtag1.errors }}</div>
-        <div class="error">{{ form.hashtag2.errors }}</div>
-        <div class="error">{{ form.hashtag3.errors }}</div>
+
+    </div>
+    {{ visual_form.as_div }}
+    <div class="limit">※最大31ページまで</div>
+    <div class="title">
+      <div class="error">{{ form.title.errors }}</div>
+      {{ form.title }}
+    </div>
+    <div class="url">
+      <div class="error">{{ form.url.errors }}</div>
+      {{ form.url }}
+    </div>
+    <div class="hashtags">
+      <div class="error">{{ form.hashtag1.errors }}</div>
+      <div class="error">{{ form.hashtag2.errors }}</div>
+      <div class="error">{{ form.hashtag3.errors }}</div>
       #{{ form.hashtag1 }}
       #{{ form.hashtag2 }}
       #{{ form.hashtag3 }}
-      </div>
-      <div class="caption">
-        <div class="error">{{ form.caption.errors }}</div>
-        {{ form.caption }}
-      </div>
+    </div>
+    <div class="caption">
+      <div class="error">{{ form.caption.errors }}</div>
+      {{ form.caption }}
+    </div>
     <input class="button" type="submit" value="投稿する" id="submit-button">
   </form>
 </div>
@@ -56,20 +56,41 @@
 <div class="bottom-space"></div>
 
 <style>
-  .add-post{
+  .add-post {
     border-top: solid 2px aqua;
   }
 </style>
 <script>
-// buttonのclickではなく、submitを検知するようにした
+  document.getElementById('submit-form').addEventListener('submit', function (event) {
 
-document.getElementById('submit-form').addEventListener('submit', function(event) {
-  // スピナーを表示
-  document.getElementById('spinner').style.display = 'block';
-  document.getElementById('loading').style.display = 'block';
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('loading').style.display = 'block';
 
-  // 送信ボタンを無効化
-  document.getElementById('submit-button').disabled = true;
-});
+
+    let submitButton = document.getElementById('submit-button');
+    submitButton.disabled = true;
+
+    FadeButton(submitButton);  
+
+    let tabBarLinks = document.querySelectorAll('.tab-bar a');
+    for (let i = 0; i < tabBarLinks.length; i++) {
+        tabBarLinks[i].addEventListener('click', function(e) {
+            e.preventDefault(); 
+        });
+        FadeButton(tabBarLinks[i]);
+        let icon = tabBarLinks[i].querySelector('i');
+        if (icon) {
+            icon.style.color = 'rgb(69, 69, 69)';
+        }
+    }
+    let inputFile = document.querySelector('input[type="file"]');
+    if (inputFile) {
+        FadeButton(inputFile);
+    }
+  });
+  function FadeButton(buttonElement) {
+      buttonElement.style.opacity = '0.5'; 
+      buttonElement.style.cursor = "not-allowed"; 
+  }
 </script>
 {% endblock %}
