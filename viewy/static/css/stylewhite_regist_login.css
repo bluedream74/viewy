@@ -173,6 +173,38 @@ li{
   margin-right: auto;
   color: rgb(83, 83, 83);
   text-align: center;
+  display: flex;         /* この行を追加 */
+  justify-content: center;  /* この行を追加 */
+  align-items: center;  /* この行を追加 */
+  flex-direction: column; /* 縦方向に要素を配置 */
+}
+
+.new-regist {
+  color: rgb(255, 255, 255);
+  margin-top: 16px;
+  background-color: var(--primary-color);
+  border: none;
+  height: 28px;
+  width: 80px;
+  line-height: 28px;
+  border-radius: 50px;
+  font-weight: bold;
+  text-align: center; 
+}
+
+.new-regist a {
+  color: rgb(255, 255, 255);
+  display: block;  /* この行を追加 */
+  height: 100%;  /* この行を追加 */
+  line-height: inherit;  /* この行を追加 */
+  text-decoration: none;  /* この行を追加 */
+  padding: 0;  /* この行を追加 */
+  width: 100%;  /* この行を追加 */
+}
+
+.new-regist:hover{
+  cursor: pointer;
+  opacity: 0.6;
 }
 
 .consent{
@@ -321,5 +353,30 @@ a{
     height: 36px;
     width: 100px;
     text-align: center;
+  }
+
+  .new-regist {
+    font-size: 14px;
+    height: 36px;
+    width: 100px;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    text-align: center; 
+    line-height: 36px;  /* 新たに追加：高さに合わせて行の高さを設定 */
+    transition: opacity 0.3s;  
+    color: rgb(255, 255, 255);  /* 移動 */
+  }
+
+  .new-regist a {
+    color: inherit;  /* 色を.new-registから継承 */
+    display: block;
+    height: 100%;
+    line-height: inherit;
+    text-decoration: none;
+    padding: 0;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
  }
