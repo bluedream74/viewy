@@ -544,6 +544,7 @@ input[type="radio"]:checked {
   transform: translate(-50%, -50%); /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
   display: none;
   z-index: 1000;
+  pointer-events: none;
 }
 
 /* ページ遷移関連 */
