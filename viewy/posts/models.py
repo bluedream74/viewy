@@ -49,7 +49,7 @@ class Posts(models.Model):
     is_hidden = models.BooleanField(default=False)
     favorite_rate = models.FloatField(default=0.0)  # 追加
     # QPのフィールドを追加
-    qp = models.FloatField(default=0.0)
+    qp = models.FloatField(default=1.0)
 
     class Meta:
       db_table = 'posts'
@@ -140,7 +140,7 @@ class Posts(models.Model):
         
     def update_qp_if_necessary(self):
         """視聴回数に基づき、必要に応じてQPを更新するメソッド"""
-        if self.views_count <= 100 or (self.views_count > 100 and self.views_count % 30 == 0) or self.views_count == 2000:
+        if self.views_count <= 10000 or (self.views_count > 10000 and self.views_count % 30 == 0) or self.views_count == 20000:
             print(f"Updating QP for view count: {self.views_count}")
             self.calculate_qp()
     

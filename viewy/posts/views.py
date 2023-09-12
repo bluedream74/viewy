@@ -118,6 +118,9 @@ class PostListView(BasePostListView):
             viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
             viewed_count_dict = {item[0]: item[1] for item in viewed_counts}
 
+            # viewed_count_dictをターミナルに表示
+            print("viewed_count_dict:", viewed_count_dict)
+
             # 現在のユーザーがフォローしている投稿者のリストを取得
             followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
             followed_posters_set = set(followed_poster_ids)
@@ -127,7 +130,7 @@ class PostListView(BasePostListView):
 
             # 最初の7つを取得
             top_posts_by_rp = sorted_posts_by_rp[:7]
-            
+
             # 新着順で上位100の投稿を取得
             top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').order_by('-posted_at')[:100]
             random_two_from_top_100 = sample(list(top_100_new_posts), 2)
@@ -1033,36 +1036,6 @@ class BackView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         return self.request.META.get('HTTP_REFERER') or reverse('posts:postlist')
     
-    
-# 視聴カウント
-class ViewCountView(View):
-    def post(self, request):
-        if request.is_ajax():
-            post_id = request.POST.get('post_id')
-
-            # ポストが視聴履歴に含まれているかチェック
-            user_profile = request.user
-            post = Posts.objects.get(id=post_id)
-            if post.viewed_by.filter(id=user_profile.id).exists():
-                return JsonResponse({'exceeded_limit': False})
-
-            # viewed_byフィールドにユーザーを追加
-            post.viewed_by.add(user_profile)
-
-            # view_post_countフィールドを1増やす
-            user_profile.view_post_count += 1
-            user_profile.save()
-
-            # ユーザーが視聴した投稿の数を取得
-            viewed_post_count = user_profile.view_post_count
-
-            # 視聴した投稿の数が50を超えたかどうかを判定して返す
-            if viewed_post_count > 50:
-                return JsonResponse({'exceeded_limit': True})
-            else:
-                return JsonResponse({'exceeded_limit': False})
-        
-        return JsonResponse({'error': 'Invalid request'})
     
   
 # マイアカウントページ
