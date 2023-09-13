@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, BackView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, ViewDurationView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, ViewDurationView
 )
 
 app_name = 'posts'
@@ -24,7 +24,7 @@ urlpatterns = [
    path('follow_page/', FollowPageView.as_view(), name='follow_page'),
    path('get_more_follow/',  GetMoreFollowView.as_view(), name='get_more_follow'),
    path('get_more_previous_follow/',  GetMorePreviousFollowView.as_view(), name='get_more_previous_follow'),
-   path('back/', BackView.as_view(), name='back'),
+   # path('back/', BackView.as_view(), name='back'),
    path('poster_page/<str:username>/', PosterPageView.as_view(), name='poster_page'),
    path('poster_post_list/<str:username>/', PosterPostListView.as_view(), name='poster_post_list'),
    path('get_more_poster_posts/',  GetMorePosterPostsView.as_view(), name='get_more_poster_posts'),

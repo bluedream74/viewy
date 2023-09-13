@@ -1112,10 +1112,10 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
 
         return follow_posters
     
-# 戻るボタン（未完成）
-class BackView(RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
-        return self.request.META.get('HTTP_REFERER') or reverse('posts:postlist')
+# # 戻るボタン（未完成）
+# class BackView(RedirectView):
+#     def get_redirect_url(self, *args, **kwargs):
+#         return self.request.META.get('HTTP_REFERER') or reverse('posts:postlist')
     
     
   
