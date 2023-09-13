@@ -65,15 +65,15 @@ document.addEventListener('change', event => {
     const url = form.action;
     const formData = new FormData(form);
     formData.append('csrfmiddlewaretoken', csrftoken);
-  
+
     const followed = form.querySelector('.fa-solid.fa-check');
     const notFollowed = form.querySelector('.fa-solid.fa-plus');
     if (FollowButton.checked) {
-        notFollowed.classList.add('fa-check');
-        notFollowed.classList.remove('fa-plus');
+      notFollowed.classList.add('fa-check');
+      notFollowed.classList.remove('fa-plus');
     } else {
-        followed.classList.remove('fa-check');
-        followed.classList.add('fa-plus');
+      followed.classList.remove('fa-check');
+      followed.classList.add('fa-plus');
     }
 
 
@@ -82,8 +82,8 @@ document.addEventListener('change', event => {
       body: formData,
     })
       .then(() => {
-      // 応答を受け取った後、ボタンを再度有効化
-      FollowButton.disabled = false;
+        // 応答を受け取った後、ボタンを再度有効化
+        FollowButton.disabled = false;
       })
       .catch(error => {
         console.log(error);
@@ -95,43 +95,60 @@ document.addEventListener('change', event => {
 
 
 
-{
-  const FollowButtons = document.querySelectorAll('.follow-button');
-  FollowButtons.forEach(FollowButton => {
-    FollowButton.addEventListener('change', () => {
-      const form = FollowButton.closest('form');
-      const posterPk = form.dataset.pk;
-      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-      const url = form.action;
-      const formData = new FormData(form);
-      formData.append('csrfmiddlewaretoken', csrftoken);
 
-      fetch(url, {
-        method: 'POST',
-        body: formData,
+const FollowButtons = document.querySelectorAll('.follow-button');
+FollowButtons.forEach(FollowButton => {
+  FollowButton.addEventListener('change', () => {
+    const form = FollowButton.closest('form');
+    const posterPk = form.dataset.pk;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const url = form.action;
+    const formData = new FormData(form);
+    formData.append('csrfmiddlewaretoken', csrftoken);
+
+    // クラスの付け替えを直接ここで行う
+    const followed = form.querySelector('.followed');
+    const notFollowed = form.querySelector('.follow');
+    if (FollowButton.checked) {
+      notFollowed.classList.add('followed');
+      notFollowed.classList.remove('follow');
+      notFollowed.textContent = 'フォロー中';
+    } else {
+      followed.classList.remove('followed');
+      followed.classList.add('follow');
+      followed.textContent = 'フォローする';
+    }
+
+    fetch(url, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+      .then(data => {
+        const followCount = data.follow_count;
+        const followCountElement = form.querySelector('.follow-count');
+        followCountElement.textContent = followCount;
       })
-      
-        .then(response => response.json())
-        .then(data => {
-          const followCount = data.follow_count;
-          const followCountElement = form.querySelector('.follow-count');
-          followCountElement.textContent = followCount;
+      .catch(error => {
+        console.log(error);
 
-          const followed = form.querySelector('.followed');
-          const notFollowed = form.querySelector('.follow');
-          if (FollowButton.checked) {
-            notFollowed.classList.add('followed');
-            notFollowed.classList.remove('follow');
-            notFollowed.textContent = 'フォロー中';
-          } else {
-            followed.classList.remove('followed');
-            followed.classList.add('follow');
-            followed.textContent = 'フォローする';
-          }
-
-        })
-        .catch(error => console.log(error));
-    });
+        // エラーが発生した場合、UIの状態を元に戻す
+        if (FollowButton.checked) {
+          followed.classList.add('followed');
+          followed.classList.remove('follow');
+          followed.textContent = 'フォローする';
+        } else {
+          notFollowed.classList.remove('followed');
+          notFollowed.classList.add('follow');
+          notFollowed.textContent = 'フォロー中';
+        }
+      });
   });
-}
+});
+
 
