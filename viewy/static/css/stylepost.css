@@ -169,7 +169,7 @@ label{
 
 .poster, .favorite, .mute{
   width: 72px;
-  height: 72px;
+  height: 60px;
   text-align: center;
   line-height: 72px;
   font-size: 24px;
@@ -194,7 +194,6 @@ label{
   text-align: center;
   line-height: 16px;
   left: 28px;
-  bottom: 8px;
   background-color: aqua;
   border-radius: 50%;
 }
@@ -279,7 +278,7 @@ label{
   align-items: center;
   position: relative;
   top: 8px;
-  left: 11px;
+  left: 16px;
 }
 
 @keyframes bounce {
@@ -301,10 +300,19 @@ label{
   animation: bounce 0.25s;
 }
 
+.emote-icon >i{
+  color: white;
+  font-size: 24px;
+  text-shadow: gray 0px 1px 3px;
+  width: 40px;
+  height: 40px;
+  position: relative;
+  top: 8.5px;
+}
+
 .emote {
   flex: 1;
   text-align: center; /* 数字をエモートの真下に配置 */
-  margin: 0 5px; /* エモートの左右のマージンを調整 */
   transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
 }
 
@@ -312,7 +320,6 @@ label{
 .emote img {
   width: 40px;  /* 画像のサイズを調整。必要に応じて変更してください */
   height: 40px; /* 画像のサイズを調整。必要に応じて変更してください */
-  border-radius: 50%;  /* 丸みを持たせるためのスタイル */
   object-fit: cover; /* 画像のアスペクト比を維持しつつ、要素にフィットさせる */
   user-select: none;
   margin-bottom: -3px; 
@@ -323,6 +330,7 @@ label{
   user-select: none;
   font-size: 14px;
   line-height: 0.5;
+  color: white;
 }
 
 .hidden-emote {
