@@ -18,11 +18,29 @@
 
 <div class="maintag"><span class="tag">#</span>{{hashtag}}</div>
 
+<div class="dimension-radio-group">
+  <input type="radio" id="dimension-2" name="dimension" value="2" {% if current_dimension == 2.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
+  <label for="dimension-2">2</label>
+
+  <input type="radio" id="dimension-all" name="dimension" value="2.5" {% if current_dimension == 2.5 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
+  <label for="dimension-all" class="all">ALL</label>
+
+  <input type="radio" id="dimension-3" name="dimension" value="3" {% if current_dimension == 3.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
+  <label for="dimension-3">3</label>
+</div>
+
+<div class="order-switch">
+  <input type="radio" id="order-qp" name="order" value="qp" {% if current_order == "qp" %}checked{% endif %}>
+  <label for="order-qp">おすすめ順</label>
+  
+  <input type="radio" id="order-posted_at" name="order" value="posted_at" {% if current_order == "posted_at" %}checked{% endif %}>
+  <label for="order-posted_at">新着順</label>
+</div>
 
 <div class="list-area" data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   {% if posts %}
     {% for post in posts %}
-    <a class="post" href="{% url 'posts:hashtag_list' hashtag %}?post_id={{ post.id }}">
+    <a class="post" href="{% url 'posts:hashtag_list' hashtag %}?post_id={{ post.id }}&order={{ current_order }}">
     {% if post.ismanga %}
      <div class="book">
       {% for visual in post.visuals.all|slice:":1" %}
@@ -114,4 +132,21 @@
       }
   });
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const orderSwitches = document.querySelectorAll('.order-switch input[type="radio"]');
+  const currentURL = new URL(window.location.href);
+
+  orderSwitches.forEach(switchEl => {
+    switchEl.addEventListener('change', function() {
+      // URLのクエリストリングを更新
+      currentURL.searchParams.set('order', this.value);
+      // 更新されたURLでページを再ロード
+      window.location.href = currentURL.toString();
+    });
+  });
+});
+</script>
+<script src="{% static 'js/dimension_change.js' %}"></script>
+
 {% endblock %}

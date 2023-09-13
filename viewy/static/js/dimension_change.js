@@ -1,0 +1,46 @@
+'use strict'
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dimensionRadios = document.querySelectorAll('[name="dimension"]');
+
+    dimensionRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            updateDimension(this.value);
+        });
+    });
+});
+
+function updateDimension(dimension) {
+    fetch('/accounts/change_dimension/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ dimension: dimension })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Dimension updated successfully!");
+            location.reload(); // リロード
+        } else {
+            console.error("Failed to update dimension.");
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}  
