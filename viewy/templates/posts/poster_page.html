@@ -35,7 +35,7 @@
       <div class="follow-container">
         <form  data-pk="{{ about_poster.pk }}" action="{% url 'accounts:follow' pk=about_poster.pk %}" method="POST">
           {% csrf_token %}
-          <div class="counter">フォロワー <span class="follow-count">{{ about_poster.follow_count }}</span>人</div>
+          <div class="counter"><span class="follow-count">{{ about_poster.follow_count }}</span><span class="follower">フォロワー</span></div>
           <input type="hidden" name="poster_pk" value="{{ about_poster.pk }}">
           <label>
     

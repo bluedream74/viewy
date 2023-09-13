@@ -77,7 +77,18 @@ a{
 }
 
 .counter {
-  font-size: 12px;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.follow-count{
+  font-weight: bold;
+}
+
+.follower{
+  margin-left: 4px;
+  font-size: 11px;
+  color: gainsboro;
 }
 
 .name-grade{
@@ -88,6 +99,7 @@ a{
 
 .grade{
   font-size: 12px;
+  margin-bottom: 2px;
 }
 
 .partner{
@@ -110,6 +122,26 @@ a{
   font-size: 12px;
 }
 
+.talk-content {
+  color: rgb(69, 69, 69);
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  position: relative; /* 追加: 三角形の位置の基準となる */
+}
+
+.talk-content:before {
+  content: '';
+  position: absolute;
+  top: -10px; /* 三角形の高さに応じて調整 */
+  left: 24px; /* 三角形の位置を調整 */
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent; /* 三角形の半分の幅 */
+  border-right: 8px solid transparent; /* 三角形の半分の幅 */
+  border-bottom: 10px solid white; /* 三角形の色を背景色と一致させる */
+}
 
 .urls{
   width: 78%;
@@ -201,45 +233,48 @@ a{
   height: 36px;
 } */
 
-
-.dimension-slider {
-  width: 70%;
-  margin: auto;
-  padding-top: 16px;
-  padding-bottom: 28px;
+.display-setting{
+  color: white;
+  margin-left: 36px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 16px;
 }
 
-/* スライダー全体のスタイル */
-.dimension-slider input[type="range"] {
-  -webkit-appearance: none; /* WebKitブラウザ向けのスタイルのリセット */
-  appearance: none;         
-  width: 100%;
-  height: 5px;  /* トラックの高さを変更 */
-  border-radius: 3px;
-  background: #d3d3d3;  /* トラックの背景色 */
-  outline: none;  /* アウトラインの除去 */
-  transition: background 0.3s;
+
+/* 1. 基本的なスタイルリセット */
+input[type="radio"] {
+  display: none; /* デフォルトのラジオボタンを非表示にする */
 }
 
-/* スライダーのトラックのスタイル (Chrome) */
-.dimension-slider input[type="range"]::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 5px;
-  cursor: pointer;
-  background: linear-gradient(to right, white, rgb(0, 221, 255), white);
-  border-radius: 3px;
+.dimension-radio-group{
+  display: flex;
+  justify-content: center;
+  padding: 12px 0px 16px 0px;
 }
 
-/* スライダーのつまみのスタイル (Chrome) */
-.dimension-slider input[type="range"]::-webkit-slider-thumb {
-  height: 15px;
-  width: 15px;
-  border-radius: 50%;
-  background: var(--thumb-color, #ffffff);  /* つまみの背景色 */
-  cursor: pointer;
-  -webkit-appearance: none;
-  margin-top: -5px;  /* つまみの位置を中央に調整 */
+.dimension-radio-group label{
+  color: rgb(146, 146, 146);
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  padding: 4px 18px;
 }
+
+.all{
+  margin: 0px 4px 0px 4px;
+}
+
+.dimension-radio-group input[type="radio"]:checked + label{
+  /* text-decoration: underline;
+  text-decoration-color: aqua;
+  text-decoration-line: 2px; */
+  color: rgb(78, 233, 233);
+  background-color: rgb(255, 255, 255);
+}
+
+
 
 .labels {
   display: flex;
@@ -253,9 +288,6 @@ a{
   font-weight: bold;
 }
 
-.mix{
-  text-shadow: 0px 2px 2px aqua;
-}
 
 
 .menu-list{

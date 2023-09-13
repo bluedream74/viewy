@@ -28,7 +28,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations
+from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
 
 from collections import defaultdict
 import logging
@@ -50,10 +50,28 @@ import json
 class BasePostListView(ListView):
     model = Posts
     template_name = 'posts/postlist.html'
-   
+
+    def get_user_filter_condition(self):
+        user_dimension = self.request.user.dimension
+        filter_condition = {}
+        
+        if user_dimension == 2.0:
+            filter_condition = {'poster__is_real': False}
+        elif user_dimension == 3.0:
+            filter_condition = {'poster__is_real': True}
+        
+        return filter_condition
+
+    def filter_by_dimension(self, queryset):
+        if self.request.user.is_authenticated:
+            filter_condition = self.get_user_filter_condition()
+            return queryset.filter(**filter_condition)
+        return queryset
+
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.select_related('poster').prefetch_related('visuals', 'videos')
+        
         if self.request.user.is_authenticated:
             # Annotate for reports
             reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
@@ -120,10 +138,22 @@ class PostListView(BasePostListView):
         viewed_count_dict = self.get_viewed_count_dict(user, post_ids)
         followed_posters_set = self.get_followed_posters_set(user, poster_ids)
 
-        sorted_posts_by_rp = sorted(posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
+        # 1. ユーザーのdimensionに基づくフィルタリング条件を決定
+        user_dimension = user.dimension
+        filter_condition = {}
+
+        if user_dimension == 2.0:
+            filter_condition = {'poster__is_real': False}
+        elif user_dimension == 3.0:
+            filter_condition = {'poster__is_real': True}
+
+        # 2. sorted_posts_by_rpのフィルタリング
+        filtered_posts = filter(lambda post: post.poster.is_real == filter_condition.get('poster__is_real', post.poster.is_real), posts)
+        sorted_posts_by_rp = sorted(filtered_posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
         top_posts_by_rp = sorted_posts_by_rp[:7]
 
-        top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').order_by('-posted_at')[:100]
+        # 3. top_100_new_postsのフィルタリング
+        top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').filter(**filter_condition).order_by('-posted_at')[:100]
         random_two_from_top_100 = sample(list(top_100_new_posts), 2)
 
         # Check for favorites and follows on random_two_from_top_100
@@ -156,10 +186,6 @@ class PostListView(BasePostListView):
 class GetMorePostsView(PostListView):
 
     def get(self, request, *args, **kwargs):
-        # セッションIDとユーザー名をログに出力
-        print(f"Session ID: {request.session.session_key}")
-        print(f"User: {request.user}")
-        print(request.user.is_authenticated)
 
         user = request.user
 
@@ -507,22 +533,47 @@ class GetMorePreviousPosterPostsView(BasePostListView):
 
 class HashtagPageView(BasePostListView):
     template_name = os.path.join('posts', 'hashtag_page.html')
+
+    def get(self, request, *args, **kwargs):
+        self.order = request.GET.get('order', 'qp')
+        print("Order is:", self.order)
+        return super().get(request, *args, **kwargs)
     
     def get_queryset(self):
         # BasePostListViewのget_querysetを呼び出す
         queryset = super().get_queryset()
         hashtag = self.kwargs['hashtag']
 
+        # user.dimensionに基づくフィルタリングを適用
+        filter_condition = self.get_user_filter_condition()
+        if filter_condition:
+            queryset = queryset.filter(**filter_condition)
+
         # 既存のquerysetに特定のフィルタリングを適用
-        queryset = (queryset.filter(hashtag1=hashtag, is_hidden=False) | 
-                    queryset.filter(hashtag2=hashtag, is_hidden=False) | 
-                    queryset.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        queryset = queryset.filter(
+            Q(hashtag1=hashtag, is_hidden=False) |
+            Q(hashtag2=hashtag, is_hidden=False) |
+            Q(hashtag3=hashtag, is_hidden=False)
+        )
+
+        # ソートオーダーを適用
+        order = self.order  # ここを変更
+        if order == 'qp':
+            queryset = queryset.order_by('-qp')  # assuming you want descending order for QP values
+        else:
+            queryset = queryset.order_by('-posted_at')
+
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # ユーザーの次元をcontextに追加
+        context['current_dimension'] = self.request.user.dimension
         context['hashtag'] = self.kwargs['hashtag']
         context['form'] = SearchForm()  # 検索フォームを追加
+        context['current_order'] = self.order  # ここを変更
+
         return context
     
     
@@ -531,15 +582,35 @@ class HashtagPageView(BasePostListView):
 class HashtagPostListView(BasePostListView):
     template_name = os.path.join('posts', 'hashtag_list.html')
     
+    def get_ad(self):
+        # ランダムに1つの広告を取得
+        return Ads.objects.order_by('?').first()
+    
+    def get(self, request, *args, **kwargs):
+        self.order = request.GET.get('order', 'qp')
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
         # URLから'post_id'パラメータを取得
         selected_post_id = int(self.request.GET.get('post_id', 0))
 
         # 指定したハッシュタグが含まれる全ての投稿を取得
         hashtag = self.kwargs['hashtag']
-        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
-                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False) | 
-                         Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        
+        filter_condition = self.get_user_filter_condition()
+        
+        hashtag_posts = Posts.objects.filter(
+            Q(hashtag1=hashtag, is_hidden=False, **filter_condition) |
+            Q(hashtag2=hashtag, is_hidden=False, **filter_condition) |
+            Q(hashtag3=hashtag, is_hidden=False, **filter_condition)
+        )
+
+        # ソートオーダーを適用
+        if self.order == 'qp':
+            hashtag_posts = hashtag_posts.order_by('-qp')  # For descending order
+        else:
+            hashtag_posts = hashtag_posts.order_by('-posted_at')
+        
         post_ids = [post.id for post in hashtag_posts]
         queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
 
@@ -557,10 +628,6 @@ class HashtagPostListView(BasePostListView):
 
         return queryset
 
-    def get_ad(self):
-        # ランダムに1つの広告を取得
-        return Ads.objects.order_by('?').first()
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -569,6 +636,10 @@ class HashtagPostListView(BasePostListView):
         
         # 隠しコンテナにハッシュタグの値を渡す
         context['hashtag'] = self.kwargs['hashtag']
+        
+        # 追加：現在のソートオーダーをcontextに追加
+        context['current_order'] = self.order
+
         return context
     
 
@@ -578,16 +649,28 @@ class GetMoreHashtagView(BasePostListView):
         return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
+        print(self.request.POST)  # POSTデータをログに出力
+
         last_post_id = int(self.request.POST.get('last_post_id', 0))
         hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
+        order = self.request.POST.get('order', '-qp')  # Default to ordering by posted_at descending
+
+        # Print the received order
+        print(f"Received order: {order}")
+
+        filter_condition = self.get_user_filter_condition()
 
         if not hashtag:
             return Posts.objects.none()  # Return an empty queryset if no hashtag is provided
 
-        # Get all posts with the provided hashtag, ordered by date
-        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
-                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False) |
-                         Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        if order == "qp":
+            order_value = "-qp"
+        else:
+            order_value = "-posted_at"
+
+        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False, **filter_condition) | 
+                        Posts.objects.filter(hashtag2=hashtag, is_hidden=False, **filter_condition) |
+                        Posts.objects.filter(hashtag3=hashtag, is_hidden=False, **filter_condition)).order_by(order_value)
         
         post_ids = list(hashtag_posts.values_list('id', flat=True))
 
@@ -599,6 +682,9 @@ class GetMoreHashtagView(BasePostListView):
             queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
         else:
             queryset = super().get_queryset().filter(id__in=post_ids)
+
+        # Print the first few results to check if they're in the expected order
+        print(queryset[:3])
 
         return queryset[:9]
 
@@ -624,7 +710,6 @@ class GetMoreHashtagView(BasePostListView):
         return JsonResponse({'html': html})
 
 
-
 class GetMorePreviousHashtagView(BasePostListView):
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
@@ -633,14 +718,23 @@ class GetMorePreviousHashtagView(BasePostListView):
     def get_queryset(self):
         first_post_id = int(self.request.POST.get('first_post_id', 0))
         hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
+        order = self.request.POST.get('order')  # Get the order info from POST data
+
+        if order == "qp":
+            order_value = "-qp"
+        else:
+            order_value = "-posted_at"
 
         if not hashtag:
             return Posts.objects.none()  # Return an empty queryset if no hashtag is provided
 
-        # Get all posts with the provided hashtag, ordered by date
-        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False) | 
-                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False) |
-                         Posts.objects.filter(hashtag3=hashtag, is_hidden=False)).order_by('-posted_at')
+        # ユーザーのフィルタリング条件を取得
+        filter_condition = self.get_user_filter_condition()
+
+        # Get all posts with the provided hashtag and filter condition, ordered by the given order_value or by date if no order is given
+        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False, **filter_condition) | 
+                        Posts.objects.filter(hashtag2=hashtag, is_hidden=False, **filter_condition) |
+                        Posts.objects.filter(hashtag3=hashtag, is_hidden=False, **filter_condition)).order_by(order_value or '-qp')
         
         post_ids = list(hashtag_posts.values_list('id', flat=True))
 
@@ -654,7 +748,7 @@ class GetMorePreviousHashtagView(BasePostListView):
             queryset = super().get_queryset().filter(id__in=post_ids)
 
         return queryset[:9]
-
+    
     def get_ad(self):
         # 広告を1つランダムに取得
         return Ads.objects.order_by('?').first()
@@ -662,7 +756,7 @@ class GetMorePreviousHashtagView(BasePostListView):
     def post(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
+        if more_posts:
             for post in more_posts:
                 post.visuals_list = post.visuals.all()
                 post.videos_list = post.videos.all()
@@ -1050,6 +1144,21 @@ class MyAccountView(TemplateView):
 
         context['is_poster'] = is_poster
         context['current_dimension'] = self.request.user.dimension
+        
+        # ユーザーがPosterグループに所属していない場合、TomsTalkを取得
+        if not is_poster:
+            tomstalks = TomsTalk.objects.all()
+
+            weighted_list = []
+            for talk in tomstalks:
+                weighted_list.extend([talk] * talk.display_rate)
+
+            selected_talk = random.choice(weighted_list) if weighted_list else None
+
+            if selected_talk:
+                context['tomstalk_url_prefix'] = selected_talk.get_url_prefix()
+                context['tomstalk'] = selected_talk
+
         return context
     
 class SettingView(TemplateView):

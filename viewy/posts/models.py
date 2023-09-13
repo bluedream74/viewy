@@ -150,7 +150,7 @@ class Posts(models.Model):
     
     def calculate_rp_for_user(self, user, followed_posters_set, viewed_count):
         rp = self.qp
-        rp = rp / (5 ** viewed_count)
+        rp = rp / (3 ** viewed_count)
         if self.poster.id in followed_posters_set:
             rp = rp * 1.5
         return rp
@@ -554,3 +554,76 @@ class ViewDurations(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.post} - {self.duration}"
+    
+    
+
+class TomsTalk(models.Model):
+    image = models.ImageField(upload_to='tomstalk', blank=True, null=True)
+    name = models.CharField(max_length=25, default='トム')
+    status = models.CharField(max_length=25, default='アンバサダー')
+    content = models.CharField(max_length=120)
+    url = models.URLField(blank=True, null=True)
+    display_rate = models.IntegerField(default=1)
+    
+    def __str__(self):
+        return self.content
+    
+    def save(self, *args, **kwargs):
+        # 画像が提供された場合のリサイズ処理
+        if self.image:
+            # 画像を開く
+            image = Image.open(self.image)
+
+            # リサイズしたい解像度を設定
+            output_size = (300, 300)  # 例: 300x300
+            image.thumbnail(output_size)
+
+            # 透明度情報が含まれている場合はRGBモードに変換
+            if image.mode == 'RGBA':
+                image = image.convert('RGB')
+
+            # 画像を一時的なバイナリストリームに保存
+            output = BytesIO()
+            image.save(output, format='JPEG', quality=85)
+            output.seek(0)
+
+            # InMemoryUploadedFileに変換して、元の画像フィールドに再設定
+            self.image = InMemoryUploadedFile(output, 'ImageField', f"{self.image.name.split('.')[0]}.jpeg", 'image/jpeg', sys.getsizeof(output), None)
+        
+        super(TomsTalk, self).save(*args, **kwargs)
+
+    def get_url_prefix(self):
+        if not self.url:
+            return ''
+        elif 'twitter' in self.url:
+            return 'x'
+        elif 'x.com' in self.url:
+            return 'x'
+        elif 'youtube' in self.url:
+            return 'youtube'
+        elif 'fantia' in self.url:
+            return 'fantia'
+        elif 'myfans' in self.url:
+            return 'myfans'
+        elif 'pornhub' in self.url:
+            return 'pornhub'
+        elif 'candfans' in self.url:
+            return 'candfans'
+        elif 'lit.link' in self.url:
+            return 'lit.link'
+        elif 'dlsite' in self.url:
+            return 'dlsite'
+        elif 'amazon' in self.url:
+            return 'amazon'
+        elif 'fanza' in self.url:
+            return 'fanza'
+        elif 'skeb' in self.url:
+            return 'skeb'
+        elif 'shikoshiko' in self.url:
+            return 'cherrylive'
+        elif 'profu.link' in self.url:
+            return 'profu.link'
+        elif 'knip' in self.url:
+            return 'knip'
+        else:
+            return 'link'

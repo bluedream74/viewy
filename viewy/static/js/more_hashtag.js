@@ -79,13 +79,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ハッシュタグを取得 hashtag_list.htmlの下のdivに隠してある
     const hashtag = document.querySelector('#hashtagContainer').dataset.hashtag;
+    
+    // order情報を取得、例えば、order_list.htmlの下のdivに隠してある場合
+    const order = document.querySelector('#orderContainer').dataset.order;
 
+    // orderの値をコンソールに出力
+    console.log(`Order value from dataset: ${order}`);
 
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
-  
+      
     let data = new FormData();
     data.append('last_post_id', lastPostId);
     data.append('hashtag', hashtag);  // Add the hashtag
+    data.append('order', order);  // Add the order
+
+    // FormDataの内容をコンソールに出力
+    for (let [key, value] of data.entries()) {
+        console.log(key, value);
+    }
 
     fetch(`/posts/get_more_hashtag/`, { //次の投稿を読み込むビューに送信！
       method: 'POST', // メソッドをPOSTに変更
@@ -215,12 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstPostId = allPosts[0].dataset.postId;
 
     const hashtag = document.querySelector('#hashtagContainer').dataset.hashtag;
+    // order情報を取得
+    const order = document.querySelector('#orderContainer').dataset.order;
 
     const csrftoken = getCookie('csrftoken');
   
     let data = new FormData();
     data.append('first_post_id', firstPostId);
     data.append('hashtag', hashtag);
+    data.append('order', order);  // order情報を追加
 
     fetch(`/posts/get_more_previous_hashtag/`, {
       method: 'POST',
@@ -255,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .finally(() => {
         isLoading = false;
       });
-  }
+}
 
   function isactive(entries) {
     console.log('Intersection Observer triggered');
