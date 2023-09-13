@@ -1,3 +1,7 @@
+html, body {
+  touch-action: manipulation;
+}
+
 .screen{
   height: 100vh; /* スクロールコンテナーの高さを指定 */
   overflow-y: scroll; /* 縦スクロールを許可 */
@@ -266,6 +270,64 @@ label{
 
 .like-button{
   display: none;
+}
+
+/* エモートボタン */
+.emotes {
+  display: flex;
+  justify-content: space-between; /* エモート間のスペースを均等に分配 */
+  align-items: center;
+  position: relative;
+  top: 8px;
+  left: 11px;
+}
+
+@keyframes bounce {
+  0% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  90% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.bouncing {
+  animation: bounce 0.25s;
+}
+
+.emote {
+  flex: 1;
+  text-align: center; /* 数字をエモートの真下に配置 */
+  margin: 0 5px; /* エモートの左右のマージンを調整 */
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+}
+
+
+.emote img {
+  width: 40px;  /* 画像のサイズを調整。必要に応じて変更してください */
+  height: 40px; /* 画像のサイズを調整。必要に応じて変更してください */
+  border-radius: 50%;  /* 丸みを持たせるためのスタイル */
+  object-fit: cover; /* 画像のアスペクト比を維持しつつ、要素にフィットさせる */
+  user-select: none;
+  margin-bottom: -3px; 
+  touch-action: manipulation;
+}
+
+.emote-count {
+  user-select: none;
+  font-size: 14px;
+  line-height: 0.5;
+}
+
+.hidden-emote {
+  opacity: 0;
+  visibility: hidden;  
 }
 
 /* ミュートボタン */

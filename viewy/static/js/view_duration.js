@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             if (data.message === "Success") {
-                console.log("Data sent successfully!");
             } else {
                 console.error("Error sending data:", data.message);
             }

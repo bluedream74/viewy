@@ -3,8 +3,8 @@
 document.addEventListener('DOMContentLoaded', function() {
   var videos = document.querySelectorAll('.post-video');
   var sliders = document.querySelectorAll('.custom-controlbar');
-  var baseColor = '#ffffff';
-  var activeColor = 'rgb(41, 239, 239)';
+  var baseColor = 'rgba(150, 150, 150, 0.539)';
+  var activeColor = 'rgba(255, 255, 255, 0.639)';
 
   for (var i = 0; i < videos.length; i++) {
     (function(i) {

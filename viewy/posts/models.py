@@ -49,6 +49,11 @@ class Posts(models.Model):
     favorite_rate = models.FloatField(default=0.0)  # 追加
     # QPのフィールドを追加
     qp = models.FloatField(default=1.0)
+    emote1_count = models.PositiveIntegerField(default=0)
+    emote2_count = models.PositiveIntegerField(default=0)
+    emote3_count = models.PositiveIntegerField(default=0)
+    emote4_count = models.PositiveIntegerField(default=0)
+    emote5_count = models.PositiveIntegerField(default=0)
 
     class Meta:
       db_table = 'posts'

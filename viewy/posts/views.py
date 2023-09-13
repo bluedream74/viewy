@@ -44,6 +44,8 @@ from django.db.models import Prefetch
 from django.core.cache import cache
 
 from django.db.models import Count
+from django.db.models import F
+import json
 
 class BasePostListView(ListView):
     model = Posts
@@ -1325,3 +1327,30 @@ class SubmitReportView(View):
 
     def get(self, request):
         return JsonResponse({'error': 'GETメソッドは許可されていません'})
+
+
+class EmoteCountView(View):
+    def post(self, request, *args, **kwargs):
+        post_id = self.kwargs.get('post_id')
+        emote_number = self.kwargs.get('emote_number')
+
+        # Get click count from the client
+        body = json.loads(request.body)
+        click_count = body.get('clicks', 1)
+
+        post = get_object_or_404(Posts, id=post_id)
+
+        emote_field = f"emote{emote_number}_count"
+        
+        # 属性の存在確認
+        if not hasattr(post, emote_field):
+            return JsonResponse({'success': False, 'error': 'Invalid emote number'})
+        
+        current_count = getattr(post, emote_field)
+        new_count = current_count + click_count
+
+        # Using F() expression to increment the count at the database level
+        setattr(post, emote_field, F(emote_field) + click_count)
+        post.save(update_fields=[emote_field])  # only save the changed field
+
+        return JsonResponse({'success': True, 'new_count': new_count})
