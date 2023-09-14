@@ -44,12 +44,18 @@ from django.db.models import Prefetch
 from django.core.cache import cache
 
 from django.db.models import Count
-from django.db.models import F
+from django.db.models import Case, When, F, CharField, Value
 import json
 
 class BasePostListView(ListView):
     model = Posts
     template_name = 'posts/postlist.html'
+
+    def format_number_to_k(self, num):
+        if num >= 10000:
+            return f"{num / 1000:.1f}K"
+        return str(num)
+
 
     def get_user_filter_condition(self):
         user_dimension = self.request.user.dimension
@@ -71,6 +77,11 @@ class BasePostListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.select_related('poster').prefetch_related('visuals', 'videos')
+
+        # エモートの合計を計算する
+        queryset = queryset.annotate(
+            emote_total_count=F('emote1_count') + F('emote2_count') + F('emote3_count') + F('emote4_count') + F('emote5_count')
+        )
         
         if self.request.user.is_authenticated:
             # Annotate for reports
@@ -89,8 +100,9 @@ class BasePostListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        posts = context['object_list']
-        context['posts'] = posts
+        for post in context['object_list']:
+            post.emote_total_count = self.format_number_to_k(post.emote_total_count)
+        context['posts'] = context['object_list']
         return context
 
 
@@ -153,7 +165,8 @@ class PostListView(BasePostListView):
         top_posts_by_rp = sorted_posts_by_rp[:7]
 
         # 3. top_100_new_postsのフィルタリング
-        top_100_new_posts = Posts.objects.select_related('poster').prefetch_related('visuals', 'videos').filter(**filter_condition).order_by('-posted_at')[:100]
+        base_queryset = super().get_queryset()  # BasePostListViewのget_querysetを利用
+        top_100_new_posts = base_queryset.filter(**filter_condition).order_by('-posted_at').prefetch_related('visuals', 'videos')[:100]
         random_two_from_top_100 = sample(list(top_100_new_posts), 2)
 
         # Check for favorites and follows on random_two_from_top_100
