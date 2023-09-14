@@ -44,11 +44,26 @@
       {% else %}
         <div>{{tomstalk.name}}</div>
       {% endif %}
-      {% if request.user and is_poster %}
-      <div class="grade partner">パートナー</div>
-      {% else %}
-      <div class="grade basic">{{tomstalk.status}}</div>
-      {% endif %}
+      
+      <div class="account-type">
+
+        {% if request.user and is_poster %}
+        <div class="grade partner">パートナー</div>
+        {% else %}
+        <div class="grade basic">{{tomstalk.status}}</div>
+        {% endif %}
+
+        {% if request.user and is_poster %}
+          {% if request.user.boost_type == "boost" %}
+            <div class="boost_type boost">BOOST</div>
+          {% elif request.user.boost_type == "superboost" %}
+            <div class="boost_type super-boost">SUPER BOOST</div>
+          {% elif request.user.boost_type == "viewyboost" %}
+            <div class="boost_type viewy-boost">VIEWY BOOST</div>
+          {% endif %}
+        {% endif %}
+      </div>
+
     </div>
   </div>
   {% if request.user and is_poster %}

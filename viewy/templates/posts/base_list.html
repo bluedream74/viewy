@@ -117,10 +117,12 @@
           style="color: rgb(255, 255, 255);"></a>
       </div>
       {% endif %}
+
+
       <div class="emotes">
         <div class="emote emote-icon">
           <i class="fa-regular fa-face-smile"></i>
-          <span class="emote-count"></span>
+          <span class="emote-count total-count"></span>
         </div>
         <div class="emote hidden-emote">
           <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
@@ -390,7 +392,7 @@
 <script src="{% static 'js/mangapage_count.js' %}"></script>
 <script src="{% static 'js/view_count.js' %}"></script>
 <script src="{% static 'js/horizontal_arrow.js' %}"></script>
-<script src="{% static 'js/emote_count.js' %}"></script>
+<!-- <script src="{% static 'js/emote_count.js' %}"></script> -->
 {% endblock %}
 
 

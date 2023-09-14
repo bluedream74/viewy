@@ -180,26 +180,9 @@ li{
 }
 
 .new-regist {
-  color: rgb(255, 255, 255);
-  margin-top: 16px;
-  background-color: var(--primary-color);
-  border: none;
-  height: 28px;
   width: 80px;
-  line-height: 28px;
-  border-radius: 50px;
   font-weight: bold;
   text-align: center; 
-}
-
-.new-regist a {
-  color: rgb(255, 255, 255);
-  display: block;  /* この行を追加 */
-  height: 100%;  /* この行を追加 */
-  line-height: inherit;  /* この行を追加 */
-  text-decoration: none;  /* この行を追加 */
-  padding: 0;  /* この行を追加 */
-  width: 100%;  /* この行を追加 */
 }
 
 .new-regist:hover{

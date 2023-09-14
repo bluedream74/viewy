@@ -319,7 +319,7 @@ label{
 
 .emote img {
   width: 40px;  /* 画像のサイズを調整。必要に応じて変更してください */
-  height: 40px; /* 画像のサイズを調整。必要に応じて変更してください */
+  height: 36px; /* 画像のサイズを調整。必要に応じて変更してください */
   object-fit: cover; /* 画像のアスペクト比を維持しつつ、要素にフィットさせる */
   user-select: none;
   margin-bottom: -3px; 
@@ -328,9 +328,16 @@ label{
 
 .emote-count {
   user-select: none;
-  font-size: 14px;
-  line-height: 0.5;
+  font-size: 12px;
   color: white;
+  position: relative;
+  top: -4px;
+}
+
+.total-count{
+  position: relative;
+  top: -4px;
+  font-size: 14px;
 }
 
 .hidden-emote {

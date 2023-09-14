@@ -40,12 +40,20 @@ DIMENSION_CHOICES = [
     (2.5, '2.5'),
     (2.0, '2'),
 ]
+
+BOOST_TYPE_CHOICES = [
+    ('normal', 'Normal'),
+    ('boost', 'Boost'),
+    ('superboost', 'Super Boost'),
+    ('viewyboost', 'Viewy Boost')
+]
          
 class Users(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     prf_img = models.ImageField(upload_to='accounts_prf_imgs', null=True, blank=True)
     is_real = models.BooleanField(default=False)
+    boost_type = models.CharField(max_length=10, choices=BOOST_TYPE_CHOICES, default='normal',)
     dimension = models.FloatField(choices=DIMENSION_CHOICES, default=2.5, null=True, blank=True)
     caption = models.CharField(max_length=120, null=True, blank=True)
     displayname = models.CharField(max_length=30, null=True, blank=True)

@@ -109,7 +109,7 @@ class Posts(models.Model):
             self.favorite_rate = 0
         else:
             self.favorite_rate = (self.favorite_count / self.views_count) * 100
-        print(f"Favorite Rate updated to: {self.favorite_rate}")
+        # print(f"Favorite Rate updated to: {self.favorite_rate}")
     
     def average_duration(self):
         """滞在時間の平均を返すメソッド"""
@@ -120,7 +120,7 @@ class Posts(models.Model):
             return 0
 
         avg_duration = total_duration / total_views
-        print(f"Average Duration: {avg_duration}")
+        # print(f"Average Duration: {avg_duration}")
         return avg_duration
 
     def stay_rate(self):
@@ -128,24 +128,40 @@ class Posts(models.Model):
         if self.content_length == 0:
             return 0      
         stay_rate_value = (self.average_duration() / self.content_length) * 100  # 100%を超えても許容
-        print(f"Stay Rate: {stay_rate_value}")
+        print(f"滞在率: {stay_rate_value}")
         return stay_rate_value
 
     def stay_rate_point(self):
         """滞在率に基づいた評価ポイントを算出するメソッド"""
         point = self.stay_rate() * (1 + self.content_length / 15)
-        print(f"Stay Rate Point: {point}")
+        print(f"滞在ポイント: {point}")
         return point
 
     def calculate_qp(self, requesting_user=None, factor_a=20, factor_b=1):
         """QPを算出するメソッド. factor_aとfactor_bはいいね率と滞在率の重みです"""
-        self.qp = (self.favorite_rate / 100 * factor_a) + (self.stay_rate_point() / 100 * factor_b)
-        print(f"QP Calculated: {self.qp}")
+        
+        boost_multipliers = {
+            'normal': 1,
+            'boost': 1.2,
+            'superboost': 1.5,
+            'viewyboost': 2
+        }
+        
+        # この投稿の投稿者のブーストの倍数を取得
+        multiplier = boost_multipliers.get(self.poster.boost_type, 1)  # boost_typeが認識されない場合はデフォルトで1を使用
+
+        self.qp = ((self.favorite_rate / 100 * factor_a) + (self.stay_rate_point() / 100 * factor_b)) * multiplier
+        
+        # boostより上のブーストタイプを持つ場合、その状態をprint
+        if multiplier > boost_multipliers['boost']:
+            print(f"この投稿者は {self.poster.boost_type} 状態です。")
+        
+        print(f"QP（{self.poster.boost_type}適用）: {self.qp}")
         
     def update_qp_if_necessary(self):
         """視聴回数に基づき、必要に応じてQPを更新するメソッド"""
         if self.views_count <= 10000 or (self.views_count > 10000 and self.views_count % 30 == 0) or self.views_count == 20000:
-            print(f"Updating QP for view count: {self.views_count}")
+            # print(f"Updating QP for view count: {self.views_count}")
             self.calculate_qp()
     
     def calculate_rp_for_user(self, user, followed_posters_set, viewed_count):

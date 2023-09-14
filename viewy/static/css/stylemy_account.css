@@ -91,6 +91,13 @@ a{
   color: gainsboro;
 }
 
+.account-type{
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
 .name-grade{
   margin-top: 8px;
   position: relative;
@@ -98,8 +105,7 @@ a{
 }
 
 .grade{
-  font-size: 12px;
-  margin-bottom: 2px;
+  margin-right: 8px;
 }
 
 .partner{
@@ -112,6 +118,44 @@ a{
 
 .basic{
   color: rgb(142, 142, 142);
+}
+
+.boost_type{
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  color: white;
+  padding: 3px 6px;
+  color: rgb(69, 69, 69);
+  background-color: white;
+  line-height: 11px;
+}
+
+@keyframes RedblinkAnimation {
+  0%, 100% {color: rgb(255, 42, 0);}
+  50% {color: rgb(255, 166, 0);}
+}
+
+@keyframes PurpleblinkAnimation {
+  0%, 100% {color: rgb(255, 0, 238);}
+  50% {color: rgb(174, 0, 255);}
+}
+
+@keyframes ViewyblinkAnimation {
+  0%, 100% {color: rgb(0, 85, 255);}
+  50% {color: rgb(51, 248, 248);}
+}
+
+.boost{
+  animation: RedblinkAnimation 5s infinite; 
+}
+
+.super-boost {
+  animation: PurpleblinkAnimation 5s infinite; 
+}
+
+.viewy-boost{
+  animation: ViewyblinkAnimation 5s infinite; 
 }
 
 .caption{
