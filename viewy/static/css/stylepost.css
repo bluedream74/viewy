@@ -570,7 +570,7 @@ label{
 }
 
  /* ラジオボタンを四角形にスタイリングする */
- input[type="radio"] {
+ .selects input[type="radio"] {
   -webkit-appearance: none; /* Safari/Chrome用 */
   -moz-appearance: none; /* Firefox用 */
   appearance: none; /* 一般的なスタイル用 */
@@ -585,7 +585,7 @@ label{
 }
 
 /* ラジオボタンがチェックされた状態 */
-input[type="radio"]:checked {
+.selects input[type="radio"]:checked {
   background-color: #ff4d00; /* 背景色 */
 }
 
@@ -691,6 +691,9 @@ input[type="radio"]:checked {
   background-color: rgba(39, 236, 236, 0.897);
   border-radius: 2px;
   color: rgb(255, 255, 255);
+  top: -60px; /* 初期位置はビューポートの外に設定 */
+  opacity: 0;
+  transition: top 0.5s, opacity 0.5s; /* smooth transition */
 }
 
 /* アフィリエイト広告用のスタイル */
@@ -754,7 +757,6 @@ input[type="radio"]:checked {
   font-size: 18px;
   font-weight: bold;
   margin-top: 12px;
-
 }
 
 .login-content{
@@ -779,6 +781,135 @@ input[type="radio"]:checked {
 
 .login-btn:hover {
   background-color: rgb(61, 196, 196);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.first-setting-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7); /* 黒背景で少し透明 */
+  z-index: 1000; /* 他の要素より上に表示 */
+  opacity: 0;
+  /* フェードインアニメーションを適用 */
+  animation: fadeIn 0.5s forwards; /* 1sはアニメーション時間です。好みに合わせて変更できます。 */
+}
+
+@keyframes slideUp {
+  from {
+      transform: translate(-50%, 0%); /* 画面の下部からスタート */
+      opacity: 0;
+  }
+  to {
+      transform: translate(-50%, -50%); /* 最終的な位置へ移動 */
+      opacity: 1;
+  }
+}
+
+.first-setting-modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 240px;
+  animation: slideUp 1s forwards;
+  padding: 32px 32px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+  text-align: center;
+}
+
+.first-setting-modal-title{
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+  margin-bottom: 24px;
+}
+
+.setting-title{
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-align: left;
+  color: rgb(69, 69, 69);
+}
+
+.setting-guide{
+  font-size: 11px;
+  color: #6b5c52;
+  text-align: left;
+}
+
+.gender-radio-group, .dimension-radio-group{
+  margin-bottom: 16px;
+}
+
+#submitSettings{
+  background-color: rgb(74, 234, 234);
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 50px;
+  font-size: 16px;
+  padding: 8px 36px;
+}
+
+.first-setting-modal [type="radio"] {
+  display: none; /* デフォルトのラジオボタンを非表示にする */
+}
+
+.gender-radio-group{
+  display: flex;
+  justify-content: center;
+  padding: 12px 0px 16px 0px;
+}
+
+.gender-radio-group label{
+  color: rgb(146, 146, 146);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0px 18px;
+}
+
+.gender-radio-group input[type="radio"]:checked + label{
+  color: rgb(78, 233, 233);
+  background-color: rgb(255, 255, 255);
+}
+
+.dimension-radio-group{
+  display: flex;
+  justify-content: center;
+  padding: 12px 0px 16px 0px;
+}
+
+.dimension-radio-group label{
+  color: rgb(146, 146, 146);
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  padding: 4px 18px;
+}
+
+.all{
+  margin: 0px 4px 0px 4px;
+}
+
+.dimension-radio-group input[type="radio"]:checked + label{
+  color: rgb(78, 233, 233);
+  background-color: rgb(255, 255, 255);
 }
 
 

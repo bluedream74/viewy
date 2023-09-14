@@ -195,7 +195,7 @@ class InvitedRegistUserView(SuccessMessageMixin, CreateView):
 class VerifyView(FormView):
     template_name = 'verify.html'
     form_class = VerifyForm
-    success_url = reverse_lazy('accounts:user_login')
+    success_url = reverse_lazy('posts:postlist')
 
     def form_valid(self, form):
         user = Users.objects.get(email=self.request.session['email'])
@@ -213,13 +213,17 @@ class VerifyView(FormView):
             user.verification_code = None
             user.save()
 
+            # ユーザーをログインさせる
+            login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+
             # Add a success message
             messages.success(self.request, 'ユーザー登録が完了しました')
 
             # Record total users
             today = timezone.now().date()
             total_users = Users.objects.filter(is_active=True).count()
-            print(f'Total users: {total_users}')  # <--- This line is new
+            print(f'Total users: {total_users}')
 
             record, created = UserStats.objects.get_or_create(date=today)
 
@@ -231,12 +235,11 @@ class VerifyView(FormView):
             next_url = self.request.session.pop('return_to', None)
             if next_url:
                 return redirect(next_url)  # 元のページにリダイレクト
+            return redirect(self.success_url)  # デフォルトのリダイレクト先に移動
             
         else:
             messages.error(self.request, '認証コードが正しくありません。もう一度入力してください。')
             return self.form_invalid(form)
-
-        return super().form_valid(form)  # Call parent form_valid
 
 
 class ResendVerificationCodeView(View):
@@ -615,3 +618,24 @@ class ChangeDimensionView(View):
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+        
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class FirstSettingView(View):
+
+    def post(self, request, *args, **kwargs):
+        gender = request.POST.get('gender')
+        dimension = float(request.POST.get('dimension'))
+
+        # ここでデータベースを更新します（例：request.userの属性を更新）
+        request.user.gender = gender
+        request.user.dimension = dimension
+        request.user.save()
+
+        # 成功メッセージの追加
+        messages.success(request, '初期設定が完了しました。')
+
+        return JsonResponse({'status': 'success'})
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'status': 'error'})

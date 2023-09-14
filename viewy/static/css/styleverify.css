@@ -72,6 +72,7 @@ button{
   border-radius: 50px;
   color: white;
   background-color: rgb(59, 232, 224);
+  font-weight: bold;
 }
 
 .resend{
