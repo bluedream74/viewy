@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, InvitedRegistUserView, ChangeDimensionView
+  RegistUserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, InvitedRegistUserView, ChangeDimensionView, FirstSettingView
 )
 from . import views
 
@@ -27,4 +27,5 @@ urlpatterns = [
   path('hide_search_histories/', views.HideSearchHistoriesView.as_view(), name='hide_search_histories'),
   path('delete_user/', DeleteUserView.as_view(), name='delete_user'),   
   path('change_dimension/', ChangeDimensionView.as_view(), name='change_dimension'),
+  path('first_setting/', FirstSettingView.as_view(), name='first_setting'),
 ]

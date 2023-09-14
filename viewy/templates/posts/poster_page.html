@@ -296,8 +296,16 @@
 
 <img class="logo-img" src="{{ MEDIA_URL }}others/viewy-logo.png" alt="">
 
-
-
+<!-- 成功メッセージ -->
+{% if messages %}
+{% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <div class="message-space"></div>
+    {{ message }}
+    </button>
+  </div>
+{% endfor %}
+{% endif %}
 
 
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
@@ -357,4 +365,21 @@
         alert('リンクがクリップボードにコピーされました。');
     }
 </script>
+<script>
+    $(function() {
+        // 0.5秒後にメッセージを降ろして表示する
+        window.setTimeout(function() {
+            $(".alert-success").css({
+                "top": "0px",
+                "opacity": "1"
+            });
+            
+            // その後、3秒後にメッセージをフェードアウトして隠す
+            window.setTimeout(function() {
+                $(".alert-success").css("top", "-60px").fadeTo(500, 0);
+            }, 3000);  // 3 secs
+            
+        }, 500);  // 0.5 sec
+    });
+    </script>
 {% endblock %}

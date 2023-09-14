@@ -337,29 +337,5 @@ a{
     width: 100px;
     text-align: center;
   }
-
-  .new-regist {
-    font-size: 14px;
-    height: 36px;
-    width: 100px;
-    background-color: var(--primary-color);
-    border: none;
-    border-radius: 50px;
-    font-weight: bold;
-    text-align: center; 
-    line-height: 36px;  /* 新たに追加：高さに合わせて行の高さを設定 */
-    transition: opacity 0.3s;  
-    color: rgb(255, 255, 255);  /* 移動 */
-  }
-
-  .new-regist a {
-    color: inherit;  /* 色を.new-registから継承 */
-    display: block;
-    height: 100%;
-    line-height: inherit;
-    text-decoration: none;
-    padding: 0;
-    width: 100%;
-    -webkit-tap-highlight-color: transparent;
-  }
+  
  }
