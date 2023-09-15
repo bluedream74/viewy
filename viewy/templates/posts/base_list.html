@@ -169,6 +169,9 @@
         <a href="{% url 'posts:poster_page' username=post.poster.username %}"
           class="poster-name">＠{{post.poster.username}}</a>
         {% endif %}
+        {% if post.is_advertisement %}
+          <span class="ad-tag">広告</span>
+        {% endif %}
       </div>
       <div class="title">
         {{post.title}}
@@ -413,11 +416,12 @@
 {% endblock %}
 
 {% block script %}
-
+<!-- <script src="{% static 'js/common_more_posts.js' %}"></script> -->
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>
+<!-- <script src="{% static 'js/custom_controlbar.js' %}"></script> -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/mute.js' %}"></script>

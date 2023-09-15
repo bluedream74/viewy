@@ -108,6 +108,10 @@ a{
   margin-right: 8px;
 }
 
+.advertiser{
+  color: rgb(255, 98, 0);
+}
+
 .partner{
   color: aqua;
 }

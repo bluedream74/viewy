@@ -23,7 +23,13 @@ function updateDimension(dimension) {
     .then(data => {
         if (data.success) {
             console.log("Dimension updated successfully!");
-            location.reload(); // リロード
+
+            // data-reload属性の値を取得して、それに基づいてリロードを制御する
+            const shouldReload = document.querySelector('.dimension-radio-group').getAttribute('data-reload') === 'true';
+            if (shouldReload) {
+                location.reload(); // リロード
+            }
+
         } else {
             console.error("Failed to update dimension.");
         }

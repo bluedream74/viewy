@@ -16,6 +16,16 @@ html, body {
   overflow: hidden;
 }
 
+.hit-area {
+  position: absolute;
+  height: 32px;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  z-index: 101; /* Make sure this is above the slider's z-index */
+  cursor: pointer;
+}
+
 /* コントロールバーを消す */
 video::-webkit-media-controls-enclosure {
   display:none !important;
@@ -34,6 +44,18 @@ video::-webkit-media-controls-enclosure {
   background-color: rgba(150, 150, 150, 0.539);
 }
 
+@media (max-width: 600px) {
+  .custom-controlbar {
+    bottom: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .custom-controlbar {
+    bottom: 16px;
+  }
+}
+
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   cursor: pointer;
@@ -44,7 +66,7 @@ input[type=range]::-webkit-slider-runnable-track {
 input[type=range]::-webkit-slider-thumb {
   height: 8px;
   width: 8px;
-  background-color: rgb(207, 207, 207);
+  background-color: rgba(207, 207, 207, 0);
   border-radius: 50%;
   cursor: pointer;
   -webkit-appearance: none;
@@ -201,6 +223,13 @@ label{
 }
 
 
+@media (max-width: 600px) {
+  .follow-poster {
+    line-height: 21px;
+  }
+}
+
+
 .like-label{
   /* display: inline-block;  追加 */
   max-height: 36px;
@@ -334,6 +363,7 @@ label{
   color: white;
   position: relative;
   top: -4px;
+  text-shadow: gray 0px 1px 3px;
 }
 
 .total-count{
@@ -397,6 +427,13 @@ label{
 .poster-name{
   font-weight: bold;
   color: #ffffff;
+}
+
+.ad-tag{
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px white solid;
+  border-radius: 4px;
 }
 
 .captions{

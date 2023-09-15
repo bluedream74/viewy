@@ -35,6 +35,13 @@ class UserManager(BaseUserManager):
         return user
 
 
+class Features(models.Model):
+    name = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return self.name
+
+
 GENDER_CHOICES = [
     ('male', '男性'),
     ('female', '女性'),
@@ -58,6 +65,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, null=True, blank=True)
+    features = models.ManyToManyField(Features, blank=True)
     prf_img = models.ImageField(upload_to='accounts_prf_imgs', null=True, blank=True)
     is_real = models.BooleanField(default=False)
     boost_type = models.CharField(max_length=10, choices=BOOST_TYPE_CHOICES, default='normal',)
@@ -315,6 +323,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     def get_report_count(self):
         return self.report_count
+    
 
 
 class SearchHistorys(models.Model):

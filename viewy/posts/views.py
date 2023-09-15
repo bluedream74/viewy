@@ -58,14 +58,16 @@ class BasePostListView(ListView):
 
 
     def get_user_filter_condition(self):
-        user_dimension = self.request.user.dimension
+        if self.request.user.is_authenticated:  # ログインユーザーの場合のみdimensionを取得
+            user_dimension = self.request.user.dimension
+        else:
+            return {}  # 非ログインユーザーの場合、空の辞書を返す
+
         filter_condition = {}
-        
         if user_dimension == 2.0:
             filter_condition = {'poster__is_real': False}
         elif user_dimension == 3.0:
             filter_condition = {'poster__is_real': True}
-        
         return filter_condition
 
     def filter_by_dimension(self, queryset):
@@ -132,9 +134,6 @@ class VisitorPostListView(BasePostListView):
 
 class PostListView(BasePostListView):
 
-    def get_ad(self):
-        return Ads.objects.order_by('?').first()
-
     def get_viewed_count_dict(self, user, post_ids):
         viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
         return {item[0]: item[1] for item in viewed_counts}
@@ -143,30 +142,34 @@ class PostListView(BasePostListView):
         followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
         return set(followed_poster_ids)
 
+    def get_advertiser_posts(self, count=1):
+        # Advertiserグループのユーザーの投稿を取得
+        advertiser_users = Group.objects.get(name='Advertiser').user_set.all()
+        advertiser_posts = Posts.objects.filter(poster__in=advertiser_users)
+        posts = list(advertiser_posts.order_by('?')[:count])
+
+        # Advertiserの投稿にis_advertisement属性を追加
+        for post in posts:
+            post.is_advertisement = True
+
+        return posts
+
     def get_combined_posts(self, posts, user):
-        post_ids = [post.id for post in posts]
-        poster_ids = [post.poster.id for post in posts]
+        # qp順の投稿を取得
+        sorted_posts_by_qp = sorted(posts, key=lambda post: post.qp, reverse=True)  
+        first_4_by_qp = sorted_posts_by_qp[:4]
+        next_2_by_qp = sorted_posts_by_qp[4:6]
 
-        viewed_count_dict = self.get_viewed_count_dict(user, post_ids)
-        followed_posters_set = self.get_followed_posters_set(user, poster_ids)
+        # すべての投稿のposter IDsを取得
+        all_poster_ids = [post.poster.id for post in posts]
 
-        # 1. ユーザーのdimensionに基づくフィルタリング条件を決定
-        user_dimension = user.dimension
-        filter_condition = {}
+        # Advertiserの投稿をランダムに取得
+        first_advertiser_post = self.get_advertiser_posts(1)
+        last_advertiser_post = self.get_advertiser_posts(1)
 
-        if user_dimension == 2.0:
-            filter_condition = {'poster__is_real': False}
-        elif user_dimension == 3.0:
-            filter_condition = {'poster__is_real': True}
-
-        # 2. sorted_posts_by_rpのフィルタリング
-        filtered_posts = filter(lambda post: post.poster.is_real == filter_condition.get('poster__is_real', post.poster.is_real), posts)
-        sorted_posts_by_rp = sorted(filtered_posts, key=lambda post: post.calculate_rp_for_user(user, followed_posters_set, viewed_count_dict.get(post.id, 0)), reverse=True)
-        top_posts_by_rp = sorted_posts_by_rp[:7]
-
-        # 3. top_100_new_postsのフィルタリング
-        base_queryset = super().get_queryset()  # BasePostListViewのget_querysetを利用
-        top_100_new_posts = base_queryset.filter(**filter_condition).order_by('-posted_at').prefetch_related('visuals', 'videos')[:100]
+        # 最新の100個の投稿からランダムに2つ取得
+        base_queryset = super().get_queryset()
+        top_100_new_posts = base_queryset.order_by('-posted_at').prefetch_related('visuals', 'videos')[:100]
         random_two_from_top_100 = sample(list(top_100_new_posts), 2)
 
         # Check for favorites and follows on random_two_from_top_100
@@ -174,11 +177,20 @@ class PostListView(BasePostListView):
         favorited_posts = Favorites.objects.filter(user=user, post_id__in=random_post_ids).values_list('post', flat=True)
         favorited_posts_set = set(favorited_posts)
 
+        followed_posters_set = self.get_followed_posters_set(user, all_poster_ids)
+
         for post in random_two_from_top_100:
             post.favorited_by_user = post.id in favorited_posts_set
             post.followed_by_user = post.poster.id in followed_posters_set
 
-        return top_posts_by_rp + random_two_from_top_100
+        combined = list(first_4_by_qp) + list(first_advertiser_post) + list(next_2_by_qp) + random_two_from_top_100 + list(last_advertiser_post)
+
+        # 各postにis_advertisement属性を追加して、デフォルトをFalseに設定
+        for post in combined:
+            if not hasattr(post, 'is_advertisement'):
+                post.is_advertisement = False
+
+        return combined
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -190,7 +202,6 @@ class PostListView(BasePostListView):
         else:
             context['posts'] = super().get_queryset().filter(is_hidden=False)
 
-        context['ad'] = self.get_ad()
         return context
 
 
@@ -548,7 +559,7 @@ class HashtagPageView(BasePostListView):
     template_name = os.path.join('posts', 'hashtag_page.html')
 
     def get(self, request, *args, **kwargs):
-        self.order = request.GET.get('order', 'qp')
+        self.order = request.GET.get('order', 'posted_at')
         print("Order is:", self.order)
         return super().get(request, *args, **kwargs)
     
@@ -581,12 +592,12 @@ class HashtagPageView(BasePostListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ユーザーの次元をcontextに追加
-        context['current_dimension'] = self.request.user.dimension
+        # ログインユーザーの場合はそのユーザーのdimensionを使用し、ログインしていない場合は2.5をデフォルトとして使用する
+        context['current_dimension'] = getattr(self.request.user, 'dimension', 2.5)
+
         context['hashtag'] = self.kwargs['hashtag']
         context['form'] = SearchForm()  # 検索フォームを追加
         context['current_order'] = self.order  # ここを変更
-
         return context
     
     
@@ -600,7 +611,7 @@ class HashtagPostListView(BasePostListView):
         return Ads.objects.order_by('?').first()
     
     def get(self, request, *args, **kwargs):
-        self.order = request.GET.get('order', 'qp')
+        self.order = request.GET.get('order', 'posted_at')
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -666,7 +677,7 @@ class GetMoreHashtagView(BasePostListView):
 
         last_post_id = int(self.request.POST.get('last_post_id', 0))
         hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
-        order = self.request.POST.get('order', '-qp')  # Default to ordering by posted_at descending
+        order = self.request.POST.get('order', '-posted_at')  # Default to ordering by posted_at descending
 
         # Print the received order
         print(f"Received order: {order}")
@@ -747,7 +758,7 @@ class GetMorePreviousHashtagView(BasePostListView):
         # Get all posts with the provided hashtag and filter condition, ordered by the given order_value or by date if no order is given
         hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False, **filter_condition) | 
                         Posts.objects.filter(hashtag2=hashtag, is_hidden=False, **filter_condition) |
-                        Posts.objects.filter(hashtag3=hashtag, is_hidden=False, **filter_condition)).order_by(order_value or '-qp')
+                        Posts.objects.filter(hashtag3=hashtag, is_hidden=False, **filter_condition)).order_by(order_value or '-posted_at')
         
         post_ids = list(hashtag_posts.values_list('id', flat=True))
 
@@ -1140,37 +1151,30 @@ class MyAccountView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # 一度だけユーザーオブジェクトにアクセスする
+        
         user = self.request.user
         user_id = user.id
 
-        # キャッシュから情報を取得
-        cache_key = f"is_poster_{user_id}"
-        is_poster = cache.get(cache_key)
+        # Poster グループに関する処理
+        cache_key_poster = f"is_poster_{user_id}"
+        is_poster = cache.get(cache_key_poster)
 
-        # キャッシュに情報がなければデータベースから取得
         if is_poster is None:
-            is_poster = self.request.user.groups.filter(name='Poster').exists()
-            # キャッシュに情報を保存 (この例では10分間キャッシュ)
-            cache.set(cache_key, is_poster, 600)  # 600 seconds = 10 minutes
+            is_poster = user.groups.filter(name='Poster').exists()
+            cache.set(cache_key_poster, is_poster, 600)  # 600 seconds = 10 minutes
 
         context['is_poster'] = is_poster
-        context['current_dimension'] = self.request.user.dimension
-        
-        # ユーザーがPosterグループに所属していない場合、TomsTalkを取得
-        if not is_poster:
-            tomstalks = TomsTalk.objects.all()
 
-            weighted_list = []
-            for talk in tomstalks:
-                weighted_list.extend([talk] * talk.display_rate)
+        # Advertiser グループに関する処理
+        cache_key_advertiser = f"is_advertiser_{user_id}"
+        is_advertiser = cache.get(cache_key_advertiser)
 
-            selected_talk = random.choice(weighted_list) if weighted_list else None
+        if is_advertiser is None:
+            is_advertiser = user.groups.filter(name='Advertiser').exists()
+            cache.set(cache_key_advertiser, is_advertiser, 600)  # 600 seconds = 10 minutes
 
-            if selected_talk:
-                context['tomstalk_url_prefix'] = selected_talk.get_url_prefix()
-                context['tomstalk'] = selected_talk
+        context['is_advertiser'] = is_advertiser
+        context['current_dimension'] = user.dimension
 
         return context
     
