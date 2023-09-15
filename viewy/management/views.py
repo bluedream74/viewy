@@ -162,13 +162,29 @@ class Post(SuperUserCheck, View):
     template_name = 'management/post.html'
 
     def get(self, request, *args, **kwargs):
-        posts = Posts.objects.all().order_by('-favorite_rate')  # すべての投稿をいいね率の高い順に取得
+        # Posts と関連する Users をプリフェッチ
+        posts = Posts.objects.all().prefetch_related('poster').order_by('-favorite_rate')
+
+        updated_posts = []
         for post in posts:
-            post.update_favorite_rate()  # 各投稿のいいね率を更新
-        total_posts = posts.count()  # 総投稿数を取得
+            # いいね率の現在の値を保存
+            current_favorite_rate = post.favorite_rate
+            
+            # いいね率を更新
+            post.update_favorite_rate()
+            
+            # いいね率が変更されていた場合、更新された Posts のリストに追加
+            if post.favorite_rate != current_favorite_rate:
+                updated_posts.append(post)
+        
+        # 更新された Posts を一括で保存
+        if updated_posts:
+            Posts.objects.bulk_update(updated_posts, ['favorite_rate'])
+
+        total_posts = posts.count()
         context = {
             'posts': posts,
-            'total_posts': total_posts  # 総投稿数をコンテキストに追加
+            'total_posts': total_posts
         }
         return render(request, self.template_name, context)
     

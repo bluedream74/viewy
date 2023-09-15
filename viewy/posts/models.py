@@ -109,7 +109,6 @@ class Posts(models.Model):
             self.favorite_rate = 0
         else:
             self.favorite_rate = (self.favorite_count / self.views_count) * 100
-        # print(f"Favorite Rate updated to: {self.favorite_rate}")
     
     def average_duration(self):
         """滞在時間の平均を返すメソッド"""
