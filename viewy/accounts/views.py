@@ -328,6 +328,8 @@ class UserLoginView(LoginView):
 
         # If user is active, log in and redirect to postlist
         login(self.request, user)
+        messages.success(self.request, 'ログインしました')  # メッセージを追加
+
 
         # セッションからInvitedのフラグを削除
         if 'is_special_user' in self.request.session:
@@ -339,13 +341,11 @@ class UserLoginView(LoginView):
 
         
 
-
-    
-
 class UserLogoutView(View):
   
   def get(self, request, *args, **kwargs):
     logout(request)
+    messages.success(request, 'ログアウトしました')  # メッセージを追加
     return redirect('posts:visitor_postlist')
   
 # class PostListView(TemplateView):
