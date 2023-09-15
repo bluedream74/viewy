@@ -18,7 +18,8 @@
 
 <div class="maintag"><span class="tag">#</span>{{hashtag}}</div>
 
-<div class="dimension-radio-group">
+{% if user.is_authenticated %}
+<div class="dimension-radio-group" data-reload="true">
   <input type="radio" id="dimension-2" name="dimension" value="2" {% if current_dimension == 2.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
   <label for="dimension-2">2</label>
 
@@ -28,6 +29,7 @@
   <input type="radio" id="dimension-3" name="dimension" value="3" {% if current_dimension == 3.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
   <label for="dimension-3">3</label>
 </div>
+{% endif %}
 
 <div class="order-switch">
   <input type="radio" id="order-qp" name="order" value="qp" {% if current_order == "qp" %}checked{% endif %}>

@@ -65,8 +65,7 @@
   {% for video in post.videos.all %}
   <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
     loading="lazy" playsinline loop muted></video>
-  <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
-  <br>
+  <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0"><br>
   {% endfor %}
   {% endif %}
 

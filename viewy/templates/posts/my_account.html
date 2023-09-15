@@ -47,7 +47,9 @@
       
       <div class="account-type">
 
-        {% if request.user and is_poster %}
+        {% if request.user and is_advertiser %}
+        <div class="grade advertiser">アドバタイザー</div>
+        {% elif request.user and is_poster %}
         <div class="grade partner">パートナー</div>
         {% else %}
         <div class="grade basic">{{tomstalk.status}}</div>
@@ -298,7 +300,7 @@
 </div>
 
 <div class="display-setting"><i class="fa-brands fa-uncharted fa-xl mini-logo"></i>表示設定</div>
-<div class="dimension-radio-group">
+<div class="dimension-radio-group" data-reload="false">
   <input type="radio" id="dimension-2" name="dimension" value="2" {% if current_dimension == 2.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
   <label for="dimension-2">2</label>
 
