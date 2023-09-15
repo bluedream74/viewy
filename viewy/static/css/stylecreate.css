@@ -6,8 +6,9 @@
   height: 60px;
   animation: spin 0.5s linear infinite;
   position: absolute;
-  top: 220px;
+  top: 38%;
   left: 40%;
+  transform: translate(-50%, -50%);
   display: none;   
 }
 
@@ -18,7 +19,7 @@
 
 #loading{
   position: absolute;
-  top: 52%;   /* 要素を下に移動 */
+  top: 54%;   /* 要素を下に移動 */
   left: 50%;
   transform: translate(-50%, -50%);
   color: #ffffff;
@@ -195,13 +196,15 @@ form input{
 @media only screen and (max-width: 600px) {
 
   #spinner{
-    top: 280px;
+    top: 32%;
     left: 41%;
+    transform: translate(-50%, -50%);
   }
 
   #loading{
-    top: 360px;
-    left: 27%;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
   
   .screen{
