@@ -1,6 +1,6 @@
 {% for post in posts %}
 
-<div class="post not-ad" data-post-id="{{ post.id }}">
+<div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
   <div class="spinner"></div>
   {% if post.ismanga %}
   <div class="book">
@@ -123,6 +123,9 @@
         <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠{{post.poster.displayname}}</a>
         {% else %}
         <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster-name">＠{{post.poster.username}}</a>
+        {% endif %}
+        {% if post.is_advertisement %}
+          <span class="ad-tag">広告</span>
         {% endif %}      
       </div>
       <div class="title">
@@ -255,55 +258,3 @@
 
 
 {% endfor %}
-
-
-
-
-
-<div class="post ad" data-ad-id="{{ ad.id }}">
-  <div class="ad-page" data-ad-id="{{ ad.id }}">
-    {{ ad.ad_tag|safe }}
-  </div>
-
-
-  <div class="side-bar">
-
-    <div class="poster">
-      <div class="ad-prf">
-          <img class="ad-prf-img" src="{{ MEDIA_URL }}ads_prf_imgs/ad_icon.png" alt="">
-      </div>
-    </div>
-
-    <div class="follow-poster">
-      <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
-    </div>
-
-    <div class="favorite">
-      <a class="fa-regular fa-heart not-liked" style="color: rgb(255, 255, 255);"></a>
-    </div>
-
-    <div class="mute">
-      <label class="fa-solid fa-volume-xmark" data-post-id="">
-        <input type="checkbox" class="mute-frag" checked>
-      </label>
-    </div>
-  </div>
-
-  <div class="captions">
-    <div class="title">{{ad.title}}</div>
-    <div class="caption">{{ad.caption}}</div>
-    <div class="hashtags">
-      {% if ad.hashtag1 %}
-      <span class="hashtag"> <a href="">#{{ad.hashtag1}}</a></span>
-      {% endif %}
-      {% if ad.hashtag2 %}
-      <span class="hashtag"> <a href="">#{{ad.hashtag2}}</a></span>
-      {% endif %}
-      {% if ad.hashtag3 %}
-      <span class="hashtag"><a href="">#{{ad.hashtag3}}</a></span>
-      {% endif %}
-
-    </div>
-  </div>
-
-</div>

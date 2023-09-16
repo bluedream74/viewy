@@ -71,9 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     isLoading = true;
     console.log('Loading next post...');
 
-    const allPosts = document.querySelectorAll('.not-ad');
-    const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
-
+    const allPosts = document.querySelectorAll('.post[data-is-advertisement="false"]');
+    const lastPostId = allPosts[allPosts.length - 2].dataset.postId;
   
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
   

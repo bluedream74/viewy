@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
-from django.db.models import Case, Exists, OuterRef, Q, When, Sum
+from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -27,6 +27,7 @@ from django.views.generic.list import ListView
 
 # Local application/library specific
 from accounts.models import Follows, SearchHistorys
+from advertisement.models import AdInfos, AndFeatures
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
 
@@ -48,6 +49,8 @@ from django.db.models import Case, When, F, CharField, Value
 import json
 from itertools import chain
 from django.utils.html import escape
+
+from itertools import chain
 from django.db import transaction
 
 
@@ -59,7 +62,6 @@ class BasePostListView(ListView):
         if num >= 10000:
             return f"{num / 1000:.1f}K"
         return str(num)
-
 
     def get_user_filter_condition(self):
         if self.request.user.is_authenticated:  # ログインユーザーの場合のみdimensionを取得
@@ -79,29 +81,153 @@ class BasePostListView(ListView):
             filter_condition = self.get_user_filter_condition()
             return queryset.filter(**filter_condition)
         return queryset
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.select_related('poster').prefetch_related('visuals', 'videos')
-
-        # エモートの合計を計算する
-        queryset = queryset.annotate(
+    
+    def annotate_emote_total(self, queryset):
+        return queryset.annotate(
             emote_total_count=F('emote1_count') + F('emote2_count') + F('emote3_count') + F('emote4_count') + F('emote5_count')
         )
+
+    def get_viewed_count_dict(self, user, post_ids):
+        viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
+        return {item[0]: item[1] for item in viewed_counts}
+
+    def get_followed_posters_set(self, user, poster_ids):
+        followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
+        return set(followed_poster_ids)
+
+    def get_advertiser_users(self):
+        # キャッシュキーを設定
+        cache_key = "advertiser_users"
         
-        if self.request.user.is_authenticated:
-            # Annotate for reports
-            reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
-            queryset = queryset.annotate(reported_by_user=Exists(reports))
+        # キャッシュからデータを取得
+        advertiser_users = cache.get(cache_key)
+        
+        # キャッシュにデータが存在しない場合
+        if not advertiser_users:
+            advertiser_users = list(Group.objects.get(name='Advertiser').user_set.all())
             
-            # Annotate for favorites
-            favorites = Favorites.objects.filter(user=self.request.user, post=OuterRef('pk'))
-            queryset = queryset.annotate(favorited_by_user=Exists(favorites))
+            # データをキャッシュに保存。
+            cache.set(cache_key, advertiser_users, 3600)
+        
+        return advertiser_users
+
+    def get_advertiser_posts(self, user, count=1):
+        cache_key = f"advertiser_posts_for_user_{user.id}"
+        cached_posts = cache.get(cache_key)
+
+        if cached_posts:
+            print(f"Cache HIT for user {user.id}")  # キャッシュがヒットした場合にログを表示
+            return cached_posts
+        else:
+            print(f"Cache MISS for user {user.id}")  # キャッシュがミスした場合にログを表示
+        
+        user_features = set(user.features.all())
+
+        advertiser_users = self.get_advertiser_users()
+
+        # まず、各 AndFeatures の中で、user_features と一致する orfeatures の数を計算
+        matching_andfeatures = AndFeatures.objects.annotate(
+            matched_orfeatures_count=Count(
+                Case(
+                    When(orfeatures__in=user_features, then=1),
+                    output_field=IntegerField()
+                )
+            )
+        ).filter(matched_orfeatures_count__gte=1)
+
+        # 次に、これを使用して各 AdInfos で、全ての AndFeatures が上記の条件を満たすものをフィルタリング
+        matching_adinfos = AdInfos.objects.annotate(
+            total_andfeatures=Count('andfeatures', distinct=True),
+            matched_andfeatures=Count(
+                Case(
+                    When(andfeatures__in=matching_andfeatures, then=1),
+                    output_field=IntegerField()
+                )
+            )
+        ).filter(matched_andfeatures=F('total_andfeatures'))
+
+        # 最後に、この条件を満たす AdInfos を持つ Posts をフィルタリング
+        ad_posts = self.annotate_emote_total(Posts.objects.filter(
+            Q(adinfos__in=matching_adinfos) | Q(adinfos__isnull=True),
+            poster__in=advertiser_users
+        ))
+
+        # 適切な広告をランダムに取得
+        posts = sample(list(ad_posts), min(count, len(ad_posts)))
+
+        # 以下のコードは以前のものを変更せずにそのまま使用します。
+        ad_post_ids = [post.id for post in ad_posts]
+        favorited_ads = Favorites.objects.filter(user=user, post_id__in=ad_post_ids).values_list('post', flat=True)
+        favorited_ads_set = set(favorited_ads)
+
+        followed_ad_posters_ids = [post.poster.id for post in ad_posts]
+        followed_ad_posters_set = self.get_followed_posters_set(user, followed_ad_posters_ids)
+
+        for post in ad_posts:
+            post.favorited_by_user = post.id in favorited_ads_set
+            post.followed_by_user = post.poster.id in followed_ad_posters_set
+            post.is_advertisement = True
             
-            # Annotate for follows
-            follows = Follows.objects.filter(user=self.request.user, poster=OuterRef('poster_id'))
-            queryset = queryset.annotate(followed_by_user=Exists(follows))
-            
+        # 結果をキャッシュに保存
+        cache.set(cache_key, posts, 3600)  # 1時間キャッシュする
+        print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
+
+        return posts
+
+    def get_ad_posts(self, user, count=2):
+        ad_posts = self.get_advertiser_posts(user, count=count)
+        return iter(ad_posts)
+    
+    def integrate_ads(self, queryset, ad_posts_iterator):
+        final_posts = []
+        post_count = len(queryset)
+
+        if post_count <= 4:  # 4つ以下の場合、広告を取得しない
+            return queryset
+
+        ad_insert_positions = [4, 9]  # 5番目と10番目の位置に広告を挿入
+
+        for i, post in enumerate(queryset):
+            if i in ad_insert_positions:
+                try:
+                    final_posts.append(next(ad_posts_iterator))
+                except StopIteration:
+                    pass
+            final_posts.append(post)
+
+        # すべての広告を使用したことを確認
+        for ad_post in ad_posts_iterator:
+            final_posts.append(ad_post)
+
+        return final_posts
+
+    def annotate_user_related_info(self, queryset):
+        if not self.request.user.is_authenticated:
+            return queryset
+
+        # Annotate for reports
+        reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
+        queryset = queryset.annotate(reported_by_user=Exists(reports))
+
+        # Annotate for favorites
+        favorites = Favorites.objects.filter(user=self.request.user, post=OuterRef('pk'))
+        queryset = queryset.annotate(favorited_by_user=Exists(favorites))
+
+        # Annotate for follows
+        follows = Follows.objects.filter(user=self.request.user, poster=OuterRef('poster_id'))
+        queryset = queryset.annotate(followed_by_user=Exists(follows))
+
+        return queryset 
+
+        
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.select_related('poster')
+        # filter_by_dimension has been removed from here
+        queryset = self.annotate_emote_total(queryset)
+        queryset = self.annotate_user_related_info(queryset)
+        queryset = queryset.prefetch_related('visuals', 'videos')
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -110,6 +236,110 @@ class BasePostListView(ListView):
             post.emote_total_count = self.format_number_to_k(post.emote_total_count)
         context['posts'] = context['object_list']
         return context
+    
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+
+        if more_posts:
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+                
+            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts}, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
+
+
+
+class PostListView(BasePostListView):
+    
+    def get_combined_posts(self, posts, user):
+    # 1. QP順でソート
+        sorted_posts_by_qp = sorted(posts, key=lambda post: post.qp, reverse=True)
+
+        # 投稿IDのリストを取得
+        post_ids = [post.id for post in sorted_posts_by_qp]
+
+        # このIDリストを使って閲覧数の辞書を取得
+        viewed_count_dict = self.get_viewed_count_dict(user, post_ids)
+
+        # 2. RPを計算
+        followed_posters_set = set(user.follow.all().values_list('id', flat=True))
+        for post in sorted_posts_by_qp:
+            viewed_count = viewed_count_dict.get(post.id, 0)  # 辞書から閲覧数を取得。デフォルト値は0。
+            post.rp = post.calculate_rp_for_user(user, followed_posters_set, viewed_count)
+
+        # 3. RP順で再ソート
+        sorted_posts_by_rp = sorted(sorted_posts_by_qp, key=lambda post: post.rp, reverse=True)
+        first_4_by_rp = sorted_posts_by_rp[:4]
+        next_2_by_rp = sorted_posts_by_rp[4:6]
+
+        # Advertiserの投稿をランダムに取得 (ここで2つ取得)
+        advertiser_posts = self.get_advertiser_posts(user, 2)
+
+        # 最新の100個の投稿を取得して、dimensionフィルターを適用
+        latest_100_posts = Posts.objects.all().order_by('-id')
+        latest_100_posts = self.filter_by_dimension(latest_100_posts)[:100]
+
+        # 最新の100件のIDを取得
+        post_ids = list(latest_100_posts.values_list('id', flat=True))
+
+        # 100件未満の場合、可能な限りの投稿を選択します。
+        num_posts_to_select = min(2, len(post_ids))
+        selected_ids = sample(post_ids, num_posts_to_select)
+
+        # 選択したIDを使って投稿を取得
+        random_two_posts = Posts.objects.filter(id__in=selected_ids)
+
+        # 残りのフィルターとアノテーションを適用
+        random_two_posts = self.filter_by_dimension(random_two_posts)
+        random_two_posts = self.annotate_user_related_info(random_two_posts)
+        random_two_posts = self.annotate_emote_total(random_two_posts)
+        random_two_posts = list(random_two_posts)
+
+        combined = list(first_4_by_rp) + advertiser_posts[:1] + list(next_2_by_rp) + list(random_two_posts) + advertiser_posts[1:]
+
+        return combined
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # 次元のフィルターはここで適応（いいねやフォローには適応したくないから）
+        queryset = self.filter_by_dimension(queryset)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        if user.is_authenticated:
+            posts = context['posts']
+            context['posts'] = self.get_combined_posts(posts, user)
+        else:
+            context['posts'] = self.get_queryset().filter(is_hidden=False)
+
+        return context
+       
+
+    
+    
+class GetMorePostsView(PostListView):
+
+    def get(self, request, *args, **kwargs):
+        # object_listの設定
+        self.object_list = self.get_queryset()
+        
+        # PostListViewの処理を実行
+        context = self.get_context_data(**kwargs)
+        posts = context['posts']
+
+        # 投稿をHTMLフラグメントとしてレンダリング
+        html = render_to_string('posts/get_more_posts.html', {'posts': posts, 'user': request.user}, request=request)
+        
+        # HTMLフラグメントをJSONとして返す
+        return JsonResponse({'html': html}, content_type='application/json')
 
 
 
@@ -133,271 +363,168 @@ class VisitorPostListView(BasePostListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-
-
-
-class PostListView(BasePostListView):
-
-    def get_viewed_count_dict(self, user, post_ids):
-        viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
-        return {item[0]: item[1] for item in viewed_counts}
-
-    def get_followed_posters_set(self, user, poster_ids):
-        followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
-        return set(followed_poster_ids)
-
-    def get_advertiser_posts(self, count=1):
-        # Advertiserグループのユーザーの投稿を取得
-        advertiser_users = Group.objects.get(name='Advertiser').user_set.all()
-        advertiser_posts = Posts.objects.filter(poster__in=advertiser_users)
-        posts = list(advertiser_posts.order_by('?')[:count])
-
-        # Advertiserの投稿にis_advertisement属性を追加
-        for post in posts:
-            post.is_advertisement = True
-
-        return posts
-
-    def get_combined_posts(self, posts, user):
-        # qp順の投稿を取得
-        sorted_posts_by_qp = sorted(posts, key=lambda post: post.qp, reverse=True)  
-        first_4_by_qp = sorted_posts_by_qp[:4]
-        next_2_by_qp = sorted_posts_by_qp[4:6]
-
-        # すべての投稿のposter IDsを取得
-        all_poster_ids = [post.poster.id for post in posts]
-
-        # Advertiserの投稿をランダムに取得
-        first_advertiser_post = self.get_advertiser_posts(1)
-        last_advertiser_post = self.get_advertiser_posts(1)
-
-        # 最新の100個の投稿からランダムに2つ取得
-        base_queryset = super().get_queryset()
-        top_100_new_posts = base_queryset.order_by('-posted_at').prefetch_related('visuals', 'videos')[:100]
-        random_two_from_top_100 = sample(list(top_100_new_posts), 2)
-
-        # Check for favorites and follows on random_two_from_top_100
-        random_post_ids = [post.id for post in random_two_from_top_100]
-        favorited_posts = Favorites.objects.filter(user=user, post_id__in=random_post_ids).values_list('post', flat=True)
-        favorited_posts_set = set(favorited_posts)
-
-        followed_posters_set = self.get_followed_posters_set(user, all_poster_ids)
-
-        for post in random_two_from_top_100:
-            post.favorited_by_user = post.id in favorited_posts_set
-            post.followed_by_user = post.poster.id in followed_posters_set
-
-        combined = list(first_4_by_qp) + list(first_advertiser_post) + list(next_2_by_qp) + random_two_from_top_100 + list(last_advertiser_post)
-
-        # 各postにis_advertisement属性を追加して、デフォルトをFalseに設定
-        for post in combined:
-            if not hasattr(post, 'is_advertisement'):
-                post.is_advertisement = False
-
-        return combined
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-
-        if user.is_authenticated:
-            posts = context['posts']
-            context['posts'] = self.get_combined_posts(posts, user)
-        else:
-            context['posts'] = super().get_queryset().filter(is_hidden=False)
-
-        return context
-
-
-    
-    
-class GetMorePostsView(PostListView):
-
-    def get(self, request, *args, **kwargs):
-
-        user = request.user
-
-        # 基底クラスのget_querysetメソッドを使用して投稿を取得
-        posts = super().get_queryset()
-        
-        if user.is_authenticated:
-            posts = self.get_combined_posts(posts, user)
-        else:
-            posts = posts.filter(is_hidden=False)
-
-        # 各投稿のビジュアルとビデオを取得
-        for post in posts:
-            post.visuals_list = post.visuals.all()
-            post.videos_list = post.videos.all()
-
-        ad = self.get_ad()  # 広告を取得
-
-        # 投稿をHTMLフラグメントとしてレンダリング
-        html = render_to_string('posts/get_more_posts.html', {'posts': posts, 'user': request.user, 'ad': ad}, request=request)
-        
-        # HTMLフラグメントをJSONとして返す
-        return JsonResponse({'html': html}, content_type='application/json')
-
     
 
-class FavoritePageView(BasePostListView):
-    template_name = os.path.join('posts', 'favorite_page.html')
-    
-    def get_queryset(self):
-        user = self.request.user
-        user_favorite_posts = Favorites.objects.filter(user=user).order_by('-created_at')
+class BaseFavoriteView(BasePostListView):
+    def get_user_favorite_post_ids(self):
+        """お気に入りにした投稿のIDを取得"""
+        cache_key = f'favorite_posts_for_user_{self.request.user.id}'
+        cached_post_ids = cache.get(cache_key)
+
+        if cached_post_ids:
+            print(f"Cache HIT for favorite posts for user {self.request.user.id}")
+            return cached_post_ids
+
+        print(f"Cache MISS for favorite posts for user {self.request.user.id}")
+        user_favorite_posts = Favorites.objects.filter(user=self.request.user).order_by('-created_at')
         post_ids = [favorite.post_id for favorite in user_favorite_posts]
+
+        cache.set(cache_key, post_ids, 300)  # 5分間キャッシュ
+        return post_ids
+
+
+
+class FavoritePageView(BaseFavoriteView):
+    template_name = os.path.join('posts', 'favorite_page.html')
+
+    def get_queryset(self):
+        post_ids = self.get_user_favorite_post_ids()
         queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
-        # Preserving the order of favorites.
         queryset = sorted(queryset, key=lambda post: post_ids.index(post.id))
         return queryset
 
 
-class FavoritePostListView(BasePostListView):
+class FavoritePostListView(BaseFavoriteView):
     template_name = os.path.join('posts', 'favorite_list.html')
 
     def get_queryset(self):
-        user = self.request.user
         # URLから'post_id'パラメータを取得
         selected_post_id = int(self.request.GET.get('post_id', 0))
 
-        # ユーザーがお気に入りに追加した全ての投稿を取得
-        user_favorite_posts = Favorites.objects.filter(user=user).order_by('-created_at')
-        post_ids = [favorite.post_id for favorite in user_favorite_posts]
+        # ユーザーがお気に入りに追加した全ての投稿を取得 (BaseFavoriteView から取得)
+        post_ids = self.get_user_favorite_post_ids()
+
         queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+        if selected_post_id in post_ids:
+            selected_post_index = post_ids.index(selected_post_id)
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
+            queryset = [post for post in queryset if post.id in selected_post_ids]
+            queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+   
 
         # 選択した投稿がリストの中にあるか確認
         if selected_post_id in post_ids:
             # 選択した投稿のインデックスを見つける
             selected_post_index = post_ids.index(selected_post_id)
             # 選択した投稿とそれに続く投稿のIDを取得
-            selected_post_ids = post_ids[selected_post_index:selected_post_index+9]
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
             # querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
             queryset = [post for post in queryset if post.id in selected_post_ids]
 
         # querysetがselected_post_idsの順番と同じになるようにソート
         queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
 
-        return queryset
+        # 現在のユーザーを取得
+        user = self.request.user
 
-    def get_ad(self):
-        # ランダムに1つの広告を取得
-        return Ads.objects.order_by('?').first()
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
+
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # contextに広告を追加
-        context['ad'] = self.get_ad()
         return context
     
     
 
-class GetMoreFavoriteView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GetMoreFavoriteView(BaseFavoriteView):
 
     def get_queryset(self):
         last_post_id = int(self.request.POST.get('last_post_id', 0))
 
-        user_favorite_posts = Favorites.objects.filter(user=self.request.user).order_by('-created_at')
-        post_ids = list(user_favorite_posts.values_list('post_id', flat=True))
+        # ユーザーがお気に入りに追加した全ての投稿を取得 (BaseFavoriteView から取得)
+        post_ids = self.get_user_favorite_post_ids()
 
         if last_post_id:
             last_favorite_index = post_ids.index(last_post_id)
-            next_post_ids = post_ids[last_favorite_index+1:last_favorite_index+10]  # ここを10から9に変更
+            next_post_ids = post_ids[last_favorite_index+1:last_favorite_index+8] 
 
             queryset = super().get_queryset().filter(id__in=next_post_ids)
             queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
         else:
             queryset = super().get_queryset().filter(id__in=post_ids)
 
-        return queryset[:9]  # ここを追加して、最初の9つの投稿だけを返す
+        # 現在のユーザーを取得
+        user = self.request.user
 
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
 
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
-
-            ad = self.get_ad()  # 広告を取得
-
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
     
 
-class GetMorePreviousFavoriteView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GetMorePreviousFavoriteView(BaseFavoriteView):
 
     def get_queryset(self):
         first_post_id = int(self.request.POST.get('first_post_id', 0))
 
-        user_favorite_posts = Favorites.objects.filter(user=self.request.user).order_by('-created_at')  # order by created_at (ascending)
-        post_ids = list(user_favorite_posts.values_list('post_id', flat=True))
+        # ユーザーがお気に入りに追加した全ての投稿を取得 (BaseFavoriteView から取得)
+        post_ids = self.get_user_favorite_post_ids()
 
         if first_post_id:
             first_favorite_index = post_ids.index(first_post_id)
-            prev_post_ids = post_ids[max(0, first_favorite_index - 10):first_favorite_index]  # get previous 10 posts
+            prev_post_ids = post_ids[max(0, first_favorite_index - 8):first_favorite_index] 
 
             queryset = super().get_queryset().filter(id__in=prev_post_ids)
-            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id), reverse=True)  # reverse to maintain the correct order
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))  
         else:
             queryset = super().get_queryset().filter(id__in=post_ids)
 
-        # convert queryset to list and then reverse it
-        return list(reversed(queryset[:9]))  # return first 9 posts only in reversed order
-    
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
-    
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
+        # 現在のユーザーを取得
+        user = self.request.user
 
-            ad = self.get_ad()  # 広告を取得
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
 
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
-
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
     
 
-class PosterPageView(BasePostListView):
+class BasePosterView(BasePostListView):
+    def set_poster_from_username(self):
+        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
+
+    def set_poster_from_pk(self):
+        self.poster = get_object_or_404(Users, pk=self.request.POST.get('pk'))
+
+    def get_filtered_posts(self):
+        cache_key = f'filtered_posts_for_user_{self.poster.id}'
+        cached_posts = cache.get(cache_key)
+
+        if cached_posts:
+            print(f"Cache HIT for user {self.poster.id}")
+            return cached_posts
+
+        print(f"Cache MISS for user {self.poster.id}")
+        posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        cache.set(cache_key, posts, 300)  # キャッシュの有効期間を300秒（5分）に設定
+        return posts
+
+    def integrate_ads_to_queryset(self, queryset):
+        user = self.request.user
+        ad_posts_iterator = self.get_ad_posts(user)
+        return self.integrate_ads(queryset, ad_posts_iterator)
+    
+
+class PosterPageView(BasePosterView):
     template_name = os.path.join('posts', 'poster_page.html')
-    
+
     def get_queryset(self):
-        # まず、BasePostListViewのget_querysetメソッドを呼び出します
-        queryset = super().get_queryset()
-        # 必要なフィールドのみを取得
-        self.poster = get_object_or_404(
-            Users.objects.only(
-                'id', 'prf_img', 'displayname', 'username', 
-                'caption', 'url1', 'url2', 'url3', 'url4', 'url5', 'follow_count'
-            ),
-            username=self.kwargs['username']
-        )
-         # その後、PosterPageViewの特定のフィルタリングを適用します
-        queryset = queryset.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        self.set_poster_from_username()
+        queryset = super().get_queryset().filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -411,127 +538,85 @@ class PosterPageView(BasePostListView):
 
 
 
-class PosterPostListView(BasePostListView):
+class PosterPostListView(BasePosterView):
     template_name = os.path.join('posts', 'poster_post_list.html')
 
     def get_queryset(self):
-        # URLから'post_id'パラメータを取得
         selected_post_id = int(self.request.GET.get('post_id', 0))
 
-        # ポスターが投稿した全ての投稿を取得
-        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
-        poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        # Use the method from the BasePosterView
+        self.set_poster_from_username()
+        poster_posts = self.get_filtered_posts()
+
         post_ids = [post.id for post in poster_posts]
         queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
 
-        # 選択した投稿がリストの中にあるか確認
         if selected_post_id in post_ids:
-            # 選択した投稿のインデックスを見つける
             selected_post_index = post_ids.index(selected_post_id)
-            # 選択した投稿とそれに続く投稿のIDを取得
-            selected_post_ids = post_ids[selected_post_index:selected_post_index+9]
-            # querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
             queryset = [post for post in queryset if post.id in selected_post_ids]
+            queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
 
-        # querysetがselected_post_idsの順番と同じになるようにソート
-        queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
-
-        return queryset
-
-    def get_ad(self):
-        # ランダムに1つの広告を取得
-        return Ads.objects.order_by('?').first()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # contextに広告を追加
-        context['ad'] = self.get_ad()
-        return context
+        # Use the integrate method from the BasePosterView
+        return self.integrate_ads_to_queryset(queryset)
 
 
-class GetMorePosterPostsView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+
+class GetMorePosterPostsView(BasePosterView):
 
     def get_queryset(self):
         last_post_id = int(self.request.POST.get('last_post_id', 0))
 
-        # Get the pk from POST data
-        poster_pk = self.request.POST.get('pk')
-        if not poster_pk:
+        # Use the method from the BasePosterView to set the poster
+        self.set_poster_from_pk()
+
+        if not self.poster:
             return Posts.objects.none()
 
-        # posterを設定
-        self.poster = get_object_or_404(Users, pk=poster_pk)
-
-
-        poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        poster_posts = self.get_filtered_posts()
         post_ids = list(poster_posts.values_list('id', flat=True))
 
-
         if last_post_id:
-            last_poster_index = post_ids.index(last_post_id)
-            next_post_ids = post_ids[last_poster_index+1:last_poster_index+10]  # ここを10から9に変更
+            try:
+                last_poster_index = post_ids.index(last_post_id)
+            except ValueError:
+                return Posts.objects.none()
 
+            next_post_ids = post_ids[last_poster_index+1:last_poster_index+9]
             queryset = super().get_queryset().filter(id__in=next_post_ids)
             queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
         else:
-            queryset = super().get_queryset().filter(id__in=post_ids)
+            return Posts.objects.none()  # 分岐が不要である場合、何も返さない
 
-        return queryset[:9]  # ここを追加して、最初の9つの投稿だけを返す
-
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
-
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
-
-            ad = self.get_ad()  # 広告を取得
-
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
+        # Use the integrate method from the BasePosterView
+        return self.integrate_ads_to_queryset(queryset)
     
     
-    
-    
-class GetMorePreviousPosterPostsView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        # 親クラスのdispatchメソッドを呼び出す
-        return super().dispatch(*args, **kwargs)
+class GetMorePreviousPosterPostsView(BasePosterView):
 
     def get_queryset(self):
         # POSTデータから最初の投稿IDを取得
         first_post_id = int(self.request.POST.get('first_post_id', 0))
 
-        # POSTデータからpkを取得
-        poster_pk = self.request.POST.get('pk')
-        if not poster_pk:
-            return Posts.objects.none()  # pkが提供されていない場合、空のクエリセットを返す
+        # Use the method from the BasePosterView to set the poster
+        self.set_poster_from_pk()
 
-        # ポスターを設定
-        self.poster = get_object_or_404(Users, pk=poster_pk)
+        if not self.poster:
+            return Posts.objects.none()
 
-        # ポスターの投稿を取得し、投稿日時で並べ替える
-        poster_posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        # Use the get_filtered_posts method from the BasePosterView
+        poster_posts = self.get_filtered_posts()
         post_ids = list(poster_posts.values_list('id', flat=True))
 
         if first_post_id:
             # 最初の投稿IDのインデックスを取得
-            first_post_index = post_ids.index(first_post_id)
+            try:
+                first_post_index = post_ids.index(first_post_id)
+            except ValueError:
+                return Posts.objects.none()
+            
             # 最初の投稿より前の10個の投稿IDを取得
-            prev_post_ids = post_ids[max(0, first_post_index - 10):first_post_index] 
+            prev_post_ids = post_ids[max(0, first_post_index - 8):first_post_index] 
 
             # querysetを取得し、投稿IDがprev_post_idsに含まれるものだけをフィルタリング
             queryset = super().get_queryset().filter(id__in=prev_post_ids)
@@ -541,271 +626,199 @@ class GetMorePreviousPosterPostsView(BasePostListView):
             # 最初の投稿IDが存在しない場合、全ての投稿を取得
             queryset = super().get_queryset().filter(id__in=post_ids)
 
-        return queryset[:9]  # 最初の9個の投稿だけを返す
-
-    def get_ad(self):
-        # ランダムな広告を取得
-        return Ads.objects.order_by('?').first()
-
-    def post(self, request, *args, **kwargs):
-        # クエリセットを取得
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加の投稿が存在する場合のみ広告を取得
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
-
-            ad = self.get_ad()  # 広告を取得
-
-            # HTML生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
+        # Use the integrate method from the BasePosterView
+        return self.integrate_ads_to_queryset(queryset)
+ 
+ 
    
-    
-    
-
-class HashtagPageView(BasePostListView):
-    template_name = os.path.join('posts', 'hashtag_page.html')
-
+class BaseHashtagListView(BasePostListView):
     def get(self, request, *args, **kwargs):
         self.order = request.GET.get('order', 'posted_at')
-        print("Order is:", self.order)
         return super().get(request, *args, **kwargs)
-    
-    def get_queryset(self):
-        # BasePostListViewのget_querysetを呼び出す
-        queryset = super().get_queryset()
-        hashtag = self.kwargs['hashtag']
 
-        # user.dimensionに基づくフィルタリングを適用
-        filter_condition = self.get_user_filter_condition()
-        if filter_condition:
-            queryset = queryset.filter(**filter_condition)
-
-        # 既存のquerysetに特定のフィルタリングを適用
-        queryset = queryset.filter(
+    def filter_by_hashtag(self, queryset, hashtag):
+        return queryset.filter(
             Q(hashtag1=hashtag, is_hidden=False) |
             Q(hashtag2=hashtag, is_hidden=False) |
             Q(hashtag3=hashtag, is_hidden=False)
         )
 
-        # ソートオーダーを適用
-        order = self.order  # ここを変更
-        if order == 'qp':
-            queryset = queryset.order_by('-qp')  # assuming you want descending order for QP values
+    def filter_by_dimension(self, queryset):
+        if self.request.user.is_authenticated:
+            filter_condition = self.get_user_filter_condition()
+            return queryset.filter(**filter_condition)
+        return queryset
+
+    def order_queryset(self, queryset):
+        if self.order == 'qp':
+            return queryset.order_by('-qp')
         else:
-            queryset = queryset.order_by('-posted_at')
+            return queryset.order_by('-posted_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_order'] = self.order
+        return context
+
+    def get_hashtag(self):
+        return self.kwargs.get('hashtag', self.request.POST.get('hashtag'))
+
+    def post(self, request, *args, **kwargs):
+        self.order = request.POST.get('order', 'posted_at')
+        return super().post(request, *args, **kwargs)
+    
+
+class HashtagPageView(BaseHashtagListView):
+    template_name = os.path.join('posts', 'hashtag_page.html')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        hashtag = self.kwargs['hashtag']
+        
+        queryset = self.filter_by_dimension(queryset)
+        queryset = self.filter_by_hashtag(queryset, hashtag)
+        queryset = self.order_queryset(queryset)
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # ログインユーザーの場合はそのユーザーのdimensionを使用し、ログインしていない場合は2.5をデフォルトとして使用する
         context['current_dimension'] = getattr(self.request.user, 'dimension', 2.5)
-
+        context['form'] = SearchForm()
         context['hashtag'] = self.kwargs['hashtag']
-        context['form'] = SearchForm()  # 検索フォームを追加
-        context['current_order'] = self.order  # ここを変更
         return context
     
-    
 
-
-class HashtagPostListView(BasePostListView):
+class HashtagPostListView(BaseHashtagListView):
     template_name = os.path.join('posts', 'hashtag_list.html')
-    
-    def get_ad(self):
-        # ランダムに1つの広告を取得
-        return Ads.objects.order_by('?').first()
-    
-    def get(self, request, *args, **kwargs):
-        self.order = request.GET.get('order', 'posted_at')
-        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        # URLから'post_id'パラメータを取得
         selected_post_id = int(self.request.GET.get('post_id', 0))
-
-        # 指定したハッシュタグが含まれる全ての投稿を取得
         hashtag = self.kwargs['hashtag']
-        
-        filter_condition = self.get_user_filter_condition()
-        
-        hashtag_posts = Posts.objects.filter(
-            Q(hashtag1=hashtag, is_hidden=False, **filter_condition) |
-            Q(hashtag2=hashtag, is_hidden=False, **filter_condition) |
-            Q(hashtag3=hashtag, is_hidden=False, **filter_condition)
-        )
 
-        # ソートオーダーを適用
-        if self.order == 'qp':
-            hashtag_posts = hashtag_posts.order_by('-qp')  # For descending order
-        else:
-            hashtag_posts = hashtag_posts.order_by('-posted_at')
-        
-        post_ids = [post.id for post in hashtag_posts]
-        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+        queryset = Posts.objects.all()
+
+        # Hashtag Filter
+        queryset = self.filter_by_hashtag(queryset, hashtag)
+
+        # User Dimension Filter
+        queryset = self.filter_by_dimension(queryset)
+
+        # Order the posts
+        queryset = self.order_queryset(queryset)
+
+        post_ids = [post.id for post in queryset]
+
+        base_queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
 
         # 選択した投稿がリストの中にあるか確認
         if selected_post_id in post_ids:
             # 選択した投稿のインデックスを見つける
             selected_post_index = post_ids.index(selected_post_id)
             # 選択した投稿とそれに続く投稿のIDを取得
-            selected_post_ids = post_ids[selected_post_index:selected_post_index+9]
-            # querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
-            queryset = [post for post in queryset if post.id in selected_post_ids]
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
+            # base_querysetが選択した投稿とそれに続く投稿のみを含むようにフィルタリング
+            base_queryset = [post for post in base_queryset if post.id in selected_post_ids]
 
-        # querysetがselected_post_idsの順番と同じになるようにソート
-        queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+        # base_querysetがselected_post_idsの順番と同じになるようにソート
+        base_queryset = sorted(base_queryset, key=lambda post: post_ids.index(post.id))
 
-        return queryset
+        # 現在のユーザーを取得
+        user = self.request.user
+
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
+
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(base_queryset, ad_posts_iterator)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # contextに広告を追加
-        context['ad'] = self.get_ad()
-        
-        # 隠しコンテナにハッシュタグの値を渡す
         context['hashtag'] = self.kwargs['hashtag']
-        
-        # 追加：現在のソートオーダーをcontextに追加
-        context['current_order'] = self.order
-
         return context
     
 
-class GetMoreHashtagView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GetMoreHashtagView(BaseHashtagListView):
+    
+    def get_hashtag(self):
+        return self.request.POST.get('hashtag')
 
     def get_queryset(self):
         print(self.request.POST)  # POSTデータをログに出力
 
         last_post_id = int(self.request.POST.get('last_post_id', 0))
-        hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
-        order = self.request.POST.get('order', '-posted_at')  # Default to ordering by posted_at descending
+        hashtag = self.get_hashtag()  # Use the method to get hashtag
 
-        # Print the received order
-        print(f"Received order: {order}")
+        # Get the filtered queryset by hashtag
+        queryset = Posts.objects.all()
+        queryset = self.filter_by_hashtag(queryset, hashtag)
 
-        filter_condition = self.get_user_filter_condition()
+        # Apply user-specific filter
+        queryset = self.filter_by_dimension(queryset)
 
-        if not hashtag:
-            return Posts.objects.none()  # Return an empty queryset if no hashtag is provided
-
-        if order == "qp":
-            order_value = "-qp"
-        else:
-            order_value = "-posted_at"
-
-        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False, **filter_condition) | 
-                        Posts.objects.filter(hashtag2=hashtag, is_hidden=False, **filter_condition) |
-                        Posts.objects.filter(hashtag3=hashtag, is_hidden=False, **filter_condition)).order_by(order_value)
+        # Apply the order to the queryset
+        queryset = self.order_queryset(queryset)
         
-        post_ids = list(hashtag_posts.values_list('id', flat=True))
+        post_ids = list(queryset.values_list('id', flat=True))
 
         if last_post_id:
             last_poster_index = post_ids.index(last_post_id)
-            next_post_ids = post_ids[last_poster_index+1:last_poster_index+10]
+            next_post_ids = post_ids[last_poster_index+1:last_poster_index+9]
 
             queryset = super().get_queryset().filter(id__in=next_post_ids)
             queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
         else:
             queryset = super().get_queryset().filter(id__in=post_ids)
 
-        # Print the first few results to check if they're in the expected order
-        print(queryset[:3])
+        # 現在のユーザーを取得
+        user = self.request.user
 
-        return queryset[:9]
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
 
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
-
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
-
-            ad = self.get_ad()  # 広告を取得
-
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
+    
 
 
-class GetMorePreviousHashtagView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GetMorePreviousHashtagView(BaseHashtagListView):
+
+    def get_hashtag(self):
+        return self.request.POST.get('hashtag')
 
     def get_queryset(self):
         first_post_id = int(self.request.POST.get('first_post_id', 0))
-        hashtag = self.request.POST.get('hashtag')  # Get the hashtag from POST data
-        order = self.request.POST.get('order')  # Get the order info from POST data
-
-        if order == "qp":
-            order_value = "-qp"
-        else:
-            order_value = "-posted_at"
-
-        if not hashtag:
-            return Posts.objects.none()  # Return an empty queryset if no hashtag is provided
-
-        # ユーザーのフィルタリング条件を取得
-        filter_condition = self.get_user_filter_condition()
-
-        # Get all posts with the provided hashtag and filter condition, ordered by the given order_value or by date if no order is given
-        hashtag_posts = (Posts.objects.filter(hashtag1=hashtag, is_hidden=False, **filter_condition) | 
-                        Posts.objects.filter(hashtag2=hashtag, is_hidden=False, **filter_condition) |
-                        Posts.objects.filter(hashtag3=hashtag, is_hidden=False, **filter_condition)).order_by(order_value or '-posted_at')
+        hashtag = self.get_hashtag()  # Use the method to get hashtag
         
-        post_ids = list(hashtag_posts.values_list('id', flat=True))
+        # Get the filtered queryset by hashtag
+        queryset = Posts.objects.all()
+        queryset = self.filter_by_hashtag(queryset, hashtag)
+
+        # Apply user-specific filter
+        queryset = self.filter_by_dimension(queryset)
+
+        # Apply the order to the queryset
+        queryset = self.order_queryset(queryset)
+
+        post_ids = list(queryset.values_list('id', flat=True))
 
         if first_post_id:
             first_post_index = post_ids.index(first_post_id)
-            prev_post_ids = post_ids[max(0, first_post_index - 10):first_post_index] 
+            prev_post_ids = post_ids[max(0, first_post_index - 8):first_post_index] 
 
             queryset = super().get_queryset().filter(id__in=prev_post_ids)
             queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))
         else:
             queryset = super().get_queryset().filter(id__in=post_ids)
 
-        return queryset[:9]
-    
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
+        # 現在のユーザーを取得
+        user = self.request.user
 
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
 
-            ad = self.get_ad()  # 広告を取得
-
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
     
 
 class MyPostView(BasePostListView):
@@ -971,36 +984,56 @@ class FavoriteView(LoginRequiredMixin, View):
 
 
 # フォロー
-class FollowPageView(BasePostListView):
-    template_name = os.path.join('posts', 'follow_page.html')
+class BaseFollowListView(BasePostListView):
     
+    def get_followed_user_ids(self):
+        cache_key = f'followed_user_ids_for_user_{self.request.user.id}'
+        cached_followed_ids = cache.get(cache_key)
+
+        if cached_followed_ids:
+            print(f"Cache HIT for followed user IDs for user {self.request.user.id}")
+            return cached_followed_ids
+
+        print(f"Cache MISS for followed user IDs for user {self.request.user.id}")
+        follows = Follows.objects.filter(user=self.request.user).select_related('poster')
+        followed_user_ids = [follow.poster.id for follow in follows]
+        cache.set(cache_key, followed_user_ids, 300)  # 5分間キャッシュ
+        return followed_user_ids
+
     def get_queryset(self):
-        user = self.request.user
-        # ユーザーがフォローしている全てのユーザーのIDを取得
-        followed_user_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
+        cache_key = f'followed_posts_for_user_{self.request.user.id}'
+        cached_posts = cache.get(cache_key)
 
-        # フォローしているユーザーの投稿を投稿日時の降順で取得
-        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
-        queryset = queryset.order_by('-posted_at')
+        if cached_posts:
+            print(f"Cache HIT for followed posts for user {self.request.user.id}")
+            return cached_posts
 
+        print(f"Cache MISS for followed posts for user {self.request.user.id}")
+        queryset = super().get_queryset()
+        followed_user_ids = self.get_followed_user_ids()
+        queryset = queryset.filter(poster__id__in=followed_user_ids, is_hidden=False).order_by('-posted_at')
+        cache.set(cache_key, queryset, 300)  # 5分間キャッシュ
         return queryset
 
 
-class FollowListView(BasePostListView):
+class FollowPageView(BaseFollowListView):
+    template_name = os.path.join('posts', 'follow_page.html')
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset
+
+
+
+class FollowListView(BaseFollowListView):
     template_name = os.path.join('posts', 'follow_list.html')
     
     def get_queryset(self):
-        user = self.request.user
+        queryset = super().get_queryset()
+
         # URLから'post_id'パラメータを取得
         selected_post_id = int(self.request.GET.get('post_id', 0))
-
-        # ユーザーがフォローしている全てのユーザーの投稿を取得
-        follows = Follows.objects.filter(user=user).select_related('poster')
-        followed_user_ids = [follow.poster.id for follow in follows]
-        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
-
-        # querysetを投稿日時の降順に並び替え
-        queryset = queryset.order_by('-posted_at')
+        followed_user_ids = self.get_followed_user_ids()
 
         # 選択した投稿のユーザーIDがフォローリストの中にあるか確認
         selected_post = queryset.filter(id=selected_post_id).first()
@@ -1012,125 +1045,75 @@ class FollowListView(BasePostListView):
             # 選択した投稿のインデックスを見つける
             selected_post_index = post_list.index(selected_post)
             # 選択した投稿に続く9件の投稿を取得
-            post_list = post_list[selected_post_index:selected_post_index+9]
+            post_list = post_list[selected_post_index:selected_post_index+8]
             queryset = post_list
 
-        return queryset
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(self.request.user)
 
-    def get_ad(self):
-        # ランダムに1つの広告を取得
-        return Ads.objects.order_by('?').first()
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # contextに広告を追加
-        context['ad'] = self.get_ad()
         return context
    
 
-class GetMoreFollowView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GetMoreFollowView(BaseFollowListView):
 
     def get_queryset(self):
+        queryset = super().get_queryset()
+        
         last_post_id = int(self.request.POST.get('last_post_id', 0))
-
-        # ユーザーがフォローしている全てのユーザーの投稿を取得
-        follows = Follows.objects.filter(user=self.request.user).select_related('poster')
-        followed_user_ids = [follow.poster.id for follow in follows]
-
-        # フォローしているユーザーの投稿を取得
-        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
-
-        # 投稿日時の降順に並び替え
-        queryset = queryset.order_by('-posted_at')
 
         if last_post_id:
             # last_post_id以降の投稿を取得
             post_ids = list(queryset.values_list('id', flat=True))
             last_post_index = post_ids.index(last_post_id)
-            next_post_ids = post_ids[last_post_index+1:last_post_index+10]
+            next_post_ids = post_ids[last_post_index+1:last_post_index+9]
 
             queryset = queryset.filter(id__in=next_post_ids)
             queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
         else:
             queryset = queryset.filter(id__in=post_ids)
 
-        return queryset[:9]  # 最初の9つの投稿だけを返す
+        # 現在のユーザーを取得
+        user = self.request.user
 
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
 
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
 
-            ad = self.get_ad()  # 広告を取得
 
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})   
    
    
-class GetMorePreviousFollowView(BasePostListView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GetMorePreviousFollowView(BaseFollowListView):
 
     def get_queryset(self):
+        queryset = super().get_queryset()        
+        
         first_post_id = int(self.request.POST.get('first_post_id', 0))
-
-        # ユーザーがフォローしている全てのユーザーの投稿を取得
-        follows = Follows.objects.filter(user=self.request.user).select_related('poster')
-        followed_user_ids = [follow.poster.id for follow in follows]
-
-        # フォローしているユーザーの投稿を取得
-        queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
-
-        # 投稿日時の降順に並び替え
-        queryset = queryset.order_by('-posted_at')
 
         if first_post_id:
             post_ids = list(queryset.values_list('id', flat=True))
             first_post_index = post_ids.index(first_post_id)
-            prev_post_ids = post_ids[max(0, first_post_index - 10):first_post_index]  # get previous 10 posts
+            prev_post_ids = post_ids[max(0, first_post_index - 8):first_post_index]
 
             queryset = queryset.filter(id__in=prev_post_ids)
             queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id), reverse=True)  # reverse to maintain the correct order
         else:
             queryset = queryset.filter(id__in=post_ids)
 
-        return list(reversed(queryset[:9]))  # return first 9 posts only in reversed order
+        # 現在のユーザーを取得
+        user = self.request.user
 
-    def get_ad(self):
-        # 広告を1つランダムに取得
-        return Ads.objects.order_by('?').first()
+        # 2つの広告ポストを取得
+        ad_posts_iterator = self.get_ad_posts(user)
 
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        more_posts = list(queryset)
-        if more_posts:  # 追加した投稿が存在する場合だけ広告を取得する
-            for post in more_posts:
-                post.visuals_list = post.visuals.all()
-                post.videos_list = post.videos.all()
-
-            ad = self.get_ad()  # 広告を取得
-
-            # HTMLの生成部分を更新し、広告も送信
-            html = render_to_string('posts/get_more_posts.html', {'posts': more_posts, 'ad': ad}, request=request)
-        else:
-            html = ""
-
-        return JsonResponse({'html': html})
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, ad_posts_iterator)
 
 
     
@@ -1153,11 +1136,6 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
             poster.is_followed_by_current_user = poster.id in followed_by_user_ids
 
         return follow_posters
-    
-# # 戻るボタン（未完成）
-# class BackView(RedirectView):
-#     def get_redirect_url(self, *args, **kwargs):
-#         return self.request.META.get('HTTP_REFERER') or reverse('posts:postlist')
     
     
   
