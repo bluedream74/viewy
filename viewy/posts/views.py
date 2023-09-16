@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
-from django.db.models import Case, Exists, OuterRef, Q, When, IntegerField
+from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -26,7 +26,7 @@ from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
 # Local application/library specific
-from accounts.models import Follows
+from accounts.models import Follows, SearchHistorys
 from advertisement.models import AdInfos, AndFeatures
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
@@ -47,6 +47,9 @@ from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Case, When, F, CharField, Value
 import json
+from itertools import chain
+from django.utils.html import escape
+
 from itertools import chain
 
 
@@ -1258,11 +1261,26 @@ class HotHashtagView(TemplateView):
 class AutoCorrectView(View):
     @staticmethod
     def get(request):
-        query = request.GET.get('search_text', None)
+        query = request.GET.get('search_text', '').strip()
 
-        # クエリが空もしくは空白のみの場合、何も返さない
+        # Check the query length and limit it to avoid misuse.
+        MAX_QUERY_LENGTH = 50
+        if len(query) > MAX_QUERY_LENGTH:
+            return JsonResponse({"error": "Invalid query"}, status=400)
+
+        # Escape the query to prevent XSS and other potential attacks.
+        query = escape(query)
+
+        # クエリが空もしくは空白のみの場合、最新の1000件の検索履歴から検索回数の多いハッシュタグ上位5つを返す
         if not query or query.isspace():
-            return JsonResponse([], safe=False)
+            recent_searched_queries = list(SearchHistorys.objects.order_by('-searched_at').values_list('query', flat=True)[:1000])
+            top_searched = (SearchHistorys.objects.filter(query__in=recent_searched_queries)
+                            .values('query')
+                            .annotate(search_count=Sum('search_count'))
+                            .order_by('-search_count', '-searched_at')[:5])
+            data = [{"type": "hashtag", "value": record['query']} for record in top_searched]
+            return JsonResponse(data, safe=False)
+
         
         hiragana_query = jaconv.kata2hira(jaconv.z2h(query.lower()))
         katakana_query = jaconv.hira2kata(hiragana_query)
@@ -1271,19 +1289,21 @@ class AutoCorrectView(View):
 
         # クエリがアルファベットの場合の処理
         if query.isalpha():
-            hashtag_queries.append(query.upper())
-            hashtag_queries.append(query.lower())
+            hashtag_queries.extend([query.upper(), query.lower()])
+
+        q_objects = Q()
+        for search_query in hashtag_queries:
+            q_objects |= Q(hashtag1__istartswith=search_query) 
+            q_objects |= Q(hashtag2__istartswith=search_query) 
+            q_objects |= Q(hashtag3__istartswith=search_query)
+
+        hashtag_results = Posts.objects.filter(q_objects).values_list('hashtag1', 'hashtag2', 'hashtag3')
 
         hashtags_set = set()
+        for post in hashtag_results:
+            for search_query in hashtag_queries:
+                hashtags_set.update([hashtag for hashtag in post if hashtag and hashtag.startswith(search_query)])
 
-        for search_query in hashtag_queries:
-            hashtag_results = Posts.objects.filter(
-                Q(hashtag1__istartswith=search_query) |
-                Q(hashtag2__istartswith=search_query) |
-                Q(hashtag3__istartswith=search_query))
-            hashtags_set.update([hashtag for post in hashtag_results for hashtag in [post.hashtag1, post.hashtag2, post.hashtag3] if hashtag.startswith(search_query)])
-
-        # 特定のひらがなクエリで対応する漢字を追加
         kanji_mappings = KanjiHiraganaSet.objects.all()
         for mapping in kanji_mappings:
             hiragana_queries = mapping.hiragana.split(',')
