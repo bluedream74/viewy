@@ -45,7 +45,7 @@
                     <label>
 
                         {% if user.is_authenticated %}
-                        {% if user in followers %}
+                        {% if is_user_following %}
                         <div class="main-button followed">フォロー中</div>
                         {% else %}
                         <div class="main-button follow">フォローする</div>
@@ -54,7 +54,7 @@
                         <a href="{% url 'accounts:user_login' %}" class="main-button visitor">フォローする</a>
                         {% endif %}
 
-                        <input type="checkbox" class="follow-button" {% if user in followers %}checked{% endif %}>
+                        <input type="checkbox" class="follow-button" {% if is_user_following %}checked{% endif %}>
                     </label>
             </div>
         </div>
@@ -299,11 +299,11 @@
 <!-- 成功メッセージ -->
 {% if messages %}
 {% for message in messages %}
-  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
     <div class="message-space"></div>
     {{ message }}
     </button>
-  </div>
+</div>
 {% endfor %}
 {% endif %}
 
@@ -366,20 +366,20 @@
     }
 </script>
 <script>
-    $(function() {
+    $(function () {
         // 0.5秒後にメッセージを降ろして表示する
-        window.setTimeout(function() {
+        window.setTimeout(function () {
             $(".alert-success").css({
                 "top": "0px",
                 "opacity": "1"
             });
-            
+
             // その後、3秒後にメッセージをフェードアウトして隠す
-            window.setTimeout(function() {
+            window.setTimeout(function () {
                 $(".alert-success").css("top", "-60px").fadeTo(500, 0);
             }, 3000);  // 3 secs
-            
+
         }, 500);  // 0.5 sec
     });
-    </script>
+</script>
 {% endblock %}

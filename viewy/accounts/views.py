@@ -446,12 +446,13 @@ class EditPrfView(View):
         
 class FollowView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        poster = get_object_or_404(Users, pk=kwargs['pk'])
+        # only()メソッドを使用して、必要なフィールドのみを取得
+        poster = get_object_or_404(Users.objects.only('id', 'follow_count', 'prf_img'), pk=kwargs['pk'])
         follow, created = Follows.objects.get_or_create(user=request.user, poster=poster)
         if not created:
           follow.delete()
         poster.follow_count = poster.follow.count()
-        poster.save()
+        poster.save(update_fields=['follow_count'])  # 保存時にも特定のフィールドのみを更新
         data = {'follow_count': poster.follow_count}
         return JsonResponse(data)
   

@@ -48,6 +48,7 @@ from django.db.models import Case, When, F, CharField, Value
 import json
 from itertools import chain
 from django.utils.html import escape
+from django.db import transaction
 
 
 class BasePostListView(ListView):
@@ -387,14 +388,23 @@ class PosterPageView(BasePostListView):
     def get_queryset(self):
         # まず、BasePostListViewのget_querysetメソッドを呼び出します
         queryset = super().get_queryset()
-        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
+        # 必要なフィールドのみを取得
+        self.poster = get_object_or_404(
+            Users.objects.only(
+                'id', 'prf_img', 'displayname', 'username', 
+                'caption', 'url1', 'url2', 'url3', 'url4', 'url5', 'follow_count'
+            ),
+            username=self.kwargs['username']
+        )
          # その後、PosterPageViewの特定のフィルタリングを適用します
         queryset = queryset.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['followers'] = self.poster.follow.all()
+        # テンプレートでのクエリを避けるためのリストを作成
+        followers_ids = self.poster.follow.all().values_list('id', flat=True)
+        context['is_user_following'] = self.request.user.id in followers_ids
         # ユーザーがフォローしているかどうかの確認
         context['about_poster'] = self.poster
         return context
@@ -944,7 +954,9 @@ class VideoCreateView(BasePostCreateView):
 class FavoriteView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         try:
-            post = get_object_or_404(Posts, pk=kwargs['pk'])
+            post_id = kwargs['pk']
+            # 必要なフィールドだけを取得
+            post = Posts.objects.only('id', 'favorite_count', 'views_count').get(pk=post_id)
             favorite, created = Favorites.objects.get_or_create(user=request.user, post=post)
             if not created:
                 favorite.delete()
@@ -964,16 +976,14 @@ class FollowPageView(BasePostListView):
     
     def get_queryset(self):
         user = self.request.user
-        # ユーザーがフォローしている全てのユーザーを取得
-        follows = Follows.objects.filter(user=user).select_related('poster')
-        followed_user_ids = [follow.poster.id for follow in follows]
+        # ユーザーがフォローしている全てのユーザーのIDを取得
+        followed_user_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
 
         # フォローしているユーザーの投稿を投稿日時の降順で取得
         queryset = super().get_queryset().filter(poster__id__in=followed_user_ids, is_hidden=False)
         queryset = queryset.order_by('-posted_at')
 
         return queryset
-
 
 
 class FollowListView(BasePostListView):
@@ -1131,10 +1141,13 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
     
     def get_queryset(self):
         user = self.request.user
-        follows = Follows.objects.filter(user=user).select_related('poster').order_by('-created_at')
+        follows = Follows.objects.filter(user=user)\
+            .select_related('poster')\
+            .only('poster__username', 'poster__prf_img', 'poster__displayname', 'poster__follow_count')\
+            .order_by('-created_at')
         follow_posters = [f.poster for f in follows]
         # 各posterが現在のユーザーにフォローされているかどうかの情報を取得
-        followed_by_user_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
+        followed_by_user_ids = set([f.poster_id for f in follows])
         
         for poster in follow_posters:
             poster.is_followed_by_current_user = poster.id in followed_by_user_ids
@@ -1231,12 +1244,22 @@ class HotHashtagView(TemplateView):
         for query in queries:
             final_query |= query
 
-        posts = Posts.objects.filter(final_query, is_hidden=False).prefetch_related('visuals', 'videos')
+        posts = Posts.objects.only(
+            'ismanga',
+            'title',
+            'hashtag1',
+            'hashtag2',
+            'hashtag3',
+            'favorite_count',
+            'posted_at'
+        ).filter(final_query, is_hidden=False).order_by('-posted_at').prefetch_related('visuals', 'videos')
 
         if self.request.user.is_authenticated:
             reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
             posts = posts.annotate(reported_by_user=Exists(reports))
 
+        # ハッシュタグに基づいて投稿を整理
+        # Use a dictionary to keep track of posts by their hashtags
         # ハッシュタグに基づいて投稿を整理
         posts_by_hashtag = defaultdict(list)
         for post in posts:
@@ -1246,10 +1269,9 @@ class HotHashtagView(TemplateView):
                 if hashtag in [post.hashtag1, post.hashtag2, post.hashtag3]:
                     posts_by_hashtag[hashtag].append(post)
 
-        # 新しい投稿順にソート
-        for hashtag, posts in posts_by_hashtag.items():
-            sorted_posts = sorted(posts, key=lambda x: x.posted_at, reverse=True)
-            posts_by_hashtag[hashtag] = sorted_posts[:9]  # 最新の9個だけを取得
+        # Sorting and limiting the posts
+        for hashtag, posts_list in posts_by_hashtag.items():
+            posts_by_hashtag[hashtag] = sorted(posts_list, key=lambda x: x.posted_at, reverse=True)[:9]  # 最新の9個だけを取得
         
         # HotHashtagsの順番に基づいて、posts_by_hashtagを順序付け
         ordered_posts_by_hashtag = {hashtag: posts_by_hashtag.get(hashtag, []) for hashtag in hashtags}
@@ -1262,7 +1284,11 @@ class HotHashtagView(TemplateView):
         context['random_ad4'] = random.choice(wide_ads) if wide_ads else None
 
         # おすすめユーザーの取得（RecommendedUserモデルに基づいて取得）
-        recommended_user_entries = RecommendedUser.objects.select_related('user').all()
+        recommended_user_entries = RecommendedUser.objects.select_related('user').only(
+            'user__username',
+            'user__prf_img',
+            'user__displayname'
+        ).all()
         recommended_users = [entry.user for entry in recommended_user_entries]
         context['recommended_users'] = recommended_users
             
@@ -1282,7 +1308,7 @@ class AutoCorrectView(View):
         query = request.GET.get('search_text', '').strip()
 
         # Check the query length and limit it to avoid misuse.
-        MAX_QUERY_LENGTH = 50
+        MAX_QUERY_LENGTH = 30
         if len(query) > MAX_QUERY_LENGTH:
             return JsonResponse({"error": "Invalid query"}, status=400)
 
@@ -1440,12 +1466,13 @@ class WideAdsClickCount(AdClickCountBase):
 
 # 報告処理
 class SubmitReportView(View):
+    @transaction.atomic
     def post(self, request):
         reporter = request.user
         post_id = request.POST.get('post_id')
         reason = request.POST.get('reason')
 
-        post = get_object_or_404(Posts, id=post_id)
+        post = get_object_or_404(Posts.objects.only('id'), id=post_id)
 
         # 同一ユーザーからの同一投稿に対する報告が存在する場合はエラーを返す
         if Report.objects.filter(reporter=reporter, post=post).exists():
@@ -1459,11 +1486,12 @@ class SubmitReportView(View):
         report = Report(reporter=reporter, post=post, reason=reason)
         report.save()
         
-        # 投稿の報告回数をインクリメント
-        post.increment_report_count()
+        # 投稿の報告回数をインクリメント (データベースレベルでの更新)
+        Posts.objects.filter(id=post_id).update(report_count=F('report_count') + 1)
 
-        # ユーザーの報告回数をインクリメント
-        reporter.increment_report_count()
+        # ユーザーの報告回数をインクリメント (データベースレベルでの更新)
+        reporter.report_count = F('report_count') + 1
+        reporter.save(update_fields=['report_count'])
 
         # 応答データを作成
         response_data = {

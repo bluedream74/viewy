@@ -83,14 +83,15 @@ document.querySelector('.screen').addEventListener('click', function (event) {
   const emoteIndex = Array.from(emotesContainer.querySelectorAll('.emote')).indexOf(emote);
 
   lastEmoteClickTime[emoteIndex] = Date.now();
+  wasZeroClickedLast = true;
 
   // 0番目のエモートがクリックされたときの動作
   if (emoteIndex === 0) {
     const hiddenEmotes = Array.from(emotesContainer.querySelectorAll('.hidden-emote')).slice(0, 5);
-    if (wasZeroClickedLast) { // 追加: 最後のクリックが0番目のエモートであった場合のロジック
-      wasZeroClickedLast = false;
+    if (hiddenEmotes.some(em => em.style.visibility === "visible")) { 
+      // If any of the hidden emotes are currently visible, hide them.
       hideEmotesSequentially(emotesContainer);
-      return; // 他のロジックをスキップ
+      return; // Skip other logic
     }
     hiddenEmotes.forEach((emote, index) => {
       setTimeout(() => {
@@ -102,7 +103,6 @@ document.querySelector('.screen').addEventListener('click', function (event) {
         }, 500);
       }, index * 50);
     });
-    wasZeroClickedLast = true; // 0番目のエモートがクリックされたので、フラグをセット
   } else {
     wasZeroClickedLast = false; // 他のエモートがクリックされたので、フラグをリセット
   }

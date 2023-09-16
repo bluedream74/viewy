@@ -100,6 +100,8 @@ const FollowButtons = document.querySelectorAll('.follow-button');
 FollowButtons.forEach(FollowButton => {
   FollowButton.addEventListener('change', () => {
     const form = FollowButton.closest('form');
+    const followCountElement = form.querySelector('.follow-count');
+    let currentFollowCount = parseInt(followCountElement.textContent);
     const posterPk = form.dataset.pk;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const url = form.action;
@@ -113,26 +115,26 @@ FollowButtons.forEach(FollowButton => {
       notFollowed.classList.add('followed');
       notFollowed.classList.remove('follow');
       notFollowed.textContent = 'フォロー中';
+      followCountElement.textContent = currentFollowCount + 1;
     } else {
       followed.classList.remove('followed');
       followed.classList.add('follow');
       followed.textContent = 'フォローする';
+      followCountElement.textContent = currentFollowCount - 1;
     }
 
     fetch(url, {
       method: 'POST',
       body: formData,
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
-        const followCount = data.follow_count;
-        const followCountElement = form.querySelector('.follow-count');
-        followCountElement.textContent = followCount;
+        followCountElement.textContent = data.follow_count;
       })
       .catch(error => {
         console.log(error);
@@ -142,10 +144,12 @@ FollowButtons.forEach(FollowButton => {
           followed.classList.add('followed');
           followed.classList.remove('follow');
           followed.textContent = 'フォローする';
+          followCountElement.textContent = currentFollowCount;
         } else {
           notFollowed.classList.remove('followed');
           notFollowed.classList.add('follow');
           notFollowed.textContent = 'フォロー中';
+          followCountElement.textContent = currentFollowCount;
         }
       });
   });
