@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Intersection Observerの設定
   const observer = new IntersectionObserver(incrementViewCount, {
-      threshold: 0.1
+      threshold: 0.8
   });
 
   function incrementViewCount(entries, observer) {
