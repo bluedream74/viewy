@@ -1206,7 +1206,7 @@ class SearchPageView(FormView):
         return context
 
 
-# おすすめハッシュタグを検索ページに表示（一般ユーザーはいきなりこっちに入る）
+# おすすめハッシュタグを検索ページに表示
 class HotHashtagView(TemplateView):
     template_name = os.path.join('posts', 'searchpage.html')
 

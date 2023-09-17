@@ -58,6 +58,16 @@ document.addEventListener('change', event => {
 
     // ボタンを一時的に無効化
     FollowButton.disabled = true;
+    // ボタンが押された後、それ以上ボタンが押せないようにする
+    FollowButton.style.pointerEvents = 'none';
+    // カーソルを通常の矢印カーソルに設定
+    FollowButton.style.cursor = 'default';
+
+    const followPosterDiv = FollowButton.closest('.follow-poster');
+    // フェードアウトアニメーションを適用
+    followPosterDiv.classList.add('fade-out');
+
+
 
     const form = FollowButton.closest('form');
     const posterPk = form.dataset.pk;
@@ -66,29 +76,21 @@ document.addEventListener('change', event => {
     const formData = new FormData(form);
     formData.append('csrfmiddlewaretoken', csrftoken);
 
-    const followed = form.querySelector('.fa-solid.fa-check');
     const notFollowed = form.querySelector('.fa-solid.fa-plus');
     if (FollowButton.checked) {
       notFollowed.classList.add('fa-check');
       notFollowed.classList.remove('fa-plus');
-    } else {
-      followed.classList.remove('fa-check');
-      followed.classList.add('fa-plus');
     }
-
 
     fetch(url, {
       method: 'POST',
       body: formData,
     })
       .then(() => {
-        // 応答を受け取った後、ボタンを再度有効化
-        FollowButton.disabled = false;
+
       })
       .catch(error => {
         console.log(error);
-        // エラーが発生した場合でも、ボタンを再度有効化
-        FollowButton.disabled = false;
       });
   }
 });
@@ -107,6 +109,9 @@ FollowButtons.forEach(FollowButton => {
     const url = form.action;
     const formData = new FormData(form);
     formData.append('csrfmiddlewaretoken', csrftoken);
+
+    // ボタンを一時的に無効化
+    FollowButton.disabled = true;
 
     // クラスの付け替えを直接ここで行う
     const followed = form.querySelector('.followed');
@@ -135,6 +140,8 @@ FollowButtons.forEach(FollowButton => {
       })
       .then(data => {
         followCountElement.textContent = data.follow_count;
+        // 応答を受け取った後、ボタンを再度有効化
+        FollowButton.disabled = false;
       })
       .catch(error => {
         console.log(error);
@@ -151,6 +158,8 @@ FollowButtons.forEach(FollowButton => {
           notFollowed.textContent = 'フォロー中';
           followCountElement.textContent = currentFollowCount;
         }
+        // エラーが発生した場合でも、ボタンを再度有効化
+        FollowButton.disabled = false;
       });
   });
 });
