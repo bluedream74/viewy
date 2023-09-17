@@ -73,20 +73,22 @@
         </div>
       </div>
       {% if user.is_authenticated %}
+      {% if post.followed_by_user %}
+      <div class="follow-poster follow-hidden">
+      </div>
+      {% else %}
       <div class="follow-poster">
+
         <form data-pk="{{ post.poster.pk }}" action="{% url 'accounts:follow' pk=post.poster.pk %}" method="POST">
           {% csrf_token %}
           <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
           <label>
-            {% if post.followed_by_user %}
-            <i class="fa-solid fa-check fa-2xs follow"></i>
-            {% else %}
             <i class="fa-solid fa-plus fa-2xs follow"></i>
-            {% endif %}
-            <input type="checkbox" class="mini-follow-button" {% if post.followed_by_user %}checked{% endif %}>
+            <input type="checkbox" class="mini-follow-button">
           </label>
         </form>
       </div>
+      {% endif %}
       {% else %}
       <div class="follow-poster">
         <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
@@ -170,7 +172,7 @@
           class="poster-name">＠{{post.poster.username}}</a>
         {% endif %}
         {% if post.is_advertisement %}
-          <span class="ad-tag">広告</span>
+        <span class="ad-tag">広告</span>
         {% endif %}
       </div>
       <div class="title">
@@ -317,41 +319,41 @@
 </div>
 
 {% if not user.gender %}
-  <div id="firstSettingModal" class="first-setting-modal">
-    <div class="first-setting-modal-content">
-      <div class="first-setting-modal-title">
-        初期設定を済ませよう
-      </div>
-      <div class="first-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
-      <div class="setting-title">性別</div>
-      <div class="gender-radio-group">
-        <input type="radio" id="gender-male" name="gender" value="male">
-        <label for="gender-male">男性</label>
-      
-        <input type="radio" id="gender-female" name="gender" value="female">
-        <label for="gender-female">女性</label>
-      
-        <input type="radio" id="gender-other" name="gender" value="other">
-        <label for="gender-other">その他</label>
-      </div>
-
-      <div class="setting-title">表示設定</div>
-      <div class="setting-guide">表示する投稿を２次元や３次元にしぼるか、次元関係なく全て表示するかを選んでください。<br>※設定画面からいつでも変更できます。</div>
-      <div class="dimension-radio-group">
-        <input type="radio" id="dimension-2" name="dimension" value="2">
-        <label for="dimension-2">2</label>
-      
-        <input type="radio" id="dimension-all" name="dimension" value="2.5" checked>
-        <label for="dimension-all" class="all">ALL</label>
-      
-        <input type="radio" id="dimension-3" name="dimension" value="3">
-        <label for="dimension-3">3</label>
-      </div>
-
-      <button id="submitSettings">決定</button>
-
+<div id="firstSettingModal" class="first-setting-modal">
+  <div class="first-setting-modal-content">
+    <div class="first-setting-modal-title">
+      初期設定を済ませよう
     </div>
+    <div class="first-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
+    <div class="setting-title">性別</div>
+    <div class="gender-radio-group">
+      <input type="radio" id="gender-male" name="gender" value="male">
+      <label for="gender-male">男性</label>
+
+      <input type="radio" id="gender-female" name="gender" value="female">
+      <label for="gender-female">女性</label>
+
+      <input type="radio" id="gender-other" name="gender" value="other">
+      <label for="gender-other">その他</label>
+    </div>
+
+    <div class="setting-title">表示設定</div>
+    <div class="setting-guide">表示する投稿を２次元や３次元にしぼるか、次元関係なく全て表示するかを選んでください。<br>※設定画面からいつでも変更できます。</div>
+    <div class="dimension-radio-group">
+      <input type="radio" id="dimension-2" name="dimension" value="2">
+      <label for="dimension-2">2</label>
+
+      <input type="radio" id="dimension-all" name="dimension" value="2.5" checked>
+      <label for="dimension-all" class="all">ALL</label>
+
+      <input type="radio" id="dimension-3" name="dimension" value="3">
+      <label for="dimension-3">3</label>
+    </div>
+
+    <button id="submitSettings">決定</button>
+
   </div>
+</div>
 {% endif %}
 
 {% block bottom %}
@@ -381,58 +383,58 @@
 <script src="{% static 'js/horizontal_arrow.js' %}"></script>
 <script src="{% static 'js/emote_count.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     var submitButton = document.getElementById('submitSettings');
     var spinner = document.querySelector('.spinner');
 
-    submitButton.addEventListener('click', function() {
-        // 選択されている性別と次元を取得
-        var selectedGenderRadio = document.querySelector('input[name="gender"]:checked');
-        var selectedDimension = document.querySelector('input[name="dimension"]:checked').value;
+    submitButton.addEventListener('click', function () {
+      // 選択されている性別と次元を取得
+      var selectedGenderRadio = document.querySelector('input[name="gender"]:checked');
+      var selectedDimension = document.querySelector('input[name="dimension"]:checked').value;
 
-        if (!selectedGenderRadio) {
-            alert('性別を選択してください。');
-            return;
+      if (!selectedGenderRadio) {
+        alert('性別を選択してください。');
+        return;
+      }
+
+      var selectedGender = selectedGenderRadio.value;
+
+      // データをサーバーに送信
+      var formData = new FormData();
+      formData.append('gender', selectedGender);
+      formData.append('dimension', selectedDimension);
+
+      // spinnerのz-indexを最前面に設定
+      spinner.style.zIndex = '1001';
+
+      fetch('/accounts/first_setting/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
         }
-
-        var selectedGender = selectedGenderRadio.value;
-
-        // データをサーバーに送信
-        var formData = new FormData();
-        formData.append('gender', selectedGender);
-        formData.append('dimension', selectedDimension);
-
-        // spinnerのz-indexを最前面に設定
-        spinner.style.zIndex = '1001';
-
-        fetch('/accounts/first_setting/', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')  
-            }
-        })
+      })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                // ここでモーダルを非表示にしてからページを再読み込み
-                document.getElementById('firstSettingModal').style.display = 'none';
-                location.reload();
-            } else {
-                console.error('Error:', data.status);
-            }
+          if (data.status === 'success') {
+            // ここでモーダルを非表示にしてからページを再読み込み
+            document.getElementById('firstSettingModal').style.display = 'none';
+            location.reload();
+          } else {
+            console.error('Error:', data.status);
+          }
         })
         .catch(error => {
-            console.error('Error:', error);
+          console.error('Error:', error);
         });
     });
-});
+  });
 
-function getCookie(name) {
+  function getCookie(name) {
     var value = "; " + document.cookie;
     var parts = value.split("; " + name + "=");
     if (parts.length == 2) return parts.pop().split(";").shift();
-}
+  }
 </script>
 {% endblock %}
 
