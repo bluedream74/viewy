@@ -147,13 +147,19 @@ class BasePostListView(ListView):
         ).filter(matched_andfeatures=F('total_andfeatures'))
 
         # 最後に、この条件を満たす AdInfos を持つ Posts をフィルタリング
-        ad_posts = self.annotate_emote_total(Posts.objects.filter(
+        ad_posts = (self.annotate_emote_total(Posts.objects.filter(
             Q(adinfos__in=matching_adinfos) | Q(adinfos__isnull=True),
             poster__in=advertiser_users
         ))
+        .select_related('poster', 'adinfos__post')   # 仮定: PostsモデルにposterというForeignKeyがあり、AdInfosとのOneToOne関係も取得
+        .prefetch_related(
+            'visuals',                              # 仮定: Postsモデルと関連付けられた他のモデルの名前
+            'adinfos__andfeatures',                 # AdInfosとAndFeaturesとの関係を効率的にフェッチ
+            'adinfos__andfeatures__orfeatures'      # AndFeaturesとFeaturesとの関係を効率的にフェッチ
+        ))
 
         # 適切な広告をランダムに取得
-        posts = sample(list(ad_posts), min(count, len(ad_posts)))
+        posts = ad_posts.order_by('?')[:count]
 
         # 以下のコードは以前のものを変更せずにそのまま使用します。
         ad_post_ids = [post.id for post in ad_posts]
@@ -292,7 +298,10 @@ class PostListView(BasePostListView):
         selected_ids = sample(post_ids, num_posts_to_select)
 
         # 選択したIDを使って投稿を取得
-        random_two_posts = Posts.objects.filter(id__in=selected_ids)
+        random_two_posts = (Posts.objects.filter(id__in=selected_ids)
+                    .select_related('poster')   # 仮定: PostsモデルにposterというForeignKeyがある場合
+                    .prefetch_related('visuals')  # 仮定: Postsモデルと関連付けられた他のモデルの名前
+                    .all())
 
         # 残りのフィルターとアノテーションを適用
         random_two_posts = self.filter_by_dimension(random_two_posts)
@@ -1102,7 +1111,7 @@ class GetMorePreviousFollowView(BaseFollowListView):
             prev_post_ids = post_ids[max(0, first_post_index - 8):first_post_index]
 
             queryset = queryset.filter(id__in=prev_post_ids)
-            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id), reverse=True)  # reverse to maintain the correct order
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))  # reverse to maintain the correct order
         else:
             queryset = queryset.filter(id__in=post_ids)
 

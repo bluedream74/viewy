@@ -72,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
     isLoading = true;
     console.log('Loading next post...');
 
-    const allPosts = document.querySelectorAll('.post[data-is-advertisement="false"]');
-    const lastPostId = allPosts[allPosts.length - 2].dataset.postId;
+    const allPosts = document.querySelectorAll('.post:not([data-is-advertisement="True"])');
+    const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
     
     // ポスターのpkを取得
     const posterInput = document.querySelector('.poster_pk');
@@ -247,8 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 最初の投稿までスクロール
         const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
         if (targetPost) {
-            targetPost.scrollIntoView();
-        }
+          setTimeout(() => {
+              targetPost.scrollIntoView();
+          }, 0);
+      }
       })
       .catch(error => {
         console.error('Error:', error);
@@ -259,14 +261,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // トリガーがビューポートに入ったかを監視
+  let timer;
+
   function isActive(entries) {
-    console.log('Intersection Observer triggered');
-    console.log('isIntersecting:', entries[0].isIntersecting);
-    console.log('isLoading:', isLoading);
-    if (entries[0].isIntersecting && !isLoading) {
-      loadPreviousPost();
-    }
+      console.log('Intersection Observer triggered');
+      console.log('isIntersecting:', entries[0].isIntersecting);
+      console.log('isLoading:', isLoading);
+  
+      if (entries[0].isIntersecting && !isLoading) {
+          timer = setTimeout(() => {
+              loadPreviousPost();
+          }, 500);  // 0.5秒後にloadPreviousPostを呼び出す
+      } else if (!entries[0].isIntersecting) {
+          clearTimeout(timer);  // 要素がビューポートから出た場合、タイマーをクリア
+      }
   }
 
   const options = {

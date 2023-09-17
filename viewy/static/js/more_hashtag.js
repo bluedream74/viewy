@@ -74,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
     isLoading = true;
     console.log('Loading next post...');
 
-    const allPosts = document.querySelectorAll('.not-ad');
-    const lastPostId = allPosts[allPosts.length - 2].dataset.postId;
+    const allPosts = document.querySelectorAll('.post:not([data-is-advertisement="True"])');
+    const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
 
     // ハッシュタグを取得 hashtag_list.htmlの下のdivに隠してある
     const hashtag = document.querySelector('#hashtagContainer').dataset.hashtag;
@@ -260,8 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load the first post into view after fetching
         const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
         if (targetPost) {
-            targetPost.scrollIntoView();
-        }
+          setTimeout(() => {
+              targetPost.scrollIntoView();
+          }, 0);
+      }
       })
       .catch(error => {
         console.error('Error:', error);
@@ -271,19 +273,28 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 }
 
-  function isactive(entries) {
+let timer;
+
+function isActive(entries) {
     console.log('Intersection Observer triggered');
+    console.log('isIntersecting:', entries[0].isIntersecting);
+    console.log('isLoading:', isLoading);
+
     if (entries[0].isIntersecting && !isLoading) {
-      loadPreviousPost();
+        timer = setTimeout(() => {
+            loadPreviousPost();
+        }, 500);  // 0.5秒後にloadPreviousPostを呼び出す
+    } else if (!entries[0].isIntersecting) {
+        clearTimeout(timer);  // 要素がビューポートから出た場合、タイマーをクリア
     }
-  }
+}
 
   const options = {
     threshold: 0.1,
     rootMargin: '0px 0px 0px 0px',
   };
 
-  const observer = new IntersectionObserver(isactive, options);
+  const observer = new IntersectionObserver(isActive, options);
 
   observer.observe(trigger);
 });

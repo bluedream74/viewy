@@ -786,6 +786,10 @@ ul{
   margin-top: 60%;
 }
 
+.alert-success{
+  width: 100%;
+}
+
  }
 
  @media only screen and (max-width: 400px) {
@@ -821,5 +825,7 @@ ul{
   .tom{
     transform: translate(-50%, 0%) translateX(60px);
   }
+
+
 
 }
