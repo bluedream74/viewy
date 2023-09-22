@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Loading next post...');
 
     const allPosts = document.querySelectorAll('.post:not([data-is-advertisement="True"])');
-    const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
+    const lastPostId = allPosts[allPosts.length - 2].dataset.postId;
     
     // ポスターのpkを取得
     const posterInput = document.querySelector('.poster_pk');

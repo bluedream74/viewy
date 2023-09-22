@@ -1,0 +1,31 @@
+body{
+  padding: 0px;
+  margin: 0px;
+}
+
+.catch{
+  width: 100%;
+  height: 100vh;
+  background-color: rgb(75, 223, 223);
+}
+
+.partner-list{
+  width: 100%;
+  height: 120px;
+  background-color: ghostwhite;
+  border: 1px gainsboro solid;
+}
+
+.main{
+  padding: 8px 24px;
+}
+
+.big-title{
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.flex{
+  display: flex;
+}
+

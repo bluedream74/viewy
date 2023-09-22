@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylewhite_regist_login.css' %}">
+<!-- ツイッターのカード設定 -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@Viewy_official" />
+<meta name="twitter:domain" content="www.viewy.net" />
+<meta name="twitter:title" content="Viewy[ビューイー]| 動画とマンガがリール形式で楽しめる スマホ向けウェブサービス" />
+<meta name="twitter:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+<meta name="twitter:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+
+<!-- Open Graph設定 -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.viewy.net" />
+<meta property="og:title" content="Viewy[ビューイー]| 動画とマンガがリール形式で楽しめる スマホ向けウェブサービス" />
+<meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+<meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+{% endblock %}
+{%block content%}
+<!-- <div class="mid-logo">V</div> -->
+<div class="mid-logo" >
+  <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
+</div>
+<div class="sub-title">ユーザー登録</div>
+<form method="POST">
+  {% csrf_token %}
+  <div class="form">
+    <div class="username">
+      <div class="message alert-error">
+        {{ form.username.errors }}
+      </div>
+      {{ form.username }}
+    </div>
+    <div class="email">
+      <div class="message alert-error">
+        {{ form.email.errors }}
+      </div>
+      {{ form.email }}
+    </div>
+    <div class="password">
+      <div class="message alert-error">
+        {{ form.password.errors }}
+      </div>
+      {{ form.password }}
+    </div>
+    <div class="password again">
+      <div class="message alert-error">
+        {{ form.password_confirm.errors }}
+      </div>
+      {{ form.password_confirm }}
+    </div>
+    <input class="button" type="submit" value="登録">
+  </div>
+</form>
+
+
+<div class="guide">
+  ユーザー登録が済んでいる方は
+  <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
+</div>
+
+<div class="forget">
+  パスワードを忘れた場合
+  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
+</div>
+
+{%endblock%}

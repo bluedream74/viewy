@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, InvitedRegistUserView, ChangeDimensionView, FirstSettingView
+  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView
 )
 from . import views
 
@@ -8,6 +8,7 @@ app_name = 'accounts'
 urlpatterns = [ 
   path('regist/', RegistUserView.as_view(), name='regist'),  
   path('invited_regist/', InvitedRegistUserView.as_view(), name='invited_regist'),
+  path('regist_advertiser/', RegistAdvertiserView.as_view(), name='regist_advertiser'),
   path('user_login/', UserLoginView.as_view(), name='user_login'),  
   path('user_logout/', UserLogoutView.as_view(), name='user_logout'),
   path('password_reset/', PasswordResetView.as_view(), name='password_reset'),

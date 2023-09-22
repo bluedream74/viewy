@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
@@ -108,6 +109,9 @@ class AboutViewyView(TemplateView):
     
 class ForInvitedView(TemplateView):
     template_name = 'for_invited.html'    
+    
+class ForAdvertiserView(TemplateView):
+    template_name = 'for_advertiser.html'   
 
 class GuideView(TemplateView):
     template_name = 'guide.html'
@@ -120,12 +124,9 @@ class TermsView(TemplateView):
 
 class PolicyView(TemplateView):
     template_name = 'policy.html'
-
-class RegistUserView(SuccessMessageMixin, CreateView):
-    template_name = 'regist.html'
-    form_class = RegistForm
-    success_url = reverse_lazy('accounts:verify')
-
+    
+# ユーザー登録の基盤クラス    
+class BaseRegistUserView(SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         # Save form
         response = super().form_valid(form)
@@ -139,11 +140,7 @@ class RegistUserView(SuccessMessageMixin, CreateView):
         self.request.session['email'] = form.instance.email
 
         # Send verification code to user's email using Amazon SES
-        mail_sent = send_email_ses(
-            to_email=form.instance.email,
-            subject='【Viewy】認証コード',
-            verification_code=form.instance.verification_code
-        )
+        mail_sent = self.send_verification_email(form)
         
         if mail_sent:
             print("Mail sent successfully!")
@@ -152,44 +149,52 @@ class RegistUserView(SuccessMessageMixin, CreateView):
 
         return response
 
-class InvitedRegistUserView(SuccessMessageMixin, CreateView):
-    template_name = 'invited_regist.html'  
-    form_class = InvitedRegistForm
-    success_url = reverse_lazy('accounts:verify')  
-
-    def form_valid(self, form):
-        # Save form
-        response = super().form_valid(form)
-        
-        # 招待されたユーザーであることをセッションに保存
-        self.request.session['is_special_user'] = True
-        
-        # Generate a new verification code
-        form.instance.verification_code = generate_verification_code()
-        form.instance.verification_code_generated_at = timezone.now()
-        
-
-        #poster_waiterをTrueにする
-        form.instance.poster_waiter = True
-
-        form.instance.save()
-
-        # Save email to session
-        self.request.session['email'] = form.instance.email
-
-        # Send verification code to user's email using Amazon SES
-        mail_sent = send_email_ses(
+    def send_verification_email(self, form):
+        return send_email_ses(
             to_email=form.instance.email,
             subject='【Viewy】認証コード',
             verification_code=form.instance.verification_code
-        )
-        
-        if mail_sent:
-            print("Special mail sent successfully!")
-        else:
-            print("There was an error while sending the special mail.")
+        )    
+ 
+    
+# 通常のユーザー登録
+class RegistUserView(BaseRegistUserView):
+    template_name = 'regist.html'
+    form_class = RegistForm
+    success_url = reverse_lazy('accounts:verify')
 
-        return response
+
+# 招待者用のユーザー登録
+class InvitedRegistUserView(BaseRegistUserView):
+    template_name = 'invited_regist.html'
+    form_class = InvitedRegistForm
+    success_url = reverse_lazy('accounts:verify')
+
+    def form_valid(self, form):
+        # 招待されたユーザーであることをセッションに保存
+        self.request.session['is_special_user'] = True
+        
+        # poster_waiterをTrueにする
+        form.instance.poster_waiter = True
+
+        return super().form_valid(form)
+
+
+# 広告主用のユーザー登録
+class RegistAdvertiserView(BaseRegistUserView):
+    template_name = 'regist_advertiser.html'
+    form_class = InvitedRegistForm
+    success_url = reverse_lazy('accounts:verify')
+
+    def form_valid(self, form):
+        # ユーザーをAdvertiserグループに追加
+        advertiser_group, created = Group.objects.get_or_create(name='Advertiser')
+        form.instance.groups.add(advertiser_group)
+        
+        # ユーザーが広告主として登録されたことを示すセッション変数をセット
+        self.request.session['registered_as_advertiser'] = True
+
+        return super().form_valid(form)
   
 
 class VerifyView(FormView):
@@ -231,12 +236,17 @@ class VerifyView(FormView):
                 record.total_users = total_users
                 record.save()
                 
+            # セッションから広告主として登録されたかの情報を取得し、セッションからその情報を削除
+            registered_as_advertiser = self.request.session.pop('registered_as_advertiser', False)
+            
             # セッションからリダイレクト先URLを取得し、セッションからその情報を削除
             next_url = self.request.session.pop('return_to', None)
-            if next_url:
+            if registered_as_advertiser:
+                # ここで広告主用のリダイレクト先URLにとばす
+                return redirect('advertiser_dashboard')
+            elif next_url:
                 return redirect(next_url)  # 元のページにリダイレクト
             return redirect(self.success_url)  # デフォルトのリダイレクト先に移動
-            
         else:
             messages.error(self.request, '認証コードが正しくありません。もう一度入力してください。')
             return self.form_invalid(form)
