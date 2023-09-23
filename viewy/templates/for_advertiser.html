@@ -43,119 +43,234 @@
 <body>
 
 <div class="catch">
+  <div class="content">
+
+      <img src="{{ MEDIA_URL }}others\ウェブメイン.png"  alt="" class="logo">
+
+    <div class="right-side">スマホサイズの、</div>
+    <div class="left-side">大人のサイト。</div>
+
+    <img src="{{ MEDIA_URL }}others\登録パートナー.png"  alt="" class="partner80">
+    <img src="{{ MEDIA_URL }}others\総フォロワー.png"  alt="" class="follower">
+
+    <div class="score">現在登録済みのパートナー</div>
+
+  </div>
 
 </div>
-<div class="partner-list 1"></div>
-<div class="partner-list 2"></div>
+<div class="partner-list list1">
+  {% for img_url in poster_imgs1 %}
+    <div class="partner-img">
+      <img src="{{ img_url }}" alt="">
+    </div>
+  {% endfor %}
+</div>
+<div class="partner-list list2">
+  {% for img_url in poster_imgs2 %}
+    <div class="partner-img">
+      <img src="{{ img_url }}" alt="">
+    </div>
+  {% endfor %}
+</div>
 
 <div class="main">
 
-  <div class="big-title">次世代アダルトプラットフォーム「Viewy」に<br>あなたの広告を出しませんか？</div>
-
-  <div class="what-is-viewy flex">
-    <div class="sentence">
-      <div class="title">次世代アダルトプラットフォーム「Viewy」とは？</div>
-      <div class="content">
-        <p>成人向けの動画と画像（マンガ）が共有できる完全無料のスマホ向けウェブアプリ</p>
-        <p>投稿はリール形式で表示されため快適に楽しめる！</p>
-        <p>視聴は誰でも可能ですが、投稿は運営が認可したパートナーに限定されているため安心安全</p>
-        <p>成人向けならではの独自の機能も！</p>
-        <p>Viewy→<a href="www,viewy,net"></a></p>
-      </div>
-    </div>
-    <div class="video"></div>
+  <div id="big-container">
+    <img src="{{ MEDIA_URL }}others\テーマ.png" alt="" class="big">
   </div>
 
-  <div class="our-wish">
-    <div class="title">Viewyに込めた想い</div>
 
-    <div class="wish 1">
-      <div class="wish-title">安全でリテラシーのある無料アダルトサイトがほしい</div>
-      <div class="wish-content">
-        いま日本では違法の無料サイトが蔓延っており、深刻な権利侵害問題を引き起こしています。
-        それでも多くの人が違法のサイトを使う理由は、まともな無料サイトが日本に存在しないからだと考えました。
-        成人であれば誰もが気軽に利用できて、かつリテラシーのあるアダルトサイトが日本で求められている。そう思いました。
+  <div class="what-is-viewy block" id="what-is-viewy">
+    <div class="title">次世代アダルトプラットフォーム「Viewy」とは？</div>
+
+    <div class="video block">
+      <video src="{{ MEDIA_URL }}others\紹介動画.mp4" playsinline loop muted autoplay width="350px"></video>
+    </div>
+
+
+
+    <div class="points">
+      <div class="container left">
+        <div class="point block">
+          <div class="img">
+            <img src="{{ MEDIA_URL }}others\動画と画像.png" alt="">
+          </div>
+          <div class="main">成人向けの動画と画像が共有できる</div>
+          <div class="sub">最大２分の動画と最大３１ページの画像がシェアできる</div>
+        </div>
+        <div class="point block">
+          <div class="img">
+            <img src="{{ MEDIA_URL }}others\operation_smartphone_simple.png" alt="">
+          </div>
+          <div class="main">リール形式の投稿表示</div>
+          <div class="sub">コンパクトなボリュームの投稿が今はやりのリール形式でサクサク見れる</div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="point block">
+          <div class="img">
+            <img src="{{ MEDIA_URL }}others/handshake_suit_simple.png" alt="">
+          </div>
+          <div class="main">投稿はパートナーのみが可能</div>
+          <div class="sub">視聴は成人であれば誰でも可能ですが、投稿は運営が認可したパートナーに限定しているため、安心安全</div>
+        </div>
+        <div class="point block">
+          <div class="img">
+            <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="">
+          </div>
+          <div class="main">成人向けならではの独自の機能も！</div>
+          <div class="sub">ユニークなリアクション機能をはじめとしたアダルトサイトだからこそ実装される機能がたくさん</div>
+        </div>
       </div>
     </div>
 
-    <div class="wish 2">
-      <div class="wish-title">成人向けの業界に、高い効果を期待できる新たな広告の場を提供したい</div>
-      <div class="wish-content">
-        アフィリエイトを始めとした新たな形式の広告も広く普及しておりますが、まだまだアダルト領域の業界は、普通の業界と比べて宣伝の場が限定的です。
-        またアフィリエイト広告は違法サイトでも利用されてしまうこともあります。そこでは、多くの場合、クリック報酬だけを目的としたUIを大きく損なう方法で数多くの広告が掲載されているため、ユーザーも不快であるうえ、そのような形で掲載されている広告にも悪い印象がついてしまいがちです。
-        こうした問題を解決するためにも、アダルト領域を支えている数々のサービスやメーカー様がフォーマルな形式で宣伝できる場を増やしたいと考えました。
+
+  </div>
+
+  <div class="our-wish" id="our-wish">
+    <div class="title">Viewyに込めた<span class="tint">想い</span></div>
+    <hr>
+
+    <div class="wish flex block">
+      <div class="wish-container">
+        <div class="wish-title">安全でリテラシーのある無料アダルトサイトがほしい</div>
+        <div class="wish-content">
+          <p>いま日本では違法の無料サイトが蔓延っており、深刻な権利侵害問題を引き起こしています。</p>
+          <p>それでも多くの人が違法のサイトを使う理由は、まともな無料サイトが日本に存在しないからだと考えました。</p>
+          <p>成人であれば誰もが気軽に利用できて、かつリテラシーのあるアダルトサイトが日本で求められている。そう思いました。</p>
+        </div>
       </div>
+      <div class="wish-img">1</div>
     </div>
 
-    <div class="wish 3">
-      <div class="wish-title">アダルト領域で活躍するクリエイターの方々の魅力発信の場を守りたい</div>
-      <div class="wish-content">
-        日本には数多くのアダルト領域で活躍するクリエイターの方々がいらっしゃいますが、彼らの主な発信の場は、XをはじめとしたSNSです。しかし、近年の規制強化によってただでさえ限定的な発信の機会が危ぶまれている状況であります。唐突なアカウントの凍結やバンがクリエイターの経済状況を大きく動かしてしまうほどです。国境を問わず世界を盛り上げてくれているこうしたクリエイターたちが唐突な規制におびえすぎることなく堂々と魅力を拡散できるような新たな場が存在しなければなりませんでした。
+    <div class="wish right flex block">
+      <div class="wish-img">2</div>
+      <div class="wish-container">
+        <div class="wish-title">成人向けの業界に、高い効果を期待できる新たな広告の場を提供したい</div>
+        <div class="wish-content">
+          <p>アフィリエイトを始めとした新たな形式の広告も広く普及しておりますが、まだまだアダルト領域の業界は、普通の業界と比べて宣伝の場が限定的です。</p>
+          <p>またアフィリエイト広告は違法サイトでも利用されてしまうこともあります。</p>
+          <p>そこでは、多くの場合、クリック報酬だけを目的としたUIを大きく損なう方法で数多くの広告が掲載されているため、ユーザーも不快であるうえ、そのような形で掲載されている広告にも悪い印象がついてしまいがちです。</p>
+          <p>こうした問題を解決するためにも、アダルト領域を支えている数々のサービスやメーカー様がフォーマルな形式で宣伝できる場を増やしたいと考えました。</p>
+        </div>
       </div>
 
+    </div>
+
+    <div class="wish flex block">
+      <div class="wish-container">
+        <div class="wish-title">アダルト領域で活躍するクリエイターの方々の魅力発信の場を守りたい</div>
+        <div class="wish-content">
+          <p>日本には数多くのアダルト領域で活躍するクリエイターの方々がいらっしゃいますが、彼らの主な発信の場は、XをはじめとしたSNSです。</p>
+          <p>しかし、近年の規制強化によってただでさえ限定的な発信の機会が危ぶまれている状況であります。</p>
+          <p>唐突なアカウントの凍結やバンがクリエイターの経済状況を大きく動かしてしまうほどです。</p>
+          <p>国境を問わず世界を盛り上げてくれているこうしたクリエイターたちが唐突な規制におびえすぎることなく堂々と魅力を拡散できるような新たな場が存在しなければなりませんでした。</p>
+        </div>
+      </div>
+      <div class="wish-img">3</div>
     </div>
 
   </div>
 
-  <div class="ad-features">
+  <div class="ad-features" id="ad-features">
     <div class="main-title">広告の表示方法</div>
-    <div class="display  flex">
-      <div class="img"></div>
-      <div class="sententce">
-        <div class="sub-title">Viewyでは「投稿型」の広告を掲載することができます。</div>
-        <div class="sub-title">すべての投稿リストのなかで４つ投稿を見るごとに１つの広告が表示されます。</div>
-        <div class="sub-title">添付できるコンテンツやキャプションはViewyに投稿できる通常の投稿と同じです</div>
-        <ul>
-          <li>最大２分の動画か最大31枚の画像</li>
-          <li>タイトル</li>
-          <li>キャプション</li>
-          <li>ハッシュタグ</li>
-          <li>URL</li>
-          <li>プロフィール画像</li>
-        </ul>
+    <hr>
+
+
+    <div class="feature block">
+      <div class="title"><span class="important">「投稿型」の広告が掲載可能</span></div>
+      <div class="flex center">
+        <div class="video2">
+          <video src="{{ MEDIA_URL }}others\紹介動画.mp4" playsinline loop muted autoplay width="300px"></video>
+        </div>
+        <div class="sentence">
+          <div class="tag">通常の投稿リストに挿入される投稿型</div>
+          <div class="tag">
+            様々な情報を添付可能
+            <ul class="list">
+              <li>最大２分の動画か最大31枚の画像</li>
+              <li>タイトル</li>
+              <li>キャプション</li>
+              <li>ハッシュタグ</li>
+              <li>URL</li>
+              <li>プロフィール画像</li>
+              <div style="margin-top: 8px;">※通常の投稿と同じ</div>
+            </ul>
+          </div>
+          <div class="tag">投稿をタップすると添付したリンクに飛ぶ</div>
+          <div class="tag">広告表示は投稿４つにつき１つの頻度</div>
+        </div>
       </div>
     </div>
 
-    <div class="feature 1">
-      <div class="title">アダルトサイトならではのユーザーデモグラフィック情報をもとに、ターゲティングが可能です</div>
-      <div class="content">Viewyではユーザーのアクションや強制アンケートからユーザーの属性やデモグラフィック情報を常に収集し蓄積していきます。これらのデータをもとに高い精度でお望みのユーザー層に広告を表示することができます。ユーザーを振り分ける項目にはアダルトサイトならでは項目が多く、通常の広告のターゲティングでは不可能な、ニッチな領域にまでユーザーを絞ることができます。</div>
-      <div class="cercle-img"></div>
+    <div class="feature block">
+      <div class="title"><span class="important">アダルトサイトならではのユーザーデモグラフィック情報</span>をもとに<br>ターゲティングが可能</div>
+      <div class="content">
+        <img src="{{ MEDIA_URL }}others/ターゲティング.png" alt="" class="target">
+      </div>
+      <div style="margin-top: 48px;">
+        <p>Viewyではユーザーのアクションや強制アンケートからユーザーの属性やデモグラフィック情報を常に収集し蓄積していきます。</p>
+        <p>これらのデータをもとに高い精度でお望みのユーザー層に広告を表示することができます。</p>
+        <p>ユーザーを振り分ける項目にはアダルトサイトならでは項目が多く、通常の広告のターゲティングでは不可能な、ニッチな領域にまでユーザーを絞ることができます。</p>
+      </div>
     </div>
 
-    <div class="feature 2">
-      <div class="title">広告主様専用のページでリアルタイムに成績が確認可能</div>
-      <div class="content">広告主様用のアカウントページでは、掲載していただいた広告の視聴回数、滞在率、クリック数がリアルタイムでご確認いただけます。
-        また同ページから新たなキャンペーンや広告の追加とそのターゲティング設定、公開中の広告の停止や削除をすることも可能です。</div>
+    <div class="feature block">
+      <div class="title">広告主様専用のページで<span class="important">リアルタイムに成績が確認可能</span></div>
+      <div class="content flex">
+        <div class="item">
+          <div class="icon">
+            <img src="{{ MEDIA_URL }}others/date_window_simple.png" alt="">
+          </div>
+          <div class="words">PV数、滞在率、<br>クリック数等を確認</div>
+        </div>
+        <div class="item">
+          <div class="icon">
+            <img src="{{ MEDIA_URL }}others/creative_simple.png" alt="">
+          </div>
+          <div class="words">新しい広告の追加</div>
+        </div>
+        <div class="item">
+          <div class="icon">
+            <img src="{{ MEDIA_URL }}others/deskwork_date_woman_simple.png" alt="">
+          </div>
+          <div class="words">広告の停止、削除</div>
+        </div>
+      </div>
       <div class="cercle-img"></div>
     </div>
 
   </div>
 
-  <div class="favor">
-    <div class="sentence">
-      <p>Viewyは正式公開を10月7日に控えています。</p>
+  <div class="favor" id="favor">
+    <div class="title">お伝えしたいこと</div>
+    <hr>
+    <div class="sentence block">
+      <div class="highlight">Viewyは一般公開を10月7日に控えています。</div>
       <p>事前に２週間の期間を設けて(8/16~8/31)、Viewyのパートナーとして公開前登録をしてくださるクリエイターを募集しました。</p>
       <p>その結果、上にも挙げた私たちの願いが通じ、２週間で80人以上のクリエイターの方々に登録していただきました。<br>そのXの総フォロワーは375万人以上に上ります。</p>
     </div>
     <div class="partner-list2"></div>
 
-    <div class="main-favor">
-      <p>この度、広告の成果データ収集を兼ねてViewy公開時に広告を掲載してくださる企業様を募集しております。</p>
+    <div class="main-favor block">
+      <div class="demand">この度、広告の成果データ収集を兼ねてViewy公開時に広告を掲載してくださる企業様を募集しております。</div>
       <p>現状公開前であること、広告効果の測定を兼ねていることをご理解していただいたうえで、</p>
-      <p>10/7までに広告の掲載を開始してくださった企業様には、</p>
-      <p>「Viewyでの広告費用の永久半額化」</p>
+      <p><span style="font-size: 22px;">10/7までに広告の掲載を開始してくださった企業様</span>には、</p>
+      <div class="gift block">「Viewyでの広告費用の永久半額化」</div>
       <p>という特典を贈呈させていただきます。</p>
       <p>※サイト名や広告方法に変更があった場合でも適応させていただきます。</p>
     </div>
 
   </div>
 
-  <div class="detail">
+  <div class="detail" id="detail">
+    <div class="title">詳細</div>
+    <hr>
 
     <div class="part">
       <div class="title">料金について</div>
       <p>料金体系は現状CPM型のみでご用意させていただいております。</p>
-      <p>基本CPMは１０００円です。（初月のみ）</p>
+      <p>基本CPMは1,000円です。（初月のみ）</p>
       <p>ターゲットを絞る場合、その割合に応じて料金が上昇します。</p>
       <div class="ex">例：。。。。。</div>
     </div>
@@ -190,7 +305,7 @@
         <li>登録パートナー：８０人以上
         </li>
         <li>投稿数：２５０個以上</li>
-        <li>選択可能なユーザーデモグラフィック：性別、二次元好きか三次元好きか</li>
+        <li>選択可能なユーザーデモグラフィック：男性か女性か、二次元好きか三次元好きか</li>
       </ul>
     </div>
 
@@ -199,7 +314,7 @@
       <ul>
         <li>初月の訪問回数：20,000～50,000回</li>
         <li>１訪問当たりの広告視聴数：6回</li>
-        <li>初月のPV数合計：120,000～600,000回</li>
+        <li>初月の広告のPV数合計：120,000～600,000回</li>
       </ul>
     </div>
 
@@ -214,17 +329,93 @@
 
   </div>
 
-  <div class="summary">
+  <div class="summary block" id="summary">
     <p>Viewyがこれらの目標を達成できた場合、広告費の永久半額化は大きな特典となることと思われます。</p>
 
-    <p>ご協力いただける場合は、お手数ですが、こちらのページリンクを遅らせていただいたメールにご返信ください。</p>
+    <p class="under-line">ご協力いただける場合は、お手数ですが、こちらのページリンクを遅らせていただいたメールにご返信ください。</p>
 
-    <p>すぐに、広告掲載についての契約書と広告主様用のアカウント作成フォームを送信させていただきます。</p>
+    <p class="under-line">すぐに、広告掲載についての契約書と広告主様用のアカウント作成フォームを送信させていただきます。</p>
 
     <p>詳細につきましてもメールにてご気軽にお尋ねください。</p>
 
     <p>zoomでも対応させていただいております。</p>
   </div>
 
+  <div id="tab-bar">
+    <a href="#what-is-viewy">Viewyとは</a>
+    <a href="#our-wish">私たちの想い</a>
+    <a href="#ad-features">広告について</a>
+    <a href="#favor">お伝えしたいこと</a>
+    <a href="#detail">詳細</a>
+    <a href="#summary">最後に</a>
+  </div>
+
+</div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // スクロール速度（大きいほど速くなる）
+      let speed = 1;
+  
+      // list1要素を取得し、左から右にスクロール
+      let list1 = document.querySelector('.list1');
+      let scrollAmount1 = 0;
+      setInterval(function() {
+        scrollAmount1 += speed;
+        list1.scrollLeft = scrollAmount1;
+      }, 30);
+  
+      // list2要素を取得し、左から右にスクロール（見た目は逆方向）
+      let list2 = document.querySelector('.list2');
+      let scrollAmount2 = 0;
+      setInterval(function() {
+        scrollAmount2 += speed;
+        list2.scrollLeft = list2.scrollWidth - list2.clientWidth - scrollAmount2;
+      }, 30);
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var blocks = document.querySelectorAll('.block');
+    
+      function checkVisibility() {
+        var windowHeight = window.innerHeight;
+    
+        blocks.forEach(function(block) {
+          var rect = block.getBoundingClientRect();
+    
+          // 要素が画面の高さの4/5に来たかどうかをチェック
+          if (rect.top <= (windowHeight * 3) / 5 && rect.bottom >= (windowHeight * 3) / 5) {
+            block.classList.add('visible');
+          }
+        });
+      }
+    
+      window.addEventListener('scroll', checkVisibility);
+      window.addEventListener('resize', checkVisibility);
+    
+      // ページロード時にもチェック
+      checkVisibility();
+    });
+    
+    </script>
+    <script>
+      document.querySelectorAll('#tab-bar a').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const targetId = this.getAttribute('href').substring(1); // Remove '#'
+    const targetElement = document.getElementById(targetId);
+
+    // Get the height of the tab bar or any fixed elements that might overlap
+    const offsetHeight = 80; // Adjust this value based on your tab bar's height
+
+    // Scroll to the element
+    window.scrollTo({
+      top: targetElement.offsetTop - offsetHeight,
+      behavior: 'smooth'
+    });
+  });
+});
+    </script>
 </body>
 </html>

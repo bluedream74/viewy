@@ -111,7 +111,28 @@ class ForInvitedView(TemplateView):
     template_name = 'for_invited.html'    
     
 class ForAdvertiserView(TemplateView):
-    template_name = 'for_advertiser.html'   
+    template_name = 'for_advertiser.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # 'Poster' グループを取得
+        poster_group = Group.objects.get(name='Poster')
+        
+        # 'Poster' グループのメンバーを取得
+        poster_users = poster_group.user_set.filter(is_active=True)
+        
+        # ランダムにユーザーを選び、そのプロフィール画像を取得
+        selected_users = random.sample(list(poster_users), min(30, len(poster_users)))
+        
+        # プロフィール画像を15個ずつに分ける
+        poster_imgs1 = [user.prf_img.url for user in selected_users[:15] if user.prf_img]
+        poster_imgs2 = [user.prf_img.url for user in selected_users[15:30] if user.prf_img]
+        
+        # コンテキストにプロフィール画像のリストを追加
+        context['poster_imgs1'] = poster_imgs1
+        context['poster_imgs2'] = poster_imgs2
+        return context
 
 class GuideView(TemplateView):
     template_name = 'guide.html'
