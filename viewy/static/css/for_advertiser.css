@@ -237,7 +237,7 @@ hr{
 }
 
 .point{
-  background-color: rgb(222, 255, 254);
+  background-color: #eff3f9;
   width: 400px;
   height: 220px;
   border-radius: 8px;
@@ -280,7 +280,7 @@ hr{
 }
 .tint{
   margin-left: 4px;
-  color: var(--primary-color);
+  color: rgb(16, 235, 235);
 }
 
 .our-wish .title{
@@ -288,6 +288,10 @@ hr{
   font-weight: bold;
   margin-bottom: 48px;
   text-align: center;
+}
+
+.black{
+  font-size: 22px;
 }
 
 .wish{
@@ -480,19 +484,42 @@ hr{
 }
 
 .demand{
-  text-decoration-color: rgb(255, 128, 0);
+  text-decoration-color: var(--primary-color);
 }
 
 .gift{
-  font-size: 32px;
+  font-size: 24px;
   text-align: center;
-  margin: 24px 0px;
-  color: rgb(255, 128, 0);
+  padding: 16px 32px;
+  margin: 16px 0px;
+  border-radius: 8px;
+  color: white;
+  background: linear-gradient(90deg, rgb(14, 222, 222) 0%, rgb(6, 239, 239) 100%);
+  box-shadow: 0px 2px 8px rgb(212, 212, 212);
+}
+
+.gift-image-container{
+  justify-content: space-around;
+}
+
+.gift-image{
+  margin-top: 24px;
+  text-align: center;
+}
+
+.gift-image > img{
+  width: 240px;
 }
 
 .detail{
   background-color: #eff3f9;
   font-weight: 100;
+}
+
+.underline{
+  font-size: 22px;
+  text-decoration: underline;
+  text-decoration-color: rgb(14, 232, 232);
 }
 
 .detail > .title{
@@ -517,6 +544,19 @@ hr{
   padding-left: 8px;
 }
 
+.strong{
+  font-weight: bold;
+  font-size: 18px;
+  text-decoration: underline;
+  text-decoration-color: rgb(14, 232, 232);
+}
+
+.guide{
+  margin-top: 64px;
+  padding: 32px;
+  font-size: 20px;
+  background-color: #eff3f9;
+}
 
 .summary{
   width: 70%;
@@ -524,21 +564,91 @@ hr{
   font-size: 18px;
 }
 
-.under-line{
-  text-decoration: underline;
-  text-decoration-color: var(--primary-color);
-  text-decoration-line: 2px;
-  font-size: 20px;
+.summary .title{
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 48px;
+  text-align: center;
+  font-weight: bold;  
 }
 
 
+
+.step-container{
+  text-align: center;
+  margin-top: 48px;
+}
+
+.step{
+  font-size: 18px;
+  width: 60%;
+  padding: 16px 24px;
+  margin: 0px auto;
+  border-radius: 50px;
+  border: var(--primary-color) 3px solid;
+  box-shadow: 0px 2px 6px rgb(212, 212, 212);
+}
+
+.aqua{
+  color: white;
+  background-color: var(--primary-color);
+}
+
+.gray{
+  color: white;
+  background-color: rgb(180, 180, 180);
+  border: rgb(180, 180, 180) 3px solid;
+}
+
+.last-message{
+  font-size: 20px;
+  margin-top: 64px;
+  text-decoration: underline;
+  text-decoration-color: rgb(14, 232, 232);
+}
+
+.footer{
+  background-color: rgb(52, 59, 59);
+  color: white;
+  position: relative;
+}
+
+.footer a{
+  display: inline-flex;
+  padding: 8px 16px;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+  transition: color 0.2s linear; /* カラーの変化が0.5秒かけて行われるように設定 */
+}
+
+.footer a:hover{
+  cursor: pointer;
+  color: rgb(28, 232, 232);
+}
+
+#foot-bar{
+  margin-bottom: 24px;
+}
+
+.terms{
+  font-size: 14px;
+}
+
+.company{
+  text-align: center;
+  width: 100%;
+  padding: 48px 0px 0px 0px;
+}
 
 
 
 #tab-bar{
   width: 100%;
   padding: 0px 24px;
-  background-color: rgba(255, 255, 255, 0.543);
+  background-color: rgb(255, 255, 255);
   position: fixed;
   top: 0px;
   display: flex;
@@ -547,7 +657,7 @@ hr{
 
 #tab-bar > a{
   display: flex;
-  padding: 24px 40px;
+  padding: 24px 28px;
   justify-content: center;
   align-items: center;
   font-weight: bold;
@@ -557,29 +667,69 @@ hr{
 
 #tab-bar > a:hover{
   cursor: pointer;
-  background-color: rgba(220, 220, 220, 0.514);
+  background-color: rgb(220, 220, 220);
+}
+
+
+.mini-logo{
+  width: 180px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 0px;
+}
+
+.mini-logo > img{
+  width: 240px;
+  position: relative;
+  top: -12px;
 }
 
 .viewy{
-  background-color: aqua;
-  border-radius: 8px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 28px;
+}
+
+.viewy > a {
+  display: inline-block;
+  background: linear-gradient(90deg, rgb(14, 226, 226) 0%, rgb(0, 255, 255) 100%);
+  border-radius: 50px;
+  padding: 16px 24px;
+  color: white;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.8s, color 0.8s; /* 背景とテキストの色の変化を0.3秒で行います */
+}
+
+.viewy > a:hover {
+  background: white; /* ホバー時の背景色を白にします */
+  color: rgb(20, 233, 233); /* ホバー時のテキストの色をアクアにします */
 }
 
 
+
 /* スマートフォン用のスタイル */
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 1000px) {
+  .flex{
+    display: block;
+  }
 
   .catch{
     width: 100%;
     height: 300px;
+    padding-top: 40px;
   }
   
   .logo{
     width: 100%;
   }
 
-  .big-container{
-    width: 100%;
+  #big-container{
     display: flex;
     justify-content: center;
     overflow: hidden;
@@ -587,8 +737,7 @@ hr{
 
   .big{
     width: 150%;
-    text-align: center;
-    top: -72px;
+    top: -58px;
   }
   
   .right-side, .left-side{
@@ -681,7 +830,6 @@ hr{
 
   .wish{
     padding: 16px;
-    width: 90%;
     margin-bottom: 16px;
     border-radius: 4px;
     margin-right: 0px;
@@ -691,6 +839,10 @@ hr{
     text-align: left;
     margin: 0px;
     margin-bottom: 16px;
+  }
+
+  .black{
+    font-size: 18px;
   }
 
   .wish-title{
@@ -838,14 +990,56 @@ hr{
 
 
 #tab-bar{
-  width: 80%;
-  height: 40px;
+  width: 100%;
+  padding: 0px 24px;
+  background-color: rgb(255, 255, 255);
+  position: fixed;
+  top: 0px;
+  display: flex;
+  /* box-shadow: 0px 1px 8px gainsboro; */
 }
 
-#tab-bar > div{
-  font-size: 10px;
-  min-width: max-content;
-
+#tab-bar > a{
+  display: none;
 }
+
+
+.mini-logo{
+  width: 160px;
+}
+
+.mini-logo > img{
+  width: 200px;
+  top: -8px;
+}
+
+.viewy{
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 28px;
+  position: absolute;
+  top: 6px;
+  right: 64px;
+}
+
+.viewy > a {
+  display: inline-block;
+  background: linear-gradient(90deg, rgb(14, 226, 226) 0%, rgb(0, 255, 255) 100%);
+  border-radius: 50px;
+  padding: 16px 24px;
+  color: white;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.8s, color 0.8s; /* 背景とテキストの色の変化を0.3秒で行います */
+}
+
+.viewy > a:hover {
+  background: white; /* ホバー時の背景色を白にします */
+  color: rgb(20, 233, 233); /* ホバー時のテキストの色をアクアにします */
+}
+
 
 }

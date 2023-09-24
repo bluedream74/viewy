@@ -2,6 +2,7 @@
 {% load static %}
 {% load custom_tags %}
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,7 +23,7 @@
   <meta property="og:title" content="Viewy[ビューイー]| 広告主様に向けて" />
   <meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
   <meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
-  
+
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% static 'css/for_advertiser.css' %}">
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
@@ -35,387 +36,466 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
 
   gtag('config', 'G-C5HF2NBPEV');
 </script>
+
 <body>
 
-<div class="catch">
-  <div class="content">
+  <div class="catch">
+    <div class="content">
 
-      <img src="{{ MEDIA_URL }}others\ウェブメイン.png"  alt="" class="logo">
+      <img src="{{ MEDIA_URL }}others\ウェブメイン.png" alt="" class="logo">
 
-    <div class="right-side">スマホサイズの、</div>
-    <div class="left-side">大人のサイト。</div>
+      <div class="right-side">スマホサイズの、</div>
+      <div class="left-side">大人のサイト。</div>
 
-    <img src="{{ MEDIA_URL }}others\登録パートナー.png"  alt="" class="partner80">
-    <img src="{{ MEDIA_URL }}others\総フォロワー.png"  alt="" class="follower">
+      <img src="{{ MEDIA_URL }}others\登録パートナー.png" alt="" class="partner80">
+      <img src="{{ MEDIA_URL }}others\総フォロワー.png" alt="" class="follower">
 
-    <div class="score">現在登録済みのパートナー</div>
+      <div class="score">現在登録済みのパートナー</div>
+
+    </div>
 
   </div>
-
-</div>
-<div class="partner-list list1">
-  {% for img_url in poster_imgs1 %}
+  <div class="partner-list list1">
+    {% for img_url in poster_imgs1 %}
     <div class="partner-img">
       <img src="{{ img_url }}" alt="">
     </div>
-  {% endfor %}
-</div>
-<div class="partner-list list2">
-  {% for img_url in poster_imgs2 %}
+    {% endfor %}
+  </div>
+  <div class="partner-list list2">
+    {% for img_url in poster_imgs2 %}
     <div class="partner-img">
       <img src="{{ img_url }}" alt="">
     </div>
-  {% endfor %}
-</div>
-
-<div class="main">
-
-  <div id="big-container">
-    <img src="{{ MEDIA_URL }}others\テーマ.png" alt="" class="big">
+    {% endfor %}
   </div>
 
+  <div class="main">
 
-  <div class="what-is-viewy block" id="what-is-viewy">
-    <div class="title">次世代アダルトプラットフォーム「Viewy」とは？</div>
-
-    <div class="video block">
-      <video src="{{ MEDIA_URL }}others\紹介動画.mp4" playsinline loop muted autoplay width="350px"></video>
+    <div id="big-container">
+      <img src="{{ MEDIA_URL }}others\テーマ.png" alt="" class="big">
     </div>
 
 
+    <div class="what-is-viewy block" id="what-is-viewy">
+      <div class="title">次世代アダルトプラットフォーム「Viewy」とは？</div>
 
-    <div class="points">
-      <div class="container left">
-        <div class="point block">
-          <div class="img">
-            <img src="{{ MEDIA_URL }}others\動画と画像.png" alt="">
+      <div class="video block">
+        <video src="{{ MEDIA_URL }}others\紹介動画.mp4" playsinline loop muted autoplay width="280px"></video>
+      </div>
+
+
+
+      <div class="points">
+        <div class="container left">
+          <div class="point block">
+            <div class="img">
+              <img src="{{ MEDIA_URL }}others\動画と画像.png" alt="">
+            </div>
+            <div class="main">成人向けの動画と画像が共有できる</div>
+            <div class="sub">最大２分の動画と最大３１ページの画像がシェアできる</div>
           </div>
-          <div class="main">成人向けの動画と画像が共有できる</div>
-          <div class="sub">最大２分の動画と最大３１ページの画像がシェアできる</div>
-        </div>
-        <div class="point block">
-          <div class="img">
-            <img src="{{ MEDIA_URL }}others\operation_smartphone_simple.png" alt="">
+          <div class="point block">
+            <div class="img">
+              <img src="{{ MEDIA_URL }}others\operation_smartphone_simple.png" alt="">
+            </div>
+            <div class="main">リール形式の投稿表示</div>
+            <div class="sub">コンパクトなボリュームの投稿が今はやりのリール形式でサクサク見れる</div>
           </div>
-          <div class="main">リール形式の投稿表示</div>
-          <div class="sub">コンパクトなボリュームの投稿が今はやりのリール形式でサクサク見れる</div>
         </div>
-      </div>
-      <div class="container">
-        <div class="point block">
-          <div class="img">
-            <img src="{{ MEDIA_URL }}others/handshake_suit_simple.png" alt="">
+        <div class="container">
+          <div class="point block">
+            <div class="img">
+              <img src="{{ MEDIA_URL }}others/handshake_suit_simple.png" alt="">
+            </div>
+            <div class="main">投稿はパートナーのみが可能</div>
+            <div class="sub">視聴は成人であれば誰でも可能ですが、投稿は運営が認可したパートナーに限定しているため、安心安全</div>
           </div>
-          <div class="main">投稿はパートナーのみが可能</div>
-          <div class="sub">視聴は成人であれば誰でも可能ですが、投稿は運営が認可したパートナーに限定しているため、安心安全</div>
-        </div>
-        <div class="point block">
-          <div class="img">
-            <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="">
+          <div class="point block">
+            <div class="img">
+              <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="">
+            </div>
+            <div class="main">成人向けならではの独自の機能も！</div>
+            <div class="sub">ユニークなリアクション機能をはじめとしたアダルトサイトだからこそ実装される機能がたくさん</div>
           </div>
-          <div class="main">成人向けならではの独自の機能も！</div>
-          <div class="sub">ユニークなリアクション機能をはじめとしたアダルトサイトだからこそ実装される機能がたくさん</div>
-        </div>
-      </div>
-    </div>
-
-
-  </div>
-
-  <div class="our-wish" id="our-wish">
-    <div class="title">Viewyに込めた<span class="tint">想い</span></div>
-    <hr>
-
-    <div class="wish flex block">
-      <div class="wish-container">
-        <div class="wish-title">安全でリテラシーのある無料アダルトサイトがほしい</div>
-        <div class="wish-content">
-          <p>いま日本では違法の無料サイトが蔓延っており、深刻な権利侵害問題を引き起こしています。</p>
-          <p>それでも多くの人が違法のサイトを使う理由は、まともな無料サイトが日本に存在しないからだと考えました。</p>
-          <p>成人であれば誰もが気軽に利用できて、かつリテラシーのあるアダルトサイトが日本で求められている。そう思いました。</p>
-        </div>
-      </div>
-      <div class="wish-img">1</div>
-    </div>
-
-    <div class="wish right flex block">
-      <div class="wish-img">2</div>
-      <div class="wish-container">
-        <div class="wish-title">成人向けの業界に、高い効果を期待できる新たな広告の場を提供したい</div>
-        <div class="wish-content">
-          <p>アフィリエイトを始めとした新たな形式の広告も広く普及しておりますが、まだまだアダルト領域の業界は、普通の業界と比べて宣伝の場が限定的です。</p>
-          <p>またアフィリエイト広告は違法サイトでも利用されてしまうこともあります。</p>
-          <p>そこでは、多くの場合、クリック報酬だけを目的としたUIを大きく損なう方法で数多くの広告が掲載されているため、ユーザーも不快であるうえ、そのような形で掲載されている広告にも悪い印象がついてしまいがちです。</p>
-          <p>こうした問題を解決するためにも、アダルト領域を支えている数々のサービスやメーカー様がフォーマルな形式で宣伝できる場を増やしたいと考えました。</p>
         </div>
       </div>
 
+
     </div>
 
-    <div class="wish flex block">
-      <div class="wish-container">
-        <div class="wish-title">アダルト領域で活躍するクリエイターの方々の魅力発信の場を守りたい</div>
-        <div class="wish-content">
-          <p>日本には数多くのアダルト領域で活躍するクリエイターの方々がいらっしゃいますが、彼らの主な発信の場は、XをはじめとしたSNSです。</p>
-          <p>しかし、近年の規制強化によってただでさえ限定的な発信の機会が危ぶまれている状況であります。</p>
-          <p>唐突なアカウントの凍結やバンがクリエイターの経済状況を大きく動かしてしまうほどです。</p>
-          <p>国境を問わず世界を盛り上げてくれているこうしたクリエイターたちが唐突な規制におびえすぎることなく堂々と魅力を拡散できるような新たな場が存在しなければなりませんでした。</p>
+    <div class="our-wish" id="our-wish">
+      <div class="title">Viewyに込めた<span class="tint">想い</span></div>
+      <hr>
+
+      <div class="wish flex block">
+        <div class="wish-container">
+          <div class="wish-title">安全でリテラシーのある無料アダルトサイトがほしい</div>
+          <div class="wish-content">
+            <p>いま日本では違法の無料サイトが乱立しており、深刻な権利侵害問題を引き起こしています。</p>
+            <p>それでも多くの人が違法のサイトを使う理由は、まともな無料サイトが日本に存在しないからだと考えました。</p>
+            <p>成人であれば誰もが気軽に利用できて、かつリテラシーのあるアダルトサイトが日本で求められているのです。</p>
+            <p class="black block">Viewyは完全無料でご利用いただけます。<br>そして運営から認可を受けたパートナーのみが投稿できることに加え、監視体制と通報制度を完備しているため安心安全です。</p>
+            <p>Viewyを通してアダルトコンテンツにおける権利問題の解決に少しでも貢献したいと考えています。</p>
+          </div>
+        </div>
+        <div class="wish-img">1</div>
+      </div>
+
+      <div class="wish right flex block">
+        <div class="wish-img">2</div>
+        <div class="wish-container">
+          <div class="wish-title">成人向け業界に、新たな広告の場を提供したい</div>
+          <div class="wish-content">
+            <p>アフィリエイトを始めとした新たな形式の広告も広く普及していますが、まだまだアダルト領域の業界は、普通の業界と比べて宣伝の場が限定的です。</p>
+            <p>またアフィリエイト広告は違法サイトでも利用されてしまう可能性がありますが、そこで他のあやしい広告と一緒に悪質な手法で掲載されてしまえば、ユーザーにとっても広告主にとっても悪影響です。</p>
+            <p>こうした問題を解決するためにも、アダルト領域を支えている数々のサービスやメーカー様がフォーマルな形式で宣伝できる場を増やしたいと考えました。</p>
+            <p class="black block">Viewyでは、信用できる企業様の広告しか掲載しないうえ、広告が投稿に近い形で表示されるため、高いユーザー体験と広告効果を期待できます。</p>
+            <p>Viewyが、アダルト関連の領域で活躍する企業様の魅力を発信できる新たな場としてその選択肢に加わることを願っています。</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="wish flex block">
+        <div class="wish-container">
+          <div class="wish-title">アダルト領域で活躍するクリエイターの方々の魅力発信の場を守りたい</div>
+          <div class="wish-content">
+            <p>日本には数多くのアダルト領域で活躍するクリエイターの方々がいらっしゃいますが、その主な発信の場は、XをはじめとしたSNSです。</p>
+            <p>しかし、近年の規制強化によってただでさえ限定的な発信の機会が危ぶまれている状況であります。</p>
+            <p>唐突なアカウントの凍結やバンがクリエイターの経済状況を大きく動かしてしまうほどです。</p>
+            <p>世界を盛り上げてくれているこうしたクリエイターたちが唐突な規制におびえすぎることなく堂々と魅力を拡散できるような新たな場が必要となってきています。</p>
+            <p class="black block">Viewyは、パートナーと密なコンタクトをとることで、厳重な監視体制と通報制度を維持しながらも、パートナーに寄り添った運営を実現します。</p>
+            <p>Viewyの存在が、少しでもクリエイターの方々の支えになれることを祈っています。</p>
+          </div>
+        </div>
+        <div class="wish-img">3</div>
+      </div>
+
+    </div>
+
+    <div class="ad-features" id="ad-features">
+      <div class="main-title">広告の表示方法</div>
+      <hr>
+
+
+      <div class="feature block">
+        <div class="title"><span class="important">「投稿型」の広告が掲載可能</span></div>
+        <div class="flex center">
+          <div class="video2">
+            <video src="{{ MEDIA_URL }}others\紹介動画.mp4" playsinline loop muted autoplay width="280px"></video>
+          </div>
+          <div class="sentence">
+            <div class="tag">通常の投稿リストに挿入される投稿型</div>
+            <div class="tag">
+              様々な情報を添付可能
+              <ul class="list">
+                <li>最大２分の動画か最大31枚の画像</li>
+                <li>タイトル</li>
+                <li>キャプション</li>
+                <li>ハッシュタグ</li>
+                <li>URL</li>
+                <li>プロフィール画像</li>
+                <div style="margin-top: 8px;">※通常の投稿と同じ</div>
+              </ul>
+            </div>
+            <div class="tag">投稿をタップすると添付したリンクに飛ぶ</div>
+            <div class="tag">広告表示は投稿４つにつき１つの頻度</div>
+          </div>
         </div>
       </div>
-      <div class="wish-img">3</div>
+
+      <div class="feature block">
+        <div class="title"><span class="important">アダルトサイトならではのユーザーデモグラフィック情報</span>をもとに<br>ターゲティングが可能</div>
+        <div class="content">
+          <img src="{{ MEDIA_URL }}others/ターゲティング.png" alt="" class="target">
+        </div>
+        <div style="margin-top: 48px;">
+          <p>Viewyではユーザーのアクションや強制アンケートからユーザーの属性やデモグラフィック情報を常に収集し蓄積していきます。</p>
+          <p>これらのデータをもとに高い精度でお望みのユーザー層に広告を表示することができます。</p>
+          <p>ユーザーを振り分ける項目にはアダルトサイトならでは項目が多く、通常の広告のターゲティングでは不可能な、ニッチな領域にまでユーザーを絞ることができます。</p>
+        </div>
+      </div>
+
+      <div class="feature block">
+        <div class="title">広告主様専用のページで<span class="important">リアルタイムに成績が確認可能</span></div>
+        <div class="content flex">
+          <div class="item">
+            <div class="icon">
+              <img src="{{ MEDIA_URL }}others/date_window_simple.png" alt="">
+            </div>
+            <div class="words">PV数、滞在率、<br>クリック数等を確認</div>
+          </div>
+          <div class="item">
+            <div class="icon">
+              <img src="{{ MEDIA_URL }}others/creative_simple.png" alt="">
+            </div>
+            <div class="words">新しい広告の追加</div>
+          </div>
+          <div class="item">
+            <div class="icon">
+              <img src="{{ MEDIA_URL }}others/deskwork_date_woman_simple.png" alt="">
+            </div>
+            <div class="words">広告の停止、削除</div>
+          </div>
+        </div>
+        <div class="cercle-img"></div>
+      </div>
+
     </div>
 
-  </div>
-
-  <div class="ad-features" id="ad-features">
-    <div class="main-title">広告の表示方法</div>
-    <hr>
-
-
-    <div class="feature block">
-      <div class="title"><span class="important">「投稿型」の広告が掲載可能</span></div>
-      <div class="flex center">
-        <div class="video2">
-          <video src="{{ MEDIA_URL }}others\紹介動画.mp4" playsinline loop muted autoplay width="300px"></video>
+    <div class="favor" id="favor">
+      <div class="title">お伝えしたいこと</div>
+      <hr>
+      <div class="sentence">
+        <div class="highlight">Viewyは10月1日にリリースします。</div>
+      </div>
+      <div class="main-favor">
+        <p>そして現在、</p>
+        <div class="demand block">Viewyに広告を掲載してくださる企業様を募集しております。</div>
+        <p>現状リリース前もしくはリリース直後であること、広告効果の測定を兼ねていることをご理解していただいたうえで、</p>
+        <p><span class="demand">10月31日</span>までに広告の掲載を開始してくださった企業様には、</p>
+        <div class="gift block">半年間の検索画面への掲示</div>
+        <div class="gift block">「ファンディングサポーター」の称号贈呈</div>
+        <p>をお約束させていただきます。</p>
+        <div class="flex gift-image-container block">
+          <div class="gift-image">
+            <img src="{{ MEDIA_URL }}others/投稿画面.png" alt="">
+            <div>検索画面掲載イメージ</div>
+          </div>
+          <div class="gift-image">
+            <img src="{{ MEDIA_URL }}others/いいね欄.png" alt="">
+            <div>ファンディングサポーターの称号表示イメージ</div>
+          </div>
         </div>
-        <div class="sentence">
-          <div class="tag">通常の投稿リストに挿入される投稿型</div>
-          <div class="tag">
-            様々な情報を添付可能
-            <ul class="list">
-              <li>最大２分の動画か最大31枚の画像</li>
-              <li>タイトル</li>
-              <li>キャプション</li>
-              <li>ハッシュタグ</li>
-              <li>URL</li>
-              <li>プロフィール画像</li>
-              <div style="margin-top: 8px;">※通常の投稿と同じ</div>
+
+      </div>
+      
+      <div class="guide block">
+        <p>ご協力いただける場合は、お手数ですが、<br>こちらのページリンクを送らせていただいたメールにご返信ください。</p>
+
+        <p>すぐに、広告掲載についての契約書と広告主様用のアカウント作成フォームを送信させていただきます。</p>
+
+        <p>詳細につきましてもメールにてご気軽にお尋ねください。</p>
+
+        <p class="underline">zoomでも対応させていただいております。</p>
+      </div>
+
+    </div>
+
+    <div class="detail" id="detail">
+      <div class="title">詳細</div>
+      <hr>
+
+      <div class="part">
+        <div class="title">料金について</div>
+        <p>料金の発生方法は、広告ごとにCPM方式とCPC方式からお選びいただけます。
+        </p>
+        <p>10月,11月に限り、CPMとCPCは以下の固定料金でご案内させていただきます。</p>
+        <p class="strong" style="text-align: center; font-size: 20px;">CPM = 500円</p>
+        <p class="strong" style="text-align: center; font-size: 20px;">CPC = 30円</p>
+        <p>※12月以降は運用型広告への移行を予定しております。</p>
+      </div>
+
+      <div class="part">
+        <div class="title">掲載可能なメディアの詳細</div>
+        <div class="flex">
+          <div>
+            <div class="patern">動画の場合</div>
+            <ul>
+              <li>最大２分
+              </li>
+              <li>最大１５MB</li>
+              <li>最大720px</li>
             </ul>
           </div>
-          <div class="tag">投稿をタップすると添付したリンクに飛ぶ</div>
-          <div class="tag">広告表示は投稿４つにつき１つの頻度</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="feature block">
-      <div class="title"><span class="important">アダルトサイトならではのユーザーデモグラフィック情報</span>をもとに<br>ターゲティングが可能</div>
-      <div class="content">
-        <img src="{{ MEDIA_URL }}others/ターゲティング.png" alt="" class="target">
-      </div>
-      <div style="margin-top: 48px;">
-        <p>Viewyではユーザーのアクションや強制アンケートからユーザーの属性やデモグラフィック情報を常に収集し蓄積していきます。</p>
-        <p>これらのデータをもとに高い精度でお望みのユーザー層に広告を表示することができます。</p>
-        <p>ユーザーを振り分ける項目にはアダルトサイトならでは項目が多く、通常の広告のターゲティングでは不可能な、ニッチな領域にまでユーザーを絞ることができます。</p>
-      </div>
-    </div>
-
-    <div class="feature block">
-      <div class="title">広告主様専用のページで<span class="important">リアルタイムに成績が確認可能</span></div>
-      <div class="content flex">
-        <div class="item">
-          <div class="icon">
-            <img src="{{ MEDIA_URL }}others/date_window_simple.png" alt="">
+          <div>
+            <div class="patern">画像の場合</div>
+            <ul>
+              <li>最大31ページ</li>
+              <li>最大5MB</li>
+              <li>最大1080px</li>
+            </ul>
           </div>
-          <div class="words">PV数、滞在率、<br>クリック数等を確認</div>
-        </div>
-        <div class="item">
-          <div class="icon">
-            <img src="{{ MEDIA_URL }}others/creative_simple.png" alt="">
-          </div>
-          <div class="words">新しい広告の追加</div>
-        </div>
-        <div class="item">
-          <div class="icon">
-            <img src="{{ MEDIA_URL }}others/deskwork_date_woman_simple.png" alt="">
-          </div>
-          <div class="words">広告の停止、削除</div>
         </div>
       </div>
-      <div class="cercle-img"></div>
-    </div>
 
-  </div>
-
-  <div class="favor" id="favor">
-    <div class="title">お伝えしたいこと</div>
-    <hr>
-    <div class="sentence block">
-      <div class="highlight">Viewyは一般公開を10月7日に控えています。</div>
-      <p>事前に２週間の期間を設けて(8/16~8/31)、Viewyのパートナーとして公開前登録をしてくださるクリエイターを募集しました。</p>
-      <p>その結果、上にも挙げた私たちの願いが通じ、２週間で80人以上のクリエイターの方々に登録していただきました。<br>そのXの総フォロワーは375万人以上に上ります。</p>
-    </div>
-    <div class="partner-list2"></div>
-
-    <div class="main-favor block">
-      <div class="demand">この度、広告の成果データ収集を兼ねてViewy公開時に広告を掲載してくださる企業様を募集しております。</div>
-      <p>現状公開前であること、広告効果の測定を兼ねていることをご理解していただいたうえで、</p>
-      <p><span style="font-size: 22px;">10/7までに広告の掲載を開始してくださった企業様</span>には、</p>
-      <div class="gift block">「Viewyでの広告費用の永久半額化」</div>
-      <p>という特典を贈呈させていただきます。</p>
-      <p>※サイト名や広告方法に変更があった場合でも適応させていただきます。</p>
-    </div>
-
-  </div>
-
-  <div class="detail" id="detail">
-    <div class="title">詳細</div>
-    <hr>
-
-    <div class="part">
-      <div class="title">料金について</div>
-      <p>料金体系は現状CPM型のみでご用意させていただいております。</p>
-      <p>基本CPMは1,000円です。（初月のみ）</p>
-      <p>ターゲットを絞る場合、その割合に応じて料金が上昇します。</p>
-      <div class="ex">例：。。。。。</div>
-    </div>
-
-    <div class="part">
-      <div class="title">掲載可能なメディアの詳細</div>
-      <div class="flex">
-        <div>
-          <div class="patern">動画の場合</div>
-          <ul>
-            <li>最大２分
-            </li>
-            <li>最大１５MB</li>
-            <li>最大720px</li>
-          </ul>
+      <div class="part">
+        <div class="title"> 現在のサイトの状況
         </div>
-        <div>
-          <div class="patern">画像の場合</div>
-          <ul>
-            <li>最大31ページ</li>
-            <li>最大5MB</li>
-            <li>最大1080px</li>
-          </ul>
-        </div>
+        <ul>
+          <li>登録パートナー：<span class="strong">80人以上</span>
+          </li>
+          <li>パートナーのX総フォロワー：<span class="strong">350万人以上</span></li>
+          <li>投稿数：２５０個以上</li>
+          <li>選択可能なユーザーデモグラフィック：男性か女性か、二次元好きか三次元好きか</li>
+        </ul>
+      </div>
+
+      <div class="part">
+        <div class="title">公開後の予測（初月）</div>
+        <ul>
+          <li>初月の訪問回数：20,000～50,000回</li>
+          <li>１訪問当たりの広告視聴数：6回</li>
+          <li>初月の広告のPV数合計：120,000～600,000回</li>
+        </ul>
+      </div>
+
+      <div class="part">
+        <div class="title">目標</div>
+        <ul>
+          <li>2024年10月の月間訪問回数：6億回
+          </li>
+          <li>2025年10月の月間訪問回数：60億回</li>
+        </ul>
+      </div>
+
+      <div class="part">
+        <div class="title">利用規約等</div>
+        <p>以下のリンクからViewyの規約関連をご確認いただけます。</p>
+        <ul>
+          <li><a href="{% url 'terms'%}">利用規約</a></li>
+          <li><a href="{% url 'policy'%}">プライバシーポリシー</a></li>
+          <li><a href="{% url 'guideline'%}">投稿ガイドライン</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="summary" id="summary">
+      <div class="title">広告掲載開始までの手順</div>
+      <hr>
+
+      <div class="step-container">
+        <div class="step aqua block">当ページのリンクが添付されたメールに返信</div>
+        <div class="arrow block">↓</div>
+        <div class="step block">送信された広告掲載契約書に同意</div>
+        <div class="arrow block">↓</div>
+        <div class="step block">送信された専用フォームから広告主用のアカウント作成</div>
+        <div class="arrow block">↓</div>
+        <div class="step block">管理画面にログイン</div>
+        <div class="arrow block">↓</div>
+        <div class="step aqua block">キャンペーン及び広告を作成、掲載開始</div>
+        <div class="arrow block" style="color: gray;">↓</div>
+        <div class="step gray block">毎月末に掲載料確定</div>
+        <div class="arrow block" style="color: gray;">↓</div>
+        <div class="step gray block">翌月20日までに掲載料を支払う</div>
+      </div>
+
+      <p class="last-message">Viewyが、アダルト関連の領域で活躍する企業様の魅力を発信できる新たな場としてその選択肢に加わることを願っています。</p>
+
+    </div>
+
+    <div class="footer">
+      <div id="foot-bar">
+        <a href="#what-is-viewy">Viewyとは</a>
+        <a href="#our-wish">私たちの想い</a>
+        <a href="#ad-features">広告について</a>
+        <a href="#favor">お伝えしたいこと</a>
+        <a href="#detail">詳細</a>
+        <a href="#summary">最後に</a>
+      </div>
+      <div class="terms">
+        <a href="{% url 'terms'%}">利用規約</a>
+        <a href="{% url 'policy'%}">プライバシーポリシー</a>
+        <a href="{% url 'guideline'%}">投稿ガイドライン</a>
+        <a href="http://front-front.com/"> 運営会社</a>
+      </div>
+      <div class="company">合同会社Front&Front</div>
+    </div>
+
+    <div id="tab-bar">
+      <div class="mini-logo">
+        <img src="{{ MEDIA_URL }}others/ヘッダー2.png" alt="">
+      </div>
+      <a href="#what-is-viewy">Viewyとは</a>
+      <a href="#our-wish">私たちの想い</a>
+      <a href="#ad-features">広告について</a>
+      <a href="#favor">お伝えしたいこと</a>
+      <a href="#detail">詳細</a>
+      <a href="#summary">開始手順</a>
+      <div class="viewy">
+        <a href="{% url 'posts:visitor_postlist'%}">Viewyを体験→</a>
       </div>
     </div>
 
-    <div class="part">
-      <div class="title"> 現在のサイトの状況
-      </div>
-      <ul>
-        <li>登録パートナー：８０人以上
-        </li>
-        <li>投稿数：２５０個以上</li>
-        <li>選択可能なユーザーデモグラフィック：男性か女性か、二次元好きか三次元好きか</li>
-      </ul>
-    </div>
-
-    <div class="part">
-      <div class="title">公開後の予測（初月）</div>
-      <ul>
-        <li>初月の訪問回数：20,000～50,000回</li>
-        <li>１訪問当たりの広告視聴数：6回</li>
-        <li>初月の広告のPV数合計：120,000～600,000回</li>
-      </ul>
-    </div>
-
-    <div class="part">
-      <div class="title">目標</div>
-      <ul>
-        <li>2024年10月の月間訪問回数：6億回
-        </li>
-        <li>2025年10月の月間訪問回数：60億回</li>
-      </ul>
-    </div>
-
   </div>
-
-  <div class="summary block" id="summary">
-    <p>Viewyがこれらの目標を達成できた場合、広告費の永久半額化は大きな特典となることと思われます。</p>
-
-    <p class="under-line">ご協力いただける場合は、お手数ですが、こちらのページリンクを遅らせていただいたメールにご返信ください。</p>
-
-    <p class="under-line">すぐに、広告掲載についての契約書と広告主様用のアカウント作成フォームを送信させていただきます。</p>
-
-    <p>詳細につきましてもメールにてご気軽にお尋ねください。</p>
-
-    <p>zoomでも対応させていただいております。</p>
-  </div>
-
-  <div id="tab-bar">
-    <a href="#what-is-viewy">Viewyとは</a>
-    <a href="#our-wish">私たちの想い</a>
-    <a href="#ad-features">広告について</a>
-    <a href="#favor">お伝えしたいこと</a>
-    <a href="#detail">詳細</a>
-    <a href="#summary">最後に</a>
-  </div>
-
-</div>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // スクロール速度（大きいほど速くなる）
       let speed = 1;
-  
+
       // list1要素を取得し、左から右にスクロール
       let list1 = document.querySelector('.list1');
       let scrollAmount1 = 0;
-      setInterval(function() {
+      setInterval(function () {
         scrollAmount1 += speed;
         list1.scrollLeft = scrollAmount1;
       }, 30);
-  
+
       // list2要素を取得し、左から右にスクロール（見た目は逆方向）
       let list2 = document.querySelector('.list2');
       let scrollAmount2 = 0;
-      setInterval(function() {
+      setInterval(function () {
         scrollAmount2 += speed;
         list2.scrollLeft = list2.scrollWidth - list2.clientWidth - scrollAmount2;
       }, 30);
     });
   </script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       var blocks = document.querySelectorAll('.block');
-    
+
       function checkVisibility() {
         var windowHeight = window.innerHeight;
-    
-        blocks.forEach(function(block) {
+
+        blocks.forEach(function (block) {
           var rect = block.getBoundingClientRect();
-    
+
           // 要素が画面の高さの4/5に来たかどうかをチェック
-          if (rect.top <= (windowHeight * 3) / 5 && rect.bottom >= (windowHeight * 3) / 5) {
+          if (rect.top <= (windowHeight * 4) / 5 && rect.bottom >= (windowHeight * 3) / 5) {
             block.classList.add('visible');
           }
         });
       }
-    
+
       window.addEventListener('scroll', checkVisibility);
       window.addEventListener('resize', checkVisibility);
-    
+
       // ページロード時にもチェック
       checkVisibility();
     });
-    
-    </script>
-    <script>
-      document.querySelectorAll('#tab-bar a').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
 
-    const targetId = this.getAttribute('href').substring(1); // Remove '#'
-    const targetElement = document.getElementById(targetId);
+  </script>
+  <script>
+    document.querySelectorAll('#tab-bar a, #foot-bar a').forEach(anchor => {
+      // .viewy > a は除外
+      if (anchor.closest('.viewy')) return;
 
-    // Get the height of the tab bar or any fixed elements that might overlap
-    const offsetHeight = 80; // Adjust this value based on your tab bar's height
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
 
-    // Scroll to the element
-    window.scrollTo({
-      top: targetElement.offsetTop - offsetHeight,
-      behavior: 'smooth'
+        const targetId = this.getAttribute('href').substring(1); // Remove '#'
+        const targetElement = document.getElementById(targetId);
+
+        if (!targetElement) {
+          console.error(`Element with id ${targetId} not found!`);
+          return;
+        }
+
+        const offsetHeight = 40; // これがfoot-barの高さに影響するかもしれません。調整が必要であれば変更してください。
+        window.scrollTo({
+          top: targetElement.offsetTop - offsetHeight,
+          behavior: 'smooth'
+        });
+      });
     });
-  });
-});
-    </script>
+  </script>
 </body>
+
 </html>
