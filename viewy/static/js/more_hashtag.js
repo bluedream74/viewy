@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Loading next post...');
 
     const allPosts = document.querySelectorAll('.post:not([data-is-advertisement="True"])');
-    const lastPostId = allPosts[allPosts.length - 2].dataset.postId;
+    const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
 
     // ハッシュタグを取得 hashtag_list.htmlの下のdivに隠してある
     const hashtag = document.querySelector('#hashtagContainer').dataset.hashtag;

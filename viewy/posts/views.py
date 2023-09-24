@@ -2,6 +2,7 @@
 from datetime import datetime
 import os
 import random
+from random import sample  
 
 # Third-party Django
 from django import forms
@@ -27,7 +28,7 @@ from django.views.generic.list import ListView
 
 # Local application/library specific
 from accounts.models import Follows, SearchHistorys
-from advertisement.models import AdInfos, AndFeatures
+from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
 
@@ -122,7 +123,7 @@ class BasePostListView(ListView):
             print(f"Cache MISS for user {user.id}")  # キャッシュがミスした場合にログを表示
         
         user_features = set(user.features.all())
-
+        print(user_features)
         advertiser_users = self.get_advertiser_users()
 
         # まず、各 AndFeatures の中で、user_features と一致する orfeatures の数を計算
@@ -134,9 +135,11 @@ class BasePostListView(ListView):
                 )
             )
         ).filter(matched_orfeatures_count__gte=1)
+        
 
-        # 次に、これを使用して各 AdInfos で、全ての AndFeatures が上記の条件を満たすものをフィルタリング
-        matching_adinfos = AdInfos.objects.annotate(
+        # 次に、これを使用して各 AdCampaigns で、全ての AndFeatures が上記の条件を満たすものをフィルタリング
+        #andfeaturesを持っていないAdCampaignsは、total_andfeaturesは0になり、matched_andfeaturesも0になる（何もマッチしないため）
+        matching_adcampaigns = AdCampaigns.objects.annotate(
             total_andfeatures=Count('andfeatures', distinct=True),
             matched_andfeatures=Count(
                 Case(
@@ -146,30 +149,30 @@ class BasePostListView(ListView):
             )
         ).filter(matched_andfeatures=F('total_andfeatures'))
 
-        # 最後に、この条件を満たす AdInfos を持つ Posts をフィルタリング
+        
+        # 最後に、この条件を満たす AdCampaigns を持つ Posts をフィルタリング
+        # Directly filter Posts based on matching AdCampaigns
         ad_posts = (self.annotate_emote_total(Posts.objects.filter(
-            Q(adinfos__in=matching_adinfos) | Q(adinfos__isnull=True),
+            Q(adinfos__ad_campaign__in=matching_adcampaigns) ,
             poster__in=advertiser_users
         ))
-        .select_related('poster', 'adinfos__post')   # 仮定: PostsモデルにposterというForeignKeyがあり、AdInfosとのOneToOne関係も取得
+        .select_related('poster', 'adinfos__post', 'adinfos__ad_campaign')
         .prefetch_related(
-            'visuals',                              # 仮定: Postsモデルと関連付けられた他のモデルの名前
-            'adinfos__andfeatures',                 # AdInfosとAndFeaturesとの関係を効率的にフェッチ
-            'adinfos__andfeatures__orfeatures'      # AndFeaturesとFeaturesとの関係を効率的にフェッチ
+            'visuals',
+            'adinfos__ad_campaign__andfeatures',
+            'adinfos__ad_campaign__andfeatures__orfeatures'
         ))
-
         # 適切な広告をランダムに取得
-        posts = ad_posts.order_by('?')[:count]
-
+        posts = ad_posts
         # 以下のコードは以前のものを変更せずにそのまま使用します。
-        ad_post_ids = [post.id for post in ad_posts]
+        ad_post_ids = [post.id for post in posts]
         favorited_ads = Favorites.objects.filter(user=user, post_id__in=ad_post_ids).values_list('post', flat=True)
         favorited_ads_set = set(favorited_ads)
 
-        followed_ad_posters_ids = [post.poster.id for post in ad_posts]
+        followed_ad_posters_ids = [post.poster.id for post in posts]
         followed_ad_posters_set = self.get_followed_posters_set(user, followed_ad_posters_ids)
 
-        for post in ad_posts:
+        for post in posts:
             post.favorited_by_user = post.id in favorited_ads_set
             post.followed_by_user = post.poster.id in followed_ad_posters_set
             post.is_advertisement = True
@@ -177,12 +180,18 @@ class BasePostListView(ListView):
         # 結果をキャッシュに保存
         cache.set(cache_key, posts, 3600)  # 1時間キャッシュする
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
-
+        print(posts)
         return posts
 
-    def get_ad_posts(self, user, count=2):
-        ad_posts = self.get_advertiser_posts(user, count=count)
-        return iter(ad_posts)
+    # def get_ad_posts(self, user, count=2):
+    #     ad_posts = self.get_advertiser_posts(user, count=count)
+    #     return iter(ad_posts)
+    
+    def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
+        # キャッシュから全ての広告を取得
+        all_advertiser_posts = list(self.get_advertiser_posts(user)) 
+
+        return sample(all_advertiser_posts, min(2, len(all_advertiser_posts)))
     
     def integrate_ads(self, queryset, ad_posts_iterator):
         final_posts = []
@@ -283,8 +292,9 @@ class PostListView(BasePostListView):
         first_4_by_rp = sorted_posts_by_rp[:4]
         next_2_by_rp = sorted_posts_by_rp[4:6]
 
-        # Advertiserの投稿をランダムに取得 (ここで2つ取得)
-        advertiser_posts = self.get_advertiser_posts(user, 2)
+
+        # 全ての広告からランダムに2つを選びます。
+        advertiser_posts = self.get_random_ad_posts(user)
 
         # 最新の100個の投稿を取得して、dimensionフィルターを適用
         latest_100_posts = Posts.objects.all().order_by('-id')
@@ -436,11 +446,11 @@ class FavoritePostListView(BaseFavoriteView):
         # 現在のユーザーを取得
         user = self.request.user
 
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -468,11 +478,11 @@ class GetMoreFavoriteView(BaseFavoriteView):
         # 現在のユーザーを取得
         user = self.request.user
 
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
     
 
 class GetMorePreviousFavoriteView(BaseFavoriteView):
@@ -495,14 +505,14 @@ class GetMorePreviousFavoriteView(BaseFavoriteView):
         # 現在のユーザーを取得
         user = self.request.user
 
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
     
 
-class BasePosterView(BasePostListView):
+class  BasePosterView(BasePostListView):
     def set_poster_from_username(self):
         self.poster = get_object_or_404(Users, username=self.kwargs['username'])
 
@@ -523,9 +533,14 @@ class BasePosterView(BasePostListView):
         return posts
 
     def integrate_ads_to_queryset(self, queryset):
+
+        # 現在のユーザーを取得
         user = self.request.user
-        ad_posts_iterator = self.get_ad_posts(user)
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
+
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, iter(ad_posts))
     
 
 class PosterPageView(BasePosterView):
@@ -598,7 +613,9 @@ class GetMorePosterPostsView(BasePosterView):
             return Posts.objects.none()  # 分岐が不要である場合、何も返さない
 
         # Use the integrate method from the BasePosterView
-        return self.integrate_ads_to_queryset(queryset)
+        final_queryset = self.integrate_ads_to_queryset(queryset)
+
+        return final_queryset
     
     
 class GetMorePreviousPosterPostsView(BasePosterView):
@@ -732,14 +749,14 @@ class HashtagPostListView(BaseHashtagListView):
         # base_querysetがselected_post_idsの順番と同じになるようにソート
         base_queryset = sorted(base_queryset, key=lambda post: post_ids.index(post.id))
 
+
         # 現在のユーザーを取得
         user = self.request.user
-
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(base_queryset, ad_posts_iterator)
+        return self.integrate_ads(base_queryset, iter(ad_posts))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -781,12 +798,11 @@ class GetMoreHashtagView(BaseHashtagListView):
 
         # 現在のユーザーを取得
         user = self.request.user
-
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
     
 
 
@@ -822,12 +838,11 @@ class GetMorePreviousHashtagView(BaseHashtagListView):
 
         # 現在のユーザーを取得
         user = self.request.user
-
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
     
 
 class MyPostView(BasePostListView):
@@ -1057,11 +1072,11 @@ class FollowListView(BaseFollowListView):
             post_list = post_list[selected_post_index:selected_post_index+8]
             queryset = post_list
 
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(self.request.user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(self.request.user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1089,11 +1104,11 @@ class GetMoreFollowView(BaseFollowListView):
         # 現在のユーザーを取得
         user = self.request.user
 
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
 
 
    
@@ -1118,11 +1133,11 @@ class GetMorePreviousFollowView(BaseFollowListView):
         # 現在のユーザーを取得
         user = self.request.user
 
-        # 2つの広告ポストを取得
-        ad_posts_iterator = self.get_ad_posts(user)
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user) 
 
         # 投稿リストに広告を組み込む
-        return self.integrate_ads(queryset, ad_posts_iterator)
+        return self.integrate_ads(queryset, iter(ad_posts))
 
 
     

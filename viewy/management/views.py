@@ -262,7 +262,7 @@ class Hashtag(SuperUserCheck, TemplateView):
         # If the form is not valid, re-render the page with the form errors
         return self.get(request, *args, **kwargs)
 
-class KanjiRegist(View):
+class KanjiRegist(SuperUserCheck, View):
     template_name = 'management/kanji_regist.html'
 
     def get(self, request, error_message=None):
@@ -301,7 +301,7 @@ class KanjiRegist(View):
         # 保存後のリダイレクト
         return redirect('management:kanji_regist')
 
-class KanjiDelete(View):
+class KanjiDelete(SuperUserCheck, View):
     def post(self, request, pk):
         kanji_hiragana_set = get_object_or_404(KanjiHiraganaSet, pk=pk)
         kanji_hiragana_set.delete()
@@ -322,7 +322,7 @@ class Ad(SuperUserCheck, View):
         context = {'ads': ads, 'wide_ads': wide_ads}
         return render(request, self.template_name, context)
 
-class PosterWaiterList(ListView):
+class PosterWaiterList(SuperUserCheck, ListView):
     template_name = 'management/poster_waiter.html'
     context_object_name = 'users'
     model = Users
@@ -337,7 +337,7 @@ class PosterWaiterList(ListView):
         
         return queryset
 
-class AddToPosterGroup(View):
+class AddToPosterGroup(SuperUserCheck, View):
     def get(self, request, user_id):
         user = get_object_or_404(Users, id=user_id)
         user.poster_waiter= False
@@ -351,7 +351,7 @@ class AddToPosterGroup(View):
         user.save()
         return redirect('management:poster_waiter_list') # ここでリダイレクト先を指定します
 
-class RemoveFromWaitList(View):
+class RemoveFromWaitList(SuperUserCheck, View):
     def get(self, request, user_id):
         user = get_object_or_404(Users, id=user_id)
         user.poster_waiter= False

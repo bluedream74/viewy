@@ -1,0 +1,55 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaigns_list.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div>レポート</div>
+
+
+<div class="block">
+
+  <table>
+    <tr>
+      <th>キャンペーンタイトル</th>
+      <th>広告数</th>
+      <th>合計表示回数</th>
+      <th>予算(円)</th>
+      <th>期限</th>
+      <th>停止／再開</th>
+    </tr>
+    {% for campaign in campaigns %}
+    <tr>
+      <td><a href="{% url 'advertisement:ad_campaign_detail' campaign.id %}">{{ campaign.title }}</a></td>
+      <td>{{ campaign.ad_infos.count }}</td>
+      <td>{{ campaign.total_views_count }}</td>
+      <td>{{ campaign.budget }}</td>
+      <td>{{ campaign.start_date|date:"Y-m-d" }}～{{ campaign.end_date|date:"Y-m-d" }}</td>
+      <td>
+        <form action="{% url 'advertisement:ad_campaign_status' campaign.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit">
+            {% if campaign.is_hidden %}
+            停止中
+            {% else %}
+            公開中
+            {% endif %}
+          </button>
+        </form>
+        <button class="delete-campaign-button" data-campaign-id="{{ campaign.id }}" data-title="{{ campaign.title }}">
+          削除
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/adcampaign_delete.js' %}"></script>
+{% endblock %}

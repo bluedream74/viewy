@@ -75,6 +75,7 @@
       {% if user.is_authenticated %}
       {% if post.followed_by_user %}
       <div class="follow-poster follow-hidden">
+        <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
       </div>
       {% else %}
       <div class="follow-poster">

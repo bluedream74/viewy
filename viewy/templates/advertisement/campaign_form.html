@@ -1,0 +1,79 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/advertisement/campaign_form.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div>キャンペーン作成</div>
+
+
+<div class="block">
+
+  <form method="post">
+    {% csrf_token %}
+    <div>キャンペーンタイトル:{{ form.title }}</div>
+    <div>開始期限:{{ form.start_date }}</div>
+    <div>終了期限:{{ form.end_date }}</div>
+    <div>予算:{{ form.budget }}</div>
+
+    <div>絞り込み:</div>
+
+    <div>
+      {% for orfeature in sex.orfeatures.all %}
+      <input type="checkbox" name="sex_orfeatures" value="{{ orfeature.id }}"> {{ orfeature.name }}
+      {% endfor %}
+      <input type="checkbox" name="sex_orfeatures" value="all"> 全員
+    </div>
+
+    <div>
+      {% for orfeature in dimension.orfeatures.all %}
+      <input type="checkbox" name="dimension_orfeatures" value="{{ orfeature.id }}"> {{ orfeature.name }}
+      {% endfor %}
+      <input type="checkbox" name="dimension_orfeatures" value="all"> 全員
+    </div>
+
+    <button type="submit" disabled>Submit</button>
+  </form>
+</div>
+
+
+{% endblock %}
+{% block script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let submitButton = document.querySelector("button[type='submit']");
+    let sexCheckboxes = document.querySelectorAll("input[name='sex_orfeatures']");
+    let dimensionCheckboxes = document.querySelectorAll("input[name='dimension_orfeatures']");
+    let startDateInput = document.querySelector('#start-date-input');
+    let endDateInput = document.querySelector('#end-date-input');
+
+    // Set the minimum end date to the current start date
+    endDateInput.setAttribute('min', startDateInput.value);
+
+    function checkSelection() {
+      let sexSelected = Array.from(sexCheckboxes).some(checkbox => checkbox.checked);
+      let dimensionSelected = Array.from(dimensionCheckboxes).some(checkbox => checkbox.checked);
+
+      if (sexSelected && dimensionSelected) {
+        submitButton.removeAttribute("disabled");
+      } else {
+        submitButton.setAttribute("disabled", "disabled");
+      }
+    }
+
+    // Initialize
+    checkSelection();
+
+    // Listen for changes
+    sexCheckboxes.forEach(checkbox => checkbox.addEventListener("change", checkSelection));
+    dimensionCheckboxes.forEach(checkbox => checkbox.addEventListener("change", checkSelection));
+
+    // Update the minimum end date when the start date changes
+    startDateInput.addEventListener('change', function () {
+      endDateInput.setAttribute('min', this.value);
+    });
+  });
+</script>
+{% endblock %}

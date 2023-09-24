@@ -1,0 +1,300 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_detail.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div>キャンペーン別レポート</div>
+
+<div>{{ campaign.title }}</div>
+<div>予算：{{ campaign.budget }}円</div>
+<div>期限：{{ campaign.start_date|date:"Y-m-d" }}～{{ campaign.end_date|date:"Y-m-d" }}</div>
+<a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}">編集</a>
+<div class="block campaign">
+  <table>
+    <tr>
+      <th>サムネイル</th>
+      <th>広告タイトル</th>
+      <th>表示回数</th>
+      <th>滞在率</th>
+      <th>料金</th>
+      <th>停止／再開</th>
+      <th>見る</th>
+    </tr>
+    {% for ad_info in ad_infos %}
+    <tr>
+      <td>
+        {% if ad_info.post.ismanga %}
+        <div class="book">
+          {% for visual in ad_info.post.visuals.all|slice:":1" %}
+          <img class=" thumbnail" loading="lazy" src="{{ visual.visual.url }}" alt="{{ ad_info.post.title }}">
+          {% endfor %}
+          <i class="fa-solid fa-book-open manga-icon"></i>
+        </div>
+
+        {% else %}
+        {% with ad_info.post.videos.first as video %}
+        {% if video.thumbnail %}
+        <img class="thumbnail" loading="lazy" src="{{ video.thumbnail.url }}" alt="{{ ad_info.post.title }}">
+        {% else %}
+        <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+        {% endif %}
+        {% endwith %}
+        {% endif %}
+      </td>
+      <td>{{ ad_info.post.title }}</td>
+      <td>{{ ad_info.post.views_count }}</td>
+      <td>{{ ad_info.post.stay_rate|floatformat:2 }}%</td>
+      <td>??</td>
+      <td>
+        <button class="toggle-hidden" data-post-id="{{ ad_info.post.id }}">
+          {% if ad_info.post.is_hidden %}
+          停止中
+          {% else %}
+          公開中
+          {% endif %}
+        </button>
+      </td>
+      <td>
+        <button class="view-button" data-post-id="{{ ad_info.post.id }}">
+          視聴ボタン
+        </button>
+        <button class="delete-button" data-ad-info-id="{{ ad_info.id }}" data-title="{{ ad_info.post.title }}">
+          ×
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  {% if no_ad_message %}
+  <p>{{ no_ad_message }}</p>
+  {% endif %}
+
+</div>
+
+<div class="block adinfo">
+
+  <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
+    <div class="spinner"></div>
+    <!-- {% if post.ismanga %} -->
+    <div class="book">
+      <!-- {% for visual in post.visuals.all %} -->
+      <div class="manga-page">
+        <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      </div>
+      <!-- {% endfor %} -->
+    </div>
+    <!-- {% else %} -->
+    <!-- {% for video in post.videos.all %} -->
+    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+      src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+    <!-- <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0"> -->
+    <br>
+    <!-- {% endfor %} -->
+    <!-- {% endif %} -->
+
+    <div class="content">
+      <div class="side-bar">
+
+        <div class="poster">
+          <div>
+            <a class="poster_username">
+              <img class="poster-img" src="{{user.prf_img.url}}" alt="{{user.prf_img}}">
+            </a>
+          </div>
+        </div>
+
+        <div class="follow-poster">
+          <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
+        </div>
+
+        <div class="favorite">
+          <a class="fa-regular fa-heart not-liked" style="color: rgb(255, 255, 255);"></a>
+        </div>
+
+
+        <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count }}">
+          <div class="emote emote-icon">
+            <i class="fa-regular fa-face-smile"></i>
+            <span class="emote-count total-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="Emote 2" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/発射36ppi.png" alt="Emote 3" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/尊い36ppi.png" alt="Emote 4" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/よだれ36ppi.png" alt="Emote 5" />
+            <span class="emote-count">0</span>
+          </div>
+        </div>
+
+
+
+        <div class="mute">
+          <label class="fa-solid fa-volume-xmark">
+            <input type="checkbox" class="mute-frag" checked>
+          </label>
+        </div>
+        <div class="space-for-hide"></div>
+
+      </div>
+
+      <div class="captions">
+        <div class="poster-name">
+          {% if user.displayname %}
+          <a class="poster-name">＠{{user.displayname}}</a>
+          {% else %}
+          <a class="poster-name">＠{{user.username}}</a>
+          {% endif %}
+
+          <span class="ad-tag">広告</span>
+
+        </div>
+        <div class="title" id="dynamic-title">
+        </div>
+
+        <div class="caption" id="dynamic-caption"></div>
+        <div class="hashtags" id="dynamic-hashtags">
+
+          <!-- <span class="url"><a href="" target="_blank">
+              <i class="fas fa-link"></i>
+            </a></span>
+          <span class="hashtag"><a></a></span>
+          <span class="hashtag"><a></a></span>
+          <span class="hashtag"><a></a></span> -->
+
+        </div>
+      </div>
+
+      <div class="report not-yet">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+
+    </div>
+
+
+    <label class="hide-label fa-solid fa-angle-down hide">
+      <input class="hide-input" type="checkbox" style="display: none;">
+    </label>
+
+
+    <div class="page-count">
+      <span id="current-page">?</span>/<span class="total-page">?</span>
+    </div>
+
+    <div class="play-button">
+      <i class="fa-solid fa-play"></i>
+    </div>
+
+  </div>
+
+  <div class="tab-bar">
+    <a class="home"><i class="fa-solid fa-house fa-xs"></i></a>
+    <a class="serch"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+    <a class="add-post visitor"><i class="fa-solid fa-square-plus fa-sm"></i></a>
+    <a class="like visitor"><i class="fa-solid fa-star fa-xs"></i></a>
+    <a class="my-account visitor"><i class="fa-solid fa-user fa-xs"></i></a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    let buttons = document.querySelectorAll(".view-button");
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        let postId = this.getAttribute("data-post-id");
+        fetch(`/advertisement/ad_view_button/${postId}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+
+            // mediaHtmlとotherHtmlを分けて考える
+            let adinfoBlock = document.querySelector('.adinfo');
+            let mediaHtml = '';
+            let existingBook = adinfoBlock.querySelector('.book');
+            let existingVideos = adinfoBlock.querySelectorAll('.post-video');
+            // 前のコンテンツを削除
+            if (existingBook) {
+              existingBook.remove();
+            }
+
+            existingVideos.forEach(video => {
+              video.remove();
+            });
+            let post = data.post;
+
+            if (post.ismanga) {
+              mediaHtml = '<div class="book">';
+              post.visuals.forEach(visual => {
+                mediaHtml += `<div class="manga-page">
+                          <img class="page-content" src="${visual.url}" alt="${post.title}">
+                        </div>`;
+              });
+              mediaHtml += '</div>';
+            } else {
+              post.videos.forEach((video, index) => {
+                mediaHtml += `<video id="postVideo${index + 1}" class="post-video" width="200px" height="400px" src="${video.url}" loading="lazy" playsinline loop muted></video>
+                        <input id="seekSlider${index + 1}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+                        <br>`;
+              });
+            }
+
+            // 指定の位置（ここではspinnerの後）にmediaHtmlを挿入
+            const spinnerElement = document.querySelector('.spinner');
+            spinnerElement.insertAdjacentHTML('afterend', mediaHtml);
+
+            // タイトル、キャプション、ハッシュタグなどを挿入
+            document.getElementById("dynamic-title").innerText = post.title || "";
+            document.getElementById("dynamic-caption").innerText = post.caption || "";
+
+            // それぞれのhashtagとurlが存在する場合にHTMLを生成
+            let hashtag1Html = post.hashtag1 ? `<span class="hashtag"><a>${post.hashtag1}</a></span>` : '';
+            let hashtag2Html = post.hashtag2 ? `<span class="hashtag"><a>${post.hashtag2}</a></span>` : '';
+            let hashtag3Html = post.hashtag3 ? `<span class="hashtag"><a>${post.hashtag3}</a></span>` : '';
+            let urlHtml = post.url ? `<span class="url"><a href="${post.url}" target="_blank"><i class="fas fa-link"></i></a></span>` : '';
+
+            // hashtagとurlのHTMLを結合
+            let dynamicHashtagsHtml = `${urlHtml}${hashtag1Html}${hashtag2Html}${hashtag3Html}`;
+
+            // HTMLを挿入
+            document.getElementById("dynamic-hashtags").innerHTML = dynamicHashtagsHtml;
+
+          });
+      });
+    });
+  });
+
+</script>
+<script src="{% static 'js/read_more.js' %}"></script>
+<script src="{% static 'js/is_hidden_toggle.js' %}"></script>
+<script src="{% static 'js/hide_contents.js' %}"></script>
+<script src="{% static 'js/adinfo_delete.js' %}"></script>
+{% endblock %}

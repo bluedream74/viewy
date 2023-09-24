@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import (
-  AndFeatures, AdInfos
+  AndFeatures, AdCampaigns, AdInfos,
 )
 
 admin.site.register(
-  [AndFeatures, AdInfos]
+  [AndFeatures, AdCampaigns, AdInfos]
 )
