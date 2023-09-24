@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/advertisement/ad_base.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  <title>Viewy-advertisement</title>
+  {% block head %}
+  {% endblock %}
+</head>
+<body>
+
+  <div class="screen">
+    <div class="side-menu">
+      <a href="{% url 'advertisement:ad_campaigns_list'%}"><i class="fa-solid fa-user menu-icon"></i><span class="menu-title">レポート</span></a>
+      <a href="{% url 'advertisement:campaign_form'%}"><i class="fa-solid fa-photo-film menu-icon"></i><span class="menu-title">キャンペーン作成</span></a>
+      <a href="{% url 'advertisement:ad_manga_create'%}"><i class="fa-solid fa-photo-film menu-icon"></i><span class="menu-title">マンガ広告作成</span></a>
+      <a href="{% url 'advertisement:ad_video_create'%}"><i class="fa-solid fa-photo-film menu-icon"></i><span class="menu-title">動画広告作成</span></a>
+    </div>
+
+    <div class="contents">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+  </div>
+  {% block script %}
+  {% endblock %}
+</body>
+</html>

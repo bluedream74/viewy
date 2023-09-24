@@ -1,0 +1,57 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/advertisement/edit_campaign.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div>キャンペーン編集</div>
+
+
+<div class="block">
+
+  <form method="post">
+    {% csrf_token %}
+    <div>キャンペーンタイトル:{{ form.title }}</div>
+    <div class="disabled">開始期限:{{ form.start_date }}</div>
+    <div>終了期限:{{ form.end_date }}</div>
+    <div>予算:{{ form.budget }}</div>
+
+    <div>ターゲット:</div>
+
+    <div>
+      {% if andfeatures %}
+        {% for andfeature in andfeatures %}
+          <div>{{ andfeature }}</div>
+          {% if not forloop.last %}
+            かつ
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        全員
+      {% endif %}
+    </div>
+
+
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let startDateInput = document.querySelector('#start-date-input');
+  let endDateInput = document.querySelector('#end-date-input');
+
+  // Set the minimum end date to the current start date
+  endDateInput.setAttribute('min', startDateInput.value);
+
+  // Update the minimum end date when the start date changes
+  startDateInput.addEventListener('change', function() {
+    endDateInput.setAttribute('min', this.value);
+  });
+});
+</script>
+{% endblock %}

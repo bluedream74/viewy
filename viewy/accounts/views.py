@@ -27,7 +27,7 @@ from django.contrib.auth.views import LoginView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
-from .models import Follows, Messages, Users, DeleteRequest
+from .models import Follows, Messages, Users, DeleteRequest, Features
 from management.models import UserStats
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
@@ -640,11 +640,28 @@ class DeleteRequestSuccessView(TemplateView):
 class ChangeDimensionView(View):
 
     def post(self, request, *args, **kwargs):
+
         try:
             data = json.loads(request.body)
             new_dimension = float(data.get('dimension'))
 
             request.user.dimension = new_dimension
+
+            # 次元に応じた特徴を追加する
+            feature_2d = get_object_or_404(Features, name="love 2D")
+            feature_3d = get_object_or_404(Features, name="love 3D")
+
+            if new_dimension == 3.0:
+                request.user.features.remove(feature_2d)  # love 2D を削除
+                request.user.features.add(feature_3d)  # love 3D を追加
+
+            elif new_dimension == 2.0:
+                request.user.features.remove(feature_3d)  # love 3D を削除
+                request.user.features.add(feature_2d)  # love 2D を追加
+
+            elif new_dimension == 2.5:
+                request.user.features.add(feature_2d, feature_3d)  # love 2D と love 3D の両方を追加
+
             request.user.save()
 
             return JsonResponse({'success': True})
@@ -656,18 +673,42 @@ class ChangeDimensionView(View):
 class FirstSettingView(View):
 
     def post(self, request, *args, **kwargs):
-        gender = request.POST.get('gender')
-        dimension = float(request.POST.get('dimension'))
+        try:
+            gender = request.POST.get('gender')
+            dimension = float(request.POST.get('dimension'))
 
-        # ここでデータベースを更新します（例：request.userの属性を更新）
-        request.user.gender = gender
-        request.user.dimension = dimension
-        request.user.save()
+            request.user.gender = gender
+            request.user.dimension = dimension
 
-        # 成功メッセージの追加
-        messages.success(request, '初期設定が完了しました。')
+            # 性別に応じた特徴を追加する
+            gender_features = {
+                'male': 'male',
+                'female': 'female',
+                'other': 'other-gender',
+            }
+            if gender in gender_features:
+                feature = get_object_or_404(Features, name=gender_features[gender])
+                request.user.features.add(feature)
 
-        return JsonResponse({'status': 'success'})
+            # 次元に応じた特徴を追加する
+            if dimension == 3.0:
+                feature = get_object_or_404(Features, name='love 3D')
+                request.user.features.add(feature)
+            elif dimension == 2.0:
+                feature = get_object_or_404(Features, name='love 2D')
+                request.user.features.add(feature)
+            elif dimension == 2.5:
+                feature_2d = get_object_or_404(Features, name='love 2D')
+                feature_3d = get_object_or_404(Features, name='love 3D')
+                request.user.features.add(feature_2d, feature_3d)
+
+            request.user.save()
+            
+            messages.success(request, '初期設定が完了しました。')
+            return JsonResponse({'status': 'success'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'error': str(e)})
 
     def get(self, request, *args, **kwargs):
         return JsonResponse({'status': 'error'})

@@ -1,0 +1,64 @@
+.thumbnail {
+  height: 150px;
+  width: 90px;
+}
+
+.block {
+  overflow-y: hidden;
+  width: 350px;
+  min-height: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  border-radius: 8px;
+}
+
+.campaign {
+  overflow-y: scroll;
+}
+
+.post-video {
+  transform: translate(-50%, -50%);
+}
+
+.captions {
+  text-align: left;
+}
+
+/* .hashtag {
+  padding: 1px;
+} */
+
+
+
+
+.book {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  /* 要素を横並びにする */
+  flex-direction: row-reverse;
+  /* 要素を右から左に表示する */
+  overflow-x: scroll;
+  /* 横スクロールを可能にする */
+  scroll-snap-type: x mandatory;
+  position: relative;
+}
+
+.tab-bar {
+  width: 350px;
+  height: 42px;
+  bottom: 0px;
+  display: flex;
+  z-index: 9999;
+}
+
+.tab-bar>a {
+  width: 70px;
+  height: 100%;
+  background-color: rgb(30, 30, 30);
+  text-align: center;
+  line-height: 42px;
+  font-size: 24px;
+  color: white;
+}

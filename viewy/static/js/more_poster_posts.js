@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Loading next post...');
 
     const allPosts = document.querySelectorAll('.post:not([data-is-advertisement="True"])');
-    const lastPostId = allPosts[allPosts.length - 2].dataset.postId;
+    const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
+    console.log(lastPostId);
     
     // ポスターのpkを取得
     const posterInput = document.querySelector('.poster_pk');
@@ -84,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let data = new FormData();
     data.append('last_post_id', lastPostId);
     data.append('pk', posterPk);
+    console.log(posterPk);
 
     fetch(`/posts/get_more_poster_posts/`, { //次の投稿を読み込むビューに送信！
       method: 'POST', // メソッドをPOSTに変更
@@ -100,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
+        console.log("投稿を挿入するよ");
         const html = data.html;
         addHere.insertAdjacentHTML('beforebegin', html);
 

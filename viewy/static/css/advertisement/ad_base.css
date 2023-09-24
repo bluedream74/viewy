@@ -1,0 +1,185 @@
+body{
+  margin: 0px;
+  background-color: rgb(239, 239, 239);
+  font-family: 'Meiryo', sans-serif;
+}
+
+.screen{
+  display: flex;
+}
+
+.side-menu{
+  width: 160px;
+  height: 73vh;
+  min-width: 180px;
+  min-height: 400px;
+  background-color: rgb(32, 41, 43);
+  padding-top: 160px;
+  color: white;
+  box-shadow: 1px 2px 3px gray;
+}
+
+.side-menu > a{
+  display: block;
+  text-decoration: none;
+  height: 40px;
+  padding-left: 12%;
+  line-height: 40px;
+  font-weight: bold ;
+  color: white;
+}
+
+.side-menu > a:hover{
+  cursor: pointer;
+  background-color: rgb(118, 118, 118) ;
+}
+
+.menu-icon{
+  margin-right: 16px;
+}
+
+.contents{
+  display: flex;   /* This makes the children (i.e., .block) line up horizontally */
+  align-items: flex-start;   /* This aligns the children to the top of the container */
+  justify-content: space-between;   /* This creates equal space between the children */
+  flex-wrap: wrap;   /* This allows the blocks to wrap to the next line if the container's width isn't enough */
+  text-align: center;
+  max-height: 100vh;
+  min-height: 100vh;
+  overflow: scroll;
+}
+
+
+.block{
+  max-height: 450px;
+  overflow-y: scroll;
+  margin: 32px;
+  padding: 32px;
+  background-color: white;
+  box-shadow: 0px 2px 3px gray;
+  border-radius: 16px;
+  color: rgb(69, 69, 69);
+  font-size: 15px;
+}
+
+/* スクロールバーを非表示にする */
+::-webkit-scrollbar {
+  display: none;
+}
+
+
+table {
+  border-collapse: collapse;  /* 枠線を重ねて表示 */
+  width: 96%;  /* テーブルの幅を100%に設定 */
+  margin-left: auto;
+  margin-right: auto;
+}
+th, td {
+  border: 0px solid rgb(186, 186, 186);  /* テーブルのセルに1pxの黒い枠線を設定 */
+  padding: 4px;  /* テーブルのセルの内側にパディングを設定 */
+  text-align: left;  /* テキストを左揃えに設定 */
+}
+
+.hashtag-form{
+  font-weight: bold;
+}
+
+p > input{
+  height: 32px;
+  font-weight: bold;
+  border-radius: 50px;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: 8px;
+  border: 1px rgb(32, 41, 43) solid;
+}
+
+.submit{
+  width: 72px;
+  height: 40px;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+.submit:hover{
+  cursor: pointer;
+  background-color: rgb(156, 156, 156);
+}
+
+.serch{
+  width: 100%;
+  text-align: center;
+}
+
+.serch > form > input{
+  margin-top: 24px;
+  width: 60%;
+  height: 24px;
+  padding: 0px 16px;
+  border-radius: 50px;
+}
+
+.error{
+  font-size: 12px;
+  color: orangered;
+}
+
+.errorlist > li{
+  font-size: 12px;
+  color: orangered;
+  list-style: none;
+}
+
+.total_title{
+  font-size: 14px;
+}
+
+.total_number{
+ font-size: 32px;
+ font-weight: bold;
+ color: #00c5c5;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .content{
+    min-height: 100vh;
+  }
+
+  .side-menu{
+    text-align: center;
+    width: auto;
+    min-width: 40px;
+    min-width: auto;
+    min-height: auto;
+    height: calc(var(--vh, 1vh) * 100 - 160px);
+  }
+
+  .side-menu > a{
+    text-align: center;
+    display: block;
+    width: 48px;
+    padding-left: 16px;
+  }
+
+  .menu-title{
+    display: none;
+  }
+
+  table{
+    font-size: 11px;
+  }
+
+  .block{
+    margin: 4px;
+    margin-top: 40px;
+    padding: 4px;
+  }
+
+  .total_table{
+    padding: 16px 32px;
+  }
+}
