@@ -111,6 +111,15 @@ class BasePostListView(ListView):
             cache.set(cache_key, advertiser_users, 3600)
         
         return advertiser_users
+    
+    
+    # SpecialAdvertiserグループに所属しているかをチェック
+    def is_user_special_advertiser(self, user):
+        return user.groups.filter(name='SpecialAdvertiser').exists()
+    
+    # AffiliateAdvertiserグループに所属しているかをチェック
+    def is_user_affiliate_advertiser(self, user):
+        return user.groups.filter(name='AffiliateAdvertiser').exists()
 
     def get_advertiser_posts(self, user, count=1):
         cache_key = f"advertiser_posts_for_user_{user.id}"
@@ -176,16 +185,15 @@ class BasePostListView(ListView):
             post.favorited_by_user = post.id in favorited_ads_set
             post.followed_by_user = post.poster.id in followed_ad_posters_set
             post.is_advertisement = True
-            
+            post.is_by_specialadvertiser = self.is_user_special_advertiser(post.poster)  # SpecialAdvertiserチェックを追加
+            post.is_by_affiliateadvertiser = self.is_user_affiliate_advertiser(post.poster)  # AffiliateAdvertiserチェックを追加
+        
+        
         # 結果をキャッシュに保存
         cache.set(cache_key, posts, 3600)  # 1時間キャッシュする
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
         print(posts)
         return posts
-
-    # def get_ad_posts(self, user, count=2):
-    #     ad_posts = self.get_advertiser_posts(user, count=count)
-    #     return iter(ad_posts)
     
     def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
         # キャッシュから全ての広告を取得
@@ -1192,22 +1200,27 @@ class MyAccountView(TemplateView):
         # Poster グループに関する処理
         cache_key_poster = f"is_poster_{user_id}"
         is_poster = cache.get(cache_key_poster)
-
         if is_poster is None:
             is_poster = user.groups.filter(name='Poster').exists()
             cache.set(cache_key_poster, is_poster, 600)  # 600 seconds = 10 minutes
-
         context['is_poster'] = is_poster
-
+        
         # Advertiser グループに関する処理
         cache_key_advertiser = f"is_advertiser_{user_id}"
         is_advertiser = cache.get(cache_key_advertiser)
-
         if is_advertiser is None:
             is_advertiser = user.groups.filter(name='Advertiser').exists()
             cache.set(cache_key_advertiser, is_advertiser, 600)  # 600 seconds = 10 minutes
-
         context['is_advertiser'] = is_advertiser
+
+        # TomsTalkに関する処理
+        tomstalk_list = TomsTalk.objects.all().annotate(repeat=F('display_rate')).values('id', 'repeat')
+        expanded_list = []
+        for item in tomstalk_list:
+            expanded_list.extend([item['id']] * item['repeat'])
+        selected_id = random.choice(expanded_list) if expanded_list else None
+        context['tomstalk'] = TomsTalk.objects.get(pk=selected_id) if selected_id else None
+        
         context['current_dimension'] = user.dimension
 
         return context

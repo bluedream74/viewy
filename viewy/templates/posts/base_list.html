@@ -38,7 +38,12 @@
 
 <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
   <div class="spinner"></div>
+
+  {% if not post.is_by_affiliateadvertiser %}
+  <!-- アフィリエイターの広告じゃない場合 -->
   {% if post.ismanga %}
+
+  <!-- マンガの場合 -->
   <div class="book">
     {% for visual in post.visuals.all %}
     <div class="manga-page">
@@ -52,19 +57,35 @@
     </div>
     {% endfor %}
   </div>
+
   {% else %}
+
+  <!-- 動画の場合 -->
   {% for video in post.videos.all %}
   <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
     loading="lazy" playsinline loop muted></video>
   <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
   <br>
   {% endfor %}
+
+  {% endif %}
+  {% else %}
+
+  <!-- アフィリエイターの広告の場合 -->
+  <div class="affiliate-ad">
+    {{ post.affiliate_tag|safe }}
+  </div>
+
   {% endif %}
 
   <div class="content">
     <div class="side-bar">
 
       <div class="poster">
+      <!-- 広告主がスペシャルアドバタイザーだったらメダルをかける -->
+      {% if post.is_by_specialadvertiser %}
+      <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
+      {% endif %}
         <div>
           <!-- <p>投稿者:{{post.poster.username}}</p> -->
           <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
@@ -72,6 +93,7 @@
           </a>
         </div>
       </div>
+      {% if not post.is_advertisement %}
       {% if user.is_authenticated %}
       {% if post.followed_by_user %}
       <div class="follow-poster follow-hidden">
@@ -96,6 +118,14 @@
         <a class="fa-solid fa-plus fa-2xs " href="{% url 'accounts:user_login'%}" style="color: black;"></a>
       </div>
       {% endif %}
+      {% else %}
+      <!-- 広告だったらフォローボタンは表示しない -->
+      <div class="follow-poster clear">
+        <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
+      </div>
+      {% endif %}
+
+
 
       {% if user.is_authenticated %}
       <div class="favorite">
@@ -172,9 +202,11 @@
         <a href="{% url 'posts:poster_page' username=post.poster.username %}"
           class="poster-name">＠{{post.poster.username}}</a>
         {% endif %}
+
         {% if post.is_advertisement %}
         <span class="ad-tag">広告</span>
         {% endif %}
+
       </div>
       <div class="title">
         {{post.title}}

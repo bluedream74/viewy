@@ -222,6 +222,16 @@ input[type=range]::-webkit-slider-thumb {
   /* アニメーション終了後に最後のフレームで止まるように設定 */
 }
 
+
+/* アフィリエイト広告 */
+.affiliate-ad {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
 /* サイドバー関連 */
 
 .side-bar {
@@ -345,19 +355,7 @@ label {
   /* 親要素を超える部分を隠します。 */
 }
 
-.ad-prf {
-  border-radius: 50%;
-  width: 52px;
-  height: 52px;
-  background-color: white;
-  margin-left: 9px;
-}
 
-.ad-prf-img {
-  width: 32px;
-  position: relative;
-  top: -2px;
-}
 
 .mini-follow-button {
   display: none;
@@ -540,6 +538,27 @@ label {
   padding: 2px 4px;
   border: 1px white solid;
   border-radius: 4px;
+  margin-left: 8px;
+}
+
+.by_specialadvertiser{
+  color: aqua;
+  text-shadow: none;
+  position: absolute;
+  font-size: 20px;
+  top: 18px;
+  right: 26px;
+  animation: ViewyblinkAnimation 3s infinite; 
+}
+
+@keyframes ViewyblinkAnimation {
+  0%, 100% {color: rgb(0, 195, 255);}
+  50% {color: aqua;}
+}
+
+.clear{
+  opacity: 0;
+  pointer-events: none;
 }
 
 .captions {

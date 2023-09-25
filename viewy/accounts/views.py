@@ -264,7 +264,7 @@ class VerifyView(FormView):
             next_url = self.request.session.pop('return_to', None)
             if registered_as_advertiser:
                 # ここで広告主用のリダイレクト先URLにとばす
-                return redirect('advertiser_dashboard')
+                return redirect('advertisement:ad_campaigns_list')
             elif next_url:
                 return redirect(next_url)  # 元のページにリダイレクト
             return redirect(self.success_url)  # デフォルトのリダイレクト先に移動
