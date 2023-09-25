@@ -1,41 +1,62 @@
 {% extends 'advertisement/ad_base.html' %}
 {% load static %}
 {% block head %}
-<link rel="stylesheet" href="{% static 'css/advertisement/edit_campaign.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_create.css' %}">
 {% endblock %}
 
 
 {% block content %}
-<div>キャンペーン編集</div>
+<div class="page-title">キャンペーン編集</div>
 
 
 <div class="block">
 
-  <form method="post">
+  <form method="post" class="flex">
     {% csrf_token %}
-    <div>キャンペーンタイトル:{{ form.title }}</div>
-    <div class="disabled">開始期限:{{ form.start_date }}</div>
-    <div>終了期限:{{ form.end_date }}</div>
-    <div>予算:{{ form.budget }}</div>
-
-    <div>ターゲット:</div>
 
     <div>
-      {% if andfeatures %}
-        {% for andfeature in andfeatures %}
-          <div>{{ andfeature }}</div>
-          {% if not forloop.last %}
-            かつ
-          {% endif %}
-        {% endfor %}
-      {% else %}
-        全員
-      {% endif %}
+      <div class="info-item">
+        <div class="info-name">キャンペーンタイトル</div>
+        <div class="info-input campaign-title">{{ form.title }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-name">開始日</div>
+        <div class="info-input disabled">{{ form.start_date }}</div>
+        <div class="info-name" style="margin-top: 8px;">終了日</div>
+        <div class="info-input">{{ form.end_date }}</div>
+      </div>
+  
+      <div class="info-item">
+        <div class="info-name">予算</div>
+        <div class="info-input">{{ form.budget }}</div>
+      </div>
     </div>
 
+    <div style="margin-left: 48px;">
+      <div class="info-item">
+        <div class="info-name">ターゲット</div>
 
-    <button type="submit">Submit</button>
+        <div>
+          {% if andfeatures %}
+            {% for andfeature in andfeatures %}
+              <div class="target">{{ andfeature }}</div>
+              {% if not forloop.last %}
+                かつ
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            全員
+          {% endif %}
+        </div>
+      </div>
+
+
+
+      <button type="submit" class="submit-campaign">変更</button>  
+    </div>
+
   </form>
+
 </div>
 
 {% endblock %}

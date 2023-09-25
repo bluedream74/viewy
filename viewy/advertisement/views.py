@@ -89,7 +89,7 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
 
 
 class CampaignFormView(AdvertiserCheckView, View):
-    template_name = 'advertisement/campaign_form.html'
+    template_name = 'advertisement/ad_campaign_create.html'
         
     def get(self, request, *args, **kwargs):
         form = AdCampaignForm()

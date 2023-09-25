@@ -1,0 +1,202 @@
+.campaign-title{
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0px 1px 4px rgb(187, 187, 187);
+}
+
+.campaign-title:hover{
+  background-color: gainsboro;
+  box-shadow: none;
+}
+
+.date{
+  background-color: rgb(247, 255, 255);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.campaign-big-title{
+  background-color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin: 0px 4px;
+  box-shadow: 0px 1px 4px gainsboro;
+}
+
+.release-button{
+  padding: 8px 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  background-color: rgb(184, 184, 184);
+  box-shadow: 0px 1px 2px rgb(197, 197, 197);
+}
+
+.release-button:hover{
+  cursor: pointer;
+  background-color: rgb(96, 96, 96);
+  box-shadow: none;
+}
+
+.release{
+  background-color: rgb(73, 230, 230);
+  color: white;
+}
+
+.release:hover{
+  background-color: rgb(58, 186, 186);
+}
+
+.delete-campaign-button{
+  display: none;
+}
+
+.square-img{
+  width: 90px;
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  object-fit: fill;
+  margin: 0px auto;
+}
+
+.thumbnail {
+  width: 90px;
+}
+
+.manga-icon{
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  color: aqua;
+}
+
+/* .block {
+  overflow-y: hidden;
+  width: 350px;
+  min-height: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  border-radius: 8px;
+} */
+
+.campaign {
+  overflow-y: scroll;
+}
+
+.campaign-info{
+  display: flex;
+  padding: 16px 32px;
+  margin: 0px 32px;
+}
+
+.campaign-info > div, .campaign-info > a{
+  padding: 8px 16px;
+}
+
+.campaign-big-title, .tag{
+  font-weight: bold;
+  margin-right: 16px;
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.edit{
+  background-color: rgb(134, 134, 134);
+  border-radius: 4px;
+  color: white;
+  box-shadow: 0px 1px 2px rgb(197, 197, 197);
+  text-decoration: none;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.edit:hover{
+  background-color: rgb(80, 80, 80);
+  box-shadow: none;
+}
+
+.view-button{
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  background-color: rgb(135, 135, 135);
+  box-shadow: 0px 1px 2px rgb(197, 197, 197);
+}
+
+.view-button:hover{
+  cursor: pointer;
+  background-color: rgb(96, 96, 96);
+  box-shadow: none;  
+}
+
+.preview {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  transition: right 0.5s ease-in-out;
+  box-shadow: -2px 2px 4px gray;
+}
+
+.preview.active {
+  right: 0;
+}
+
+
+
+.post-video {
+  transform: translate(-50%, -50%);
+}
+
+.captions {
+  text-align: left;
+}
+
+/* .hashtag {
+  padding: 1px;
+} */
+
+
+
+
+.book {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  /* 要素を横並びにする */
+  flex-direction: row-reverse;
+  /* 要素を右から左に表示する */
+  overflow-x: scroll;
+  /* 横スクロールを可能にする */
+  scroll-snap-type: x mandatory;
+  position: relative;
+}
+
+.tab-bar {
+  width: 350px;
+  height: 42px;
+  bottom: 0px;
+  display: flex;
+  z-index: 9999;
+}
+
+.tab-bar>a {
+  width: 70px;
+  height: 100%;
+  background-color: rgb(30, 30, 30);
+  text-align: center;
+  line-height: 42px;
+  font-size: 24px;
+  color: white;
+}

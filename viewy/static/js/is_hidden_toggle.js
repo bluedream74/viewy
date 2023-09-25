@@ -24,8 +24,12 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
           if (data.is_hidden) {
             button.textContent = "停止中";
+            button.classList.add("stop");
+            button.classList.remove("release");
           } else {
             button.textContent = "公開中";
+            button.classList.add("release");
+            button.classList.remove("stop");
           }
           button.disabled = false;  // 処理完了後、ボタンを再度有効化
         })

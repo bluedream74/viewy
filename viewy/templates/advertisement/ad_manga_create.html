@@ -7,186 +7,198 @@
 
 
 {% block content %}
-<div>マンガ広告作成</div>
+<div class="page-title">マンガ広告作成</div>
 
 
-<div class="block">
+<div class="block flex">
 
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+  <div class="ad-infos">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
 
-    <div class="error">
-      {% for error in form.non_field_errors %}
-      <div class="error">{{ error }}</div>
-      {% endfor %}
-
-      {% for error in post_form.non_field_errors %}
-      <div class="error">{{ error }}</div>
-      {% endfor %}
-
-      {% for error in visual_form.non_field_errors %}
-      <div class="error">{{ error }}</div>
-      {% endfor %}
-
-    </div>
-
-    <h3>Ad Information</h3>
-    {% for field in form %}
-    <div class="fieldWrapper">
-      {{ field.label_tag }}<br>
-      {{ field }}
-      <div class="error">{{ field.errors }}</div>
-    </div>
-    {% endfor %}
-
-    <h3>Post Details</h3>
-    {{ visual_form.as_div }}
-    <div class="limit">※最大31ページまで</div>
-    <div class="title">
-      <div class="error">{{ post_form.title.errors }}</div>
-      {{ post_form.title }}
-    </div>
-    <div class="url-set">
-      <div class="error">{{ post_form.url.errors }}</div>
-      {{ post_form.url }}
-    </div>
-    <div class="hashtags">
-      <div class="error">{{ post_form.hashtag1.errors }}</div>
-      <div class="error">{{ post_form.hashtag2.errors }}</div>
-      <div class="error">{{ post_form.hashtag3.errors }}</div>
-      <div class="hashtag1">#{{ post_form.hashtag1 }}</div>
-      <div class="hashtag2">#{{ post_form.hashtag2 }}</div>
-      <div class="hashtag3">#{{ post_form.hashtag3 }}</div>
-    </div>
-    <div class="caption">
-      <div class="error">{{ post_form.caption.errors }}</div>
-      {{ post_form.caption }}
-    </div>
-    <input type="hidden" name="post_id" value="{{ post.id }}">
-    <input type="submit" name="preview_button" value="プレビュー">
-    <input type="submit" name="confirm_button" value="投稿">
-  </form>
-
-</div>
-
-<div class="block">
-
-  <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
-    <div class="spinner"></div>
-    <div class="book">
-    </div>
-
-    <div class="content">
-      <div class="side-bar">
-
-        <div class="poster">
-          <div>
-            <a class="poster_username">
-              <img class="poster-img" src="{{user.prf_img.url}}" alt="{{user.prf_img}}">
-            </a>
-          </div>
-        </div>
-
-        <div class="follow-poster">
-          <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
-        </div>
-
-        <div class="favorite">
-          <a class="fa-regular fa-heart not-liked" style="color: rgb(255, 255, 255);"></a>
-        </div>
-
-
-        <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count }}">
-          <div class="emote emote-icon">
-            <i class="fa-regular fa-face-smile"></i>
-            <span class="emote-count total-count">0</span>
-          </div>
-          <div class="emote hidden-emote">
-            <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
-            <span class="emote-count">0</span>
-          </div>
-          <div class="emote hidden-emote">
-            <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="Emote 2" />
-            <span class="emote-count">0</span>
-          </div>
-          <div class="emote hidden-emote">
-            <img src="{{ MEDIA_URL }}emotes/発射36ppi.png" alt="Emote 3" />
-            <span class="emote-count">0</span>
-          </div>
-          <div class="emote hidden-emote">
-            <img src="{{ MEDIA_URL }}emotes/尊い36ppi.png" alt="Emote 4" />
-            <span class="emote-count">0</span>
-          </div>
-          <div class="emote hidden-emote">
-            <img src="{{ MEDIA_URL }}emotes/よだれ36ppi.png" alt="Emote 5" />
-            <span class="emote-count">0</span>
-          </div>
-        </div>
-
-
-
-        <div class="mute">
-          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-            <input type="checkbox" class="mute-frag" checked>
-          </label>
-        </div>
-        <div class="space-for-hide"></div>
-
-      </div>
-
-      <div class="captions">
-        <div class="poster-name">
-          {% if user.displayname %}
-          <a class="poster-name">＠{{user.displayname}}</a>
-          {% else %}
-          <a class="poster-name">＠{{user.username}}</a>
-          {% endif %}
-          {% if post.is_advertisement %}
-          <span class="ad-tag">広告</span>
-          {% endif %}
-        </div>
-        <div class="title">
-        </div>
-
-        <div class="caption"></div>
-        <div class="hashtags">
-
-          <span class="url"><a href="" target="_blank">
-              <i class="fas fa-link"></i>
-            </a></span>
-          <span class="hashtag"><a></a></span>
-          <span class="hashtag"><a></a></span>
-          <span class="hashtag"><a></a></span>
-
-        </div>
-      </div>
-
-      <div class="report not-yet">
-        <i class="fa-solid fa-circle-exclamation"></i>
-      </div>
-
-    </div>
-
-
-    <label class="hide-label fa-solid fa-angle-down hide">
-      <input class="hide-input" type="checkbox" style="display: none;">
-    </label>
-
-
-    <div class="page-count">
-      <span id="current-page">?</span>/<span class="total-page">?</span>
-    </div>
-
-  </div>
+      <div class="select-campaign">
+        <div class="error">
+          {% for error in form.non_field_errors %}
+          <div class="error">{{ error }}</div>
+          {% endfor %}
   
-  <div class="tab-bar">
-    <a class="home"><i class="fa-solid fa-house fa-xs"></i></a>
-    <a class="serch"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
-    <a class="add-post visitor"><i class="fa-solid fa-square-plus fa-sm"></i></a>
-    <a class="like visitor"><i class="fa-solid fa-star fa-xs"></i></a>
-    <a class="my-account visitor"><i class="fa-solid fa-user fa-xs"></i></a>
+          {% for error in post_form.non_field_errors %}
+          <div class="error">{{ error }}</div>
+          {% endfor %}
+  
+          {% for error in visual_form.non_field_errors %}
+          <div class="error">{{ error }}</div>
+          {% endfor %}
+  
+        </div>
+  
+        <div class="section-title">キャンペーンを選択</div>
+        {% for field in form %}
+        <div class="fieldWrapper">
+          {{ field }}
+          <div class="error">{{ field.errors }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+
+      <div class="post-infos">
+        <div class="section-title">広告を作成</div>
+        {{ visual_form.as_div }}
+        <div class="limit">※最大31ページまで</div>
+        <div class="title">
+          <div class="error">{{ post_form.title.errors }}</div>
+          {{ post_form.title }}
+        </div>
+        <div class="url-set">
+          <div class="error">{{ post_form.url.errors }}</div>
+          {{ post_form.url }}
+        </div>
+        <div class="hashtags">
+          <div class="error">{{ post_form.hashtag1.errors }}</div>
+          <div class="error">{{ post_form.hashtag2.errors }}</div>
+          <div class="error">{{ post_form.hashtag3.errors }}</div>
+          <div class="flex">
+            <div class="hashtag1">#{{ post_form.hashtag1 }}</div>
+            <div class="hashtag2">#{{ post_form.hashtag2 }}</div>
+            <div class="hashtag3">#{{ post_form.hashtag3 }}</div>
+          </div>
+
+        </div>
+        <div class="caption">
+          <div class="error">{{ post_form.caption.errors }}</div>
+          {{ post_form.caption }}
+        </div>
+
+      </div>
+      <div class="buttons">
+        <input type="hidden"name="post_id" value="{{ post.id }}">
+        <input type="submit" class="submit-button"  name="preview_button" value="プレビュー">
+        <input type="submit"  class="submit-button" name="confirm_button" value="投稿">
+      </div>
+    </form>
   </div>
+
+  <div class="post-preview">
+    <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
+      <div class="spinner"></div>
+      <div class="book">
+      </div>
+
+      <div class="content">
+        <div class="side-bar">
+
+          <div class="poster">
+            <div>
+              <a class="poster_username">
+                <img class="poster-img" src="{{user.prf_img.url}}" alt="{{user.prf_img}}">
+              </a>
+            </div>
+          </div>
+
+          <div class="follow-poster">
+            <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
+          </div>
+
+          <div class="favorite">
+            <a class="fa-regular fa-heart not-liked" style="color: rgb(255, 255, 255);"></a>
+          </div>
+
+
+          <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count }}">
+            <div class="emote emote-icon">
+              <i class="fa-regular fa-face-smile"></i>
+              <span class="emote-count total-count">0</span>
+            </div>
+            <div class="emote hidden-emote">
+              <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
+              <span class="emote-count">0</span>
+            </div>
+            <div class="emote hidden-emote">
+              <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="Emote 2" />
+              <span class="emote-count">0</span>
+            </div>
+            <div class="emote hidden-emote">
+              <img src="{{ MEDIA_URL }}emotes/発射36ppi.png" alt="Emote 3" />
+              <span class="emote-count">0</span>
+            </div>
+            <div class="emote hidden-emote">
+              <img src="{{ MEDIA_URL }}emotes/尊い36ppi.png" alt="Emote 4" />
+              <span class="emote-count">0</span>
+            </div>
+            <div class="emote hidden-emote">
+              <img src="{{ MEDIA_URL }}emotes/よだれ36ppi.png" alt="Emote 5" />
+              <span class="emote-count">0</span>
+            </div>
+          </div>
+
+
+
+          <div class="mute">
+            <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+              <input type="checkbox" class="mute-frag" checked>
+            </label>
+          </div>
+          <div class="space-for-hide"></div>
+
+        </div>
+
+        <div class="captions">
+          <div class="poster-name">
+            {% if user.displayname %}
+            <a class="poster-name">＠{{user.displayname}}</a>
+            {% else %}
+            <a class="poster-name">＠{{user.username}}</a>
+            {% endif %}
+            {% if post.is_advertisement %}
+            <span class="ad-tag">広告</span>
+            {% endif %}
+          </div>
+          <div class="title">
+          </div>
+
+          <div class="caption"></div>
+          <div class="hashtags">
+
+            <span class="url"><a href="" target="_blank">
+                <i class="fas fa-link"></i>
+              </a></span>
+            <span class="hashtag"><a></a></span>
+            <span class="hashtag"><a></a></span>
+            <span class="hashtag"><a></a></span>
+
+          </div>
+        </div>
+
+        <div class="report not-yet">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+
+      </div>
+
+
+      <label class="hide-label fa-solid fa-angle-down hide">
+        <input class="hide-input" type="checkbox" style="display: none;">
+      </label>
+
+
+      <div class="page-count">
+        <span id="current-page">?</span>/<span class="total-page">?</span>
+      </div>
+
+    </div>
+    
+    <div class="tab-bar">
+      <a class="home"><i class="fa-solid fa-house fa-xs"></i></a>
+      <a class="serch"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+      <a class="add-post visitor"><i class="fa-solid fa-square-plus fa-sm"></i></a>
+      <a class="like visitor"><i class="fa-solid fa-star fa-xs"></i></a>
+      <a class="my-account visitor"><i class="fa-solid fa-user fa-xs"></i></a>
+    </div>
+  </div>
+
 </div>
+
 {% endblock %}
 {% block script %}
 <script src="{% static 'js/preview_ad_manga.js' %}"></script>
