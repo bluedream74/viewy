@@ -27,14 +27,14 @@ from django.contrib.auth.views import LoginView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
-from .models import Follows, Messages, Users, DeleteRequest, Features
+from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults
 from management.models import UserStats
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.template.loader import render_to_string
 from accounts.models import Users
 
@@ -712,3 +712,32 @@ class FirstSettingView(View):
 
     def get(self, request, *args, **kwargs):
         return JsonResponse({'status': 'error'})
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class SurveyAnswerView(View):
+    def post(self, request, selected_option_id, survey_id):
+        user = request.user
+        if user.is_authenticated:
+            try:
+                # selected_option_id, survey_id はURLから渡されます。
+                selected_option = Features.objects.get(pk=selected_option_id)
+                survey = Surveys.objects.get(pk=survey_id)  
+                # すでに回答しているかどうか確認
+                if SurveyResults.objects.filter(user=user, survey=survey).exists():
+                    return JsonResponse({'status': 'error', 'message': 'Already answered'}, status=400)
+                
+                # 回答を保存
+                survey_result = SurveyResults(user=user, survey=survey, selected_option=selected_option)
+                survey_result.save()
+                
+                # ユーザーのfeaturesに選択した特性を追加
+                user.features.add(selected_option)
+                
+                return JsonResponse({'status': 'success', 'message': 'Answer saved'})
+            
+            except Features.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Invalid option'}, status=400)
+            except Surveys.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Invalid survey'}, status=400)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Not authenticated'}, status=401)

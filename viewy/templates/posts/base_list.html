@@ -358,6 +358,27 @@
 </div>
 {% endif %}
 
+{% if unanswered_survey %}
+<div id="SurveyModal" class="survey-modal" data-survey-id="{{ unanswered_survey.id }}">
+  <div class="survey-modal-content">
+    <div class="survey-modal-title">アンケート</div>
+    <div class="first-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
+    <div class="setting-title">{{ unanswered_survey.question }}</div>
+    <form id="survey-form" method="post">
+      {% csrf_token %}
+      <div class="survey-radio-group">
+        {% for option in unanswered_survey.options.all %}
+          <input type="radio" id="{{ option.name_ja }}" name="selected_option" value="{{ option.id }}" checked>
+          <label for="{{ option.name_ja }}">
+            {{ option.name_ja }}
+          </label>
+        {% endfor %}
+      </div>
+      <input id="survey-submit" type="button" value="Submit">
+    </form>
+  </div>
+</div>
+{% endif %}
 {% block bottom %}
 
 {% endblock %}
@@ -384,6 +405,7 @@
 <script src="{% static 'js/mangapage_count.js' %}"></script>
 <script src="{% static 'js/horizontal_arrow.js' %}"></script>
 <script src="{% static 'js/emote_count.js' %}"></script>
+<script src="{% static 'js/survey_answer.js' %}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var submitButton = document.getElementById('submitSettings');

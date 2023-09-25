@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin,
 )
@@ -37,6 +37,7 @@ class UserManager(BaseUserManager):
 
 class Features(models.Model):
     name = models.CharField(max_length=50)
+    name_ja = models.CharField(max_length=50, null=True, verbose_name='日本語名')
     
     def __str__(self):
         return self.name
@@ -379,3 +380,29 @@ class DeleteRequest(models.Model):
 
     def __str__(self):
         return self.email
+
+class Surveys(models.Model):
+    question = models.CharField(max_length=255)
+    # Featuresモデルと多対多の関係を作る
+    options = models.ManyToManyField(Features)
+
+    def __str__(self):
+        return self.question
+
+class SurveyResults(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    survey = models.ForeignKey(Surveys, on_delete=models.CASCADE)
+    selected_option = models.ForeignKey(Features, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'survey',)
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # 最初に自身を保存
+        # ユーザーのfeaturesフィールドに選択された特性を追加
+        self.user.features.add(self.selected_option)
+
+    def __str__(self):
+        return f"{self.user.username} answered {self.survey.question} with {self.selected_option.name}"

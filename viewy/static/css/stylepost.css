@@ -1,17 +1,22 @@
-html, body {
+html,
+body {
   touch-action: manipulation;
 }
 
-.screen{
-  height: 100vh; /* スクロールコンテナーの高さを指定 */
-  overflow-y: scroll; /* 縦スクロールを許可 */
-  scroll-snap-type: y mandatory; /* 縦方向にスナップするように設定 */
+.screen {
+  height: 100vh;
+  /* スクロールコンテナーの高さを指定 */
+  overflow-y: scroll;
+  /* 縦スクロールを許可 */
+  scroll-snap-type: y mandatory;
+  /* 縦方向にスナップするように設定 */
 }
 
-.post{
+.post {
   height: 560px;
   width: 350px;
-  scroll-snap-align: start; /* 要素の上端をスナップ位置にする */
+  scroll-snap-align: start;
+  /* 要素の上端をスナップ位置にする */
   position: relative;
   overflow: hidden;
 }
@@ -22,16 +27,17 @@ html, body {
   bottom: 8px;
   left: 0;
   right: 0;
-  z-index: 101; /* Make sure this is above the slider's z-index */
+  z-index: 101;
+  /* Make sure this is above the slider's z-index */
   cursor: pointer;
 }
 
 /* コントロールバーを消す */
 video::-webkit-media-controls-enclosure {
-  display:none !important;
+  display: none !important;
 }
 
-.custom-controlbar{
+.custom-controlbar {
   position: absolute;
   left: 0px;
   bottom: 16px;
@@ -59,7 +65,8 @@ video::-webkit-media-controls-enclosure {
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   cursor: pointer;
-  background: transparent; /* we handle background with JS now */
+  background: transparent;
+  /* we handle background with JS now */
 
 }
 
@@ -80,29 +87,42 @@ input[type=range]::-webkit-slider-thumb {
   height: 32px;
   animation: spin 0.5s linear infinite;
   position: absolute;
-  top: 50%; /* 上下方向の中心に配置 */
+  top: 50%;
+  /* 上下方向の中心に配置 */
   left: 50%;
-  transform: translate(-50%, -50%); /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
+  transform: translate(-50%, -50%);
+  /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
 }
 
 @keyframes spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 
-.post-video{
-  position: absolute; /* 位置を絶対位置に設定 */
-  top: 50%; /* 親要素から上に50%の位置に配置 */
-  transform: translateY(-50%); /* 要素自体をY軸に-50%移動させて中心に配置 */
-  width: 100%; /* 親要素に対して100%の幅 */
-  height: auto; /* 高さを自動で調整 */
-  object-fit: cover; /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
+.post-video {
+  position: absolute;
+  /* 位置を絶対位置に設定 */
+  top: 50%;
+  /* 親要素から上に50%の位置に配置 */
+  transform: translateY(-50%);
+  /* 要素自体をY軸に-50%移動させて中心に配置 */
+  width: 100%;
+  /* 親要素に対して100%の幅 */
+  height: auto;
+  /* 高さを自動で調整 */
+  object-fit: cover;
+  /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
   pointer-events: auto;
 }
 
 
-.manga-page{
+.manga-page {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -111,85 +131,115 @@ input[type=range]::-webkit-slider-thumb {
   pointer-events: auto;
 }
 
-.book{
+.book {
   width: 100%;
   height: 100%;
-  display: flex; /* 要素を横並びにする */
-  flex-direction: row-reverse; /* 要素を右から左に表示する */
-  overflow-x: scroll; /* 横スクロールを可能にする */
+  display: flex;
+  /* 要素を横並びにする */
+  flex-direction: row-reverse;
+  /* 要素を右から左に表示する */
+  overflow-x: scroll;
+  /* 横スクロールを可能にする */
   scroll-snap-type: x mandatory;
   position: relative;
 }
 
-.manga-page{
+.manga-page {
   scroll-snap-align: start;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.page-content{
+.page-content {
   max-height: calc(var(--vh, 1vh) * 100 - 42px);
   max-width: 350px;
   object-fit: contain;
 }
 
 @keyframes fade-out {
-  0% { opacity: 0; }
-  25% { opacity: 1; }
-  75% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 .horizontal-slide-icon {
-  position: absolute; /* 絶対位置を指定 */
-  top: 50%; /* 親要素（.book）の高さの50%の位置に配置 */
-  left: 50%; /* 親要素（.book）の幅の50%の位置に配置 */
-  transform: translate(-50%, -50%); /* インターフェイスが中心に配置されるように調整 */
-  z-index: 10; /* 他の要素の上に表示するためのz-index */
-  font-size: 40px; /* アイコンのサイズ。必要に応じて調整 */
-  color: #ffffff; /* アイコンの色。必要に応じて調整 */
-  text-align: center; /* 子要素を中央寄せ */
+  position: absolute;
+  /* 絶対位置を指定 */
+  top: 50%;
+  /* 親要素（.book）の高さの50%の位置に配置 */
+  left: 50%;
+  /* 親要素（.book）の幅の50%の位置に配置 */
+  transform: translate(-50%, -50%);
+  /* インターフェイスが中心に配置されるように調整 */
+  z-index: 10;
+  /* 他の要素の上に表示するためのz-index */
+  font-size: 40px;
+  /* アイコンのサイズ。必要に応じて調整 */
+  color: #ffffff;
+  /* アイコンの色。必要に応じて調整 */
+  text-align: center;
+  /* 子要素を中央寄せ */
   background-color: #282828;
-  width: 80px; 
+  width: 80px;
   height: 80px;
   border-radius: 4px;
-  opacity: 0; /* アイコンの初期透明度を0に設定 */
+  opacity: 0;
+  /* アイコンの初期透明度を0に設定 */
 }
 
 .horizontal-slide-icon i {
-  display: block; 
+  display: block;
   margin-top: 16px;
 }
 
 .slide-icon-word {
-  font-size: 8px; 
+  font-size: 8px;
 }
 
 .horizontal-slide-icon.show-icon {
-  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); /* ベジェ曲線を使って滑らかに */
-  animation-name: fade-out; /* アニメーション名を指定 */
-  animation-duration: 2.0s; /* アニメーションの持続時間を1秒に設定 */
-  animation-delay: 0.5s; /* アニメーションの開始を1秒遅らせる */
-  animation-fill-mode: forwards; /* アニメーション終了後に最後のフレームで止まるように設定 */
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  /* ベジェ曲線を使って滑らかに */
+  animation-name: fade-out;
+  /* アニメーション名を指定 */
+  animation-duration: 2.0s;
+  /* アニメーションの持続時間を1秒に設定 */
+  animation-delay: 0.5s;
+  /* アニメーションの開始を1秒遅らせる */
+  animation-fill-mode: forwards;
+  /* アニメーション終了後に最後のフレームで止まるように設定 */
 }
 
 /* サイドバー関連 */
 
-.side-bar{
+.side-bar {
   width: 72px;
   position: absolute;
   bottom: 48px;
 }
 
 /* スマホでクリックしたとき一瞬色が変わるのを防ぐ */
-label{
+label {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   outline: none;
 }
 
-.poster, .favorite, .mute{
+.poster,
+.favorite,
+.mute {
   width: 72px;
   height: 60px;
   text-align: center;
@@ -199,17 +249,17 @@ label{
   text-shadow: gray 0px 1px 3px;
 }
 
-.space-for-hide{
+.space-for-hide {
   width: 72px;
   height: 32px;
 }
 
-.poster{
+.poster {
   position: relative;
   top: 30px;
 }
 
-.follow-poster{
+.follow-poster {
   position: relative;
   height: 20px;
   width: 20px;
@@ -224,32 +274,37 @@ label{
 
 .follow-hidden {
   opacity: 0;
-  pointer-events:none;
+  pointer-events: none;
 }
 
 @keyframes fadeOutAndScale {
   0% {
-    transform: scale(1);  
+    transform: scale(1);
 
   }
+
   6% {
     transform: scale(0.7);
 
   }
+
   24% {
     transform: scale(1.2);
 
   }
+
   32% {
     transform: scale(1);
 
   }
+
   80% {
-    transform: scale(1); 
+    transform: scale(1);
     scale: 1;
   }
+
   100% {
-    transform: scale(1);  
+    transform: scale(1);
     scale: 0;
   }
 }
@@ -265,29 +320,32 @@ label{
 }
 
 
-.like-label{
+.like-label {
   /* display: inline-block;  追加 */
   max-height: 36px;
 }
 
-.favorite-count{
+.favorite-count {
   height: 16px;
 }
 
-.follow:hover, .like-label:hover{
+.follow:hover,
+.like-label:hover {
   cursor: pointer;
 }
 
-.poster-img{
+.poster-img {
   border-radius: 50%;
   width: 48px;
   height: 48px;
   background-color: white;
-  object-fit: cover; /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
-  overflow: hidden; /* 親要素を超える部分を隠します。 */
+  object-fit: cover;
+  /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
+  overflow: hidden;
+  /* 親要素を超える部分を隠します。 */
 }
 
-.ad-prf{
+.ad-prf {
   border-radius: 50%;
   width: 52px;
   height: 52px;
@@ -295,13 +353,13 @@ label{
   margin-left: 9px;
 }
 
-.ad-prf-img{
+.ad-prf-img {
   width: 32px;
   position: relative;
   top: -2px;
 }
 
-.mini-follow-button{
+.mini-follow-button {
   display: none;
 }
 
@@ -309,38 +367,42 @@ label{
   0% {
     transform: scale(0.8);
   }
+
   50% {
     transform: scale(1.2);
   }
+
   95% {
     transform: scale(0.9);
   }
+
   100% {
     transform: scale(1);
   }
 }
 
-.liked{
+.liked {
   color: aqua;
   animation: heartAnimation 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
 
 
-.favorite-count{
+.favorite-count {
   font-size: 14px;
   position: relative;
   top: -64px;
 }
 
-.like-button{
+.like-button {
   display: none;
 }
 
 /* エモートボタン */
 .emotes {
   display: flex;
-  justify-content: space-between; /* エモート間のスペースを均等に分配 */
+  justify-content: space-between;
+  /* エモート間のスペースを均等に分配 */
   align-items: center;
   position: relative;
   top: 8px;
@@ -351,12 +413,15 @@ label{
   0% {
     transform: scale(0.5);
   }
+
   50% {
     transform: scale(1.3);
   }
+
   90% {
     transform: scale(0.95);
   }
+
   100% {
     transform: scale(1);
   }
@@ -366,7 +431,7 @@ label{
   animation: bounce 0.25s;
 }
 
-.emote-icon >i{
+.emote-icon>i {
   color: white;
   font-size: 24px;
   text-shadow: gray 0px 1px 3px;
@@ -378,17 +443,21 @@ label{
 
 .emote {
   flex: 1;
-  text-align: center; /* 数字をエモートの真下に配置 */
+  text-align: center;
+  /* 数字をエモートの真下に配置 */
   transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
 }
 
 
 .emote img {
-  width: 40px;  /* 画像のサイズを調整。必要に応じて変更してください */
-  height: 36px; /* 画像のサイズを調整。必要に応じて変更してください */
-  object-fit: cover; /* 画像のアスペクト比を維持しつつ、要素にフィットさせる */
+  width: 40px;
+  /* 画像のサイズを調整。必要に応じて変更してください */
+  height: 36px;
+  /* 画像のサイズを調整。必要に応じて変更してください */
+  object-fit: cover;
+  /* 画像のアスペクト比を維持しつつ、要素にフィットさせる */
   user-select: none;
-  margin-bottom: -3px; 
+  margin-bottom: -3px;
   touch-action: manipulation;
 }
 
@@ -401,7 +470,7 @@ label{
   text-shadow: gray 0px 1px 3px;
 }
 
-.total-count{
+.total-count {
   position: relative;
   top: -4px;
   font-size: 14px;
@@ -409,15 +478,15 @@ label{
 
 .hidden-emote {
   opacity: 0;
-  visibility: hidden;  
+  visibility: hidden;
 }
 
 /* ミュートボタン */
-.mute-frag{
+.mute-frag {
   display: none;
 }
 
-.hide{
+.hide {
   width: 72px;
   height: 48px;
   text-align: center;
@@ -433,13 +502,15 @@ label{
 .content {
   background-color: #ffffff00;
   opacity: 1;
-  transition: opacity 0.2s ease; /* 0.1秒でフェード */
+  transition: opacity 0.2s ease;
+  /* 0.1秒でフェード */
   /* 他の必要なスタイルもここに追加 */
 }
 
 .hidden {
   opacity: 0;
-  pointer-events: none; /* 非表示要素をクリック不可にする */
+  pointer-events: none;
+  /* 非表示要素をクリック不可にする */
 }
 
 
@@ -448,7 +519,7 @@ label{
   z-index: 999;
 }
 
-.page-count{
+.page-count {
   position: absolute;
   bottom: 24px;
   left: 8px;
@@ -459,19 +530,19 @@ label{
 
 /* キャプション関連 */
 
-.poster-name{
+.poster-name {
   font-weight: bold;
   color: #ffffff;
 }
 
-.ad-tag{
+.ad-tag {
   font-size: 12px;
   padding: 2px 4px;
   border: 1px white solid;
   border-radius: 4px;
 }
 
-.captions{
+.captions {
   position: absolute;
   width: 80%;
   left: 64px;
@@ -481,27 +552,30 @@ label{
   text-shadow: gray 1px 1px 1px;
 }
 
-.caption{
+.caption {
   font-size: 14px;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* 1行だけ表示 */
+  -webkit-line-clamp: 2;
+  /* 1行だけ表示 */
   -webkit-box-orient: vertical;
-  cursor: pointer; /* キャプションがクリック可能であることを示すため */
+  cursor: pointer;
+  /* キャプションがクリック可能であることを示すため */
 }
 
 .caption-expanded {
-  -webkit-line-clamp: unset; /* すべての行を表示 */
+  -webkit-line-clamp: unset;
+  /* すべての行を表示 */
 }
 
 
 
-.hashtags{
+.hashtags {
   margin-top: 4px;
   line-height: 28px;
 }
 
-.url{
+.url {
   margin-right: 8px;
   background-color: rgba(255, 255, 255, 0.5);
   border-radius: 4px;
@@ -514,19 +588,19 @@ label{
   display: inline-block;
 }
 
-.url > a{
+.url>a {
   color: white;
   text-decoration: none;
   font-size: 16px;
 }
 
-.url-icon{
+.url-icon {
   width: 20px;
   position: relative;
   top: 4px;
 }
 
-.hashtag{
+.hashtag {
   margin-right: 4px;
   background-color: rgba(255, 255, 255, 0.306);
   border-radius: 4px;
@@ -534,12 +608,12 @@ label{
   white-space: nowrap;
 }
 
-.hashtag :hover{
+.hashtag :hover {
   cursor: pointer;
   background-color: rgba(220, 220, 220, 0.68);
 }
 
-.hashtag > a{
+.hashtag>a {
   color: white;
   text-decoration: none;
   padding-left: 1px;
@@ -547,7 +621,7 @@ label{
   font-size: 14px;
 }
 
-.likeorfollow{
+.likeorfollow {
   width: 360px;
   height: 32px;
   position: fixed;
@@ -557,7 +631,7 @@ label{
   z-index: 2;
 }
 
-.tolike{
+.tolike {
   height: 32px;
   font-size: 18px;
   border-right: 2px white solid;
@@ -572,12 +646,12 @@ label{
   text-shadow: 0px 0px 3px gray;
 }
 
-.tolike:hover{
+.tolike:hover {
   cursor: pointer;
   opacity: 0.5;
 }
 
-.tofollow{
+.tofollow {
   height: 32px;
   font-size: 18px;
   line-height: 32px;
@@ -589,26 +663,26 @@ label{
   text-shadow: 0px 0px 3px gray;
 }
 
-.tofollow:hover{
+.tofollow:hover {
   cursor: pointer;
   opacity: 0.5;
 }
 
 
 /* 報告ボタン */
-.report{
+.report {
   position: absolute;
   bottom: 24px;
   right: 18px;
   color: orangered;
 }
 
-.report:hover{
+.report:hover {
   cursor: pointer;
   opacity: 0.8;
 }
 
-.report-menu{
+.report-menu {
   display: none;
   position: absolute;
   bottom: 48px;
@@ -621,17 +695,18 @@ label{
   color: rgb(102, 61, 54);
 }
 
-.report-title{
+.report-title {
   margin-top: 24px;
   font-weight: bold;
 }
-.report-sub-title{
+
+.report-sub-title {
   margin-top: 8px;
   margin-bottom: 8px;
   font-size: 13px;
 }
 
-.selects{
+.selects {
   text-align: left;
   margin-left: 76px;
   margin-top: 0px;
@@ -639,31 +714,41 @@ label{
   margin-bottom: 8px;
 }
 
-.selects > label > input{
+.selects>label>input {
   margin-bottom: 8px;
 }
 
- /* ラジオボタンを四角形にスタイリングする */
- .selects input[type="radio"] {
-  -webkit-appearance: none; /* Safari/Chrome用 */
-  -moz-appearance: none; /* Firefox用 */
-  appearance: none; /* 一般的なスタイル用 */
-  width: 8px; /* 幅 */
-  height: 8px; /* 高さ */
-  border: 1px solid #000; /* ボーダー */
+/* ラジオボタンを四角形にスタイリングする */
+.selects input[type="radio"] {
+  -webkit-appearance: none;
+  /* Safari/Chrome用 */
+  -moz-appearance: none;
+  /* Firefox用 */
+  appearance: none;
+  /* 一般的なスタイル用 */
+  width: 8px;
+  /* 幅 */
+  height: 8px;
+  /* 高さ */
+  border: 1px solid #000;
+  /* ボーダー */
   position: relative;
   top: 8px;
-  border-radius: 2px; /* 角丸 */
-  outline: none; /* フォーカス時のアウトラインを削除 */
-  transition: all 0.3s ease; /* アニメーション */
+  border-radius: 2px;
+  /* 角丸 */
+  outline: none;
+  /* フォーカス時のアウトラインを削除 */
+  transition: all 0.3s ease;
+  /* アニメーション */
 }
 
 /* ラジオボタンがチェックされた状態 */
 .selects input[type="radio"]:checked {
-  background-color: #ff4d00; /* 背景色 */
+  background-color: #ff4d00;
+  /* 背景色 */
 }
 
-.submit-report{
+.submit-report {
   border: rgb(102, 61, 54) 1px solid;
   border-radius: 4px;
   color: rgb(102, 61, 54);
@@ -672,34 +757,36 @@ label{
   margin-top: 4px;
 }
 
-.submit-report:hover{
+.submit-report:hover {
   cursor: pointer;
   opacity: 0.7;
 }
 
-.message{
+.message {
   font-size: 14px;
   position: relative;
   top: 100px;
 }
 
 /* 停止中に表示する再生ボタン */
-.play-button{
+.play-button {
   font-size: 48px;
   color: white;
   text-shadow: gray 0px 1px 3px;
   opacity: 0.6;
   position: absolute;
-  top: 50%; /* 上下方向の中心に配置 */
+  top: 50%;
+  /* 上下方向の中心に配置 */
   left: 50%;
-  transform: translate(-50%, -50%); /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
+  transform: translate(-50%, -50%);
+  /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
   display: none;
   z-index: 1000;
   pointer-events: none;
 }
 
 /* ページ遷移関連 */
-.viewnext{
+.viewnext {
   width: 100%;
   height: 120px;
   text-align: center;
@@ -708,23 +795,23 @@ label{
   scroll-snap-align: end;
 }
 
-.trigger{
+.trigger {
   width: 100%;
   height: 180px;
   scroll-snap-align: start;
 }
 
 /* トップスペース */
-.top-space{
+.top-space {
   width: 100%;
 }
 
-.top-adjust-trigger{
+.top-adjust-trigger {
   position: relative;
   width: 100%;
 }
 
-.top-load-trigger{
+.top-load-trigger {
   width: 100%;
   height: 500px;
   position: absolute;
@@ -733,18 +820,18 @@ label{
 }
 
 /* ボトムスペース */
-.bottom-space{
+.bottom-space {
   width: 100%;
   height: 60px;
 }
 
-.adjust-trigger{
+.adjust-trigger {
   position: relative;
   width: 100%;
   height: 8px;
 }
 
-.load-trigger{
+.load-trigger {
   width: 100%;
   height: 1500px;
   position: absolute;
@@ -753,7 +840,7 @@ label{
 }
 
 /* 投稿成功メッセージ */
-.alert-success{
+.alert-success {
   position: fixed;
   top: 0px;
   width: 350px;
@@ -761,13 +848,16 @@ label{
   line-height: 56px;
   text-align: center;
   font-size: 15px;
-  z-index: 9999;  /* Ensure it sits over other content */
+  z-index: 9999;
+  /* Ensure it sits over other content */
   background-color: rgba(39, 236, 236, 0.897);
   border-radius: 2px;
   color: rgb(255, 255, 255);
-  top: -60px; /* 初期位置はビューポートの外に設定 */
+  top: -60px;
+  /* 初期位置はビューポートの外に設定 */
   opacity: 0;
-  transition: top 0.5s, opacity 0.5s; /* smooth transition */
+  transition: top 0.5s, opacity 0.5s;
+  /* smooth transition */
 }
 
 /* アフィリエイト広告用のスタイル */
@@ -779,10 +869,11 @@ label{
 }
 
 
-.hidden-title{
+.hidden-title {
   position: fixed;
   left: 50%;
-  transform: translateX(-50%); /* 自身の幅の半分分を左にずらすことで真ん中に配置 */
+  transform: translateX(-50%);
+  /* 自身の幅の半分分を左にずらすことで真ん中に配置 */
   top: 24px;
   color: white;
   font-size: 20px;
@@ -792,7 +883,7 @@ label{
   text-decoration-color: orangered;
 }
 
-.hidden-icon{
+.hidden-icon {
   color: orangered;
 }
 
@@ -805,13 +896,13 @@ label{
   width: 100%;
   height: 100%;
   transform: translate(-50%, -50%);
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 .tom {
   width: 100px;
   position: fixed;
-  left: 50%; 
+  left: 50%;
   transform: translate(-50%, 0%) translateX(80px);
   margin-top: calc(200px - 85px);
 }
@@ -824,16 +915,16 @@ label{
   width: 300px;
   border-radius: 24px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-.login-title{
+.login-title {
   font-size: 18px;
   font-weight: bold;
   margin-top: 12px;
 }
 
-.login-content{
+.login-content {
   font-size: 12px;
   color: #707070;
   margin: 12px 0px;
@@ -861,6 +952,7 @@ label{
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -872,21 +964,27 @@ label{
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7); /* 黒背景で少し透明 */
-  z-index: 1000; /* 他の要素より上に表示 */
+  background-color: rgba(0, 0, 0, 0.7);
+  /* 黒背景で少し透明 */
+  z-index: 1000;
+  /* 他の要素より上に表示 */
   opacity: 0;
   /* フェードインアニメーションを適用 */
-  animation: fadeIn 0.5s forwards; /* 1sはアニメーション時間です。好みに合わせて変更できます。 */
+  animation: fadeIn 0.5s forwards;
+  /* 1sはアニメーション時間です。好みに合わせて変更できます。 */
 }
 
 @keyframes slideUp {
   from {
-      transform: translate(-50%, 0%); /* 画面の下部からスタート */
-      opacity: 0;
+    transform: translate(-50%, 0%);
+    /* 画面の下部からスタート */
+    opacity: 0;
   }
+
   to {
-      transform: translate(-50%, -50%); /* 最終的な位置へ移動 */
-      opacity: 1;
+    transform: translate(-50%, -50%);
+    /* 最終的な位置へ移動 */
+    opacity: 1;
   }
 }
 
@@ -900,22 +998,22 @@ label{
   padding: 32px 32px;
   background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
   text-align: center;
 }
 
-.first-setting-modal-title{
+.first-setting-modal-title {
   font-size: 18px;
   font-weight: bold;
   color: rgb(69, 69, 69);
   margin-bottom: 8px;
 }
 
-.first-tom > img{
+.first-tom>img {
   width: 64px;
 }
 
-.setting-title{
+.setting-title {
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 4px;
@@ -923,17 +1021,18 @@ label{
   color: rgb(69, 69, 69);
 }
 
-.setting-guide{
+.setting-guide {
   font-size: 11px;
   color: #6b5c52;
   text-align: left;
 }
 
-.gender-radio-group, .dimension-radio-group{
+.gender-radio-group,
+.dimension-radio-group {
   margin-bottom: 16px;
 }
 
-#submitSettings{
+#submitSettings {
   background-color: rgb(74, 234, 234);
   border: none;
   color: white;
@@ -944,16 +1043,17 @@ label{
 }
 
 .first-setting-modal [type="radio"] {
-  display: none; /* デフォルトのラジオボタンを非表示にする */
+  display: none;
+  /* デフォルトのラジオボタンを非表示にする */
 }
 
-.gender-radio-group{
+.gender-radio-group {
   display: flex;
   justify-content: center;
   padding: 4px 0px 4px 0px;
 }
 
-.gender-radio-group label{
+.gender-radio-group label {
   color: rgb(146, 146, 146);
   font-size: 18px;
   font-weight: bold;
@@ -961,18 +1061,18 @@ label{
   padding: 0px 18px;
 }
 
-.gender-radio-group input[type="radio"]:checked + label{
+.gender-radio-group input[type="radio"]:checked+label {
   color: rgb(78, 233, 233);
   background-color: rgb(255, 255, 255);
 }
 
-.dimension-radio-group{
+.dimension-radio-group {
   display: flex;
   justify-content: center;
   padding: 12px 0px 16px 0px;
 }
 
-.dimension-radio-group label{
+.dimension-radio-group label {
   color: rgb(146, 146, 146);
   font-size: 22px;
   font-weight: bold;
@@ -981,72 +1081,171 @@ label{
   padding: 4px 18px;
 }
 
-.all{
+.all {
   margin: 0px 4px 0px 4px;
 }
 
-.dimension-radio-group input[type="radio"]:checked + label{
+.dimension-radio-group input[type="radio"]:checked+label {
   color: rgb(78, 233, 233);
   background-color: rgb(255, 255, 255);
 }
 
 
+@keyframes surveyFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.survey-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1001;
+  /* 前のモーダルより上に表示 */
+  opacity: 0;
+  animation: surveyFadeIn 0.5s forwards;
+}
+
+@keyframes surveySlideUp {
+  from {
+    transform: translate(-50%, 0%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+.survey-modal-content {
+  position: absolute;
+  top: 60%;
+  /* 位置を調整 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  /* 幅を調整 */
+  animation: surveySlideUp 1s forwards;
+  padding: 32px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.survey-modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.survey-radio-group {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  padding: 4px 0px 4px 0px;
+
+}
+
+#survey-submit {
+  background-color: rgb(74, 234, 234);
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 50px;
+  font-size: 16px;
+  padding: 8px 36px;
+}
+
+.survey-modal [type="radio"] {
+  display: none;
+  /* デフォルトのラジオボタンを非表示にする */
+}
+
+.survey-radio-group label {
+  color: rgb(146, 146, 146);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0px 18px;
+}
+
+.survey-radio-group input[type="radio"]:checked+label {
+  color: rgb(78, 233, 233);
+  background-color: rgb(255, 255, 255);
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
-  .tab-bar{
+  .tab-bar {
     z-index: 999;
   }
 
-  .logo{
+  .logo {
     z-index: 2;
   }
 
-  .back{
+  .back {
     z-index: 3;
   }
 
 
-  .likeorfollow{
+  .likeorfollow {
     width: 100%;
   }
 
 
-  .post{
-   width: 100%;
-   height: calc(var(--vh, 1vh) * 100 - 42px);
+  .post {
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100 - 42px);
   }
 
-  .post-video{
-    position: absolute; /* 位置を絶対位置に設定 */
-    top: 50%; /* 親要素から上に50%の位置に配置 */
-    transform: translateY(-50%); /* 要素自体をY軸に-50%移動させて中心に配置 */
-    width: 100%; /* 親要素に対して100%の幅 */
-    height: auto; /* 高さを自動で調整 */
-    object-fit: cover; /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
+  .post-video {
+    position: absolute;
+    /* 位置を絶対位置に設定 */
+    top: 50%;
+    /* 親要素から上に50%の位置に配置 */
+    transform: translateY(-50%);
+    /* 要素自体をY軸に-50%移動させて中心に配置 */
+    width: 100%;
+    /* 親要素に対して100%の幅 */
+    height: auto;
+    /* 高さを自動で調整 */
+    object-fit: cover;
+    /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
     pointer-events: auto;
     z-index: 1;
   }
 
-  .manga-page{
+  .manga-page {
     scroll-snap-align: start;
     display: flex;
     justify-content: center;
     align-items: center;
     min-width: 100vw;
   }
-  
-  .page-content{
+
+  .page-content {
     max-height: calc(var(--vh, 1vh) * 100 - 42px);
     max-width: 100vw;
     object-fit: contain;
   }
 
-  video{
+  video {
     z-index: -999;
   }
- 
-  .side-bar{
+
+  .side-bar {
     width: 60px;
     position: absolute;
     bottom: 80px;
@@ -1054,26 +1253,23 @@ label{
     z-index: 99;
   }
 
-  .captions{
+  .captions {
     z-index: 99;
   }
 
-  .report{
+  .report {
     z-index: 99;
   }
 
-  .report-menu{
+  .report-menu {
     z-index: 99;
   }
 
-  .alert-success{
+  .alert-success {
     width: 100%;
   }
 
-  .hide{
+  .hide {
     bottom: 56px;
   }
- }
-
-
-
+}

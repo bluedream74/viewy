@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView
+  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView
 )
 from . import views
 
@@ -29,4 +29,5 @@ urlpatterns = [
   path('delete_user/', DeleteUserView.as_view(), name='delete_user'),   
   path('change_dimension/', ChangeDimensionView.as_view(), name='change_dimension'),
   path('first_setting/', FirstSettingView.as_view(), name='first_setting'),
+  path('survey_answer/<int:selected_option_id>/<int:survey_id>/', SurveyAnswerView.as_view(), name='survey_answer'),
 ]

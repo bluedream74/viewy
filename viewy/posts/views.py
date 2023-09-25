@@ -27,7 +27,7 @@ from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
 # Local application/library specific
-from accounts.models import Follows, SearchHistorys
+from accounts.models import Follows, SearchHistorys, Surveys
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
@@ -328,6 +328,15 @@ class PostListView(BasePostListView):
         # 次元のフィルターはここで適応（いいねやフォローには適応したくないから）
         queryset = self.filter_by_dimension(queryset)
         return queryset
+    
+    def check_unanswered_surveys(self, user):
+        # ユーザーが回答したすべてのアンケートを取得
+        answered_surveys = Surveys.objects.filter(surveyresults__user=user)
+        
+        # 未回答のアンケートを取得
+        unanswered_surveys = Surveys.objects.exclude(id__in=answered_surveys.values_list('id'))
+        
+        return unanswered_surveys.first()  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -336,6 +345,13 @@ class PostListView(BasePostListView):
         if user.is_authenticated:
             posts = context['posts']
             context['posts'] = self.get_combined_posts(posts, user)
+            # 未回答のアンケートを調べて、それをコンテキストに追加
+            unanswered_survey = self.check_unanswered_surveys(user)
+            # 10分の1の確率でアンケートを表示
+            if random.random() < 1:
+                context['unanswered_survey'] = unanswered_survey
+            else:
+                context['unanswered_survey'] = None
         else:
             context['posts'] = self.get_queryset().filter(is_hidden=False)
 
