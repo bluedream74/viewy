@@ -6,11 +6,12 @@ from django.utils import timezone
 
 class AndFeatures(models.Model):
     orfeatures = models.ManyToManyField(Features)
+    is_all = models.BooleanField(default=False)
 
     def __str__(self):
-        feature_names = [str(feature) for feature in self.orfeatures.all()]
-        features_str = "または".join(feature_names)
-        return f"{self.id}: {features_str}"
+        feature_names_ja = [str(feature.name_ja) for feature in self.orfeatures.all()]
+        features_str_ja = "または".join(feature_names_ja)
+        return f"{self.id}: {features_str_ja}"
 
 class AdCampaigns(models.Model):
     created_by = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='created_campaigns')
