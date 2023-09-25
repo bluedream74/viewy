@@ -38,7 +38,7 @@
         <div>性別：</div>
         {% for orfeature in sex.orfeatures.all %}
         <input type="checkbox" id="sex{{ orfeature.id }}" name="sex_orfeatures" value="{{ orfeature.id }}">
-        <label for="sex{{ orfeature.id }}" class="custom-label">{{ orfeature.name }}</label>
+        <label for="sex{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
         {% endfor %}
         <input type="checkbox" id="sexAll" name="sex_orfeatures" value="all">
         <label for="sexAll" class="custom-label">全性別</label>
@@ -47,11 +47,20 @@
         <div>嗜好：</div>
         {% for orfeature in dimension.orfeatures.all %}
         <input type="checkbox" id="dimension{{ orfeature.id }}" name="dimension_orfeatures" value="{{ orfeature.id }}">
-        <label for="dimension{{ orfeature.id }}" class="custom-label">{{ orfeature.name }}</label>
+        <label for="dimension{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
         {% endfor %}
         <input type="checkbox" id="dimensionAll" name="dimension_orfeatures" value="all">
         <label for="dimensionAll" class="custom-label">どちらとも</label>
       </div>
+      <!-- <div class="category">
+        <div>年齢：</div>
+        {% for orfeature in age.orfeatures.all %}
+        <input type="checkbox" id="age{{ orfeature.id }}" name="age_orfeatures" value="{{ orfeature.id }}">
+        <label for="age{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
+        {% endfor %}
+        <input type="checkbox" id="ageAll" name="age_orfeatures" value="all">
+        <label for="ageAll" class="custom-label">全年代</label>
+      </div> -->
     </div>
 
 

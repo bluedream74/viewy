@@ -13,6 +13,20 @@
   <div class="campaign-big-title">{{ campaign.title }}</div>
   <div class="tag">予算：<span class="budget">{{ campaign.budget }}</span>円</div>
   <div class="tag">期限：{{ campaign.start_date|date:"Y-m-d" }}～<span class="date">{{ campaign.end_date|date:"Y-m-d" }}</span></div>
+  <div class="tag">ターゲット：
+    <div>
+      {% if andfeatures %}
+        {% for andfeature in andfeatures %}
+          <div class="target">{{ andfeature }}</div>
+          {% if not forloop.last %}
+            かつ
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        全員
+      {% endif %}
+    </div>
+  </div>
   <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i class="fa-solid fa-pen"></i> 編集</a>
 </div>
 

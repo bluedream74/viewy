@@ -80,10 +80,14 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
         if not ad_infos.exists():
             no_ad_message = "このキャンペーンには関連する広告がありません。"
 
+        # キャンペーンに関連するAndFeaturesを取得（is_allがTrueのものは除外）
+        andfeatures = campaign.andfeatures.filter(is_all=False)
+
         context = {
             'ad_infos': ad_infos,
             'campaign': campaign,
             'no_ad_message': no_ad_message,
+            'andfeatures': andfeatures,
         }
         return render(request, self.template_name, context)
 
@@ -95,7 +99,8 @@ class CampaignFormView(AdvertiserCheckView, View):
         form = AdCampaignForm()
         sex = AndFeatures.objects.get(id=20) 
         dimension = AndFeatures.objects.get(id=21) 
-        return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
+        age = AndFeatures.objects.get(id=26)
+        return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension, 'age': age})
 
     def post(self, request, *args, **kwargs):
         form = AdCampaignForm(request.POST)
@@ -112,12 +117,17 @@ class CampaignFormView(AdvertiserCheckView, View):
             # 選択されたorfeaturesを取得
             selected_orfeatures_sex = request.POST.getlist('sex_orfeatures')
             selected_orfeatures_dimension = request.POST.getlist('dimension_orfeatures')
+            selected_orfeatures_age = request.POST.getlist('age_orfeatures')
 
             all_sex_orfeatures_ids = [o.id for o in AndFeatures.objects.get(id=20).orfeatures.all()]
             all_dimension_orfeatures_ids = [o.id for o in AndFeatures.objects.get(id=21).orfeatures.all()]
+            all_age_orfeatures_ids = [o.id for o in AndFeatures.objects.get(id=26).orfeatures.all()]
+            
 
             # 選択されたAndFeaturesに基づいてAdCampaignと紐づけるための関数
             def find_or_create_andfeature(selected_orfeatures, all_orfeatures_ids, default_id):
+                if not selected_orfeatures:
+                    return None  # 何も選択されていなければNoneを返す
 
                 if 'all' in selected_orfeatures:
                     return AndFeatures.objects.get(id=default_id)
@@ -137,15 +147,23 @@ class CampaignFormView(AdvertiserCheckView, View):
                     return new_andfeature
 
             sex_andfeature = find_or_create_andfeature(selected_orfeatures_sex, all_sex_orfeatures_ids, 20)
-            adcampaign.andfeatures.add(sex_andfeature)
+            if sex_andfeature:  # もしNoneでなければ追加
+                adcampaign.andfeatures.add(sex_andfeature)
 
             dimension_andfeature = find_or_create_andfeature(selected_orfeatures_dimension, all_dimension_orfeatures_ids, 21)
-            adcampaign.andfeatures.add(dimension_andfeature)
+            if dimension_andfeature:  # もしNoneでなければ追加
+                adcampaign.andfeatures.add(dimension_andfeature)
+
+            age_andfeature = find_or_create_andfeature(selected_orfeatures_age, all_age_orfeatures_ids, 26)
+            if age_andfeature:  # もしNoneでなければ追加
+                adcampaign.andfeatures.add(age_andfeature)
+
 
             return redirect(reverse('advertisement:ad_campaigns_list'))
 
         sex = AndFeatures.objects.get(id=20)
         dimension = AndFeatures.objects.get(id=21)
+        age = AndFeatures.objects.get(id=26)
         return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
 
 
@@ -382,7 +400,8 @@ class EditAdCampaignView(View):
     def get(self, request, campaign_id):
         campaign = get_object_or_404(AdCampaigns, id=campaign_id)
         form = AdCampaignForm(instance=campaign)
-        andfeatures = campaign.andfeatures.all()
+        # キャンペーンに関連するAndFeaturesを取得（is_allがTrueのものは除外）
+        andfeatures = campaign.andfeatures.filter(is_all=False)
         start_date = campaign.start_date
         return render(request, self.template_name, {'form': form, 'andfeatures': andfeatures})
 
