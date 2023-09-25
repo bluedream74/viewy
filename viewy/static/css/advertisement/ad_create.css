@@ -1,11 +1,152 @@
 .block {
-  overflow-y: hidden;
-  width: 350px;
-  min-height: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  text-align: left;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0px 1px 2px rgb(197, 197, 197);
+  padding: 32px 48px;
   position: relative;
+}
+
+.flex{
+  display: flex;
+}
+
+.info-item{
+  margin: 24px 0px;
+  font-weight: bold;
+}
+
+.info-input > input{
+  padding: 6px 16px;
+  border-radius: 50px;
+}
+
+.campaign-title > input{
+  width: 400px;
+  padding: 8px 16px;
+}
+
+.category{
+  padding: 0px 16px;
+  margin: 16px 0px;
+}
+
+.custom-label {
+  display: inline-block;
+  padding: 4px 16px;
+  border: 1px solid rgb(176, 176, 176);
+  cursor: pointer;
+  border-radius: 50px;
+  user-select: none;
+  margin: 4px 0px;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"]:checked + .custom-label {
+  background-color: rgb(69, 226, 226);
+  color: white;
+  border: 1px solid rgb(69, 226, 226);
+}
+
+.custom-label:hover {
+  background-color: lightgrey;
+}
+
+.target{
+  display: inline-block;
+  padding: 4px 16px;
+  border: 1px solid rgb(176, 176, 176);
+  cursor: pointer;
+  border-radius: 50px;
+  user-select: none;
+  margin: 4px 0px;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.3; 
+}
+
+.submit-campaign{
+  position: absolute;
+  padding: 12px 64px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: rgb(71, 231, 231);
+  color: white;
+  bottom: 32px;
+  right: 48px;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0px 1px 2px rgb(197, 197, 197);
+}
+
+.submit-campaign:hover{
+  background-color: rgb(65, 212, 212);
+  box-shadow: none;
+}
+
+.section-title{
+  padding: 4px 32px;
+  margin: auto;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  margin: auto;
   border-radius: 8px;
+  width: max-content;
+  background-color: rgb(73, 230, 230);
+  color: white;
+  font-weight: bold;
+}
+
+.select-campaign{
+  text-align: center;
+  padding: 16px 16px 32px 16px;
+  margin-bottom: 16px;
+}
+
+.select-campaign select{
+  padding: 6px 16px;
+  border-radius: 50px;
+  margin: 8px auto;  
+}
+
+.post-infos{
+  text-align: center;
+  width: 400px;
+}
+
+.post-infos input{
+  padding: 6px 16px;
+  border-radius: 50px;
+  margin: 8px auto;  
+}
+
+.title input{
+  width: 240px;
+}
+
+.url-set input{
+  width: 300px;
+}
+
+.hashtags input{
+  width: 100px;
+  padding: 6px 8px;
+}
+
+textarea{
+  border-radius: 8px;
+  border: 2px gray solid;
+  margin-top: 16px;
+  height: 120px;
+}
+
+.post-preview{
+margin-left: auto;
 }
 
 .post-video {
@@ -19,6 +160,28 @@
 /* .hashtag {
   padding: 1px;
 } */
+
+.buttons{
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.submit-button{
+  padding: 8px 32px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: rgb(71, 231, 231);
+  color: white;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0px 1px 2px rgb(197, 197, 197); 
+}
+
+.submit-button:hover{
+  background-color: rgb(65, 212, 212);
+  box-shadow: none; 
+}
 
 
 .book {

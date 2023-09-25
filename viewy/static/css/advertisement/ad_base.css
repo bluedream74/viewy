@@ -1,6 +1,6 @@
 body{
   margin: 0px;
-  background-color: rgb(239, 239, 239);
+  background-color: #eff3f9;
   font-family: 'Meiryo', sans-serif;
 }
 
@@ -9,14 +9,28 @@ body{
 }
 
 .side-menu{
-  width: 160px;
+  width: 240px;
   height: 73vh;
   min-width: 180px;
   min-height: 400px;
   background-color: rgb(32, 41, 43);
-  padding-top: 160px;
+  padding-top: 180px;
   color: white;
   box-shadow: 1px 2px 3px gray;
+  position: relative;
+}
+
+.main-title{
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.main-title > img{
+  width: 64px;
+  border-radius: 50%;
 }
 
 .side-menu > a{
@@ -39,25 +53,23 @@ body{
 }
 
 .contents{
-  display: flex;   /* This makes the children (i.e., .block) line up horizontally */
-  align-items: flex-start;   /* This aligns the children to the top of the container */
-  justify-content: space-between;   /* This creates equal space between the children */
-  flex-wrap: wrap;   /* This allows the blocks to wrap to the next line if the container's width isn't enough */
   text-align: center;
   max-height: 100vh;
   min-height: 100vh;
+  width: 100%;
   overflow: scroll;
+}
+
+.back{
+  position: relative;
+  top: 160px;
 }
 
 
 .block{
-  max-height: 450px;
-  overflow-y: scroll;
-  margin: 32px;
-  padding: 32px;
-  background-color: white;
-  box-shadow: 0px 2px 3px gray;
-  border-radius: 16px;
+  margin: 0px 32px;
+  margin-bottom: 32px;
+  padding: 8px 32px;
   color: rgb(69, 69, 69);
   font-size: 15px;
 }
@@ -67,19 +79,34 @@ body{
   display: none;
 }
 
+.page-title{
+  font-size: 24px;
+  text-align: left;
+  font-weight: bold;
+  padding: 16px 16px;
+  margin: 0px 32px;
+  color: rgb(69, 69, 69);
+}
+
 
 table {
-  border-collapse: collapse;  /* 枠線を重ねて表示 */
-  width: 96%;  /* テーブルの幅を100%に設定 */
-  margin-left: auto;
-  margin-right: auto;
-}
-th, td {
-  border: 0px solid rgb(186, 186, 186);  /* テーブルのセルに1pxの黒い枠線を設定 */
-  padding: 4px;  /* テーブルのセルの内側にパディングを設定 */
-  text-align: left;  /* テキストを左揃えに設定 */
+  width: 100%;
+  border-collapse: collapse;
 }
 
+th, td {
+  border: 1px solid rgb(48, 48, 48); /* 黒枠を追加 */
+  padding: 16px;
+}
+
+th {
+  background-color: rgb(69, 69, 69);
+  color: white;
+}
+
+tr{
+  background-color: #ffffff;
+}
 .hashtag-form{
   font-weight: bold;
 }
@@ -140,6 +167,10 @@ p > input{
  font-size: 32px;
  font-weight: bold;
  color: #00c5c5;
+}
+
+.post{
+  background-color: rgb(30, 30, 30);
 }
 
 /* スマートフォン用のスタイル */

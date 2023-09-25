@@ -2,17 +2,21 @@
 {% load static %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
-<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
 {% endblock %}
 
 
 {% block content %}
-<div>キャンペーン別レポート</div>
+<div class="page-title">キャンペーン別レポート</div>
 
-<div>{{ campaign.title }}</div>
-<div>予算：{{ campaign.budget }}円</div>
-<div>期限：{{ campaign.start_date|date:"Y-m-d" }}～{{ campaign.end_date|date:"Y-m-d" }}</div>
-<a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}">編集</a>
+<div class="campaign-info">
+  <div class="campaign-big-title">{{ campaign.title }}</div>
+  <div class="tag">予算：<span class="budget">{{ campaign.budget }}</span>円</div>
+  <div class="tag">期限：{{ campaign.start_date|date:"Y-m-d" }}～<span class="date">{{ campaign.end_date|date:"Y-m-d" }}</span></div>
+  <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i class="fa-solid fa-pen"></i> 編集</a>
+</div>
+
+
 <div class="block campaign">
   <table>
     <tr>
@@ -22,35 +26,39 @@
       <th>滞在率</th>
       <th>料金</th>
       <th>停止／再開</th>
-      <th>見る</th>
+      <th>プレビュー</th>
     </tr>
     {% for ad_info in ad_infos %}
     <tr>
       <td>
-        {% if ad_info.post.ismanga %}
-        <div class="book">
-          {% for visual in ad_info.post.visuals.all|slice:":1" %}
-          <img class=" thumbnail" loading="lazy" src="{{ visual.visual.url }}" alt="{{ ad_info.post.title }}">
-          {% endfor %}
-          <i class="fa-solid fa-book-open manga-icon"></i>
-        </div>
+        <div class="square-img">
 
-        {% else %}
-        {% with ad_info.post.videos.first as video %}
-        {% if video.thumbnail %}
-        <img class="thumbnail" loading="lazy" src="{{ video.thumbnail.url }}" alt="{{ ad_info.post.title }}">
-        {% else %}
-        <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
-        {% endif %}
-        {% endwith %}
-        {% endif %}
+          {% if ad_info.post.ismanga %}
+          <div>
+            {% for visual in ad_info.post.visuals.all|slice:":1" %}
+            <img class="thumbnail" loading="lazy" src="{{ visual.visual.url }}" alt="{{ ad_info.post.title }}">
+            {% endfor %}
+            <i class="fa-solid fa-book-open manga-icon"></i>
+          </div>
+  
+          {% else %}
+          {% with ad_info.post.videos.first as video %}
+          {% if video.thumbnail %}
+          <img class="thumbnail" loading="lazy" src="{{ video.thumbnail.url }}" alt="{{ ad_info.post.title }}">
+          {% else %}
+          <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+          {% endif %}
+          {% endwith %}
+          {% endif %}
+
+        </div>
       </td>
       <td>{{ ad_info.post.title }}</td>
       <td>{{ ad_info.post.views_count }}</td>
       <td>{{ ad_info.post.stay_rate|floatformat:2 }}%</td>
       <td>??</td>
       <td>
-        <button class="toggle-hidden" data-post-id="{{ ad_info.post.id }}">
+        <button class="toggle-hidden release-button {% if ad_info.post.is_hidden %}stop{% else %}release{% endif %}" data-post-id="{{ ad_info.post.id }}">
           {% if ad_info.post.is_hidden %}
           停止中
           {% else %}
@@ -60,11 +68,11 @@
       </td>
       <td>
         <button class="view-button" data-post-id="{{ ad_info.post.id }}">
-          視聴ボタン
+          <i class="fa-solid fa-play"></i>
         </button>
-        <button class="delete-button" data-ad-info-id="{{ ad_info.id }}" data-title="{{ ad_info.post.title }}">
+        <!-- <button class="delete-button" data-ad-info-id="{{ ad_info.id }}" data-title="{{ ad_info.post.title }}">
           ×
-        </button>
+        </button> -->
       </td>
     </tr>
     {% endfor %}
@@ -76,7 +84,7 @@
 
 </div>
 
-<div class="block adinfo">
+<div class="adinfo preview">
 
   <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
     <div class="spinner"></div>
@@ -217,39 +225,44 @@
 
 {% block script %}
 <script type="text/javascript">
-  document.addEventListener("DOMContentLoaded", function () {
-    let buttons = document.querySelectorAll(".view-button");
-    buttons.forEach(function (button) {
-      button.addEventListener("click", function () {
-        let postId = this.getAttribute("data-post-id");
-        fetch(`/advertisement/ad_view_button/${postId}/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then(data => {
+document.addEventListener("DOMContentLoaded", function () {
+  let buttons = document.querySelectorAll(".view-button");
+  let previewDiv = document.querySelector(".preview"); // preview divを取得
+  
+  buttons.forEach(function (button) {
+    button.addEventListener("click", function (event) {
+      event.stopPropagation(); // イベントの伝播を阻止
+    let postId = this.getAttribute("data-post-id");
+    fetch(`/advertisement/ad_view_button/${postId}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
 
-            // mediaHtmlとotherHtmlを分けて考える
-            let adinfoBlock = document.querySelector('.adinfo');
-            let mediaHtml = '';
-            let existingBook = adinfoBlock.querySelector('.book');
-            let existingVideos = adinfoBlock.querySelectorAll('.post-video');
-            // 前のコンテンツを削除
-            if (existingBook) {
-              existingBook.remove();
-            }
+        // mediaHtmlとotherHtmlを分けて考える
+        let adinfoBlock = document.querySelector('.adinfo');
+        let previewDiv = document.querySelector(".preview"); // preview divを取得
+        let mediaHtml = '';
+        let existingBook = adinfoBlock.querySelector('.book');
+        let existingVideos = adinfoBlock.querySelectorAll('.post-video');
+        
+        // 前のコンテンツを削除
+        if (existingBook) {
+          existingBook.remove();
+        }
+        existingVideos.forEach(video => {
+          video.remove();
+        });
 
-            existingVideos.forEach(video => {
-              video.remove();
-            });
-            let post = data.post;
+        let post = data.post;
 
             if (post.ismanga) {
               mediaHtml = '<div class="book">';
@@ -287,11 +300,30 @@
             // HTMLを挿入
             document.getElementById("dynamic-hashtags").innerHTML = dynamicHashtagsHtml;
 
+            // preview divのクラスをトグルして表示・非表示を制御
+            previewDiv.classList.add('active'); // 情報がロードされたときにpreview divを表示
+
           });
       });
     });
   });
 
+  // 画面のどこかがクリックされたときにpreview divを非表示にする
+document.addEventListener('click', function(event) {
+  let previewDiv = document.querySelector('.preview');
+  if(!previewDiv.contains(event.target)) { // クリックされた要素がpreview divの中にない場合
+    previewDiv.classList.remove('active'); // preview divを非表示
+  }
+});
+
+</script>
+<script>
+  document.querySelectorAll('.budget').forEach(function (elem) {
+    let value = parseInt(elem.textContent, 10);
+    if (!isNaN(value)) {
+      elem.textContent = value.toLocaleString();
+    }
+  });
 </script>
 <script src="{% static 'js/read_more.js' %}"></script>
 <script src="{% static 'js/is_hidden_toggle.js' %}"></script>

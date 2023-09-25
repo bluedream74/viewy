@@ -1,0 +1,102 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_create.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="page-title">キャンペーン作成</div>
+
+
+<div class="block">
+  <form method="post" class="flex">
+    {% csrf_token %}
+  <div>
+      <div class="info-item">
+        <div class="info-name">キャンペーンタイトル</div>
+        <div class="info-input campaign-title">{{ form.title }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-name">開始日</div>
+        <div class="info-input">{{ form.start_date }}</div>
+        <div class="info-name" style="margin-top: 8px;">終了日</div>
+        <div class="info-input">{{ form.end_date }}</div>
+      </div>
+  
+      <div class="info-item">
+        <div class="info-name">予算</div>
+        <div class="info-input">{{ form.budget }}</div>
+      </div>
+  
+  </div>
+
+  <div style="margin-left: 48px;">
+    <div class="info-item">
+      <div class="info-name">ターゲット</div>
+      <div class="category">
+        <div>性別：</div>
+        {% for orfeature in sex.orfeatures.all %}
+        <input type="checkbox" id="sex{{ orfeature.id }}" name="sex_orfeatures" value="{{ orfeature.id }}">
+        <label for="sex{{ orfeature.id }}" class="custom-label">{{ orfeature.name }}</label>
+        {% endfor %}
+        <input type="checkbox" id="sexAll" name="sex_orfeatures" value="all">
+        <label for="sexAll" class="custom-label">全性別</label>
+      </div>
+      <div class="category">
+        <div>嗜好：</div>
+        {% for orfeature in dimension.orfeatures.all %}
+        <input type="checkbox" id="dimension{{ orfeature.id }}" name="dimension_orfeatures" value="{{ orfeature.id }}">
+        <label for="dimension{{ orfeature.id }}" class="custom-label">{{ orfeature.name }}</label>
+        {% endfor %}
+        <input type="checkbox" id="dimensionAll" name="dimension_orfeatures" value="all">
+        <label for="dimensionAll" class="custom-label">どちらとも</label>
+      </div>
+    </div>
+
+
+    <button type="submit" class="submit-campaign" disabled>作成</button>
+  </div>
+
+  </form>
+</div>
+
+
+{% endblock %}
+{% block script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let submitButton = document.querySelector("button[type='submit']");
+    let sexCheckboxes = document.querySelectorAll("input[name='sex_orfeatures']");
+    let dimensionCheckboxes = document.querySelectorAll("input[name='dimension_orfeatures']");
+    let startDateInput = document.querySelector('#start-date-input');
+    let endDateInput = document.querySelector('#end-date-input');
+
+    // Set the minimum end date to the current start date
+    endDateInput.setAttribute('min', startDateInput.value);
+
+    function checkSelection() {
+      let sexSelected = Array.from(sexCheckboxes).some(checkbox => checkbox.checked);
+      let dimensionSelected = Array.from(dimensionCheckboxes).some(checkbox => checkbox.checked);
+
+      if (sexSelected && dimensionSelected) {
+        submitButton.removeAttribute("disabled");
+      } else {
+        submitButton.setAttribute("disabled", "disabled");
+      }
+    }
+
+    // Initialize
+    checkSelection();
+
+    // Listen for changes
+    sexCheckboxes.forEach(checkbox => checkbox.addEventListener("change", checkSelection));
+    dimensionCheckboxes.forEach(checkbox => checkbox.addEventListener("change", checkSelection));
+
+    // Update the minimum end date when the start date changes
+    startDateInput.addEventListener('change', function () {
+      endDateInput.setAttribute('min', this.value);
+    });
+  });
+</script>
+{% endblock %}
