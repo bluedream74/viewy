@@ -59,10 +59,6 @@ class BasePostListView(ListView):
     model = Posts
     template_name = 'posts/postlist.html'
 
-    def format_number_to_k(self, num):
-        if num >= 10000:
-            return f"{num / 1000:.1f}K"
-        return str(num)
 
     def get_user_filter_condition(self):
         if self.request.user.is_authenticated:  # ログインユーザーの場合のみdimensionを取得
@@ -83,10 +79,6 @@ class BasePostListView(ListView):
             return queryset.filter(**filter_condition)
         return queryset
     
-    def annotate_emote_total(self, queryset):
-        return queryset.annotate(
-            emote_total_count=F('emote1_count') + F('emote2_count') + F('emote3_count') + F('emote4_count') + F('emote5_count')
-        )
 
     def get_viewed_count_dict(self, user, post_ids):
         viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
@@ -161,10 +153,10 @@ class BasePostListView(ListView):
         
         # 最後に、この条件を満たす AdCampaigns を持つ Posts をフィルタリング
         # Directly filter Posts based on matching AdCampaigns
-        ad_posts = (self.annotate_emote_total(Posts.objects.filter(
+        ad_posts = (Posts.objects.filter(
             Q(adinfos__ad_campaign__in=matching_adcampaigns) ,
             poster__in=advertiser_users
-        ))
+        )
         .select_related('poster', 'adinfos__post', 'adinfos__ad_campaign')
         .prefetch_related(
             'visuals',
@@ -255,7 +247,6 @@ class BasePostListView(ListView):
         queryset = super().get_queryset()
         queryset = self.exclude_advertiser_posts(queryset)  # Advertiserの投稿を除外
         queryset = queryset.select_related('poster')
-        queryset = self.annotate_emote_total(queryset)
         queryset = self.annotate_user_related_info(queryset)
         queryset = queryset.prefetch_related('visuals', 'videos')
         return queryset
@@ -263,8 +254,6 @@ class BasePostListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        for post in context['object_list']:
-            post.emote_total_count = self.format_number_to_k(post.emote_total_count)
         context['posts'] = context['object_list']
         return context
     
@@ -332,7 +321,6 @@ class PostListView(BasePostListView):
         # 残りのフィルターとアノテーションを適用
         random_two_posts = self.filter_by_dimension(random_two_posts)
         random_two_posts = self.annotate_user_related_info(random_two_posts)
-        random_two_posts = self.annotate_emote_total(random_two_posts)
         random_two_posts = list(random_two_posts)
 
         combined = list(first_4_by_rp) + advertiser_posts[:1] + list(next_2_by_rp) + list(random_two_posts) + advertiser_posts[1:]
@@ -1543,6 +1531,7 @@ class SubmitReportView(View):
 
 
 class EmoteCountView(View):
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         post_id = self.kwargs.get('post_id')
         emote_number = self.kwargs.get('emote_number')
@@ -1558,12 +1547,18 @@ class EmoteCountView(View):
         # 属性の存在確認
         if not hasattr(post, emote_field):
             return JsonResponse({'success': False, 'error': 'Invalid emote number'})
-        
-        current_count = getattr(post, emote_field)
-        new_count = current_count + click_count
 
         # Using F() expression to increment the count at the database level
         setattr(post, emote_field, F(emote_field) + click_count)
-        post.save(update_fields=[emote_field])  # only save the changed field
+        post.emote_total_count = F('emote_total_count') + click_count
+        post.save(update_fields=[emote_field, 'emote_total_count'])
 
-        return JsonResponse({'success': True, 'new_count': new_count})
+        # データベースの実際の値を使用して返す前に、オブジェクトをリフレッシュします
+        post.refresh_from_db()
+        
+        # Using the actual values from the database after refresh
+        new_count = getattr(post, emote_field)
+        new_total_count = post.emote_total_count
+        print(new_total_count)
+
+        return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})
