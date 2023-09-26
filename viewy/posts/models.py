@@ -55,6 +55,7 @@ class Posts(models.Model):
     emote3_count = models.PositiveIntegerField(default=0)
     emote4_count = models.PositiveIntegerField(default=0)
     emote5_count = models.PositiveIntegerField(default=0)
+    emote_total_count = models.PositiveIntegerField(default=0)
 
     class Meta:
       db_table = 'posts'
@@ -170,6 +171,12 @@ class Posts(models.Model):
         if self.poster.id in followed_posters_set:
             rp = rp * 1.5
         return rp
+
+    @property
+    def emote_total_count_display(self):
+        if self.emote_total_count >= 10000:
+            return f"{self.emote_total_count / 1000:.1f}K"
+        return str(self.emote_total_count)
 
 
 

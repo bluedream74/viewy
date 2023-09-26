@@ -159,10 +159,10 @@
       {% endif %}
 
 
-      <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count }}">
+      <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count_display }}">
         <div class="emote emote-icon">
           <i class="fa-regular fa-face-smile"></i>
-          <span class="emote-count total-count">{{ post.emote_total_count }}</span>
+          <span class="emote-count total-count">{{ post.emote_total_count_display }}</span>
         </div>
         <div class="emote hidden-emote">
           <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />

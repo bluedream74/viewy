@@ -41,7 +41,7 @@ function sendEmoteUpdate(postId, emoteIndex, countSpan, emote) {
         // 1〜5のエモートインデックスの場合、K表記を使用せずにカウントをそのまま表示
         countSpan.textContent = emoteIndex > 0 && emoteIndex <= 5 ? data.new_count.toString() : formatNumber(data.new_count);
         clickCounts[emoteIndex] = 0;
-        updateFirstEmoteCount(emote.closest('.emotes'));
+        updateFirstEmoteCount(emote.closest('.emotes'), data.new_total_count);
       } else {
         console.error("Error updating emote count:", data.error);
         countSpan.textContent = formatNumber(data.new_count); // Restore original count on error
@@ -88,7 +88,7 @@ document.querySelector('.screen').addEventListener('click', function (event) {
   // 0番目のエモートがクリックされたときの動作
   if (emoteIndex === 0) {
     const hiddenEmotes = Array.from(emotesContainer.querySelectorAll('.hidden-emote')).slice(0, 5);
-    if (hiddenEmotes.some(em => em.style.visibility === "visible")) { 
+    if (hiddenEmotes.some(em => em.style.visibility === "visible")) {
       // If any of the hidden emotes are currently visible, hide them.
       hideEmotesSequentially(emotesContainer);
       return; // Skip other logic
@@ -141,10 +141,14 @@ document.querySelector('.screen').addEventListener('click', function (event) {
 });
 
 
-function updateFirstEmoteCount(emotesContainer) {
+function updateFirstEmoteCount(emotesContainer, newTotal = null) {
   const totalCountSpan = emotesContainer.querySelector('.emote-icon .emote-count');
   if (!totalCountSpan) {
     console.warn('totalCountSpan not found!');
+    return;
+  }
+  if (newTotal !== null) {
+    totalCountSpan.textContent = formatNumber(newTotal);
     return;
   }
 
