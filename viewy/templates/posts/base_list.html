@@ -41,34 +41,41 @@
 
   {% if not post.is_by_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
-  {% if post.ismanga %}
+  {% if post.is_advertisement %}
+  <a href="{{ post.url }}" class="ad-click">
+    {% endif %}
+    {% if post.ismanga %}
 
-  <!-- マンガの場合 -->
-  <div class="book">
-    {% for visual in post.visuals.all %}
-    <div class="manga-page">
-      {% if post.show_icon %}
-      <div class="horizontal-slide-icon">
-        <i class="fa-solid fa-arrow-left-long"></i>
-        <div class="slide-icon-word">横読み</div>
+    <!-- マンガの場合 -->
+    <div class="book">
+      {% for visual in post.visuals.all %}
+      <div class="manga-page">
+        {% if post.show_icon %}
+        <div class="horizontal-slide-icon">
+          <i class="fa-solid fa-arrow-left-long"></i>
+          <div class="slide-icon-word">横読み</div>
+        </div>
+        {% endif %}
+        <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
       </div>
-      {% endif %}
-      <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      {% endfor %}
     </div>
+
+    {% else %}
+
+    <!-- 動画の場合 -->
+    {% for video in post.videos.all %}
+    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+      src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+    <br>
     {% endfor %}
-  </div>
 
-  {% else %}
-
-  <!-- 動画の場合 -->
-  {% for video in post.videos.all %}
-  <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
-    loading="lazy" playsinline loop muted></video>
-  <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
-  <br>
-  {% endfor %}
-
+    {% endif %}
+    {% if post.is_advertisement %}
+  </a>
   {% endif %}
+
   {% else %}
 
   <!-- アフィリエイターの広告の場合 -->
@@ -82,10 +89,10 @@
     <div class="side-bar">
 
       <div class="poster">
-      <!-- 広告主がスペシャルアドバタイザーだったらメダルをかける -->
-      {% if post.is_by_specialadvertiser %}
-      <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
-      {% endif %}
+        <!-- 広告主がスペシャルアドバタイザーだったらメダルをかける -->
+        {% if post.is_by_specialadvertiser %}
+        <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
+        {% endif %}
         <div>
           <!-- <p>投稿者:{{post.poster.username}}</p> -->
           <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
@@ -399,10 +406,10 @@
       {% csrf_token %}
       <div class="survey-radio-group">
         {% for option in unanswered_survey.options.all %}
-          <input type="radio" id="{{ option.name_ja }}" name="selected_option" value="{{ option.id }}" checked>
-          <label for="{{ option.name_ja }}">
-            {{ option.name_ja }}
-          </label>
+        <input type="radio" id="{{ option.name_ja }}" name="selected_option" value="{{ option.id }}" checked>
+        <label for="{{ option.name_ja }}">
+          {{ option.name_ja }}
+        </label>
         {% endfor %}
       </div>
       <input id="survey-submit" type="button" value="Submit">
@@ -430,7 +437,7 @@
 <script src="{% static 'js/mute.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
 <script src="{% static 'js/read_more.js' %}"></script>
-<!-- <script src="{% static 'js/ad_response_count.js' %}"></script> -->
+<script src="{% static 'js/ad_update_click_count.js' %}"></script>
 <script src="{% static 'js/report.js' %}"></script>
 <script src="{% static 'js/hashtag_history.js' %}"></script>
 <script src="{% static 'js/mangapage_count.js' %}"></script>

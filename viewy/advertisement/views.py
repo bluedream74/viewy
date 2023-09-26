@@ -1,6 +1,7 @@
 import os, json
 from moviepy.editor import VideoFileClip
 from django.views import View
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from .mixins import GroupOrSuperuserRequired
 from django.db.models import Prefetch, Count
@@ -13,6 +14,7 @@ from tempfile import NamedTemporaryFile
 from django.http import HttpResponseRedirect, Http404
 from django.forms.models import model_to_dict
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 
 from posts.models import Posts, Users, Videos, Visuals
 from .models import AdInfos, AndFeatures
@@ -74,7 +76,9 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
                     .select_related('post')
                     .prefetch_related(Prefetch('post__visuals'))
                     .prefetch_related('post__videos'))
-
+        for ad_info in ad_infos:
+            ad_info.calculated_click_through_rate = ad_info.click_through_rate()
+            
         # キャンペーンに関連する広告がない場合のメッセージ
         no_ad_message = None
         if not ad_infos.exists():
@@ -465,3 +469,19 @@ class AdCampaignDelete(View):
         campaign.delete()
         redirect_url = reverse('advertisement:ad_campaigns_list')  # 遷移先のURL
         return JsonResponse({'success': True, 'redirect_url': redirect_url})
+
+
+class UpdateAdClickCountView(View):
+
+    @method_decorator(login_required)
+    def post(self, request, post_id):
+        try:
+            ad_info = AdInfos.objects.get(post_id=post_id)
+        except AdInfos.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Advertisement not found"}, status=404)
+
+        ad_info.clicks_count += 1
+        print(ad_info.clicks_count)
+        ad_info.save()
+
+        return JsonResponse({"status": "success"})

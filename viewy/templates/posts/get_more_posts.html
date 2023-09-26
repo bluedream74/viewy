@@ -5,6 +5,9 @@
 
   {% if not post.is_by_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
+  {% if post.is_advertisement %}
+  <a href="{{ post.url }}" class="ad-click">
+    {% endif %}
   {% if post.ismanga %}
 
   <!-- マンガの場合 -->
@@ -33,6 +36,10 @@
   {% endfor %}
 
   {% endif %}
+  {% if post.is_advertisement %}
+</a>
+{% endif %}
+
   {% else %}
 
   <!-- アフィリエイターの広告の場合 -->

@@ -43,4 +43,10 @@ class AdCampaigns(models.Model):
 class AdInfos(models.Model):
     post = models.OneToOneField(Posts, on_delete=models.CASCADE)
     ad_campaign = models.ForeignKey(AdCampaigns, on_delete=models.CASCADE, related_name='ad_infos')
+    clicks_count = models.PositiveIntegerField(default=0)
+
+    def click_through_rate(self):
+        if self.post.views_count == 0:
+            return 0
+        return (self.clicks_count / self.post.views_count) * 100
 

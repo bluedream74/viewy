@@ -37,6 +37,8 @@
       <th>サムネイル</th>
       <th>広告タイトル</th>
       <th>表示回数</th>
+      <th>クリック回数</th>  
+      <th>クリック率</th>
       <th>滞在率</th>
       <th>料金</th>
       <th>停止／再開</th>
@@ -69,6 +71,8 @@
       </td>
       <td>{{ ad_info.post.title }}</td>
       <td>{{ ad_info.post.views_count }}</td>
+      <td>{{ ad_info.clicks_count }}</td>  <!-- 追加 -->
+      <td>{{ ad_info.calculated_click_through_rate|floatformat:2 }}%</td>
       <td>{{ ad_info.post.stay_rate|floatformat:2 }}%</td>
       <td>??</td>
       <td>

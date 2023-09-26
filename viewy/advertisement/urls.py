@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  AdCampaignsListView, AdCampaignDetailView, CampaignFormView, AdMangaCreateView, AdVideoCreateView, IsHiddenToggle, AdViewButton, EditAdCampaignView, AdCampaignStatusView, AdInfoDelete, AdCampaignDelete
+  AdCampaignsListView, AdCampaignDetailView, CampaignFormView, AdMangaCreateView, AdVideoCreateView, IsHiddenToggle, AdViewButton, EditAdCampaignView, AdCampaignStatusView, AdInfoDelete, AdCampaignDelete, UpdateAdClickCountView
 )
 from . import views
 
@@ -18,4 +18,5 @@ urlpatterns = [
   path('ad_campaign_status/<int:campaign_id>/', AdCampaignStatusView.as_view(), name='ad_campaign_status'),
   path('delete_ad_info/<int:ad_info_id>/', AdInfoDelete.as_view(), name='delete_ad_info'),
   path('delete_ad_campaign/<int:campaign_id>/', AdCampaignDelete.as_view(), name='delete_ad_campaign'),
+  path('update_ad_click_count/<int:post_id>/', UpdateAdClickCountView.as_view(), name='update_ad_click_count'),
 ]
