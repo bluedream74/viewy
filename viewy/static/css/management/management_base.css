@@ -218,11 +218,21 @@ p > input{
   color: #00c5c5;
  }
 
+.margin-left{
+  margin-left: 32px;
+}
+
+.is-real{
+  background-color: aliceblue;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
   .content{
     min-height: 100vh;
+    margin: 0px;
+    padding: 0px;
   }
 
   .side-menu{
@@ -257,5 +267,20 @@ p > input{
 
   .total_table{
     padding: 16px 32px;
+  }
+
+  .hot-partner{
+    padding: 4px 4px;
+    font-size: 12px;
+  }
+
+  .partner-input > input{
+    height: 16px;
+    margin: 2px 0px;
+    font-size: 12px;
+  }
+
+  .margin-left{
+    margin-left: 0px;
   }
 }

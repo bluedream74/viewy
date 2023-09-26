@@ -107,6 +107,10 @@ class CheckAgeView(TemplateView):
 class AboutViewyView(TemplateView):
     template_name = 'about_viewy.html'    
     
+# パートナー申請解説ページ
+class PartnerApplicationGuideView(TemplateView):
+    template_name = 'partner_application_guide.html'    
+    
 class ForInvitedView(TemplateView):
     template_name = 'for_invited.html'    
     

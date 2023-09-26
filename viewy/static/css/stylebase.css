@@ -84,6 +84,10 @@ textarea{
   cursor: pointer;
 }
 
+.home, .serch, .add-post, .like, .my-account{
+  border-top: solid 2px rgb(30, 30, 30);
+}
+
 /* ログインしていないときの表示 */
 .visitor > i{
   color: rgb(69, 69, 69);

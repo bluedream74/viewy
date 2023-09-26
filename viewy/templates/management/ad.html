@@ -53,7 +53,9 @@
             <td>
                 <ul class="target">
                     {% for feature in ad.adinfos.ad_campaign.andfeatures.all %}
+                    {% if not feature.is_all %}
                         <li>{{ feature }}</li>
+                    {% endif %}
                     {% endfor %}
                 </ul>
             </td>

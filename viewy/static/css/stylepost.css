@@ -1150,7 +1150,7 @@ label {
 
 .survey-modal-content {
   position: absolute;
-  top: 60%;
+  top: 50%;
   /* 位置を調整 */
   left: 50%;
   transform: translate(-50%, -50%);
@@ -1162,6 +1162,7 @@ label {
   border-radius: 8px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
   text-align: center;
+  color: rgb(69, 69, 69);
 }
 
 .survey-modal-title {
@@ -1170,12 +1171,19 @@ label {
   margin-bottom: 8px;
 }
 
+.survey-question{
+  text-align: center;
+  margin: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
 .survey-radio-group {
   margin-bottom: 16px;
+  padding: 4px 0px 4px 0px;
   display: flex;
   justify-content: center;
-  padding: 4px 0px 4px 0px;
-
+  flex-direction: column;
 }
 
 #survey-submit {
@@ -1198,7 +1206,7 @@ label {
   font-size: 18px;
   font-weight: bold;
   text-align: center;
-  padding: 0px 18px;
+  padding: 4px 18px;
 }
 
 .survey-radio-group input[type="radio"]:checked+label {

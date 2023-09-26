@@ -396,12 +396,13 @@
 </div>
 {% endif %}
 
+{% if user.gender %}
 {% if unanswered_survey %}
 <div id="SurveyModal" class="survey-modal" data-survey-id="{{ unanswered_survey.id }}">
   <div class="survey-modal-content">
-    <div class="survey-modal-title">アンケート</div>
+    <div class="survey-modal-title">アンケートTIME</div>
     <div class="first-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
-    <div class="setting-title">{{ unanswered_survey.question }}</div>
+    <div class="survey-question">{{ unanswered_survey.question }}</div>
     <form id="survey-form" method="post">
       {% csrf_token %}
       <div class="survey-radio-group">
@@ -412,11 +413,13 @@
         </label>
         {% endfor %}
       </div>
-      <input id="survey-submit" type="button" value="Submit">
+      <input id="survey-submit" type="button" value="回答する">
     </form>
   </div>
 </div>
 {% endif %}
+{% endif %}
+
 {% block bottom %}
 
 {% endblock %}

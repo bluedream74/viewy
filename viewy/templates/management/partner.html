@@ -25,7 +25,7 @@
         <th>ブースト</th>
       </tr>
       {% for user in users %}
-      <tr>
+      <tr class="{% if user.is_real %}is-real{% endif %}">
         <td>{{ user.username }}</td>
         <td>{{ user.displayname }}</td>
         <td>{{ user.follow_count }}</td>

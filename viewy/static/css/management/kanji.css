@@ -81,3 +81,11 @@ button{
   background-color: #f44336;
   color: white;
 }
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+
+  .block{
+    margin: 0px;
+  }
+}
