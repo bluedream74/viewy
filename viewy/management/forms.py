@@ -30,3 +30,9 @@ class RecommendedUserForm(forms.Form):
     # Add an error for non-existing usernames
 
         return cleaned_data
+    
+    
+class BoostTypeForm(forms.ModelForm):
+    class Meta:
+        model = Users
+        fields = ['boost_type']

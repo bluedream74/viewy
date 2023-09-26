@@ -6,66 +6,98 @@
 
 {% block content %}
 
-<div class="block total_table">
-  <div class="total_title">総パートナー数</div>
+<div class="block total_table flex">
+  <div class="total_title">総パートナー数：</div>
   <div class="total_number">{{ poster_users_count }}</div>
 </div>
 
-<div class="block">
+<div class="flex">
+  <div class="block scroll">
 
-  <table>
-    <tr>
-      <th>パートナー</th>
-      <th>フォロワー数</th>
-      <th>総投稿数</th>
-      <th>総視聴回数</th>
-      <th>投稿あたりの視聴回数</th>
-      <th>総いいね数</th>
-      <th>投稿あたりのいいね数</th>
-      <th>いいね率</th>
-    </tr>
-    {% for user in users %}
-    <tr>
-      <td>{{ user.username }}</td>
-      <td>{{ user.follow_count }}</td>
-      <td>{{ user.total_posts }}</td>
-      <td>{{ user.total_views }}</td>
-      <td>{{ user.views_per_post|floatformat:3 }}</td>
-      <td>{{ user.total_favorites }}</td>
-      <td>{{ user.favorites_per_post|floatformat:3 }}</td>
-      <td>{{ user.avg_favorite_rate|floatformat:3 }}%</td>
-    </tr>
-    {% endfor %}
-  </table>
-
+    <table>
+      <tr>
+        <th>パートナー</th>
+        <th>表示名</th>
+        <th>フォロワー</th>
+        <th>投稿数</th>
+        <th>視聴回数</th>
+        <th>平均QP</th>
+        <th>ブースト</th>
+      </tr>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.displayname }}</td>
+        <td>{{ user.follow_count }}</td>
+        <td>{{ user.total_posts }}</td>
+        <td>{{ user.total_views }}</td>
+        <td>{{ user.avg_qp|floatformat:3 }}</td>
+        <td>
+          <form method="post" action="{% url 'management:update_boost_type' user.id %}" class="boostTypeForm" data-user-id="{{ user.id }}">
+            {% csrf_token %}
+            <select class="{% if user.boost_type == 'normal' %}normal{% elif user.boost_type == 'boost' %}boost{% elif user.boost_type == 'superboost' %}super-boost{% elif user.boost_type == 'viewyboost' %}viewy-boost{% endif %}" name="boost_type" class="boostTypeSelect">
+              <option value="normal" {% if user.boost_type == 'normal' %}selected{% endif %}>Normal</option>
+              <option class="boost" value="boost" {% if user.boost_type == 'boost' %}selected{% endif %}>Boost</option>
+              <option class="super-boost" value="superboost" {% if user.boost_type == 'superboost' %}selected{% endif %}>Super Boost</option>
+              <option class="viewy-boost" value="viewyboost" {% if user.boost_type == 'viewyboost' %}selected{% endif %}>Viewy Boost</option>
+            </select>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  
+  </div>
+  
+  <div class="block hot-partner">おすすめユーザー設定
+    <form method="post">
+      {% csrf_token %}
+  
+      {% if error_message %}
+      <div class="error">
+        {{ error_message }}
+      </div>
+      {% endif %}
+  
+      {% if form.non_field_errors %}
+      <div class="error">
+        {{ form.non_field_errors }}
+      </div>
+      {% endif %}
+  
+      {% for field in form %}
+      <div class="field-wrapper partner-input">
+        {{ field.errors }} <!-- ここでフィールドのエラーを表示 -->
+        {{ field.label_tag }}
+        {{ field }}
+      </div>
+      {% endfor %}
+  
+      <button type="submit" class="submit">設定</button>
+    </form>
+  </div>
 </div>
 
-<div class="block">おすすめユーザー設定
-  <form method="post">
-    {% csrf_token %}
 
-    {% if error_message %}
-    <div class="error">
-      {{ error_message }}
-    </div>
-    {% endif %}
-
-    {% if form.non_field_errors %}
-    <div class="error">
-      {{ form.non_field_errors }}
-    </div>
-    {% endif %}
-
-    {% for field in form %}
-    <div class="field-wrapper">
-      {{ field.errors }} <!-- ここでフィールドのエラーを表示 -->
-      {{ field.label_tag }}
-      {{ field }}
-    </div>
-    {% endfor %}
-
-    <button type="submit" class="submit">設定</button>
-  </form>
-</div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.boostTypeSelect').change(function() {
+        var form = $(this).closest('form');
+        var url = form.attr('action');
+        var data = form.serialize(); // フォーム内の全データをシリアライズ
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data,
+            success: function(response) {
+                console.log('Success:', response);
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

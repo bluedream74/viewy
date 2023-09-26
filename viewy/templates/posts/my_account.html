@@ -327,11 +327,12 @@
     <i class="fa-solid fa-pen-to-square fa-lg mini-logo"></i><a href="{% url 'accounts:edit_prf' %}">プロフィール編集</a>
     <div class="line"></div>
   </div>
-
+  {% if request.user and not is_advertiser %}
   <div class="my-posts">
     <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
     <div class="line"></div>
   </div>
+  {% endif %}
 
   {% load unread_tags %}
 

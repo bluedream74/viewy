@@ -17,16 +17,39 @@
 </div>
 
 <div class="block">
-  <ul class="wait-list">
-    {% for user in object_list %}
-    <li>
-      <a href="{% url 'management:add_to_poster_group' user.id %}" onclick="return confirm('{{ user.username }}をポスターグループに追加しますか？ユーザーネームをもう一度確認してください');">{{ user.username }} - {{ user.email }}</a>
-      <a href="{% url 'management:remove_from_wait_list' user.id %}" onclick="return confirm('{{ user.username }}をリストから削除しますか？ユーザーネームをもう一度確認してください');" class="delete-button">削除</a>
-    </li> 
-    {% empty %}
-    <li>特別なユーザーが見つかりません。</li>
-    {% endfor %}
-  </ul>
+  <table class="wait-table">
+    <thead>
+        <tr>
+            <th>ユーザーネーム</th>
+            <th>Email</th>
+            <th>３次元</th>
+            <th>２次元</th>
+            <th>削除</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in object_list %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td class="center">
+                    <a href="{% url 'management:add_to_poster_group' user.id %}?is_real=true" onclick="return confirm('{{ user.username }}を３次元のクリエイターとしてポスターグループに追加しますか？ユーザーネームをもう一度確認してください');" class="is-real">３次元として追加</a>
+                </td>
+                <td class="center">
+                    <a href="{% url 'management:add_to_poster_group' user.id %}?is_real=false" onclick="return confirm('{{ user.username }}を２次元のクリエイターとしてポスターグループに追加しますか？ユーザーネームをもう一度確認してください');" class="not-real">２次元として追加</a>
+                </td>
+                <td class="center"><a href="{% url 'management:remove_from_wait_list' user.id %}" onclick="return confirm('{{ user.username }}をリストから削除しますか？ユーザーネームをもう一度確認してください');" class="delete-button">削除</a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">特別なユーザーが見つかりません。</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+
+
 </div>
 
 

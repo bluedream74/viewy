@@ -241,17 +241,25 @@ class BasePostListView(ListView):
         queryset = queryset.annotate(followed_by_user=Exists(follows))
 
         return queryset 
+    
+    def exclude_advertiser_posts(self, queryset):
+        # Advertiser グループのIDを取得します
+        advertiser_group = Group.objects.get(name='Advertiser')  # Groupの名前が 'Advertiser' であることを仮定します
+        # Advertiser グループに属するユーザーのIDを取得します
+        advertiser_user_ids = advertiser_group.user_set.values_list('id', flat=True)
+        # これらのユーザーによって作成された投稿を除外します
+        return queryset.exclude(poster_id__in=advertiser_user_ids)
 
         
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = self.exclude_advertiser_posts(queryset)  # Advertiserの投稿を除外
         queryset = queryset.select_related('poster')
-        # filter_by_dimension has been removed from here
         queryset = self.annotate_emote_total(queryset)
         queryset = self.annotate_user_related_info(queryset)
         queryset = queryset.prefetch_related('visuals', 'videos')
-
         return queryset
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

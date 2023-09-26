@@ -1,5 +1,15 @@
 .block{
-  padding: 40px 32px 32px;
+  background-color: white;
+  padding: 16px;
+  margin: 0px 32px;
+}
+
+.flex{
+  align-items: flex-start;
+}
+
+.words{
+  padding: 16px 32px;
 }
 
 .kanji-form, .hiragana-form{
@@ -34,7 +44,7 @@ button{
 
 .hiragana-header {
   font-weight: bold;
-  margin-left: -136px;
+  color: rgb(0, 81, 255);
 }
 
 .error {
