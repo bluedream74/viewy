@@ -113,10 +113,12 @@ body{
 }
 
 
+
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  box-shadow: 0px 2px 3px gainsboro;
 }
 
 th, td {
