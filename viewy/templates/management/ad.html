@@ -12,41 +12,55 @@
     <div>ホーム画面の広告</div>
     <table>
         <tr>
+            <th>広告</th>
             <th>タイトル</th>
+            <th>所属キャンペーン</th>
+            <th>ターゲット</th>
             <th class="url">URL</th>
             <th>視聴回数</th>
-            <th>クリック数</th>
-            <th>クリック率</th>
+            <th>平均滞在時間</th>
+            <th>QP</th>
         </tr>
-        {% for ad in ads %}
+        {% for ad, avg_duration in ads_with_avg_duration %}
         <tr>
+            <td>
+                <div class="square-img">
+                {% if ad.affiliate_tag %}
+                <div class="affiliate-tag">
+                    {{ ad.affiliate_tag|safe }}
+                </div>
+                {% else %}
+        
+                  {% if ad.ismanga %}
+                  <div>
+                    {% for visual in ad.visuals.all|slice:":1" %}
+                    <img class="thumbnail" loading="lazy" src="{{ visual.visual.url }}" alt="{{ ad.title }}">
+                    {% endfor %}
+                  </div>
+          
+                  {% else %}
+                  {% with ad.videos.first as video %}
+                  {% if video.thumbnail %}
+                  <img class="thumbnail" loading="lazy" src="{{ video.thumbnail.url }}" alt="{{ ad.title }}">
+                  {% endif %}
+                  {% endwith %}
+                  {% endif %}
+                  {% endif %}
+                </div>
+            </td>
             <td>{{ ad.title }}</td>
+            <td>{{ ad.adinfos.ad_campaign.title }}</td>
+            <td>
+                <ul class="target">
+                    {% for feature in ad.adinfos.ad_campaign.andfeatures.all %}
+                        <li>{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
             <td class="url"><a href="{{ ad.url }}">{{ ad.url }}</a></td>
             <td>{{ ad.views_count }}</td>
-            <td>{{ ad.click_count }}</td>
-            <td class="rate">{{ ad.click_rate }}%</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-<div class="block" id="second">
-    <div>検索画面の広告</div>
-    <table>
-        <tr>
-            <th>タイトル</th>
-            <th class="url">URL</th>
-            <th>視聴回数</th>
-            <th>クリック数</th>
-            <th>クリック率</th>
-        </tr>
-        {% for wide_ad in wide_ads %}
-        <tr>
-            <td>{{ wide_ad.title }}</td>
-            <td class="url"><a href="{{ wide_ad.url }}">{{ wide_ad.url }}</a></td>
-            <td>{{ wide_ad.views_count }}</td>
-            <td>{{ wide_ad.click_count }}</td>
-            <td class="rate">{{ wide_ad.click_rate }}%</td>
+            <td>{{ avg_duration|floatformat:3 }} 秒</td>
+            <td>{{ ad.qp|floatformat:3 }}</td>
         </tr>
         {% endfor %}
     </table>

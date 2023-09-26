@@ -6,7 +6,7 @@
 
 
 {% block content %}
-<div class="rank">
+<div class="rank flex">
     <div class="block">
         <div>投稿数ランキング</div>
         <table>
@@ -33,7 +33,7 @@
         </table>
     </div>
     
-    <div class="block">
+    <div class="block" style="margin-left: 32px;">
         <div>検索回数ランキング</div>
         <table>
             <thead>
@@ -61,7 +61,7 @@
     
 </div>
 
-<div class="block select">
+<div class="block select hot-hashtag">
     <div>おすすめハッシュタグ</div>
     <form method="post">
         {% csrf_token %}

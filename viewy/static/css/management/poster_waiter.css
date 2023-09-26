@@ -1,21 +1,37 @@
 .content{
-  display: block;
-  min-width: 600px;
+  min-width: 800px;
 }
 
-ul{
-  padding-left: 16px;
-  text-align: left;
+.wait-table{
+  margin-top: 32px;
 }
 
-li{
-  line-height: 32px;
-  text-decoration: none;
-  font-weight: bold;
-}
 
 a{
   text-decoration: none;
+}
+
+.center{
+  text-align: center;
+}
+
+.is-real, .not-real, .delete-button{
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: rgb(160, 160, 160);
+  box-shadow: 0px 1px 4px gainsboro;
+  border-radius: 4px;
+  margin: 4px auto;
+  color: white;
+  font-weight: bold;
+}
+
+.is-real{
+  background-color: rgb(105, 185, 222);
+}
+
+.not-real{
+  background-color: palevioletred;
 }
 
 /* スマートフォン用のスタイル */

@@ -1,5 +1,6 @@
 import json
 import math
+import re
 from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -17,8 +18,8 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys
-from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser
-from .forms import HashTagSearchForm, RecommendedUserForm
+from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations
+from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm
 from .models import UserStats
 
 from django.contrib.auth.models import Group
@@ -49,15 +50,15 @@ class Account(SuperUserCheck, TemplateView):
         new_users = Users.objects.filter(verification_code_generated_at__date=today, is_active=True).count()
         context['new_users'] = new_users
         
-        # 過去7日間で一度でもいいねを押したユーザー数
+        # 過去7日間で一度でも投稿を見たアクティブユーザー数
         seven_days_ago = timezone.now() - timedelta(days=7)
-        active_users = Users.objects.filter(favorite_received__created_at__gte=seven_days_ago).distinct().count()
-        context['active_users'] = active_users
-        
+        active_users_count = Users.objects.filter(viewed_user__viewed_at__gte=seven_days_ago).distinct().count()
+        context['active_users'] = active_users_count
+
         # アクティブ率
         if total_users > 0:
-            active_rate = (active_users / total_users) * 100
-            # 小数第二で切り上げ
+            active_rate = (active_users_count / total_users) * 100
+            # 小数第二位で切り上げ
             active_rate = math.ceil(active_rate * 100) / 100
         else:
             active_rate = 0
@@ -123,24 +124,17 @@ class Partner(SuperUserCheck, TemplateView):
         # コンテキストに poster_users_count を追加
         context['poster_users_count'] = poster_users_count
         
-        users = Users.objects.annotate(
-            total_posts=Count('posted_posts'),
-            avg_favorite_rate=Avg('posted_posts__favorite_rate'),
-            total_views=Sum('posted_posts__views_count'),
-            total_favorites=Sum('posted_posts__favorite_count'),
-            views_per_post=Case(
-                When(total_posts=0, then=Value(0)),
-                default=F('total_views') / F('total_posts'),
-                output_field=FloatField()
-            ),
-            favorites_per_post=Case(
-                When(total_posts=0, then=Value(0)),
-                default=F('total_favorites') / F('total_posts'),
-                output_field=FloatField()
-            )
-        ).exclude(total_posts=0)
+        poster_users = poster_group.user_set.all()
 
-        # コンテキストに `users` を追加
+        users = Users.objects.filter(id__in=poster_users).annotate(
+            total_posts=Count('posted_posts'),
+            avg_qp=Avg('posted_posts__qp'),
+            total_views=Sum('posted_posts__views_count'),
+        )
+
+        for user in users:
+            user.boost_type_form = BoostTypeForm(instance=user)
+
         context['users'] = users
 
         if 'error_message' in kwargs:
@@ -157,34 +151,41 @@ class Partner(SuperUserCheck, TemplateView):
 
         return context
     
+class UpdateBoostTypeView(View):
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        user = get_object_or_404(Users, id=user_id)
+        form = BoostTypeForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+        return redirect('management:partner')
+    
     
 class Post(SuperUserCheck, View):
     template_name = 'management/post.html'
 
     def get(self, request, *args, **kwargs):
-        # Posts と関連する Users をプリフェッチ
-        posts = Posts.objects.all().prefetch_related('poster').order_by('-favorite_rate')
+        # Posts と関連する Users をプリフェッチし、QPが高い投稿順に上位から３０投稿だけ取得
+        posts = Posts.objects.all().prefetch_related('poster').order_by('-qp')[:30]
 
-        updated_posts = []
-        for post in posts:
-            # いいね率の現在の値を保存
-            current_favorite_rate = post.favorite_rate
-            
-            # いいね率を更新
-            post.update_favorite_rate()
-            
-            # いいね率が変更されていた場合、更新された Posts のリストに追加
-            if post.favorite_rate != current_favorite_rate:
-                updated_posts.append(post)
-        
-        # 更新された Posts を一括で保存
-        if updated_posts:
-            Posts.objects.bulk_update(updated_posts, ['favorite_rate'])
+        # すべての投稿の数をカウント
+        total_posts = Posts.objects.count()
 
-        total_posts = posts.count()
+        # すべての投稿のqpの平均値を計算
+        avg_qp = Posts.objects.all().aggregate(Avg('qp'))['qp__avg'] or 0  # avg_qpがNoneの場合は0をセット
+
+        # ismangaがtrueの投稿のqpの平均値を計算
+        avg_qp_manga = Posts.objects.filter(ismanga=True).aggregate(Avg('qp'))['qp__avg'] or 0
+
+        # ismangaがfalseの投稿のqpの平均値を計算
+        avg_qp_movie = Posts.objects.filter(ismanga=False).aggregate(Avg('qp'))['qp__avg'] or 0
+
         context = {
             'posts': posts,
-            'total_posts': total_posts
+            'total_posts': total_posts,  # すべての投稿の数
+            'avg_qp': avg_qp,  # すべての投稿のqpの平均値
+            'avg_qp_manga': avg_qp_manga,  # ismangaがtrueの投稿のqpの平均値
+            'avg_qp_movie': avg_qp_movie  # ismangaがfalseの投稿のqpの平均値
         }
         return render(request, self.template_name, context)
     
@@ -262,12 +263,17 @@ class Hashtag(SuperUserCheck, TemplateView):
         # If the form is not valid, re-render the page with the form errors
         return self.get(request, *args, **kwargs)
 
+
+
 class KanjiRegist(SuperUserCheck, View):
     template_name = 'management/kanji_regist.html'
 
     def get(self, request, error_message=None):
         # データベースから全オブジェクトを取得
         kanji_hiragana_sets = KanjiHiraganaSet.objects.all()
+
+        # 存在する漢字のリストを作成
+        existing_kanji = [set.kanji for set in kanji_hiragana_sets]
 
         # ひらがなに基づいてソート（‘あいうえお’順）
         sorted_kanji_hiragana_sets = sorted(kanji_hiragana_sets, key=lambda x: x.hiragana.split(',')[0])
@@ -279,8 +285,42 @@ class KanjiRegist(SuperUserCheck, View):
                 sections[initial_hiragana] = []
             sections[initial_hiragana].append(set)
 
-        # ソートされたオブジェクトをテンプレートに渡す
-        return render(request, self.template_name, {'sections': sections, 'error_message': error_message})
+        # Hashtagsとそのカウントを取得
+        hashtags = Posts.objects.annotate(
+            all_hashtags=Concat(
+                'hashtag1', Value(','),
+                'hashtag2', Value(','),
+                'hashtag3',
+                output_field=CharField()
+            )
+        ).values('all_hashtags')
+        hashtags_list = []
+        for item in hashtags:
+            hashtags_list.extend([hashtag for hashtag in item['all_hashtags'].split(',') if hashtag])
+        hashtag_counts = {i: hashtags_list.count(i) for i in hashtags_list}
+        
+        # ひらがなの正規表現パターン（最初の一文字）
+        hiragana_pattern = re.compile(r'^[ぁ-ん]')
+
+        # カタカナの正規表現パターン（最初の一文字）
+        katakana_pattern = re.compile(r'^[ァ-ン]')
+
+        # ハッシュタグとして存在するが、漢字として存在しない、かつ、最初の一文字がひらがな、カタカナでないものを特定
+        unregistered_hashtags = [
+            hashtag 
+            for hashtag in hashtag_counts.keys() 
+            if hashtag not in existing_kanji
+            and not hiragana_pattern.match(hashtag)
+            and not katakana_pattern.match(hashtag)
+        ]
+
+        # ソートされたオブジェクトと未登録のハッシュタグをテンプレートに渡す
+        context = {
+            'sections': sections,
+            'error_message': error_message,
+            'unregistered_hashtags': unregistered_hashtags,
+        }
+        return render(request, self.template_name, context)
 
     def post(self, request):
         kanji = request.POST['kanji']
@@ -300,6 +340,8 @@ class KanjiRegist(SuperUserCheck, View):
 
         # 保存後のリダイレクト
         return redirect('management:kanji_regist')
+    
+    
 
 class KanjiDelete(SuperUserCheck, View):
     def post(self, request, pk):
@@ -311,15 +353,18 @@ class Ad(SuperUserCheck, View):
     template_name = 'management/ad.html'
 
     def get(self, request, *args, **kwargs):
-        ads = Ads.objects.all()
+        advertiser_group = Group.objects.get(name='Advertiser')
+        ads = Posts.objects.filter(poster__groups=advertiser_group)
+
+        # 平均滞在時間を計算し、広告とともにコンテキストに追加
+        ads_with_avg_duration = []
         for ad in ads:
-            ad.update_click_rate()
+            view_durations = ViewDurations.objects.filter(post=ad)
+            total_duration = sum(duration.duration for duration in view_durations)
+            avg_duration = total_duration / view_durations.count() if view_durations.count() > 0 else 0
+            ads_with_avg_duration.append((ad, avg_duration))
 
-        wide_ads = WideAds.objects.all()
-        for wide_ad in wide_ads:
-            wide_ad.update_click_rate()
-
-        context = {'ads': ads, 'wide_ads': wide_ads}
+        context = {'ads_with_avg_duration': ads_with_avg_duration}
         return render(request, self.template_name, context)
 
 class PosterWaiterList(SuperUserCheck, ListView):
@@ -340,16 +385,17 @@ class PosterWaiterList(SuperUserCheck, ListView):
 class AddToPosterGroup(SuperUserCheck, View):
     def get(self, request, user_id):
         user = get_object_or_404(Users, id=user_id)
-        user.poster_waiter= False
-
-        # ポスターグループを取得し、存在しない場合は作成
+        
+        is_real_str = request.GET.get('is_real')  # クエリパラメータからis_realを取得
+        if is_real_str:
+            user.is_real = is_real_str.lower() == 'true'  # 'true' なら True, それ以外なら False
+            
+        user.poster_waiter = False
         group, created = Group.objects.get_or_create(name='Poster')
-
-        # ユーザーをポスターグループに追加
         group.user_set.add(user)
-
+        
         user.save()
-        return redirect('management:poster_waiter_list') # ここでリダイレクト先を指定します
+        return redirect('management:poster_waiter_list')
 
 class RemoveFromWaitList(SuperUserCheck, View):
     def get(self, request, user_id):

@@ -1,6 +1,6 @@
 body{
   margin: 0px;
-  background-color: rgb(239, 239, 239);
+  background-color: #eff3f9;
   font-family: 'Meiryo', sans-serif;
 }
 
@@ -39,18 +39,63 @@ body{
 }
 
 .content{
-  display: flex;   /* This makes the children (i.e., .block) line up horizontally */
-  align-items: flex-start;   /* This aligns the children to the top of the container */
-  justify-content: space-between;   /* This creates equal space between the children */
-  flex-wrap: wrap;   /* This allows the blocks to wrap to the next line if the container's width isn't enough */
-  text-align: center;
-  max-height: 100vh;
-  min-height: 100vh;
+  max-height: calc(100vh - 64px);
   overflow: scroll;
+  padding: 32px 64px;
 }
 
+.scroll{
+  max-height: 500px;
+  overflow-y: scroll;
+}
 
-.block{
+@keyframes RedblinkAnimation {
+  0%, 100% {color: rgb(255, 42, 0);}
+  50% {color: rgb(255, 166, 0);}
+}
+
+@keyframes PurpleblinkAnimation {
+  0%, 100% {color: rgb(255, 0, 238);}
+  50% {color: rgb(174, 0, 255);}
+}
+
+@keyframes ViewyblinkAnimation {
+  0%, 100% {color: rgb(0, 85, 255);}
+  50% {color: rgb(51, 248, 248);}
+}
+
+.boost{
+  animation: RedblinkAnimation 5s infinite; 
+}
+
+.super-boost {
+  animation: PurpleblinkAnimation 5s infinite; 
+}
+
+.viewy-boost{
+  animation: ViewyblinkAnimation 5s infinite; 
+}
+
+.flex{
+  display: flex;
+}
+
+.hot-partner{
+  background-color: white;
+  padding: 16px 16px;
+  text-align: center;
+}
+
+.partner-input{
+  text-align: right;
+}
+
+.partner-input > input{
+  height: 20px;
+  margin: 2px 0px;
+}
+
+/* .block{
   max-height: 450px;
   overflow-y: scroll;
   margin: 32px;
@@ -60,7 +105,7 @@ body{
   border-radius: 16px;
   color: rgb(69, 69, 69);
   font-size: 15px;
-}
+} */
 
 /* スクロールバーを非表示にする */
 ::-webkit-scrollbar {
@@ -68,16 +113,31 @@ body{
 }
 
 
+
 table {
-  border-collapse: collapse;  /* 枠線を重ねて表示 */
-  width: 96%;  /* テーブルの幅を100%に設定 */
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  box-shadow: 0px 2px 3px gainsboro;
 }
+
 th, td {
-  border: 0px solid rgb(186, 186, 186);  /* テーブルのセルに1pxの黒い枠線を設定 */
-  padding: 4px;  /* テーブルのセルの内側にパディングを設定 */
-  text-align: left;  /* テキストを左揃えに設定 */
+  border: 1px solid rgb(48, 48, 48); /* 黒枠を追加 */
+  padding: 4px 8px;
+  max-width: 150px;
+}
+
+th {
+  background-color: rgb(69, 69, 69);
+  color: white;
+}
+
+tr{
+  background-color: #ffffff;
+}
+
+.manga{
+  background-color: aliceblue;
 }
 
 .hashtag-form{
@@ -132,6 +192,10 @@ p > input{
   list-style: none;
 }
 
+.total_table{
+  align-items: center;
+}
+
 .total_title{
   font-size: 14px;
 }
@@ -141,6 +205,18 @@ p > input{
  font-weight: bold;
  color: #00c5c5;
 }
+
+.total_number2{
+  font-size: 28px;
+  font-weight: bold;
+  color: #00c5c5;
+ }
+
+ .total_number3{
+  font-size: 24px;
+  font-weight: bold;
+  color: #00c5c5;
+ }
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {

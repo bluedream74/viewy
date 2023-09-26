@@ -1,14 +1,17 @@
 .content{
-  display: inline-flex; /* This makes the children (i.e., .block) line up horizontally */
-  align-items: flex-start; /* This aligns the children to the top of the container */
-  justify-content: baseline; /* This creates equal space between the children */
-  flex-wrap: nowrap; /* This prevents the blocks from wrapping to the next line */
-  text-align: center;
+  display: flex;
 }
 
-.block {
-  width: 32%; /* 各ブロックの幅を設定（必要に応じて調整） */
+
+.hot-hashtag{
+  background-color: white;
+  padding: 16px;
+  margin-left: 32px;
+  margin-top: 32px;
+  text-align: center;
+  box-shadow: 0px 2px 3px gainsboro;
 }
+
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {

@@ -6,31 +6,51 @@
 
 {% block content %}
 
-<div class="block total_table">
-  <div class="total_title">総投稿数</div>
-  <div class="total_number">{{ total_posts }}</div>
+<div class="flex">
+  <div class="block total_table flex">
+    <div class="total_title">総投稿数：</div>
+    <div class="total_number">{{ total_posts }}</div>
+  </div>
+  
+  <div class="block total_table flex" style="margin-left: 32px;">
+    <div class="total_title">全投稿の平均QP：</div>
+    <div class="total_number2">{{ avg_qp|floatformat:3 }}</div>
+  </div>  
+
+  <div class="block total_table flex" style="margin-left: 32px;">
+    <div class="total_title">全動画の平均QP：</div>
+    <div class="total_number3">{{ avg_qp_movie|floatformat:3 }}</div>
+  </div>  
+
+  <div class="block total_table flex" style="margin-left: 16px;">
+    <div class="total_title">全マンガの平均QP：</div>
+    <div class="total_number3">{{ avg_qp_manga|floatformat:3 }}</div>
+  </div>  
+
 </div>
+
+
 
 <div class="block">
   <table>
     <tr>
         <th>タイトル</th>
         <th>投稿者</th>
+        <th>マンガ</th>
         <th>投稿日時</th>
         <th>視聴回数</th>
-        <th>いいね数</th>
-        <th>いいね率</th>
-        <th>報告数</th>
+        <th>長さ</th>
+        <th>QP</th>
     </tr>
     {% for post in posts %}
-    <tr>
+    <tr class="{% if post.ismanga %}manga{% endif %}">
         <td>{{ post.title }}</td>
         <td>{{ post.poster.username }}</td>
+        <td>{{ post.ismanga }}</td>
         <td>{{ post.posted_at }}</td>
         <td>{{ post.views_count }}</td>
-        <td>{{ post.favorite_count }}</td>
-        <td>{{ post.favorite_rate|floatformat:3 }}%</td>
-        <td>{{ post.report_count}}</td>
+        <td>{{ post.content_length }}</td>
+        <td>{{ post.qp|floatformat:3 }}</td>
     </tr>
     {% endfor %}
   </table>
