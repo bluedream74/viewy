@@ -1,5 +1,6 @@
 import os, json
 from moviepy.editor import VideoFileClip
+from django.db.models import F
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
@@ -358,7 +359,7 @@ class AdVideoCreateView(BaseAdCreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class IsHiddenToggle(View):
+class IsHiddenToggle(AdvertiserCheckView, View):
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
@@ -385,7 +386,7 @@ class IsHiddenToggle(View):
         return JsonResponse({'is_hidden': post.is_hidden})
 
 
-class AdViewButton(View):
+class AdViewButton(AdvertiserCheckView, View):
     def get(self, request, post_id, *args, **kwargs):
         post = get_object_or_404(Posts, id=post_id)
         
@@ -398,7 +399,7 @@ class AdViewButton(View):
         
         return JsonResponse({'post': post_dict})
 
-class EditAdCampaignView(View):
+class EditAdCampaignView(AdvertiserCheckView, View):
     template_name = 'advertisement/edit_ad_campaign.html'
 
     def get(self, request, campaign_id):
@@ -421,7 +422,7 @@ class EditAdCampaignView(View):
             return redirect(reverse('advertisement:ad_campaign_detail', kwargs={'campaign_id': campaign_id}))
         return render(request, self.template_name, {'form': form})
 
-class AdCampaignStatusView(View):
+class AdCampaignStatusView(AdvertiserCheckView, View):
     
     def post(self, request, campaign_id):
         campaign = AdCampaigns.objects.filter(id=campaign_id).first()
@@ -449,7 +450,7 @@ class AdCampaignStatusView(View):
         
         return redirect(reverse_lazy('advertisement:ad_campaigns_list'))
 
-class AdInfoDelete(View):
+class AdInfoDelete(AdvertiserCheckView, View):
     def post(self, request, ad_info_id):
         ad_info = get_object_or_404(AdInfos, id=ad_info_id)
         
@@ -462,7 +463,7 @@ class AdInfoDelete(View):
         redirect_url = reverse('advertisement:ad_campaign_detail', kwargs={'campaign_id': campaign_id})
         return JsonResponse({'success': True, 'redirect_url': redirect_url})
 
-class AdCampaignDelete(View):
+class AdCampaignDelete(AdvertiserCheckView, View):
     def post(self, request, campaign_id):
         campaign = get_object_or_404(AdCampaigns, id=campaign_id)
         campaign.ad_infos.all().delete()
@@ -471,7 +472,7 @@ class AdCampaignDelete(View):
         return JsonResponse({'success': True, 'redirect_url': redirect_url})
 
 
-class UpdateAdClickCountView(View):
+class AdClickCountView(AdvertiserCheckView, View):
 
     @method_decorator(login_required)
     def post(self, request, post_id):
@@ -480,8 +481,11 @@ class UpdateAdClickCountView(View):
         except AdInfos.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Advertisement not found"}, status=404)
 
-        ad_info.clicks_count += 1
+        # F()式を使用して、clicks_countフィールドをデータベースレベルでインクリメント
+        AdInfos.objects.filter(post_id=post_id).update(clicks_count=F('clicks_count') + 1)
+
+        # もし、インクリメント後の値を取得する必要がある場合は、オブジェクトを再取得
+        ad_info.refresh_from_db()
         print(ad_info.clicks_count)
-        ad_info.save()
 
         return JsonResponse({"status": "success"})

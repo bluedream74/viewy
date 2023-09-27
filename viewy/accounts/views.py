@@ -719,23 +719,16 @@ class FirstSettingView(View):
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class SurveyAnswerView(View):
-    def post(self, request, selected_option_id, survey_id):
+    def post(self, request, selected_option_id):
         user = request.user
         if user.is_authenticated:
             try:
-                # selected_option_id, survey_id はURLから渡されます。
+                # selected_option_id,はURLから渡されます。
                 selected_option = Features.objects.get(pk=selected_option_id)
-                survey = Surveys.objects.get(pk=survey_id)  
-                # すでに回答しているかどうか確認
-                if SurveyResults.objects.filter(user=user, survey=survey).exists():
-                    return JsonResponse({'status': 'error', 'message': 'Already answered'}, status=400)
-                
-                # 回答を保存
-                survey_result = SurveyResults(user=user, survey=survey, selected_option=selected_option)
-                survey_result.save()
-                
+
                 # ユーザーのfeaturesに選択した特性を追加
                 user.features.add(selected_option)
+                user.save()  # 必要に応じてユーザーオブジェクトを保存
                 
                 return JsonResponse({'status': 'success', 'message': 'Answer saved'})
             

@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import (Account, RecordUserStats, GetUserStats, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList
-)
+from .views import (Account, RecordUserStats, GetUserStats, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, ClickCountView)
 from . import views
 
 app_name = 'management'
@@ -19,4 +18,5 @@ urlpatterns = [
   path('poster_waiter_list/', PosterWaiterList.as_view(), name='poster_waiter_list'),
   path('add_to_poster_group/<int:user_id>/', AddToPosterGroup.as_view(), name='add_to_poster_group'),
   path('remove_from_wait_list/<int:user_id>/', RemoveFromWaitList.as_view(), name='remove_from_wait_list'),
+  path('click_count/<str:name>/', ClickCountView.as_view(), name='click_count'),
 ]

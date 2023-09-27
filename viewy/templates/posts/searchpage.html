@@ -64,7 +64,7 @@
     {{hashtag }}</a>
   <div class="posts-container">
     {% for post in posts %}
-    <a class="post" href="{% url 'posts:hashtag' hashtag=hashtag %}">
+    <a class="post post-clickable" href="{% url 'posts:hashtag_list' hashtag=hashtag %}?post_id={{ post.id }}&order=posted_at" data-count-name="hh{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
       {% if post.ismanga %}
       <div class="book">
         {% for visual in post.visuals_list|slice:":1" %}
@@ -131,4 +131,5 @@
 <script src="{% static 'js/auto_correct.js' %}"></script>
 <script src="{% static 'js/search_history.js' %}"></script>
 <script src="{% static 'js/widead_response_count.js' %}"></script>
+<script src="{% static 'js/click_count.js' %}"></script>
 {% endblock %}

@@ -29,5 +29,5 @@ urlpatterns = [
   path('delete_user/', DeleteUserView.as_view(), name='delete_user'),   
   path('change_dimension/', ChangeDimensionView.as_view(), name='change_dimension'),
   path('first_setting/', FirstSettingView.as_view(), name='first_setting'),
-  path('survey_answer/<int:selected_option_id>/<int:survey_id>/', SurveyAnswerView.as_view(), name='survey_answer'),
+  path('survey_answer/<int:selected_option_id>/', SurveyAnswerView.as_view(), name='survey_answer'),
 ]
