@@ -1,0 +1,15 @@
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylewhite_regist_login.css' %}">
+{% endblock %}
+{%block content%}
+<div class="mid-logo">
+  <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
+</div>
+<div class="sub-title" id="specialUserContainer" data-is-special-user="{% if is_special_user %}true{% else %}false{% endif %}">サービス利用不可</div>
+<div class="describe">サービスが一時的に利用できないか、メンテナンス中です。<br>後ほど再度お試しください。</div>
+
+<div class="art3">
+  <img src="{{ MEDIA_URL }}others/熟睡.png" alt="">
+</div>
+
+{%endblock%}

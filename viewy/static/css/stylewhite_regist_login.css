@@ -289,6 +289,16 @@ li{
   opacity: 0.9;
 }
 
+.art3{
+  margin-top: 24px;
+  text-align: center;  
+}
+
+.art3 > img{
+  width: 100px;
+  opacity: 0.9;  
+}
+
 .guide-message{
   font-size: 12px;
   color: rgb(69, 69, 69);

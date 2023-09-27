@@ -8,37 +8,37 @@
   {% if post.poster.is_advertiser %}
   <a href="{{ post.url }}" class="ad-click">
     {% endif %}
-  {% if post.ismanga %}
+    {% if post.ismanga %}
 
-  <!-- マンガの場合 -->
-  <div class="book">
-    {% for visual in post.visuals.all %}
-    <div class="manga-page">
-      {% if post.show_icon %}
-      <div class="horizontal-slide-icon">
-        <i class="fa-solid fa-arrow-left-long"></i>
-        <div class="slide-icon-word">横読み</div>
+    <!-- マンガの場合 -->
+    <div class="book">
+      {% for visual in post.visuals.all %}
+      <div class="manga-page">
+        {% if post.show_icon %}
+        <div class="horizontal-slide-icon">
+          <i class="fa-solid fa-arrow-left-long"></i>
+          <div class="slide-icon-word">横読み</div>
+        </div>
+        {% endif %}
+        <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
       </div>
-      {% endif %}
-      <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      {% endfor %}
     </div>
+
+    {% else %}
+
+    <!-- 動画の場合 -->
+    {% for video in post.videos.all %}
+    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+      src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+    <br>
     {% endfor %}
-  </div>
 
-  {% else %}
-
-  <!-- 動画の場合 -->
-  {% for video in post.videos.all %}
-  <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px" src="{{ video.video.url }}"
-    loading="lazy" playsinline loop muted></video>
-  <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
-  <br>
-  {% endfor %}
-
+    {% endif %}
+    {% if post.poster.is_advertiser %}
+  </a>
   {% endif %}
-  {% if post.poster.is_advertiser %}
-</a>
-{% endif %}
 
   {% else %}
 
@@ -70,7 +70,7 @@
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </a>
           {% endif %}
-          
+
           {% else %}
           <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
@@ -191,8 +191,7 @@
           ＠{{post.poster.displayname}}
         </a>
         {% else %}
-        <a href="{{ post.url }}"
-          class="poster-name ad-click">＠{{post.poster.username}}</a>
+        <a href="{{ post.url }}" class="poster-name ad-click">＠{{post.poster.username}}</a>
         {% endif %}
 
         {% endif %}

@@ -1,0 +1,15 @@
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylewhite_regist_login.css' %}">
+{% endblock %}
+{%block content%}
+<div class="mid-logo">
+  <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
+</div>
+<div class="sub-title" id="specialUserContainer" data-is-special-user="{% if is_special_user %}true{% else %}false{% endif %}">ページが見つかりません</div>
+<div class="describe">お探しのページは存在しないか、<br>移動または削除された可能性があります。</div>
+
+<div class="art3">
+  <img src="{{ MEDIA_URL }}others/熟睡.png" alt="">
+</div>
+
+{%endblock%}

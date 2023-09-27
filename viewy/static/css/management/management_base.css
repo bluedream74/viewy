@@ -76,6 +76,23 @@ body{
   animation: ViewyblinkAnimation 5s infinite; 
 }
 
+.chart{
+  text-align: center;
+}
+
+.gender{
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+
+#genderPieChart{
+  margin: 0px auto;
+  color: #d9d9d9;
+}
+
+
+
 .flex{
   display: flex;
 }

@@ -38,8 +38,30 @@
   <canvas id="userStatsChart"></canvas>
   </div>
 
+  <div class="flex gender">
+    <div class="item">
+      <div class="title">男性</div>
+      <div class="value">{{ male_users_percentage|floatformat:2 }}%</div>
+    </div>
+    <div class="item">
+      <div class="title">女性</div>
+      <div class="value">{{ female_users_percentage|floatformat:2 }}%</div>
+    </div>
+    <div class="item">
+      <div class="title">その他</div>
+      <div class="value">{{ other_gender_users_percentage|floatformat:2 }}%</div>
+    </div>
+  </div>
+
+  <div class="chart">
+    <canvas id="genderPieChart"></canvas>
+  </div>
+
 </div>
 
+{{ male_users|json_script:"maleUsers" }}
+{{ female_users|json_script:"femaleUsers" }}
+{{ other_gender_users|json_script:"otherGenderUsers" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   fetch('/management/get_user_stats/')
@@ -62,6 +84,24 @@
               },
           });
       });
+</script>
+<script>
+  const maleUsers = JSON.parse(document.getElementById('maleUsers').textContent);
+  const femaleUsers = JSON.parse(document.getElementById('femaleUsers').textContent);
+  const otherGenderUsers = JSON.parse(document.getElementById('otherGenderUsers').textContent);
+
+  // これ以降、maleUsers, femaleUsers, otherGenderUsers を通常の変数として使用可能
+  const ctx = document.getElementById('genderPieChart').getContext('2d');
+  new Chart(ctx, {
+      type: 'pie',
+      data: {
+          labels: ['男性', '女性', 'その他'],
+          datasets: [{
+              data: [maleUsers, femaleUsers, otherGenderUsers],
+              backgroundColor: ['#96d1ff', '#ff96de', '#d9d9d9']
+          }]
+      }
+  });
 </script>
 
 {% endblock %}
