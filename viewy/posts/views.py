@@ -97,21 +97,13 @@ class BasePostListView(ListView):
         
         # キャッシュにデータが存在しない場合
         if not advertiser_users:
-            advertiser_users = list(Group.objects.get(name='Advertiser').user_set.all())
+            advertiser_users = list(Users.objects.filter(is_advertiser=True))
             
             # データをキャッシュに保存。
             cache.set(cache_key, advertiser_users, 3600)
         
         return advertiser_users
-    
-    
-    # SpecialAdvertiserグループに所属しているかをチェック
-    def is_user_special_advertiser(self, user):
-        return user.groups.filter(name='SpecialAdvertiser').exists()
-    
-    # AffiliateAdvertiserグループに所属しているかをチェック
-    def is_user_affiliate_advertiser(self, user):
-        return user.groups.filter(name='AffiliateAdvertiser').exists()
+
 
     def get_advertiser_posts(self, user, count=1):
         cache_key = f"advertiser_posts_for_user_{user.id}"
@@ -176,10 +168,6 @@ class BasePostListView(ListView):
         for post in posts:
             post.favorited_by_user = post.id in favorited_ads_set
             post.followed_by_user = post.poster.id in followed_ad_posters_set
-            post.is_advertisement = True
-            post.is_by_specialadvertiser = self.is_user_special_advertiser(post.poster)  # SpecialAdvertiserチェックを追加
-            post.is_by_affiliateadvertiser = self.is_user_affiliate_advertiser(post.poster)  # AffiliateAdvertiserチェックを追加
-        
         
         # 結果をキャッシュに保存
         cache.set(cache_key, posts, 3600)  # 1時間キャッシュする
@@ -235,10 +223,8 @@ class BasePostListView(ListView):
         return queryset 
     
     def exclude_advertiser_posts(self, queryset):
-        # Advertiser グループのIDを取得します
-        advertiser_group = Group.objects.get(name='Advertiser')  # Groupの名前が 'Advertiser' であることを仮定します
-        # Advertiser グループに属するユーザーのIDを取得します
-        advertiser_user_ids = advertiser_group.user_set.values_list('id', flat=True)
+        # is_advertiser フィールドが True であるユーザーのIDを取得します
+        advertiser_user_ids = Users.objects.filter(is_advertiser=True).values_list('id', flat=True)
         # これらのユーザーによって作成された投稿を除外します
         return queryset.exclude(poster_id__in=advertiser_user_ids)
 
@@ -543,12 +529,7 @@ class GetMorePreviousFavoriteView(BaseFavoriteView):
 
 class  BasePosterView(BasePostListView):
     def set_poster_from_username(self):
-        fields = ['id', 'username', 'displayname', 'prf_img', 'follow_count', 'caption', 'url1', 'url2', 'url3', 'url4', 'url5']
-        try:
-            self.poster = Users.objects.only(*fields).get(username=self.kwargs['username'])
-        except Users.DoesNotExist:
-            # 必要に応じて適切なエラーレスポンスを返す
-            pass
+        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
 
     def set_poster_from_pk(self):
         self.poster = get_object_or_404(Users, pk=self.request.POST.get('pk'))
@@ -582,12 +563,13 @@ class PosterPageView(BasePosterView):
 
     def get_queryset(self):
         self.set_poster_from_username()
-        return super().get_queryset().select_related('poster').filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        queryset = super().get_queryset().filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # テンプレートでのクエリを避けるためのリストを作成
-        followers_ids = list(self.poster.follow.only('id').values_list('id', flat=True))
+        followers_ids = self.poster.follow.all().values_list('id', flat=True)
         context['is_user_following'] = self.request.user.id in followers_ids
         # ユーザーがフォローしているかどうかの確認
         context['about_poster'] = self.poster
@@ -1213,14 +1195,6 @@ class MyAccountView(TemplateView):
             is_poster = user.groups.filter(name='Poster').exists()
             cache.set(cache_key_poster, is_poster, 600)  # 600 seconds = 10 minutes
         context['is_poster'] = is_poster
-        
-        # Advertiser グループに関する処理
-        cache_key_advertiser = f"is_advertiser_{user_id}"
-        is_advertiser = cache.get(cache_key_advertiser)
-        if is_advertiser is None:
-            is_advertiser = user.groups.filter(name='Advertiser').exists()
-            cache.set(cache_key_advertiser, is_advertiser, 600)  # 600 seconds = 10 minutes
-        context['is_advertiser'] = is_advertiser
 
         # TomsTalkに関する処理
         tomstalk_list = TomsTalk.objects.all().annotate(repeat=F('display_rate')).values('id', 'repeat')

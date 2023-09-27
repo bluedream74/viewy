@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 
-# Advertiserかチェックする
+# is_advertiserかチェックする
 class GroupOrSuperuserRequired(UserPassesTestMixin):
     group_name = None
 
@@ -10,11 +10,8 @@ class GroupOrSuperuserRequired(UserPassesTestMixin):
         if self.request.user.is_superuser:
             return True
 
-        # そうでなければ、ユーザーが指定したグループに属しているかチェック
-        if self.group_name:
-            return self.request.user.groups.filter(name=self.group_name).exists()
-        
-        return False
+        # そうでなければ、ユーザーのis_advertiserであるかチェック
+        return self.request.user.is_advertiser
 
     def get_login_url(self):
         return reverse_lazy('accounts:user_login') 

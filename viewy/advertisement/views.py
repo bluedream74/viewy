@@ -28,9 +28,8 @@ from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import AdCampaigns
 
-# Advertiserグループかチェック
-class AdvertiserCheckView(GroupOrSuperuserRequired, TemplateView):
-    group_name = 'Advertiser'
+# is_advertiserかチェック
+class AdvertiserCheckView(GroupOrSuperuserRequired, TemplateView):  pass
 
 class AdCampaignsListView(AdvertiserCheckView, View):
     template_name = 'advertisement/ad_campaigns_list.html'
@@ -221,7 +220,7 @@ class BaseAdCreateView(AdvertiserCheckView, CreateView):
         return kwargs
 
     def test_func(self):
-        return self.request.user.groups.filter(name='Advertiser').exists()
+        return self.request.user.is_advertiser
 
     def handle_no_permission(self):
         return HttpResponseForbidden("広告投稿の権限がありません。")

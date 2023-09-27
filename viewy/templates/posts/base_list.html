@@ -36,13 +36,13 @@
 
 {% for post in posts %}
 
-<div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
+<div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
   <div class="spinner"></div>
 
-  {% if not post.is_by_affiliateadvertiser %}
+  {% if not post.poster.is_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
 
-  {% if post.is_advertisement %}
+  {% if post.poster.is_advertiser %}
   <a href="{{ post.url }}" class="ad-click">
   {% endif %}
 
@@ -73,7 +73,7 @@
     {% endfor %}
 
     {% endif %}
-  {% if post.is_advertisement %}
+  {% if post.poster.is_advertiser %}
   </a>
   {% endif %}
 
@@ -91,12 +91,12 @@
 
       <div class="poster">
         <!-- 広告主がスペシャルアドバタイザーだったらメダルをかける -->
-        {% if post.is_by_specialadvertiser %}
+        {% if post.poster.is_specialadvertiser %}
         <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
         {% endif %}
         <div>
-          {% if post.is_advertisement %}
-          {% if post.is_by_affiliateadvertiser %}
+          {% if post.poster.is_advertiser %}
+          {% if post.poster.is_affiliateadvertiser %}
           <span class="poster_username">
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </span>
@@ -112,7 +112,7 @@
           {% endif %}
         </div>
       </div>
-      {% if not post.is_advertisement %}
+      {% if not post.poster.is_advertiser %}
       {% if user.is_authenticated %}
       {% if post.followed_by_user %}
       <div class="follow-poster follow-hidden">
@@ -214,9 +214,9 @@
 
     <div class="captions">
       <div class="poster-name">
-        {% if post.is_advertisement %}
+        {% if post.poster.is_advertiser %}
 
-        {% if post.is_by_affiliateadvertiser %}
+        {% if post.poster.is_affiliateadvertiser %}
         <span class="poster-name">＠{{post.poster.displayname}}</span>
         {% else %}
 
@@ -242,7 +242,7 @@
 
         {% endif %}
 
-        {% if post.is_advertisement %}
+        {% if post.poster.is_advertiser %}
         <span class="ad-tag">広告</span>
         {% endif %}
 

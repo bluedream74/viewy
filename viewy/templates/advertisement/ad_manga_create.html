@@ -80,7 +80,7 @@
   </div>
 
   <div class="post-preview">
-    <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.is_advertisement }}">
+    <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
       <div class="spinner"></div>
       <div class="book">
       </div>
@@ -150,7 +150,7 @@
             {% else %}
             <a class="poster-name">＠{{user.username}}</a>
             {% endif %}
-            {% if post.is_advertisement %}
+            {% if post.poster.is_advertiser %}
             <span class="ad-tag">広告</span>
             {% endif %}
           </div>

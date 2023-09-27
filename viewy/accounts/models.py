@@ -81,6 +81,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     poster_waiter = models.BooleanField(default=False)
+    is_advertiser = models.BooleanField(default=False)
+    is_affiliateadvertiser = models.BooleanField(default=False)
+    is_specialadvertiser = models.BooleanField(default=False)
     view_post_count = models.PositiveIntegerField(default=0)  # 視聴ポスト数のフィールド
     follow = models.ManyToManyField('self', through='Follows', symmetrical=False, related_name='followed_by')
     follow_count = models.PositiveIntegerField(default=0)

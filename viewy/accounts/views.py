@@ -212,9 +212,8 @@ class RegistAdvertiserView(BaseRegistUserView):
     success_url = reverse_lazy('accounts:verify')
 
     def form_valid(self, form):
-        # ユーザーをAdvertiserグループに追加
-        advertiser_group, created = Group.objects.get_or_create(name='Advertiser')
-        form.instance.groups.add(advertiser_group)
+        # ユーザーのis_advertiserフィールドをTrueにセット
+        form.instance.is_advertiser = True
         
         # ユーザーが広告主として登録されたことを示すセッション変数をセット
         self.request.session['registered_as_advertiser'] = True

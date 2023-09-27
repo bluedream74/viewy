@@ -47,7 +47,7 @@
       
       <div class="account-type">
 
-        {% if request.user and is_advertiser %}
+        {% if request.user and  request.user.is_advertiser %}
         <div class="grade advertiser">アドバタイザー</div>
         {% elif request.user and is_poster %}
         <div class="grade partner">パートナー</div>
@@ -314,7 +314,7 @@
 <div class="menu-list">
 
     <!-- 広告主が管理画面に移る用 -->
-    {% if request.user and is_advertiser %}
+    {% if request.user and request.user.is_advertiser %}
     <div>
       <a href="{% url 'advertisement:ad_campaigns_list' %}"  id="my-ads"><i class="fa-solid fa-rectangle-ad mini-logo"></i>広告を管理する</a>
       <div class="line"></div>
@@ -327,7 +327,7 @@
     <i class="fa-solid fa-pen-to-square fa-lg mini-logo"></i><a href="{% url 'accounts:edit_prf' %}">プロフィール編集</a>
     <div class="line"></div>
   </div>
-  {% if request.user and not is_advertiser %}
+  {% if request.user and not request.user.is_advertiser %}
   <div class="my-posts">
     <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
     <div class="line"></div>

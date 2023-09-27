@@ -357,8 +357,7 @@ class Ad(SuperUserCheck, View):
     template_name = 'management/ad.html'
 
     def get(self, request, *args, **kwargs):
-        advertiser_group = Group.objects.get(name='Advertiser')
-        ads = Posts.objects.filter(poster__groups=advertiser_group)
+        ads = Posts.objects.filter(poster__is_advertiser=True)
 
         # 平均滞在時間を計算し、広告とともにコンテキストに追加
         ads_with_avg_duration = []
