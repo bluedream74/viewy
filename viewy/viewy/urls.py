@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView, ForAdvertiserView, DeleteRequestView, DeleteRequestSuccessView, PartnerApplicationGuideView
+from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView, ForAdvertiserView, DeleteRequestView, DeleteRequestSuccessView, PartnerApplicationGuideView, ForbiddenView, NotFoundView, BadRequestView, UnauthorizedView, ForbiddenView, NotFoundView, ServerErrorView, BadGatewayView, ServiceUnavailableView, ServerErrorView
 # from . import settings
 from django.conf import settings
 from django.contrib.staticfiles.urls import static
@@ -22,6 +22,14 @@ urlpatterns = [
     path('delete_request_success/', DeleteRequestSuccessView.as_view(), name='delete_request_success'),
     path('', CheckAgeView.as_view(), name='home'),
 ]
+
+handler400 = BadRequestView.as_view()
+handler401 = UnauthorizedView.as_view()
+handler403 = ForbiddenView.as_view()
+handler404 = NotFoundView.as_view()
+handler500 = ServerErrorView.as_view()
+handler502 = BadGatewayView.as_view()
+handler503 = ServiceUnavailableView.as_view()
 
 if settings.DEBUG:
     import debug_toolbar

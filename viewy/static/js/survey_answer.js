@@ -30,9 +30,34 @@ $(document).ready(function () {
         location.reload();
       },
       error: function (response) {
-        // エラーが発生したときの処理
-        alert("An error occurred");
       }
     });
   });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const radioButtons = document.querySelectorAll('input[type="radio"]');
+  const submitButton = document.getElementById('survey-submit');
+  const errorMessage = document.getElementById('error-message');
+  const spinner = document.querySelector('#spinner'); // spinner要素を選択
+  
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', function() {
+      submitButton.disabled = false;
+      submitButton.style.opacity = 1;
+      errorMessage.style.display = 'none'; // ラジオボタンが選択されたらエラーメッセージを隠す
+    });
+  });
+  
+  submitButton.addEventListener('click', function(e) {
+    const isChecked = Array.from(radioButtons).some(radio => radio.checked);
+    if (!isChecked) {
+      e.preventDefault(); // フォームの送信を防ぐ
+      errorMessage.style.display = 'block'; // エラーメッセージを表示
+    }
+    else
+    spinner.style.display = 'block'; // spinnerを表示
+  });
+
 });

@@ -68,6 +68,29 @@ class Account(SuperUserCheck, TemplateView):
         else:
             active_rate = 0
         context['active_rate'] = active_rate
+        
+        # 性別別のユーザー数を取得
+        male_users = Users.objects.filter(gender='male', is_active=True).count()
+        female_users = Users.objects.filter(gender='female', is_active=True).count()
+        other_gender_users = Users.objects.filter(gender='other', is_active=True).count()
+
+        context['male_users'] = male_users
+        context['female_users'] = female_users
+        context['other_gender_users'] = other_gender_users
+        
+        # 性別別のユーザー数のパーセンテージを計算
+        if total_users > 0:
+            male_users_percentage = (male_users / total_users) * 100
+            female_users_percentage = (female_users / total_users) * 100
+            other_gender_users_percentage = (other_gender_users / total_users) * 100
+        else:
+            male_users_percentage = female_users_percentage = other_gender_users_percentage = 0
+        
+        # コンテキストに追加
+        context['male_users_percentage'] = male_users_percentage
+        context['female_users_percentage'] = female_users_percentage
+        context['other_gender_users_percentage'] = other_gender_users_percentage
+
 
         return context
 

@@ -3,7 +3,7 @@ import os
 import random
 import string
 from django.core.mail import send_mail
-from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError, HttpResponse
 
 # Third-party Django
 from django import forms
@@ -149,6 +149,35 @@ class TermsView(TemplateView):
 
 class PolicyView(TemplateView):
     template_name = 'policy.html'
+    
+    
+class BadRequestView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/400.html')
+
+class UnauthorizedView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/401.html')
+
+class ForbiddenView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/403.html')
+
+class NotFoundView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/404.html')
+
+class ServerErrorView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/500.html')
+
+class BadGatewayView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/502.html')
+
+class ServiceUnavailableView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'error/503.html')
     
 # ユーザー登録の基盤クラス    
 class BaseRegistUserView(SuccessMessageMixin, CreateView):

@@ -22,11 +22,11 @@
 }
 
 .message-box{
-  margin: 64px 32px;
+  margin: 16px 32px 64px;
   background-color: white;
   border-radius: 8px;
   font-size: 14px;
-  padding: 32px;
+  padding: 24px 32px 32px;
   font-weight: bold;
   color: rgb(88, 88, 88);
 }
@@ -51,4 +51,10 @@
   background-color: rgb(76, 202, 202);
   box-shadow: none;
   cursor: pointer;
+}
+
+.please{
+  display: block;
+  width: 60px;
+  margin: 16px auto;
 }

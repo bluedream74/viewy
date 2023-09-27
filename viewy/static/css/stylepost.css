@@ -230,8 +230,12 @@ input[type=range]::-webkit-slider-thumb {
   left: 50%;
   transform: translate(-50%, -50%);
   min-width: 300px;
-  /* display: flex;
-  justify-content: center; */
+  display: flex;
+  justify-content: center;
+}
+
+.affiliate-ad a{
+  color: white;
 }
 
 
@@ -540,9 +544,12 @@ label {
 .ad-tag {
   font-size: 12px;
   padding: 2px 4px;
-  border: 1px white solid;
+  /* border: 1px white solid; */
   border-radius: 4px;
   margin-left: 8px;
+  background-color: #696969;
+  text-shadow: none;
+  box-shadow: gray 0px 1px 3px;
 }
 
 .by_specialadvertiser{
@@ -1032,7 +1039,7 @@ label {
   margin-bottom: 8px;
 }
 
-.first-tom>img {
+.first-tom > img {
   width: 64px;
 }
 
@@ -1172,6 +1179,10 @@ label {
   margin-bottom: 8px;
 }
 
+.survey-tom > img {
+  width: 56px;
+}
+
 .survey-question{
   text-align: center;
   margin: 8px;
@@ -1187,6 +1198,37 @@ label {
   flex-direction: column;
 }
 
+.survey-radio-group  input[type="radio"] {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff; /* ここでボタンの背景色を設定 */
+  border: 1px solid rgb(70, 70, 70); /* 枠線の色を設定 */
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  border-radius: 2px;
+  margin-bottom: 3px;
+}
+
+.survey-radio-group  input[type="radio"]:checked {
+  background-color: rgb(74, 234, 234); /* 選択された時の背景色を設定 */
+}
+
+.survey-radio-group  input[type="radio"]:checked:after {
+  content: '';
+  display: block;
+  border: 1px solid rgb(74, 234, 234); /* 枠線の色を設定 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background-color: rgb(74, 234, 234); /* 選択された時の中央の色を設定 */
+}
+
 #survey-submit {
   background-color: rgb(74, 234, 234);
   border: none;
@@ -1197,22 +1239,16 @@ label {
   padding: 8px 36px;
 }
 
-.survey-modal [type="radio"] {
-  display: none;
-  /* デフォルトのラジオボタンを非表示にする */
-}
-
 .survey-radio-group label {
-  color: rgb(146, 146, 146);
+  color: rgb(135, 135, 135);
   font-size: 18px;
   font-weight: bold;
   text-align: center;
-  padding: 4px 18px;
+  padding: 4px 4px;
 }
 
 .survey-radio-group input[type="radio"]:checked+label {
-  color: rgb(78, 233, 233);
-  background-color: rgb(255, 255, 255);
+  color: rgb(69, 69, 69);
 }
 
 /* スマートフォン用のスタイル */
