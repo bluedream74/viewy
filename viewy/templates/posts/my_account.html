@@ -12,20 +12,34 @@
   <div class="not-caption">
     <div class="user-img">
       {% if request.user and is_poster %}
-        {% if request.user.prf_img %}
-          <a href="{% url 'posts:poster_page' username=user.username %}"">
-            <img class="prf_img" src="{{user.prf_img.url}}" alt="">
-          </a>
+
+        {% if request.user.is_advertiser %}
+            {% if request.user.prf_img %}
+                <span>
+                    <img class="prf_img" src="{{user.prf_img.url}}" alt="">
+                </span>
+            {% else %}
+                <span>
+                    <img class="prf_img" src="{{ MEDIA_URL }}others/初期プロフ.jpg" alt="">
+                </span>
+            {% endif %}
         {% else %}
-          <a href="{% url 'posts:poster_page' username=user.username %}"">
-            <img class="prf_img" src="{{ MEDIA_URL }}others/初期プロフ.jpg" alt="">
-          </a>
+            {% if request.user.prf_img %}
+              <a href="{% url 'posts:poster_page' username=user.username %}"">
+                <img class="prf_img" src="{{user.prf_img.url}}" alt="">
+              </a>
+            {% else %}
+              <a href="{% url 'posts:poster_page' username=user.username %}"">
+                <img class="prf_img" src="{{ MEDIA_URL }}others/初期プロフ.jpg" alt="">
+              </a>
+            {% endif %}
         {% endif %}
+
       {% else %}
-       {% if tomstalk.image %}
-        <img class="prf_img" src="{{ tomstalk.image.url }}" alt="">
+        {% if tomstalk.image %}
+          <img class="prf_img" src="{{ tomstalk.image.url }}" alt="">
         {% else %}
-        <img class="prf_img" src="{{ MEDIA_URL }}others/初期プロフ.jpg" alt="">
+          <img class="prf_img" src="{{ MEDIA_URL }}others/初期プロフ.jpg" alt="">
         {% endif %}
       {% endif %}
     </div>
@@ -34,13 +48,27 @@
 
     <div class="name-grade">
       {% if request.user and is_poster %}
-      {% if user.displayname %}
-        <div>{{ user.displayname }}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
-        <div class="sub-info">{{user.username}}</div>
-      {% else %}
-        <div>{{user.username}}<span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span></div>
-      {% endif %}
-      <div class="counter"><span class="follow-count">{{ user.follow_count }}</span><span class="follower">フォロワー</span></div>
+        {% if user.displayname %}
+          <div>
+            {{ user.displayname }}
+            {% if not user.is_advertiser %}
+              <span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span>
+            {% endif %}
+          </div>
+          <div class="sub-info">{{user.username}}</div>
+        {% else %}
+          <div>
+            {{user.username}}
+            {% if not user.is_advertiser %}
+              <span class="copy-link" onclick="copyToClipboard()"><i class="fas fa-link"></i></span>
+            {% endif %}
+          </div>
+        {% endif %}
+        {% if not user.is_advertiser %}
+        <div class="counter">
+          <span class="follow-count">{{ user.follow_count }}</span><span class="follower">フォロワー</span>
+        </div>
+        {% endif %}
       {% else %}
         <div>{{tomstalk.name}}</div>
       {% endif %}
@@ -68,6 +96,10 @@
 
     </div>
   </div>
+
+  {% if user.is_advertiser %}
+  {% else %}
+
   {% if request.user and is_poster %}
     {% if user.caption %}
     <div class="caption">
@@ -297,6 +329,7 @@
     {% endif %}
   </div>
   {% endif %}
+  {% endif %}
 </div>
 
 <div class="display-setting"><i class="fa-brands fa-uncharted fa-xl mini-logo"></i>表示設定</div>
@@ -313,40 +346,40 @@
 
 <div class="menu-list">
 
-    <!-- 広告主が管理画面に移る用 -->
-    {% if request.user and request.user.is_advertiser %}
+  <!-- 広告主が管理画面に移る用 -->
+  {% if request.user and request.user.is_advertiser %}
     <div>
       <a href="{% url 'advertisement:ad_campaigns_list' %}"  id="my-ads"><i class="fa-solid fa-rectangle-ad mini-logo"></i>広告を管理する</a>
       <div class="line"></div>
     </div>
-    {% endif %}
+  {% endif %}
 
   <!-- パートナー専用 -->
-  {% if request.user and is_poster %}
-  <div class="">
-    <i class="fa-solid fa-pen-to-square fa-lg mini-logo"></i><a href="{% url 'accounts:edit_prf' %}">プロフィール編集</a>
-    <div class="line"></div>
-  </div>
-  {% if request.user and not request.user.is_advertiser %}
-  <div class="my-posts">
-    <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
-    <div class="line"></div>
-  </div>
+  {% if request.user and is_poster and not request.user.is_advertiser %}
+    <div class="">
+      <i class="fa-solid fa-pen-to-square fa-lg mini-logo"></i><a href="{% url 'accounts:edit_prf' %}">プロフィール編集</a>
+      <div class="line"></div>
+    </div>
+
+    <div class="my-posts">
+      <a href="{% url 'posts:my_posts' %}"><i class="fa-regular fa-address-book fa-lg mini-logo"></i>自分の投稿</a>
+      <div class="line"></div>
+    </div>
+
+    {% load unread_tags %}
+
+    <div class="messages">
+      <a href="{% url 'accounts:message_list' %}">
+        <i class="fa-regular fa-envelope fa-lg mini-logo"></i>運営からのメッセージ
+        {% if request.user|has_unread_messages %}
+        <div class="unread"></div> <!-- add your blue dot here -->
+        {% endif %}
+      </a>
+      <div class="line"></div>
+    </div>
+
   {% endif %}
 
-  {% load unread_tags %}
-
-  <div class="messages">
-    <a href="{% url 'accounts:message_list' %}">
-      <i class="fa-regular fa-envelope fa-lg mini-logo"></i>運営からのメッセージ
-      {% if request.user|has_unread_messages %}
-      <div class="unread"></div> <!-- add your blue dot here -->
-      {% endif %}
-    </a>
-    <div class="line"></div>
-  </div>
-
-  {% endif %}
   <div class="follow-list">
     <a href="{% url 'posts:my_follow_list'%}"><i class="fa-solid fa-user-group mini-logo"></i>フォロー中</a>
     <div class="line"></div>

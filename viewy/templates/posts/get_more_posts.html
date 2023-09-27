@@ -265,54 +265,50 @@
       </div>
     </div>
 
-    {% if user.is_authenticated %}
-    {% if post.reported_by_user %}
-    <div class="report already">
-      <i class="fa-solid fa-check-circle"></i>
-    </div>
-    {% else %}
-    <div class="report not-yet">
-      <i class="fa-solid fa-circle-exclamation"></i>
-    </div>
-    {% endif %}
-    <div class="report-menu">
-      <form data-pk="{{ post.pk }}" action="{% url 'posts:report'%}">
-        {% csrf_token %}
-        <!-- フォームの入力フィールド -->
-        <div class="report-title">不適切なコンテンツを報告する</div>
-        <div class="report-sub-title">理由をお聞かせください</div>
-
-        <div class="selects">
-          <label>
-            <input type="radio" name="reason" value="underage"> 未成年者が出演している
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="violent"> 暴力的な内容
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="inappropriate"> 不適切な内容
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="other"> その他
-          </label>
-          <br>
+    {% if user.is_authenticated and not post.poster.is_advertiser %}
+      {% if post.reported_by_user %}
+        <div class="report already">
+          <i class="fa-solid fa-check-circle"></i>
         </div>
+      {% else %}
+        <div class="report not-yet">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+      {% endif %}
 
+      <div class="report-menu">
+        <form data-pk="{{ post.pk }}" action="{% url 'posts:report'%}">
+          {% csrf_token %}
+          <!-- フォームの入力フィールド -->
+          <div class="report-title">不適切なコンテンツを報告する</div>
+          <div class="report-sub-title">理由をお聞かせください</div>
 
-        <!-- その他のフォームフィールド -->
-
-        <!-- 送信ボタン -->
-        <button type="submit" class="submit-report">送信</button>
-      </form>
-      <div class="formResponse message"></div>
-    </div>
+          <div class="selects">
+            <label>
+              <input type="radio" name="reason" value="underage"> 未成年者が出演している
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="violent"> 暴力的な内容
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="inappropriate"> 不適切な内容
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reason" value="other"> その他
+            </label>
+            <br>
+          </div>
+          <button type="submit" class="submit-report">送信</button>
+        </form>
+        <div class="formResponse message"></div>
+      </div>
 
 
     {% else %}

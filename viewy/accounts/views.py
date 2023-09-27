@@ -4,6 +4,10 @@ import random
 import string
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse
+from django.contrib.auth import signals
+from django.utils.decorators import method_decorator
+from axes.decorators import axes_dispatch
+from axes.handlers.proxy import AxesProxyHandler
 
 # Third-party Django
 from django import forms
@@ -298,10 +302,15 @@ class ResendVerificationCodeView(View):
 
         return HttpResponseRedirect(reverse('accounts:verify'))
           
-  
+@method_decorator(axes_dispatch, name='dispatch')
 class UserLoginView(LoginView):
     template_name = 'user_login.html'
     form_class = UserLoginForm
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(self.request.POST or None, request=self.request)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -320,13 +329,20 @@ class UserLoginView(LoginView):
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
+        print("[DEBUG] form_valid method started.")
         email = form.cleaned_data['email']
         password = form.cleaned_data['password']
-
+        print("[DEBUG] Authenticating user.")
         user = authenticate(request=self.request, username=email, password=password)
 
         # 認証失敗時
         if user is None:
+            # ログイン失敗の信号を送る
+            signals.user_login_failed.send(
+                sender=self.__class__,
+                request=self.request,
+                credentials={'username': email},
+            )
             try:
                 existing_user = Users.objects.get(email=email)
                 if not existing_user.is_active:
@@ -364,6 +380,12 @@ class UserLoginView(LoginView):
         login(self.request, user)
         messages.success(self.request, 'ログインしました')  # メッセージを追加
 
+        # ログイン成功の信号を送る
+        signals.user_logged_in.send(
+            sender=self.__class__,
+            request=self.request,
+            user=user,
+        )
 
         # セッションからInvitedのフラグを削除
         if 'is_special_user' in self.request.session:
@@ -372,7 +394,21 @@ class UserLoginView(LoginView):
         # セッションからリダイレクト先URLを取得し、セッションからその情報を削除
         next_url = self.request.session.pop('return_to', None) or 'posts:postlist'
         return redirect(next_url)
+    
+    def form_invalid(self, form):
+        return super().form_invalid(form)
 
+    def post(self, request, *args, **kwargs):
+        email = request.POST.get('email')
+        credentials = {'username': email}
+        # ユーザーがすでにロックアウトされているかどうかをチェック
+        if AxesProxyHandler.is_locked(request, credentials):
+            print("[DEBUG] User is already locked out.")
+            form = self.get_form()
+            form.add_error(None, 'アカウントがロックされています。しばらくしてから再試行してください。')
+            return self.form_invalid(form)
+
+        return super().post(request, *args, **kwargs)
         
 
 class UserLogoutView(View):
@@ -639,7 +675,6 @@ class DeleteRequestSuccessView(TemplateView):
   
 # 次元変更を担うビュー
 @method_decorator(login_required, name='dispatch')
-@method_decorator(csrf_exempt, name='dispatch')
 class ChangeDimensionView(View):
 
     def post(self, request, *args, **kwargs):
@@ -672,7 +707,6 @@ class ChangeDimensionView(View):
             return JsonResponse({'success': False, 'error': str(e)})
         
         
-@method_decorator(csrf_exempt, name='dispatch')
 class FirstSettingView(View):
 
     def post(self, request, *args, **kwargs):

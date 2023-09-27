@@ -68,6 +68,12 @@ textarea{
   z-index: 9999;
 }
 
+.tab-bar > a.add-post-disabled {
+  pointer-events: none;
+  cursor: default;
+  color: rgb(69, 69, 69);
+}
+
 .tab-bar > a{
   width: 70px;
   height: 100%;

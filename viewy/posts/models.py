@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.files.base import File, ContentFile
 from django.core.files.storage import default_storage
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -113,15 +113,18 @@ class Posts(models.Model):
             self.favorite_rate = (self.favorite_count / self.views_count) * 100
     
     def average_duration(self):
-        """滞在時間の平均を返すメソッド"""
-        total_duration = self.viewed_post.aggregate(total_duration=Sum('duration'))['total_duration'] or 0
-        total_views = self.viewed_post.count()
+        """滞在時間の平均を返すメソッド"""     
+        # 合計視聴期間,視聴回数をまとめて取得
+        aggregates = self.viewed_post.aggregate(
+            total_duration=Sum('duration'), total_views=Count('*')
+        )
+        total_duration = aggregates['total_duration'] or 0
+        total_views = aggregates['total_views']
 
         if total_views == 0:
             return 0
 
         avg_duration = total_duration / total_views
-        # print(f"Average Duration: {avg_duration}")
         return avg_duration
 
     def stay_rate(self):

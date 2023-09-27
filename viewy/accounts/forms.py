@@ -11,6 +11,8 @@ from django.contrib.auth.password_validation import validate_password, MinimumLe
 
 from django.contrib.auth.forms import PasswordResetForm as AuthPasswordResetForm
 from django.contrib.auth.forms import SetPasswordForm as AuthSetPasswordForm
+from axes.utils import reset
+from axes.handlers.proxy import AxesProxyHandler
 
 # ユーザー登録処理
 class RegistForm(forms.ModelForm):
@@ -120,7 +122,7 @@ class UserLoginForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         # Pop the 'request' argument if it is present
-        kwargs.pop('request', None)
+        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -128,19 +130,24 @@ class UserLoginForm(forms.Form):
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
 
-        # Try to get the user
         try:
             user = Users.objects.get(email=email)
         except Users.DoesNotExist:
-            # If user does not exist, raise error
-            self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
+            self._handle_login_failure(email, password, "User does not exist with the provided email.")
             return cleaned_data
 
-        # Check the password
         if not user.check_password(password):
-            self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
+            self._handle_login_failure(email, password, "Password mismatch for the provided email.")
         
         return cleaned_data
+
+    def _handle_login_failure(self, email, password, debug_message):
+        self.add_error(None, mark_safe('メールアドレスまたはパスワードが間違っています。<br>再度入力してください。'))
+        AxesProxyHandler.user_login_failed(
+            request=self.request,
+            sender=self.__class__,
+            credentials={'username': email, 'password': password}
+        )
 
 class PasswordResetForm(AuthPasswordResetForm):
     email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))

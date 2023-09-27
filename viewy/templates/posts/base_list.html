@@ -301,7 +301,7 @@
       </div>
     </div>
 
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and not post.poster.is_advertiser %}
     {% if post.reported_by_user %}
     <div class="report already">
       <i class="fa-solid fa-check-circle"></i>

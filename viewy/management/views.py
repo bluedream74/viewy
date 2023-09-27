@@ -8,7 +8,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core import serializers
 from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, F, Sum, Value, When)
 from django.db.models.functions import Concat, TruncMonth
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
