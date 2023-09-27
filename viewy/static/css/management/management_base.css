@@ -155,17 +155,36 @@ p > input{
 }
 
 .submit{
-  width: 72px;
-  height: 40px;
+  padding: 8px 16px;
   border: none;
   border-radius: 50px;
   font-weight: bold;
   margin-top: 16px;
+  color: white;
+  background-color: #00c5c5;
+  box-shadow: 0px 2px 3px gainsboro;
 }
 
 .submit:hover{
   cursor: pointer;
+  background-color: #008787;
+  box-shadow: none;
+}
+
+.random{
+  padding: 8px 16px;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  margin-top: 16px; 
+  margin-right: 8px;
+  box-shadow: 0px 2px 3px gainsboro;
+}
+
+.random:hover{
+  cursor: pointer;
   background-color: rgb(156, 156, 156);
+  box-shadow: none;
 }
 
 .serch{

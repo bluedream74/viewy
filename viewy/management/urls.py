@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (Account, RecordUserStats, GetUserStats, Partner, UpdateBoostTypeView, Post, Hashtag, Ad, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList
+from .views import (Account, RecordUserStats, GetUserStats, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList
 )
 from . import views
 
@@ -9,6 +9,7 @@ urlpatterns = [
   path('record_user_stats/', RecordUserStats.as_view(), name='record_user_stats'),
   path('get_user_stats/', GetUserStats.as_view(), name='get_user_stats'),
   path('partner/', Partner.as_view(), name='partner'),  
+  path('random-recommended-users/', RandomRecommendedUsers.as_view(), name='random_recommended_users'),
   path('update_boost_type/<int:user_id>/', UpdateBoostTypeView.as_view(), name='update_boost_type'),
   path('post/', Post.as_view(), name='post'),
   path('hashtag/', Hashtag.as_view(), name='hashtag'),

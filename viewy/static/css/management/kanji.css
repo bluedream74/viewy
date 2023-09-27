@@ -40,7 +40,11 @@ button{
   border: none;
   border-radius: 50px;
   font-weight: bold;
-  margin-top: 16px;
+  margin-top: 24px;
+}
+
+.form-group{
+  text-align: center;
 }
 
 .hiragana-header {

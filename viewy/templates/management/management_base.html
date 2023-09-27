@@ -4,9 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% static 'css/management/management_base.css' %}">
+  <!-- iOS向けの指定 -->
+  <link rel="apple-touch-icon" type="image/png" href="{{ MEDIA_URL }}icon_management/apple-touch-icon.png" sizes="180x180">
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
-  <title>Viewy-management</title>
+  <title>Viewy-Management</title>
   {% block head %}
   {% endblock %}
 </head>
