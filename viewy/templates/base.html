@@ -9,10 +9,13 @@
   <meta name="csrf-token" content="{{ csrf_token }}">
   <title>Viewy</title>
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <!-- iOS向けの指定 -->
+  <link rel="apple-touch-icon" type="image/png" href="{{ MEDIA_URL }}icon/apple-touch-icon.png" sizes="192x192">
+  <!-- Android向けの指定 -->
+  <link rel="icon" type="image/png" href="{{ MEDIA_URL }}icon/android-touch-icon.png">
   <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
   {% load static %}
-
   {% block static %}
   {% endblock %}
 </head>

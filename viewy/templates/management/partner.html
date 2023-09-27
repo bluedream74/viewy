@@ -73,7 +73,11 @@
       </div>
       {% endfor %}
   
-      <button type="submit" class="submit">設定</button>
+      <div class="flex">
+        <button id="setRandomUsersBtn" class="random">ランダムで選択</button>
+        <button type="submit" class="submit">設定</button>
+      </div>
+
     </form>
   </div>
 </div>
@@ -99,5 +103,22 @@ $(document).ready(function() {
         });
     });
 });
+</script>
+<script>
+  $('#setRandomUsersBtn').on('click', function(e) {
+      e.preventDefault();  // ボタンのデフォルトの動作を停止
+
+      // DjangoのビューへのAjaxリクエストを作成
+      $.ajax({
+          url: '{% url "management:random_recommended_users" %}',
+          type: 'GET',
+          success: function(data) {
+              // サーバーからのレスポンスを利用して、フォームフィールドを更新
+              for (let i = 1; i <= 12; i++) {
+                  $(`#id_user${i}`).val(data.users[i - 1].username);
+              }
+          }
+      });
+  });
 </script>
 {% endblock %}

@@ -1,7 +1,7 @@
 .screen{
   background-color: #f9fcff;
   padding-top: 32px;
-  min-height: 1080px;
+  min-height: 1000px;
 }
 
 .main{
@@ -108,33 +108,51 @@
 }
 
 a{
-  color: rgb(69, 69, 69);
+  color: rgb(0, 162, 255);
   text-decoration: underline;
 }
 
 a:hover{
-  color: black;
+  color: rgb(0, 102, 161);
 }
 
 .message{
-  margin: 32px 0px 12px;
+  margin: 32px 0px 4px;
   font-size: 16px;
   text-align: center;
+  text-decoration: underline;
+  text-decoration-color: rgb(76, 234, 234);
 }
 
-.tom{
+.arrow{
+  text-align: center;
+  font-size: 16px;
+  color: rgb(120, 120, 120);
+}
+
+#official-x{
+  display: block;
+  padding: 16px 16px;
+  margin: 8px 16px;
+  background-color: rgb(0, 162, 255);
+  color: white;
+  border-radius: 50px;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0px 2px 4px gainsboro;
   text-align: center;
 }
 
-.tom > img{
-  width: 100px;
+#official-x:hover{
+  box-shadow: none;
+  background-color: rgb(0, 102, 161);
 }
 
 @media only screen and (max-width: 600px) {
 
   .screen{
     padding-top: 64px;
-    min-height: 1120px;
+    min-height: 1080px;
   }
 
   .main{

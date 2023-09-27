@@ -1,6 +1,7 @@
 import json
 import math
 import re
+import random
 from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -154,7 +155,22 @@ class Partner(SuperUserCheck, TemplateView):
             context['form'] = RecommendedUserForm(initial=initial_data)
 
         return context
-    
+
+# おすすめユーザーをランダムに選んでくれる機能    
+class RandomRecommendedUsers(View):
+    def get(self, request, *args, **kwargs):
+        # 平均QPが上位の30人のユーザーを取得
+        users = Users.objects.annotate(avg_qp=Avg('posted_posts__qp')).order_by('-avg_qp')[:30]
+        
+        # 上位の30人のユーザーからランダムで12人を選択
+        selected_users = random.sample(list(users), 12)
+        
+        # 選択したユーザーのusernameをリストとして作成
+        usernames = [{'username': user.username} for user in selected_users]
+        
+        return JsonResponse({'users': usernames})
+
+# 各パートナーのブースト状態をその場で変更できる機能    
 class UpdateBoostTypeView(View):
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')

@@ -26,12 +26,6 @@
 <form method="POST">
   {% csrf_token %}
   <div class="form">
-    <!-- <div class="username">
-      <div class="message alert-error">
-        {{ form.username.errors }}
-      </div>
-      {{ form.username }}
-    </div> -->
     <div class="email">
       <div class="message alert-error">
         {{ form.email.errors }}
@@ -50,7 +44,20 @@
       </div>
       {{ form.password_confirm }}
     </div>
-    <input class="button" type="submit" value="登録">
+
+    <div class="regist-consent consent">
+      <span>このサイトを利用することにより、<br>あなたは当サイトの<a href="{% url 'terms'%}">利用規約</a>および<a
+          href="{% url 'policy'%}">プライバシーポリシー</a>に<br>同意したことになります。</span>
+    </div>
+
+    <div class="consent-check">
+      <label>
+        <input type="checkbox" id="consentCheckbox" />
+        内容を全て理解した上で、同意する。
+      </label>
+    </div>
+
+    <input class="button" type="submit" value="登録" id="submitButton" disabled>
   </div>
 </form>
 
@@ -60,9 +67,27 @@
   <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
 </div>
 
-<div class="forget">
-  パスワードを忘れた場合
-  <div><a href="{% url 'accounts:password_reset'%}">パスワード変更</a></div>
-</div>
-
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const checkbox = document.getElementById('consentCheckbox');
+    const submitButton = document.getElementById('submitButton');
+    
+    // チェックボックスの状態に応じて、submitButtonのopacityとdisabled属性を変更
+    function updateButtonState() {
+      if (checkbox.checked) {
+        submitButton.style.opacity = '1';
+        submitButton.disabled = false;
+      } else {
+        submitButton.style.opacity = '0.3';
+        submitButton.disabled = true;
+      }
+    }
+    
+    // ページの読み込みが完了したら、初期状態を設定
+    updateButtonState();
+    
+    // チェックボックスの状態が変更されたら、ボタンの状態を更新
+    checkbox.addEventListener('change', updateButtonState);
+  });
+</script>
 {%endblock%}

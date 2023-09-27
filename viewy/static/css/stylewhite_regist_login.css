@@ -150,7 +150,7 @@ li{
 
 .button{
   color: rgb(255, 255, 255);
-  margin-top: 16px;
+  margin: 8px;
   background-color: var(--primary-color);
   border: none;
   height: 28px;
@@ -167,7 +167,7 @@ li{
 
 .guide{
   width: 80%;
-  margin-top: 36px;
+  margin-top: 12px;
   font-size: 14px;
   margin-left: auto;
   margin-right: auto;
@@ -193,7 +193,7 @@ li{
 .consent{
   font-size: 12px;
   color: gray;
-  margin-top: 48px;
+  margin-top: 24px;
   width: 100%;
   text-align: center;
   margin-left: auto;
@@ -205,10 +205,32 @@ li{
   text-decoration: underline;
 }
 
+.regist-consent{
+  margin-top: 0px;
+}
+
+.consent-check{
+  margin-top: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.consent-check > label{
+  color: gray;
+}
+
+#consentCheckbox{
+  margin: 0px;
+  position: relative;
+  top: 2px;
+}
+
+
+
 .forget{
   width: 100%;
   text-align: center;
-  margin-top: 32px;
+  margin-top: 12px;
   font-size: 12px;
   color: gray;
 }
