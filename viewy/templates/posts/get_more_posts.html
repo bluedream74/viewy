@@ -59,10 +59,23 @@
         <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
         {% endif %}
         <div>
-          <!-- <p>投稿者:{{post.poster.username}}</p> -->
+          {% if post.is_advertisement %}
+
+          {% if post.is_by_affiliateadvertiser %}
+          <span class="poster_username">
+            <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
+          </span>
+          {% else %}
+          <a href="{{ post.url }}" class="poster_username ad-click">
+            <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
+          </a>
+          {% endif %}
+          
+          {% else %}
           <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </a>
+          {% endif %}
         </div>
       </div>
       {% if not post.is_advertisement %}
@@ -167,6 +180,24 @@
 
     <div class="captions">
       <div class="poster-name">
+        {% if post.is_advertisement %}
+
+        {% if post.is_by_affiliateadvertiser %}
+        <span class="poster-name">＠{{post.poster.displayname}}</span>
+        {% else %}
+        <!-- 通常の広告主の場合 -->
+        {% if post.poster.displayname %}
+        <a href="{{ post.url }}" class="poster_name ad-click">
+          ＠{{post.poster.displayname}}
+        </a>
+        {% else %}
+        <a href="{{ post.url }}"
+          class="poster-name ad-click">＠{{post.poster.username}}</a>
+        {% endif %}
+
+        {% endif %}
+
+        {% else %}
         {% if post.poster.displayname %}
         <a href="{% url 'posts:poster_page' username=post.poster.username %}"
           class="poster-name">＠{{post.poster.displayname}}</a>
@@ -174,6 +205,9 @@
         <a href="{% url 'posts:poster_page' username=post.poster.username %}"
           class="poster-name">＠{{post.poster.username}}</a>
         {% endif %}
+
+        {% endif %}
+
         {% if post.is_advertisement %}
         <span class="ad-tag">広告</span>
         {% endif %}

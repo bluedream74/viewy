@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import (
-  UserStats
+  UserStats, ClickCount
 )
 
 admin.site.register(
-  [UserStats]
+  [UserStats,ClickCount]
 )

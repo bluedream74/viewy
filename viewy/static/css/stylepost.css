@@ -408,6 +408,7 @@ label {
   position: relative;
   top: 8px;
   left: 16px;
+  z-index: 1;
 }
 
 @keyframes bounce {

@@ -8,11 +8,10 @@ function getCookie(name) {
 $(document).ready(function () {
   $("#survey-submit").click(function () {
     const selected_option = $("input[name='selected_option']:checked").val();
-    const survey_id = $("#SurveyModal").data("survey-id");
     const csrf_token = getCookie("csrftoken");
 
     // URLを動的に設定
-    const url = `/accounts/survey_answer/${selected_option}/${survey_id}/`;
+    const url = `/accounts/survey_answer/${selected_option}/`;
 
     $.ajax({
       url: url,

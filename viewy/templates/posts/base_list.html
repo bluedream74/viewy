@@ -41,11 +41,12 @@
 
   {% if not post.is_by_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
+
   {% if post.is_advertisement %}
   <a href="{{ post.url }}" class="ad-click">
-    {% endif %}
-    {% if post.ismanga %}
+  {% endif %}
 
+    {% if post.ismanga %}
     <!-- マンガの場合 -->
     <div class="book">
       {% for visual in post.visuals.all %}
@@ -72,7 +73,7 @@
     {% endfor %}
 
     {% endif %}
-    {% if post.is_advertisement %}
+  {% if post.is_advertisement %}
   </a>
   {% endif %}
 
@@ -94,10 +95,21 @@
         <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
         {% endif %}
         <div>
-          <!-- <p>投稿者:{{post.poster.username}}</p> -->
+          {% if post.is_advertisement %}
+          {% if post.is_by_affiliateadvertiser %}
+          <span class="poster_username">
+            <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
+          </span>
+          {% else %}
+          <a href="{{ post.url }}" class="poster_username ad-click">
+            <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
+          </a>
+          {% endif %}
+          {% else %}
           <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </a>
+          {% endif %}
         </div>
       </div>
       {% if not post.is_advertisement %}
@@ -202,12 +214,32 @@
 
     <div class="captions">
       <div class="poster-name">
+        {% if post.is_advertisement %}
+
+        {% if post.is_by_affiliateadvertiser %}
+        <span class="poster-name">＠{{post.poster.displayname}}</span>
+        {% else %}
+
+        {% if post.poster.displayname %}
+        <a href="{{ post.url }}" class="poster_name ad-click">
+          ＠{{post.poster.displayname}}
+        </a>
+        {% else %}
+        <a href="{{ post.url }}"
+          class="poster-name ad-click">＠{{post.poster.username}}</a>
+        {% endif %}
+
+        {% endif %}
+
+        {% else %}
         {% if post.poster.displayname %}
         <a href="{% url 'posts:poster_page' username=post.poster.username %}"
           class="poster-name">＠{{post.poster.displayname}}</a>
         {% else %}
         <a href="{% url 'posts:poster_page' username=post.poster.username %}"
           class="poster-name">＠{{post.poster.username}}</a>
+        {% endif %}
+
         {% endif %}
 
         {% if post.is_advertisement %}
@@ -398,7 +430,7 @@
 
 {% if user.gender %}
 {% if unanswered_survey %}
-<div id="SurveyModal" class="survey-modal" data-survey-id="{{ unanswered_survey.id }}">
+<div id="SurveyModal" class="survey-modal">
   <div class="survey-modal-content">
     <div class="survey-modal-title">アンケートTIME</div>
     <div class="first-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
@@ -440,7 +472,7 @@
 <script src="{% static 'js/mute.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
 <script src="{% static 'js/read_more.js' %}"></script>
-<script src="{% static 'js/ad_update_click_count.js' %}"></script>
+<script src="{% static 'js/ad_click_count.js' %}"></script>
 <script src="{% static 'js/report.js' %}"></script>
 <script src="{% static 'js/hashtag_history.js' %}"></script>
 <script src="{% static 'js/mangapage_count.js' %}"></script>

@@ -5,9 +5,13 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core import serializers
-from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, 
-                              Sum, Value, When)
+from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, F, Sum, Value, When)
 from django.db.models.functions import Concat, TruncMonth
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
@@ -20,7 +24,7 @@ from django.views.generic.edit import FormView
 from accounts.models import Users, SearchHistorys
 from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations
 from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm
-from .models import UserStats
+from .models import UserStats, ClickCount
 
 from django.contrib.auth.models import Group
 
@@ -403,3 +407,18 @@ class RemoveFromWaitList(SuperUserCheck, View):
         user.poster_waiter= False
         user.save()
         return redirect('management:poster_waiter_list')
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+@method_decorator(require_POST, name='dispatch')
+class ClickCountView(View):
+    def post(self, request, name):
+        try:
+            click_count, created = ClickCount.objects.get_or_create(name=name)
+            click_count.count = F('count') + 1
+            click_count.save()
+            click_count.refresh_from_db()
+            return JsonResponse({"count": click_count.count})
+        except Exception as e:
+            # 実際のプロダクション環境では、エラー内容をロギングするなどの対応が必要です。
+            print(f"Error processing RUClickCount for {name}: {e}")
+            return JsonResponse({"error": "Unable to process request."}, status=500)

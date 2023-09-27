@@ -275,6 +275,12 @@ class BasePostListView(ListView):
 
 
 class PostListView(BasePostListView):
+
+    def dispatch(self, request, *args, **kwargs):
+        # ユーザーがログインしていない場合、ログイン画面にリダイレクト
+        if not request.user.is_authenticated:
+            return redirect('accounts:user_login')
+        return super().dispatch(request, *args, **kwargs)
     
     def get_combined_posts(self, posts, user):
     # 1. QP順でソート
@@ -334,13 +340,16 @@ class PostListView(BasePostListView):
         return queryset
     
     def check_unanswered_surveys(self, user):
-        # ユーザーが回答したすべてのアンケートを取得
-        answered_surveys = Surveys.objects.filter(surveyresults__user=user)
+        # ユーザーがすでに選択した特性を取得
+        selected_features = user.features.all()
+        
+        # 選択された特性に関連するアンケートを取得
+        answered_surveys = Surveys.objects.filter(options__in=selected_features).distinct()
         
         # 未回答のアンケートを取得
         unanswered_surveys = Surveys.objects.exclude(id__in=answered_surveys.values_list('id'))
         
-        return unanswered_surveys.first()  
+        return unanswered_surveys.first() 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -534,7 +543,12 @@ class GetMorePreviousFavoriteView(BaseFavoriteView):
 
 class  BasePosterView(BasePostListView):
     def set_poster_from_username(self):
-        self.poster = get_object_or_404(Users, username=self.kwargs['username'])
+        fields = ['id', 'username', 'displayname', 'prf_img', 'follow_count', 'caption', 'url1', 'url2', 'url3', 'url4', 'url5']
+        try:
+            self.poster = Users.objects.only(*fields).get(username=self.kwargs['username'])
+        except Users.DoesNotExist:
+            # 必要に応じて適切なエラーレスポンスを返す
+            pass
 
     def set_poster_from_pk(self):
         self.poster = get_object_or_404(Users, pk=self.request.POST.get('pk'))
@@ -568,13 +582,12 @@ class PosterPageView(BasePosterView):
 
     def get_queryset(self):
         self.set_poster_from_username()
-        queryset = super().get_queryset().filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
-        return queryset
+        return super().get_queryset().select_related('poster').filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # テンプレートでのクエリを避けるためのリストを作成
-        followers_ids = self.poster.follow.all().values_list('id', flat=True)
+        followers_ids = list(self.poster.follow.only('id').values_list('id', flat=True))
         context['is_user_following'] = self.request.user.id in followers_ids
         # ユーザーがフォローしているかどうかの確認
         context['about_poster'] = self.poster
@@ -1392,18 +1405,19 @@ class BePartnerPageView(TemplateView):
 
 # 単純な視聴回数カウント
 class IncrementViewCount(View):
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         post_id = kwargs.get('post_id')
 
         try:
-            post = Posts.objects.get(id=post_id)
+            post = Posts.objects.select_related('poster').only('id', 'views_count', 'favorite_rate', 'qp', 'content_length', 'poster_id', 'favorite_count', 'content_length', 'poster__boost_type').get(id=post_id)
         except Posts.DoesNotExist:
             return JsonResponse({'error': 'Post not found'}, status=404)
 
         post.views_count += 1
         post.update_favorite_rate()  # いいね率を更新
         post.update_qp_if_necessary()  # 必要に応じてQPを更新
-        post.save()
+        post.save(update_fields=['favorite_rate', 'qp', 'views_count', 'favorite_count'])
 
         return JsonResponse({'message': 'Successfully incremented view count'})
     
@@ -1424,12 +1438,14 @@ class ViewDurationView(View):
             duration = request.POST.get('duration')
             if not duration:
                 return JsonResponse({"message": "duration not provided"}, status=400)
-            
-            post = Posts.objects.get(pk=post_id)
+            #IDが存在するか確認 
+            post_exists = Posts.objects.filter(pk=post_id).exists()
+            if not post_exists:
+                return JsonResponse({"message": "Post with ID: " + post_id + " does not exist"}, status=400)
             
             content_view = ViewDurations.objects.create(
                 user=user,
-                post=post,
+                post_id=post_id,
                 duration=duration
             )
 
@@ -1499,6 +1515,14 @@ class SubmitReportView(View):
         post_id = request.POST.get('post_id')
         reason = request.POST.get('reason')
 
+        # Check if reason is provided
+        if not reason:
+            response_data = {
+                'message': '報告の理由を入力してください。',
+                'error': True
+            }
+            return JsonResponse(response_data, status=400)
+
         post = get_object_or_404(Posts.objects.only('id'), id=post_id)
 
         # 同一ユーザーからの同一投稿に対する報告が存在する場合はエラーを返す
@@ -1540,25 +1564,23 @@ class EmoteCountView(View):
         body = json.loads(request.body)
         click_count = body.get('clicks', 1)
 
-        post = get_object_or_404(Posts, id=post_id)
-
         emote_field = f"emote{emote_number}_count"
         
-        # 属性の存在確認
-        if not hasattr(post, emote_field):
-            return JsonResponse({'success': False, 'error': 'Invalid emote number'})
-
         # Using F() expression to increment the count at the database level
-        setattr(post, emote_field, F(emote_field) + click_count)
-        post.emote_total_count = F('emote_total_count') + click_count
-        post.save(update_fields=[emote_field, 'emote_total_count'])
+        updated_rows = Posts.objects.filter(id=post_id).update(
+            **{emote_field: F(emote_field) + click_count, 
+               'emote_total_count': F('emote_total_count') + click_count}
+        )
 
-        # データベースの実際の値を使用して返す前に、オブジェクトをリフレッシュします
-        post.refresh_from_db()
-        
+        # Check if post exists
+        if updated_rows == 0:
+            return JsonResponse({'success': False, 'error': 'Post not found'})
+
+        # Re-fetch the post object to get the updated counts
+        post = Posts.objects.only('id', f'emote{emote_number}_count', 'emote_total_count').get(id=post_id)
+
         # Using the actual values from the database after refresh
         new_count = getattr(post, emote_field)
         new_total_count = post.emote_total_count
-        print(new_total_count)
 
         return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})

@@ -21,3 +21,10 @@ class UserStats(models.Model):
                 pass  # If there is no record from yesterday, we will use the default value (0)
 
         super().save(*args, **kwargs)  # Call the "real" save() method
+
+class ClickCount(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
