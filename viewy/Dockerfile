@@ -3,7 +3,7 @@ FROM python:3.9
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED 1docker ps
 ENV DJANGO_SETTINGS_MODULE=viewy.settings.production
 
 # Install system dependencies
