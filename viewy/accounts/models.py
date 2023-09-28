@@ -123,8 +123,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'fantia'
         elif 'myfans' in self.url1:
             return 'myfans'
-        elif 'pornhub' in self.url1:
-            return 'pornhub'      
         elif 'candfans' in self.url1:
             return 'candfans'            
         elif 'lit.link' in self.url1:
@@ -160,8 +158,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'fantia'
         elif 'myfans' in self.url2:
             return 'myfans'
-        elif 'pornhub' in self.url2:
-            return 'pornhub'      
         elif 'candfans' in self.url2:
             return 'candfans'            
         elif 'lit.link' in self.url2:
@@ -196,8 +192,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'fantia'
         elif 'myfans' in self.url3:
             return 'myfans'
-        elif 'pornhub' in self.url3:
-            return 'pornhub'      
         elif 'candfans' in self.url3:
             return 'candfans'            
         elif 'lit.link' in self.url3:
@@ -232,8 +226,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'fantia'
         elif 'myfans' in self.url4:
             return 'myfans'
-        elif 'pornhub' in self.url4:
-            return 'pornhub'      
         elif 'candfans' in self.url4:
             return 'candfans'            
         elif 'lit.link' in self.url4:
@@ -268,8 +260,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'fantia'
         elif 'myfans' in self.url5:
             return 'myfans'
-        elif 'pornhub' in self.url5:
-            return 'pornhub'      
         elif 'candfans' in self.url5:
             return 'candfans'            
         elif 'lit.link' in self.url5:

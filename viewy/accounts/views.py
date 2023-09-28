@@ -308,6 +308,11 @@ class VerifyView(FormView):
             messages.error(self.request, '認証コードが正しくありません。もう一度入力してください。')
             return self.form_invalid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['email'] = self.request.session.get('email', '')
+        return context
+
 
 class ResendVerificationCodeView(View):
     def get(self, request, *args, **kwargs):

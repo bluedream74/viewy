@@ -11,11 +11,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+
 document.addEventListener('DOMContentLoaded', function() {
-  const loginButton = document.querySelector('.button'); // ログインボタンのセレクタ
+  const loginForm = document.querySelector('form'); // フォームのセレクタ
   const spinner = document.getElementById('spinner');
   
-  loginButton.addEventListener('click', function() {
-    spinner.style.display = 'block';
+  loginForm.addEventListener('submit', function(e) {
+    // フォームが有効である場合のみ、spinnerを表示
+    if (loginForm.checkValidity()) {
+      spinner.style.display = 'block';
+    } else {
+      // フォームが無効である場合は、submitイベントがキャンセルされ、spinnerは表示されません
+      e.preventDefault();
+    }
   });
 });
+

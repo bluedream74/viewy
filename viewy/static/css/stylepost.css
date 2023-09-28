@@ -21,6 +21,12 @@ body {
   overflow: hidden;
 }
 
+/* ボトムスペース */
+.bottom-space {
+  width: 100%;
+  height: 60px;
+}
+
 .hit-area {
   position: absolute;
   height: 32px;
@@ -702,10 +708,10 @@ label {
 /* 報告ボタン */
 .report {
   position: absolute;
-  bottom: 24px;
+  bottom: 32px;
   right: 18px;
-  color: orangered;
-  z-index: 999;
+  color: rgba(177, 177, 177, 0.667);
+  z-index: 9999;
 }
 
 .report:hover {
@@ -716,7 +722,7 @@ label {
 .report-menu {
   display: none;
   position: absolute;
-  bottom: 48px;
+  bottom: 54px;
   right: 16px;
   width: 320px;
   height: 256px;
@@ -848,12 +854,6 @@ label {
   position: absolute;
   top: 0px;
   z-index: -99;
-}
-
-/* ボトムスペース */
-.bottom-space {
-  width: 100%;
-  height: 60px;
 }
 
 .adjust-trigger {
@@ -1193,7 +1193,7 @@ label {
 }
 
 .survey-radio-group {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   padding: 4px 0px 4px 0px;
   display: flex;
   justify-content: center;
@@ -1251,6 +1251,13 @@ label {
 
 .survey-radio-group input[type="radio"]:checked+label {
   color: rgb(69, 69, 69);
+}
+
+.survey-message{
+  font-size: 11px;
+  color: #a5a5a5;
+  text-align: left;
+  margin-bottom: 16px;
 }
 
 /* スマートフォン用のスタイル */
