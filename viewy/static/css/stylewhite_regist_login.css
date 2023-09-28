@@ -353,6 +353,102 @@ a{
   }
 }
 
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1;
+  left: 0px;
+  top: 0px;
+  width: 100vw; 
+  height: 100vh; 
+  background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+  background-color: #fefefe;
+  max-width: 280px;
+  max-height: 480px;
+  overflow: scroll;
+  margin: 16px auto 56px;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; 
+  box-shadow: 0px 2px 4px rgb(131, 131, 131);
+  border-radius: 8px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: fixed;
+  top: 32px;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+.main-area{
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 36px;
+  color: rgb(69, 69, 69);
+}
+
+.title{
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 32px;
+  padding-top: 64px;
+}
+
+.sub-title{
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+  margin-top: 48px;
+}
+
+.discription{
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.item{
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+ul{
+  padding-left: 16px;
+}
+
+li{
+  list-style: decimal;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.content{
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.delete_request{
+  font-size: 13px;
+  color: rgb(74, 215, 215);
+  text-decoration: underline;
+  text-decoration-color: rgb(79, 228, 228);
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
@@ -400,5 +496,15 @@ a{
     width: 100px;
     text-align: center;
   }
+
+  .modal-content {
+    max-width: 100%;
+    max-height: 70vh;
+    margin: 48px auto 56px;
+  }
   
+
+  .close {
+    top: 64px;
+  }
  }

@@ -14,8 +14,14 @@
   font-size: 20px;
   font-weight: bold;
   text-decoration: underline;
-  text-decoration-color: aqua;
+  text-decoration-color: rgb(59, 232, 224);
   text-decoration-line: 2px;
+}
+
+.email{
+  font-size: 14px;
+  color: rgb(91, 91, 91);
+  font-weight: bold;
 }
 
 .please{
@@ -44,7 +50,7 @@
 
 input{
   border: none;
-  border-bottom: 2px aqua solid;
+  border-bottom: 2px rgb(59, 232, 224) solid;
   border-radius: 0px;
   font-size: 32px;
   text-align: center;

@@ -27,7 +27,7 @@
 
     <div class="verify">
       <div class="sub-title">認証コード入力</div>
-      <div class="please">入力したメールアドレス宛てに送信された<br>５桁の認証コードを入力してください<br>迷惑メールに入ってる可能性もあります。</div>
+      <div class="please"><span class="email">{{ email }} </span>宛てに送信された<br>５桁の認証コードを入力してください<br>迷惑メールに入ってる可能性もあります。</div>
 
       {% for message in messages %}
       <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>

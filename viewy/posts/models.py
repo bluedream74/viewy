@@ -74,8 +74,6 @@ class Posts(models.Model):
             return 'fantia'
         elif 'myfans' in self.url:
             return 'myfans'
-        elif 'pornhub' in self.url:
-            return 'pornhub'      
         elif 'candfans' in self.url:
             return 'candfans'            
         elif 'lit.link' in self.url:
