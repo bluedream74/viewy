@@ -21,3 +21,7 @@ def is_premium(user):
 @register.filter
 def is_master(user):
     return user.groups.filter(name='Master').exists()
+
+@register.simple_tag
+def get_attr(obj, attr_name):
+    return getattr(obj, attr_name, None)

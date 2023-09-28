@@ -348,7 +348,7 @@ class PostListView(BasePostListView):
             # 未回答のアンケートを調べて、それをコンテキストに追加
             unanswered_survey = self.check_unanswered_surveys(user)
             # 10分の1の確率でアンケートを表示
-            if random.random() < 1:
+            if random.random() < 0.1:
                 context['unanswered_survey'] = unanswered_survey
             else:
                 context['unanswered_survey'] = None
