@@ -322,6 +322,37 @@ a{
   color: rgb(90, 229, 229);
 }
 
+
+.spinner-container {
+  position: fixed; /* ビューポートに固定 */
+  top: 0;
+  left: 0;
+  width: 100vw; /* ビューポートの幅全体 */
+  height: 100vh; /* ビューポートの高さ全体 */
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #34d5db;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 0.5s linear infinite;
+  position: fixed; /* ビューポートに固定 */
+  top: 50%; /* 上から50%の位置 */
+  left: 50%; /* 左から50%の位置 */
+  transform: translate(-50%, -50%); /* 自身の50%ずらす */
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg); /* 最初は0度 */
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg); /* 100%で360度、つまり1回転 */
+  }
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 

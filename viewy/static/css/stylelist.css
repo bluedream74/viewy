@@ -276,9 +276,6 @@ input[type="radio"] {
 }
 
 .dimension-radio-group input[type="radio"]:checked + label{
-  /* text-decoration: underline;
-  text-decoration-color: aqua;
-  text-decoration-line: 2px; */
   color: rgb(78, 233, 233);
   background-color: rgb(255, 255, 255);
 }
@@ -663,6 +660,30 @@ ul{
   top: -60px; /* 初期位置はビューポートの外に設定 */
   opacity: 0;
   transition: top 0.5s, opacity 0.5s; /* smooth transition */
+}
+
+
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #34d5db;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 0.5s linear infinite;
+  position: fixed; /* ビューポートに固定 */
+  top: 50%; /* 上から50%の位置 */
+  left: 50%; /* 左から50%の位置 */
+  transform: translate(-50%, -50%); /* 自身の50%ずらす */
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg); /* 最初は0度 */
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg); /* 100%で360度、つまり1回転 */
+  }
 }
 
 

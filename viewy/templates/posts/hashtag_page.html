@@ -20,13 +20,13 @@
 
 {% if user.is_authenticated %}
 <div class="dimension-radio-group" data-reload="true">
-  <input type="radio" id="dimension-2" name="dimension" value="2" {% if current_dimension == 2.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
+  <input type="radio" class="dimension-radio" id="dimension-2" name="dimension" value="2" {% if selected_dimension == 2.0 %}checked{% endif %}>
   <label for="dimension-2">2</label>
-
-  <input type="radio" id="dimension-all" name="dimension" value="2.5" {% if current_dimension == 2.5 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
+  
+  <input type="radio" class="dimension-radio" id="dimension-all" name="dimension" value="2.5" {% if selected_dimension == 2.5  %}checked{% endif %}>
   <label for="dimension-all" class="all">ALL</label>
-
-  <input type="radio" id="dimension-3" name="dimension" value="3" {% if current_dimension == 3.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
+  
+  <input type="radio" class="dimension-radio" id="dimension-3" name="dimension" value="3" {% if selected_dimension == 3.0 %}checked{% endif %}>
   <label for="dimension-3">3</label>
 </div>
 {% endif %}
@@ -94,6 +94,11 @@
 {% endfor %}
 {% endif %}
 
+<div class="spinner-container" id="spinner" style="display: none;">
+  <div class="spinner"></div>
+</div>
+
+
 
 <style>
   .serch{
@@ -104,44 +109,52 @@
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/auto_correct.js' %}"></script>
 <script src="{% static 'js/search_in_hashtag_page.js' %}"></script>
+<script src="{% static 'js/login_modal.js' %}"></script>
+{% if user.is_authenticated %}
 <script>
-  // 非ログインユーザーへのログイン催促モーダル
-  document.addEventListener('DOMContentLoaded', function() {
-      const listArea = document.querySelector('.list-area');
-      const isAuthenticated = listArea.getAttribute('data-is-authenticated') === 'true';
-      const loginModal = document.getElementById('loginModal');
-      const closeBtn = document.querySelector('.close-btn');
-      const loginBtn = document.querySelector('.login-btn'); // ログインボタンを参照
-
-      // post要素をクリックしたときのイベント
-      listArea.addEventListener('click', function(event) {
-          if (event.target.closest('.post') && !isAuthenticated) {
-              event.preventDefault();
-              loginModal.style.display = "block";
-          }
+  document.querySelectorAll('.dimension-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const dimension = this.value;
+      
+      // Log the sent dimension value
+      console.log('Sent dimension:', dimension);
+      
+      // URL to which we want to send a POST request
+      const url = '/posts/hashtag_dimension_change/';
+      
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append('dimension', dimension);  // Append the selected dimension
+      
+      // Show the spinner
+      document.getElementById('spinner').style.display = 'block';
+      
+      // Send a POST request to the server
+      fetch(url, {
+        method: 'POST', // Specify the request method
+        body: formData, // Attach the FormData object
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+        },
+        credentials: 'same-origin' // Include cookies in the request
+      }).then(response => response.json())  // Parse the JSON response
+      .then(data => {
+        console.log('Success:', data);
+        
+        // Reload the page after successful response
+        if(data.status === 'success') location.reload();
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        
+        // Hide the spinner even if there is an error
+        document.getElementById('spinner').style.display = 'none';
       });
-
-      // モーダルのクローズボタンをクリックしたときのイベント
-      closeBtn.addEventListener('click', function() {
-          loginModal.style.display = "none";
-      });
-
-      // モーダル外のエリアをクリックしたときにモーダルを閉じるイベント
-      window.addEventListener('click', function(event) {
-          if (event.target === loginModal) {
-              loginModal.style.display = "none";
-          }
-      });
-
-      // ログインボタンをクリックしたときにnextパラメータをURLに追加するイベント
-      if (loginBtn) {
-          loginBtn.addEventListener('click', function() {
-              const returnTo = window.location.href;
-              loginBtn.setAttribute('href', `/accounts/user_login/?next=${encodeURIComponent(returnTo)}`);
-          });
-      }
+    });
   });
 </script>
+
+{% endif %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
   const orderSwitches = document.querySelectorAll('.order-switch input[type="radio"]');
@@ -174,6 +187,5 @@
       }, 500);  // 0.5 sec
   });
   </script>
-<script src="{% static 'js/dimension_change.js' %}"></script>
 
 {% endblock %}

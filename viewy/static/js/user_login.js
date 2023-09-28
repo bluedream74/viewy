@@ -10,3 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const loginButton = document.querySelector('.button'); // ログインボタンのセレクタ
+  const spinner = document.getElementById('spinner');
+  
+  loginButton.addEventListener('click', function() {
+    spinner.style.display = 'block';
+  });
+});

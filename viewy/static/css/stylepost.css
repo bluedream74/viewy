@@ -705,6 +705,7 @@ label {
   bottom: 24px;
   right: 18px;
   color: orangered;
+  z-index: 999;
 }
 
 .report:hover {

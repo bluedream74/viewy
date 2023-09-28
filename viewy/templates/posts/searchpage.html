@@ -56,7 +56,7 @@
 </div>
 
 
-<div class="list-area">
+<div class="list-area" data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   {% if posts_by_hashtag %}
   {% for hashtag, posts in posts_by_hashtag.items %}
   <a href="{% url 'posts:hashtag' hashtag=hashtag %}" class="hashtag-title">
@@ -115,7 +115,14 @@
   {% endif %}
 </div>
 
-
+<div id="loginModal" class="login-modal">
+  <div class="login-modal-content">
+      <span class="close-btn">&times;</span>
+      <div class="login-title">Viewyにログインしよう</div>
+      <div class="login-content">無制限のコンテンツの視聴に加え、<br>いいねやフォローなどができるようになります。</div>
+      <a href="{% url 'accounts:user_login' %}?next={{ request.get_full_path }}" class="login-btn">ログイン</a>
+  </div>
+</div>
 
 
 <div class="bottom-space"></div>
@@ -132,4 +139,5 @@
 <script src="{% static 'js/search_history.js' %}"></script>
 <script src="{% static 'js/widead_response_count.js' %}"></script>
 <script src="{% static 'js/click_count.js' %}"></script>
+<script src="{% static 'js/login_modal.js' %}"></script>
 {% endblock %}

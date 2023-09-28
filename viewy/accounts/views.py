@@ -277,21 +277,21 @@ class VerifyView(FormView):
 
             # ユーザーをログインさせる
             login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+            
 
-
-            # Add a success message
-            messages.success(self.request, 'ユーザー登録が完了しました')
-
-            # Record total users
+            # ここで現在の総ユーザー数を保存するようにする
             today = timezone.now().date()
             total_users = Users.objects.filter(is_active=True).count()
             print(f'Total users: {total_users}')
 
-            record, created = UserStats.objects.get_or_create(date=today)
+            record, created = UserStats.objects.get_or_create(date=today, defaults={'total_users': total_users})
 
             if not created:
                 record.total_users = total_users
                 record.save()
+
+            # Add a success message
+            messages.success(self.request, 'ユーザー登録が完了しました')
                 
             # セッションから広告主として登録されたかの情報を取得し、セッションからその情報を削除
             registered_as_advertiser = self.request.session.pop('registered_as_advertiser', False)
@@ -408,6 +408,17 @@ class UserLoginView(LoginView):
         # If user is active, log in and redirect to postlist
         login(self.request, user)
         messages.success(self.request, 'ログインしました')  # メッセージを追加
+        
+        # ここで現在の総ユーザー数を保存するようにする
+        today = timezone.now().date()
+        total_users = Users.objects.filter(is_active=True).count()
+        print(f'Total users: {total_users}')
+
+        record, created = UserStats.objects.get_or_create(date=today, defaults={'total_users': total_users})
+
+        if not created:
+            record.total_users = total_users
+            record.save()
 
         # ログイン成功の信号を送る
         signals.user_logged_in.send(

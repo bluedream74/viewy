@@ -21,6 +21,71 @@
 {% endfor %}
 {% endif %}
 
+{% if not user.gender %}
+<div id="firstSettingModal" class="first-setting-modal">
+  <div class="first-setting-modal-content">
+    <div class="first-setting-modal-title">
+      初期設定を済ませよう
+    </div>
+    <div class="first-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
+    <div class="setting-title">性別</div>
+    <div class="gender-radio-group">
+      <input type="radio" id="gender-male" name="gender" value="male">
+      <label for="gender-male">男性</label>
+
+      <input type="radio" id="gender-female" name="gender" value="female">
+      <label for="gender-female">女性</label>
+
+      <input type="radio" id="gender-other" name="gender" value="other">
+      <label for="gender-other">その他</label>
+    </div>
+
+    <div class="setting-title">表示設定</div>
+    <div class="setting-guide">表示する投稿を２次元や３次元にしぼるか、次元関係なく全て表示するかを選んでください。<br>※設定画面からいつでも変更できます。</div>
+    <div class="dimension-radio-group">
+      <input type="radio" id="dimension-2" name="dimension" value="2">
+      <label for="dimension-2">2</label>
+
+      <input type="radio" id="dimension-all" name="dimension" value="2.5" checked>
+      <label for="dimension-all" class="all">ALL</label>
+
+      <input type="radio" id="dimension-3" name="dimension" value="3">
+      <label for="dimension-3">3</label>
+    </div>
+
+    <button id="submitSettings">決定</button>
+
+  </div>
+</div>
+{% endif %}
+
+{% if user.gender %}
+{% if unanswered_survey %}
+<div id="SurveyModal" class="survey-modal">
+  <div class="survey-modal-content">
+  <div class="spinner" id="spinner" style="display: none;"></div>
+    <div class="survey-modal-title">アンケート</div>
+    <div class="survey-tom"><img src="{{ MEDIA_URL }}others/アンケート.png" alt=""></div>
+    <div class="survey-question">{{ unanswered_survey.question }}</div>
+    <div id="error-message" style="color: orangered; display: none; font-size: 13px;">選択してください。</div>
+    <form id="survey-form" method="post">
+      {% csrf_token %}
+      <div class="survey-radio-group">
+        {% for option in unanswered_survey.options.all %}
+        <div>
+          <input type="radio" id="{{ option.name_ja }}" name="selected_option" value="{{ option.id }}">
+          <label for="{{ option.name_ja }}">
+            {{ option.name_ja }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+      <input id="survey-submit" type="button" value="回答する">
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endif %}
 
 <style>
   .home{
@@ -52,7 +117,14 @@ $(function() {
     }, 500);  // 0.5 sec
 });
 </script>
-
+{% if not user.gender %}
+<script src="{% static 'js/first_setting.js' %}"></script>
+{% endif %}
+{% if user.gender %}
+{% if unanswered_survey %}
+<script src="{% static 'js/survey_answer.js' %}"></script>
+{% endif %}
+{% endif %}
 
 {% endblock %}
 

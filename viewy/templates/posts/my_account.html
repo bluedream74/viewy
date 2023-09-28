@@ -142,31 +142,9 @@
     {% if tomstalk.url %}
     <div class="url-container">
       <div class="url"><a href="{{ tomstalk.url }}">
-        {% if tomstalk.get_url_prefix == 'x' %}
-        <img class="url-icon" src="{{ MEDIA_URL }}link_logo/x_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'youtube' %}
-            <i class="fab fa-youtube"></i>
-        {% elif tomstalk.get_url_prefix == 'fantia' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/fantia_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'myfans' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/myfans_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'candfans' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/candfans_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'lit.link' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/litlink_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'fanza' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/fanza_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'amazon' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/amazon_black.png" alt="">
-        {% elif user.get_url_prefix == 'skeb' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/skeb_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'dlsite' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/dlsite_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'profu.link' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/profu.link_black.png" alt="">
-        {% elif tomstalk.get_url_prefix == 'knip' %}
-            <img class="url-icon" src="{{ MEDIA_URL }}link_logo/knip_black.png" alt="">
-        {% else %}
+        {% if tomstalk.get_url_prefix and tomstalk.get_url_prefix != "link" %}
+        <img class="url-icon" src="{{ MEDIA_URL }}link_logo/{{ tomstalk.get_url_prefix }}_black.png" alt="">
+        {% elif tomstalk.get_url_prefix == "link" %}
         <i class="fas fa-link"></i>
         {% endif %}
         </a></div>

@@ -67,6 +67,10 @@
   <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
 </div>
 
+<div class="spinner-container" id="spinner" style="display: none;">
+  <div class="spinner"></div>
+</div>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const checkbox = document.getElementById('consentCheckbox');
@@ -89,5 +93,15 @@
     // チェックボックスの状態が変更されたら、ボタンの状態を更新
     checkbox.addEventListener('change', updateButtonState);
   });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const loginButton = document.querySelector('.button'); // ログインボタンのセレクタ
+  const spinner = document.getElementById('spinner');
+  
+  loginButton.addEventListener('click', function() {
+    spinner.style.display = 'block';
+  });
+});
 </script>
 {%endblock%}

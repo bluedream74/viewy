@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, ViewDurationView, EmoteCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, ViewDurationView, EmoteCountView
 )
 
 app_name = 'posts'
@@ -16,6 +16,7 @@ urlpatterns = [
    path('fovorite_list/', FavoritePostListView.as_view(), name='favorite_list'),
    path('get_more_favorite/',  GetMoreFavoriteView.as_view(), name='get_more_favorite'),
    path('get_more_previous_favorite/',  GetMorePreviousFavoriteView.as_view(), name='get_more_previous_favorite'),
+   path('hashtag_dimension_change/', HashtagDimensionChangeView.as_view(), name='hashtag_dimension_change'),
    path('hashtag/<str:hashtag>/', HashtagPageView.as_view(), name='hashtag'),
    path('hashtag_list/<str:hashtag>/', HashtagPostListView.as_view(), name='hashtag_list'),
    path('get_more_hashtag/', GetMoreHashtagView.as_view(), name='get_more_hashtag'),

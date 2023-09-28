@@ -683,12 +683,22 @@ class BaseHashtagListView(BasePostListView):
             Q(hashtag2=hashtag, is_hidden=False) |
             Q(hashtag3=hashtag, is_hidden=False)
         )
+        
+    def filter_by_selected_dimension(self, queryset):
+        # セッションから利用者の選択したdimensionを取得
+        selected_dimension = self.request.session.get('selected_dimension', None)
 
-    def filter_by_dimension(self, queryset):
-        if self.request.user.is_authenticated:
-            filter_condition = self.get_user_filter_condition()
-            return queryset.filter(**filter_condition)
-        return queryset
+        if selected_dimension is None:
+            return queryset  # セッションからdimensionが取得できない場合、クエリセットをそのまま返す
+
+        filter_condition = {}
+        if selected_dimension == 2.0:  # セッションから取得した値は文字列なので注意
+            filter_condition = {'poster__is_real': False}
+        elif selected_dimension == 3.0:
+            filter_condition = {'poster__is_real': True}
+
+        return queryset.filter(**filter_condition)
+
 
     def order_queryset(self, queryset):
         if self.order == 'qp':
@@ -707,7 +717,24 @@ class BaseHashtagListView(BasePostListView):
     def post(self, request, *args, **kwargs):
         self.order = request.POST.get('order', 'posted_at')
         return super().post(request, *args, **kwargs)
-    
+
+
+class HashtagDimensionChangeView(View):
+    def post(self, request, *args, **kwargs):
+        dimension = request.POST.get('dimension')
+        if dimension:
+            try:
+                dimension = float(dimension)
+                request.session['selected_dimension'] = dimension
+                
+                # Print the set value to the console
+                print('Set selected_dimension in session:', dimension)
+                
+                return JsonResponse({'status': 'success'})
+            except ValueError:
+                return JsonResponse({'status': 'error', 'message': 'Invalid dimension value'}, status=400)
+        return JsonResponse({'status': 'error', 'message': 'Dimension is required'}, status=400)
+
 
 class HashtagPageView(BaseHashtagListView):
     template_name = os.path.join('posts', 'hashtag_page.html')
@@ -716,7 +743,9 @@ class HashtagPageView(BaseHashtagListView):
         queryset = super().get_queryset()
         hashtag = self.kwargs['hashtag']
         
-        queryset = self.filter_by_dimension(queryset)
+        # 選択したdimensionによるフィルターをかける
+        queryset = self.filter_by_selected_dimension(queryset)
+        
         queryset = self.filter_by_hashtag(queryset, hashtag)
         queryset = self.order_queryset(queryset)
 
@@ -724,9 +753,14 @@ class HashtagPageView(BaseHashtagListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # セッションから選択されたdimensionを取得し、コンテキストに追加
+        context['selected_dimension'] = self.request.session.get('selected_dimension', '2.5')
+        
         context['current_dimension'] = getattr(self.request.user, 'dimension', 2.5)
         context['form'] = SearchForm()
         context['hashtag'] = self.kwargs['hashtag']
+        
         return context
     
 
@@ -742,8 +776,8 @@ class HashtagPostListView(BaseHashtagListView):
         # Hashtag Filter
         queryset = self.filter_by_hashtag(queryset, hashtag)
 
-        # User Dimension Filter
-        queryset = self.filter_by_dimension(queryset)
+        # 選択したdimensionによるフィルターをかける
+        queryset = self.filter_by_selected_dimension(queryset)
 
         # Order the posts
         queryset = self.order_queryset(queryset)
@@ -794,8 +828,8 @@ class GetMoreHashtagView(BaseHashtagListView):
         queryset = Posts.objects.all()
         queryset = self.filter_by_hashtag(queryset, hashtag)
 
-        # Apply user-specific filter
-        queryset = self.filter_by_dimension(queryset)
+        # 選択したdimensionによるフィルターをかける
+        queryset = self.filter_by_selected_dimension(queryset)
 
         # Apply the order to the queryset
         queryset = self.order_queryset(queryset)
@@ -834,8 +868,8 @@ class GetMorePreviousHashtagView(BaseHashtagListView):
         queryset = Posts.objects.all()
         queryset = self.filter_by_hashtag(queryset, hashtag)
 
-        # Apply user-specific filter
-        queryset = self.filter_by_dimension(queryset)
+        # 選択したdimensionによるフィルターをかける
+        queryset = self.filter_by_selected_dimension(queryset)
 
         # Apply the order to the queryset
         queryset = self.order_queryset(queryset)
@@ -1236,6 +1270,13 @@ class SearchPageView(FormView):
 # おすすめハッシュタグを検索ページに表示
 class HotHashtagView(TemplateView):
     template_name = os.path.join('posts', 'searchpage.html')
+
+    def dispatch(self, request, *args, **kwargs):
+        # セッションの dimension を 2.5 に設定
+        request.session['selected_dimension'] = 2.5
+        print("The selected_dimension has been set to 2.5")
+        return super().dispatch(request, *args, **kwargs)
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
