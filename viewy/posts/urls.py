@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, IncrementViewCount, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, ViewDurationView, EmoteCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, EmoteCountView, DeleteAllViewDurations, ViewDurationCountView
 )
 
 app_name = 'posts'
@@ -41,12 +41,12 @@ urlpatterns = [
    path('hothashtag/', HotHashtagView.as_view(), name='hothashtag'),
    path('auto_correct/', AutoCorrectView.as_view(), name='auto_correct'),
    path('be_partner/', BePartnerPageView.as_view(), name='be_partner'),
-   path('increment_view_count/<int:post_id>', IncrementViewCount.as_view(), name='increment_view_count'),
    path('ads_view_count/<int:ad_id>', AdsViewCount.as_view(), name='ads_view_count'),
    path('wideads_view_count/<int:ad_id>', WideAdsViewCount.as_view(), name='wideads_view_count'),
    path('ads_click_count/<int:ad_id>', AdsClickCount.as_view(), name='ads_click_count'),
    path('wideads_click_count/<int:ad_id>', WideAdsClickCount.as_view(), name='Wideads_click_count'),
-   path('view_duration/', ViewDurationView.as_view(), name='view_duration'),
    path('report/', SubmitReportView.as_view(), name='report'),
    path('emote_count/<int:post_id>/<int:emote_number>/', EmoteCountView.as_view(), name='emote_count'),
+   path('view_duration_count/', ViewDurationCountView.as_view(), name='view_duration_count'),
+   path('delete_all_view_durations/', DeleteAllViewDurations.as_view(), name='delete_all_view_durations'),
 ]

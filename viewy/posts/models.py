@@ -47,8 +47,8 @@ class Posts(models.Model):
     views_count = models.PositiveIntegerField(default=0)
     report_count = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False)
-    favorite_rate = models.FloatField(default=0.0)  # 追加
-    # QPのフィールドを追加
+    favorite_rate = models.FloatField(default=0.0) 
+    avg_duration = models.FloatField(default=0.0)
     qp = models.FloatField(default=1.0)
     emote1_count = models.PositiveIntegerField(default=0)
     emote2_count = models.PositiveIntegerField(default=0)
@@ -96,12 +96,6 @@ class Posts(models.Model):
             return 'knip'      
         else:
             return 'default'
-        
-    def increment_report_count(self):
-      self.report_count += 1
-      if self.report_count > 50:    # 通報が５０回より多くなったら非表示にする
-        self.is_hidden = True
-      self.save()
 
     def get_report_count(self):
       return self.report_count
@@ -111,27 +105,33 @@ class Posts(models.Model):
             self.favorite_rate = 0
         else:
             self.favorite_rate = (self.favorite_count / self.views_count) * 100
+
+    def update_avg_duration(self, new_duration):
+        """新しい滞在時間を使用して平均滞在時間を更新するメソッド"""
+        total_duration = (self.avg_duration * self.views_count) + new_duration
+        self.avg_duration = total_duration / (self.views_count + 1)  # まだviews_countを更新していないので+1をします
     
-    def average_duration(self):
-        """滞在時間の平均を返すメソッド"""     
-        # 合計視聴期間,視聴回数をまとめて取得
-        aggregates = self.viewed_post.aggregate(
-            total_duration=Sum('duration'), total_views=Count('*')
-        )
-        total_duration = aggregates['total_duration'] or 0
-        total_views = aggregates['total_views']
+    # def average_duration(self):
+    #     """滞在時間の平均を返すメソッド"""     
+    #     # 合計視聴期間,視聴回数をまとめて取得
+    #     aggregates = self.viewed_post.aggregate(
+    #         total_duration=Sum('duration'), total_views=Count('*')
+    #     )
+    #     total_duration = aggregates['total_duration'] or 0
+    #     total_views = aggregates['total_views']
 
-        if total_views == 0:
-            return 0
+    #     if total_views == 0:
+    #         return 0
 
-        avg_duration = total_duration / total_views
-        return avg_duration
+    #     avg_duration = total_duration / total_views
+    #     return avg_duration
 
     def stay_rate(self):
         """滞在率を算出するメソッド"""
         if self.content_length == 0:
             return 0      
-        stay_rate_value = (self.average_duration() / self.content_length) * 100  # 100%を超えても許容
+        stay_rate_value = (self.avg_duration / self.content_length) * 100  # 100%を超えても許容
+        print(f"平均滞在時間: {self.avg_duration}")
         print(f"滞在率: {stay_rate_value}")
         return stay_rate_value
 
@@ -570,8 +570,8 @@ class RecommendedUser(models.Model):
         
 # 視聴履歴、滞在時間を管理するモデル
 class ViewDurations(models.Model):
-    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='viewed_user')
-    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='viewed_post')
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='viewed_user', null=True)
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='viewed_post', null=True)
     duration = models.PositiveIntegerField(default=0)  # 視聴時間（秒）
     viewed_at = models.DateTimeField(default=datetime.now)  # 視聴または閲覧された日時
 

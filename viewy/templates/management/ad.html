@@ -68,5 +68,28 @@
     </table>
 </div>
 
+<button id="delete-all-view-durations">全ての視聴履歴データを削除</button>
+<script>
+    document.getElementById('delete-all-view-durations').addEventListener('click', function() {
+    if (confirm('本当に全ての視聴履歴データを削除してよろしいですか？この操作は取り消せません。')) {
+        fetch('/posts/delete_all_view_durations/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),  // DjangoのCSRFトークンを取得する関数を使用
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => alert(data.message))  // レスポンスメッセージをアラートで表示
+        .catch(error => console.error('Error:', error));
+    }
+});
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+</script>
 {% endblock %}

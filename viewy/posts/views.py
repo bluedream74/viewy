@@ -1434,61 +1434,36 @@ class AutoCorrectView(View):
 class BePartnerPageView(TemplateView):
     template_name = os.path.join('posts', 'be_partner.html')
     
+class ViewDurationCountView(View):
 
-# 単純な視聴回数カウント
-class IncrementViewCount(View):
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        post_id = kwargs.get('post_id')
+        print("Received POST data:", request.POST)
+        post_id = request.POST.get('post_id')
+        duration = request.POST.get('duration')
 
         try:
-            post = Posts.objects.select_related('poster').only('id', 'views_count', 'favorite_rate', 'qp', 'content_length', 'poster_id', 'favorite_count', 'content_length', 'poster__boost_type').get(id=post_id)
+            post = Posts.objects.select_related('poster').get(id=post_id)
         except Posts.DoesNotExist:
             return JsonResponse({'error': 'Post not found'}, status=404)
 
+        # 視聴回数のカウントアップ
         post.views_count += 1
-        post.update_favorite_rate()  # いいね率を更新
-        post.update_qp_if_necessary()  # 必要に応じてQPを更新
-        post.save(update_fields=['favorite_rate', 'qp', 'views_count', 'favorite_count'])
+        post.update_favorite_rate()
+        post.update_qp_if_necessary()
 
-        return JsonResponse({'message': 'Successfully incremented view count'})
-    
-    
-# 視聴履歴、滞在時間のデータを追加するビュー    
-class ViewDurationView(View):
-    
-    def post(self, request, *args, **kwargs):
-        try:
-            user = request.user
-            if not user.is_authenticated:
-                return JsonResponse({"message": "User not authenticated"}, status=403)
+        # 滞在時間の更新（あれば）
+        post.update_avg_duration(int(duration))
+        post.save()
+        
+        content_view = ViewDurations.objects.create(
+            user=request.user,
+            post_id=post_id,
+            duration=duration
+        )
+        post.save()
 
-            post_id = request.POST.get('post_id')
-            if not post_id:
-                return JsonResponse({"message": "post_id not provided"}, status=400)
-
-            duration = request.POST.get('duration')
-            if not duration:
-                return JsonResponse({"message": "duration not provided"}, status=400)
-            #IDが存在するか確認 
-            post_exists = Posts.objects.filter(pk=post_id).exists()
-            if not post_exists:
-                return JsonResponse({"message": "Post with ID: " + post_id + " does not exist"}, status=400)
-            
-            content_view = ViewDurations.objects.create(
-                user=user,
-                post_id=post_id,
-                duration=duration
-            )
-
-            return JsonResponse({"message": "Success"}, status=200)
-        except Posts.DoesNotExist:
-            return JsonResponse({"message": "Post with ID: " + post_id + " does not exist"}, status=400)
-        except Exception as e:
-            return JsonResponse({"message": f"Unexpected Error: {str(e)}"}, status=500)
-    
-    def get(self, request, *args, **kwargs):
-        return JsonResponse({"message": "Method not allowed"}, status=405)
+        return JsonResponse({'message': 'Successfully updated post interactions'})
     
 
 
@@ -1627,3 +1602,10 @@ class EmoteCountView(View):
         new_total_count = post.emote_total_count
 
         return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})
+
+class DeleteAllViewDurations(View):
+    def post(self, request, *args, **kwargs):
+        # 全てのViewDurationsレコードを削除
+        ViewDurations.objects.all().delete()
+        print("全部消したよ")
+        return JsonResponse({'message': 'All ViewDurations records deleted successfully'})
