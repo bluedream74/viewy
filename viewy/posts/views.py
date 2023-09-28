@@ -231,6 +231,7 @@ class BasePostListView(ListView):
         
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = queryset.filter(is_hidden=False)
         queryset = self.exclude_advertiser_posts(queryset)  # Advertiserの投稿を除外
         queryset = queryset.select_related('poster')
         queryset = self.annotate_user_related_info(queryset)
@@ -351,8 +352,6 @@ class PostListView(BasePostListView):
                 context['unanswered_survey'] = unanswered_survey
             else:
                 context['unanswered_survey'] = None
-        else:
-            context['posts'] = self.get_queryset().filter(is_hidden=False)
 
         return context
        
@@ -423,7 +422,7 @@ class FavoritePageView(BaseFavoriteView):
 
     def get_queryset(self):
         post_ids = self.get_user_favorite_post_ids()
-        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+        queryset = super().get_queryset().filter(id__in=post_ids)
         queryset = sorted(queryset, key=lambda post: post_ids.index(post.id))
         return queryset
 
@@ -438,7 +437,7 @@ class FavoritePostListView(BaseFavoriteView):
         # ユーザーがお気に入りに追加した全ての投稿を取得 (BaseFavoriteView から取得)
         post_ids = self.get_user_favorite_post_ids()
 
-        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+        queryset = super().get_queryset().filter(id__in=post_ids)
         if selected_post_id in post_ids:
             selected_post_index = post_ids.index(selected_post_id)
             selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
@@ -543,7 +542,7 @@ class  BasePosterView(BasePostListView):
             return cached_posts
 
         print(f"Cache MISS for user {self.poster.id}")
-        posts = Posts.objects.filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        posts = Posts.objects.filter(poster=self.poster).order_by('-posted_at')
         cache.set(cache_key, posts, 300)  # キャッシュの有効期間を300秒（5分）に設定
         return posts
 
@@ -563,7 +562,7 @@ class PosterPageView(BasePosterView):
 
     def get_queryset(self):
         self.set_poster_from_username()
-        queryset = super().get_queryset().filter(poster=self.poster, is_hidden=False).order_by('-posted_at')
+        queryset = super().get_queryset().filter(poster=self.poster).order_by('-posted_at')
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -588,7 +587,7 @@ class PosterPostListView(BasePosterView):
         poster_posts = self.get_filtered_posts()
 
         post_ids = [post.id for post in poster_posts]
-        queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+        queryset = super().get_queryset().filter(id__in=post_ids)
 
         if selected_post_id in post_ids:
             selected_post_index = post_ids.index(selected_post_id)
@@ -679,9 +678,9 @@ class BaseHashtagListView(BasePostListView):
 
     def filter_by_hashtag(self, queryset, hashtag):
         return queryset.filter(
-            Q(hashtag1=hashtag, is_hidden=False) |
-            Q(hashtag2=hashtag, is_hidden=False) |
-            Q(hashtag3=hashtag, is_hidden=False)
+            Q(hashtag1=hashtag) |
+            Q(hashtag2=hashtag) |
+            Q(hashtag3=hashtag)
         )
         
     def filter_by_selected_dimension(self, queryset):
@@ -784,7 +783,7 @@ class HashtagPostListView(BaseHashtagListView):
 
         post_ids = [post.id for post in queryset]
 
-        base_queryset = super().get_queryset().filter(id__in=post_ids, is_hidden=False)
+        base_queryset = super().get_queryset().filter(id__in=post_ids)
 
         # 選択した投稿がリストの中にあるか確認
         if selected_post_id in post_ids:
@@ -899,18 +898,36 @@ class MyPostView(BasePostListView):
 
     def get_queryset(self):
         user = self.request.user
-        return super().get_queryset().filter(poster=user).order_by('-posted_at')
+        queryset = (Posts.objects.filter(poster=user)
+                    .select_related('poster')
+                    .prefetch_related('visuals', 'videos')
+                    .order_by('-posted_at'))
+        return queryset
     
 class HiddenPostView(BasePostListView):
     template_name = os.path.join('posts', 'hidden_post.html')
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         post_id = self.request.GET.get('post_id')
         if post_id:
-            queryset = queryset.filter(id=post_id)
-        return queryset
+            queryset = Posts.objects.filter(id=post_id, is_hidden=True)
+            queryset = queryset.select_related('poster')
+            queryset = queryset.prefetch_related('visuals', 'videos')
+            print(queryset)
+            return queryset
+        # post_idが指定されていない、または該当する投稿が存在しない場合は空のクエリセットを返す
+        return Posts.objects.none()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        posts = context['object_list']
+        
+        for post in posts:
+            post.visuals_list = list(post.visuals.all())
+            post.videos_list = list(post.videos.all())
+            
+        context['posts'] = posts
+        return context
     
     
 class DeletePostView(View):
@@ -1084,7 +1101,7 @@ class BaseFollowListView(BasePostListView):
         print(f"Cache MISS for followed posts for user {self.request.user.id}")
         queryset = super().get_queryset()
         followed_user_ids = self.get_followed_user_ids()
-        queryset = queryset.filter(poster__id__in=followed_user_ids, is_hidden=False).order_by('-posted_at')
+        queryset = queryset.filter(poster__id__in=followed_user_ids).order_by('-posted_at')
         cache.set(cache_key, queryset, 300)  # 5分間キャッシュ
         return queryset
 
@@ -1538,7 +1555,7 @@ class SubmitReportView(View):
             }
             return JsonResponse(response_data, status=400)
 
-        post = get_object_or_404(Posts.objects.only('id'), id=post_id)
+        post = get_object_or_404(Posts.objects.only('id', 'report_count'), id=post_id)
 
         # 同一ユーザーからの同一投稿に対する報告が存在する場合はエラーを返す
         if Report.objects.filter(reporter=reporter, post=post).exists():
@@ -1553,7 +1570,18 @@ class SubmitReportView(View):
         report.save()
         
         # 投稿の報告回数をインクリメント (データベースレベルでの更新)
-        Posts.objects.filter(id=post_id).update(report_count=F('report_count') + 1)
+        updated_report_count = F('report_count') + 1
+        
+        # 現在の報告回数が49であれば、次の報告で50になる
+        if post.report_count == 49:
+            Posts.objects.filter(id=post_id).update(
+                report_count=updated_report_count,
+                is_hidden=True
+            )
+        else:
+            Posts.objects.filter(id=post_id).update(
+                report_count=updated_report_count
+            )
 
         # ユーザーの報告回数をインクリメント (データベースレベルでの更新)
         reporter.report_count = F('report_count') + 1
