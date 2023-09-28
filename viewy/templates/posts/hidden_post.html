@@ -7,6 +7,7 @@
   // 現在のビューポートの高さをCSS変数として設定
   document.documentElement.style.setProperty('--vh', `${vh}px`);
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
 {% endblock %}
 {% block content %}
@@ -51,50 +52,54 @@
           </a>
         </div>
       </div>
-      {% if user.is_authenticated %}
-        <div class="follow-poster">
-          <form data-pk="{{ post.poster.pk }}" action="{% url 'accounts:follow' pk=post.poster.pk %}" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="poster_pk" value="{{ post.poster.pk }}">
-            <label>
-              {% if user in post.poster.follow.all %}
-               <i class="fa-solid fa-check fa-2xs follow"></i>
-              {% else %}
-               <i class="fa-solid fa-plus fa-2xs follow"></i>
-              {% endif %}
-              <input type="checkbox" class="mini-follow-button" {% if user in post.poster.follow.all %}checked{% endif %}>
-            </label>
-          </form>
-        </div>
-      {% else %}
-        <div class="follow-poster">
-          <a class="fa-solid fa-plus fa-2xs " href="{% url 'accounts:user_login'%}" style="color: black;"></a>
-        </div>
-      {% endif %}
 
-      {% if user.is_authenticated %}
-        <div class="favorite">
-          <form data-pk="{{ post.pk }}" action="{% url 'posts:favorite' pk=post.pk %}" method="POST"
-            class="favorite-form">
-            {% csrf_token %}
-            <input type="hidden" name="post_pk" value="{{ post.pk }}">
-            <label class="like-label">
-              {% if user in post.favorite.all %}
-              <i class="fa-solid fa-heart liked"></i>
-              {% else %}
-              <i class="fa-regular fa-heart not-liked"></i>
-              {% endif %}
-              <p class="favorite-count">{{ post.favorite_count }}</p>
-              <input type="checkbox" class="like-button" {% if user in post.favorite.all %}checked{% endif %}>
-            </label>
-          </form>
+      <div class="follow-poster follow-hidden">
+        <input type="hidden" class="poster_pk" name="poster_pk" value="{{ post.poster.pk }}">
+      </div>
+
+      <div class="favorite">
+        <form data-pk="{{ post.pk }}" action="{% url 'posts:favorite' pk=post.pk %}" method="POST"
+          class="favorite-form">
+          {% csrf_token %}
+          <input type="hidden" name="post_pk" value="{{ post.pk }}">
+          <label class="like-label">
+            {% if user in post.favorite.all %}
+            <i class="fa-solid fa-heart liked"></i>
+            {% else %}
+            <i class="fa-regular fa-heart not-liked"></i>
+            {% endif %}
+            <p class="favorite-count">{{ post.favorite_count }}</p>
+            <input type="checkbox" class="like-button" {% if user in post.favorite.all %}checked{% endif %}>
+          </label>
+        </form>
+      </div>
+
+      <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count_display }}">
+        <div class="emote emote-icon">
+          <i class="fa-regular fa-face-smile"></i>
+          <span class="emote-count total-count">{{ post.emote_total_count_display }}</span>
         </div>
-      {% else %}
-        <div class="favorite">
-          <a class="fa-regular fa-heart not-liked" href="{% url 'accounts:user_login'%}"
-            style="color: rgb(255, 255, 255);"></a>
+        <div class="emote hidden-emote">
+          <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
+          <span class="emote-count">{{ post.emote1_count }}</span>
         </div>
-      {% endif %}
+        <div class="emote hidden-emote">
+          <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="Emote 2" />
+          <span class="emote-count">{{ post.emote2_count }}</span>
+        </div>
+        <div class="emote hidden-emote">
+          <img src="{{ MEDIA_URL }}emotes/発射36ppi.png" alt="Emote 3" />
+          <span class="emote-count">{{ post.emote3_count }}</span>
+        </div>
+        <div class="emote hidden-emote">
+          <img src="{{ MEDIA_URL }}emotes/尊い36ppi.png" alt="Emote 4" />
+          <span class="emote-count">{{ post.emote4_count }}</span>
+        </div>
+        <div class="emote hidden-emote">
+          <img src="{{ MEDIA_URL }}emotes/よだれ36ppi.png" alt="Emote 5" />
+          <span class="emote-count">{{ post.emote5_count }}</span>
+        </div>
+      </div>
 
 
 
@@ -111,13 +116,17 @@
     </div>
 
     <div class="captions">
+      <div class="poster-name">
+        {% if post.poster.displayname %}
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+          class="poster-name">＠{{post.poster.displayname}}</a>
+        {% else %}
+        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+          class="poster-name">＠{{post.poster.username}}</a>
+        {% endif %}
+      </div>
       <div class="title">
         {{post.title}}
-
-        {% if post.ismanga %}
-        <span class="page-count">{{ post.visuals_list|length }}</span>
-        {% endif %}
-
       </div>
 
       <div class="caption">{{post.caption}}</div>
@@ -167,67 +176,14 @@
       </div>
     </div>
 
-    {% if user.is_authenticated %}
-      {% if post.reported_by_user %}
-      <div class="report already">
-        <i class="fa-solid fa-check-circle"></i>
-      </div>
-      {% else %}
-      <div class="report not-yet">
-        <i class="fa-solid fa-circle-exclamation"></i>
-      </div>
-      {% endif %}
-      <div class="report-menu">
-        <form data-pk="{{ post.pk }}" action="{% url 'posts:report'%}">
-          {% csrf_token %}
-          <!-- フォームの入力フィールド -->
-          <div class="report-title">不適切なコンテンツを報告する</div>
-          <div class="report-sub-title">理由をお聞かせください</div>
-
-          <div class="selects">
-            <label>
-              <input type="radio" name="reason" value="underage"> 未成年者が出演している
-            </label>
-            <br>
-            <label>
-              <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
-            </label>
-            <br>
-            <label>
-              <input type="radio" name="reason" value="violent"> 暴力的な内容
-            </label>
-            <br>
-            <label>
-              <input type="radio" name="reason" value="inappropriate"> 不適切な内容
-            </label>
-            <br>
-            <label>
-              <input type="radio" name="reason" value="other"> その他
-            </label>
-            <br>
-          </div>
-
-
-          <!-- その他のフォームフィールド -->
-
-          <!-- 送信ボタン -->
-          <button type="submit" class="submit-report">送信</button>
-        </form>
-        <div class="formResponse message"></div>
-      </div>
-
-
-    {% else %}
-    {% endif %}
-
   </div>
 
-  {% if post.ismanga %}
-  <label class="hide-label fa-regular fa-square-minus hide">
-    <input class="hide-input" type="checkbox" style="display: none;">
-  </label>
+  <div class="page-count">
+    {% if post.ismanga %}
+    <span id="current-page">1</span>/<span class="total-page">{{ post.visuals.all|length }}</span>
+    {% endif %}
+  </div>
 
-  {% endif %}
 
   {% if not post.ismanga %}
     <div class="play-button">
@@ -238,7 +194,6 @@
 
 
 </div>
-
 
 {% endfor %}
 
@@ -260,15 +215,10 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/mute.js' %}"></script>
-<script src="{% static 'js/hide_contents.js' %}"></script>
-<!-- <script src="{% static 'js/ad_response_count.js' %}"></script> -->
-<script src="{% static 'js/report.js' %}"></script>
-<script src="{% static 'js/hashtag_history.js' %}"></script>
+<script src="{% static 'js/mangapage_count.js' %}"></script>
 {% endblock %}

@@ -911,6 +911,7 @@ label {
   text-decoration: underline;
   text-decoration-line: 2px;
   text-decoration-color: orangered;
+  z-index: 1;
 }
 
 .hidden-icon {

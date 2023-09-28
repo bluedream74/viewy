@@ -2,7 +2,7 @@
 {% load static %}
 {% block static %}
 <link rel="stylesheet" href="{% static 'css/stylelist.css' %}">
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ about_poster.displayname|default:about_poster.username }} [Viewy]" />
 <meta name="twitter:description"
@@ -306,7 +306,8 @@
 {% endfor %}
 {% endif %}
 
-
+{% endblock %}
+{% block script %}
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script>
