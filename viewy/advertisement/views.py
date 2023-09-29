@@ -16,6 +16,8 @@ from django.http import HttpResponseRedirect, Http404
 from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.db.models.functions import Concat
+from django.db.models import CharField
 
 from posts.models import Posts, Users, Videos, Visuals
 from .models import AdInfos, AndFeatures
@@ -99,42 +101,38 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
 class CampaignFormView(AdvertiserCheckView, View):
     template_name = 'advertisement/ad_campaign_create.html'
         
+    def get_andfeature_by_orfeatures_name(self, name_ja):
+        return AndFeatures.objects.filter(is_all=True, orfeatures__name_ja=name_ja).distinct().first()
+
     def get(self, request, *args, **kwargs):
         form = AdCampaignForm()
-        sex = AndFeatures.objects.get(id=20) 
-        dimension = AndFeatures.objects.get(id=21) 
-        age = AndFeatures.objects.get(id=26)
-        return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension, 'age': age})
+        sex = self.get_andfeature_by_orfeatures_name("男性")
+        dimension = self.get_andfeature_by_orfeatures_name("３次元好き")
+        print(sex)
+        print(dimension)
+        return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
 
     def post(self, request, *args, **kwargs):
         form = AdCampaignForm(request.POST)
-
         if form.is_valid():
             adcampaign = form.save(commit=False)
-
-            # ここでcreated_byにリクエストユーザーを設定
             adcampaign.created_by = request.user
-
-            # AdCampaignを保存
             adcampaign.save()
+            
+            sex = self.get_andfeature_by_orfeatures_name("男性")
+            dimension = self.get_andfeature_by_orfeatures_name("３次元好き")
 
-            # 選択されたorfeaturesを取得
             selected_orfeatures_sex = request.POST.getlist('sex_orfeatures')
             selected_orfeatures_dimension = request.POST.getlist('dimension_orfeatures')
-            selected_orfeatures_age = request.POST.getlist('age_orfeatures')
 
-            all_sex_orfeatures_ids = [o.id for o in AndFeatures.objects.get(id=20).orfeatures.all()]
-            all_dimension_orfeatures_ids = [o.id for o in AndFeatures.objects.get(id=21).orfeatures.all()]
-            all_age_orfeatures_ids = [o.id for o in AndFeatures.objects.get(id=26).orfeatures.all()]
-            
+            all_sex_orfeatures_ids = [o.id for o in sex.orfeatures.all()]
+            all_dimension_orfeatures_ids = [o.id for o in dimension.orfeatures.all()]
 
-            # 選択されたAndFeaturesに基づいてAdCampaignと紐づけるための関数
-            def find_or_create_andfeature(selected_orfeatures, all_orfeatures_ids, default_id):
+            def find_or_create_andfeature(selected_orfeatures, all_orfeatures_ids):
                 if not selected_orfeatures:
-                    return None  # 何も選択されていなければNoneを返す
-
+                    return None
                 if 'all' in selected_orfeatures:
-                    return AndFeatures.objects.get(id=default_id)
+                    return AndFeatures.objects.filter(is_all=True, orfeatures__in=all_orfeatures_ids).first()
 
                 matching_andfeatures = AndFeatures.objects.annotate(
                     num_orfeatures=Count('orfeatures')
@@ -150,25 +148,17 @@ class CampaignFormView(AdvertiserCheckView, View):
                     new_andfeature.orfeatures.set(selected_orfeatures)
                     return new_andfeature
 
-            sex_andfeature = find_or_create_andfeature(selected_orfeatures_sex, all_sex_orfeatures_ids, 20)
-            if sex_andfeature:  # もしNoneでなければ追加
+            sex_andfeature = find_or_create_andfeature(selected_orfeatures_sex, all_sex_orfeatures_ids)
+            if sex_andfeature:
                 adcampaign.andfeatures.add(sex_andfeature)
 
-            dimension_andfeature = find_or_create_andfeature(selected_orfeatures_dimension, all_dimension_orfeatures_ids, 21)
-            if dimension_andfeature:  # もしNoneでなければ追加
+            dimension_andfeature = find_or_create_andfeature(selected_orfeatures_dimension, all_dimension_orfeatures_ids)
+            if dimension_andfeature:
                 adcampaign.andfeatures.add(dimension_andfeature)
-
-            age_andfeature = find_or_create_andfeature(selected_orfeatures_age, all_age_orfeatures_ids, 26)
-            if age_andfeature:  # もしNoneでなければ追加
-                adcampaign.andfeatures.add(age_andfeature)
-
 
             return redirect(reverse('advertisement:ad_campaigns_list'))
 
-        sex = AndFeatures.objects.get(id=20)
-        dimension = AndFeatures.objects.get(id=21)
-        age = AndFeatures.objects.get(id=26)
-        return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
+        return render(request, self.template_name, {'form': form, 'sex': self.get_andfeature_by_orfeatures_name("男性"), 'dimension': self.get_andfeature_by_orfeatures_name("３次元好き")})
 
 
 class BaseAdCreateView(AdvertiserCheckView, CreateView):

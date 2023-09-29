@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach(entry => {
             const currentPostId = entry.target.getAttribute('data-post-id');
 
+            if (processedPosts.has(currentPostId)) {
+                return;
+            }
+
             if (entry.isIntersecting && entry.intersectionRatio >= 0.8 && !processedPosts.has(currentPostId)) {
                 postStartTimes.set(entry.target, Date.now());
             } else if (!entry.isIntersecting && postStartTimes.has(entry.target)) {
@@ -46,9 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 duration = Math.min(duration, 300);
                 sendDataToServer(currentPostId, duration);
                 postStartTimes.delete(entry.target);
-                processedPosts.add(currentPostId);
+                addPostIdToProcessedPosts(currentPostId);
             }
         });
+    }
+
+    function addPostIdToProcessedPosts(postId) {
+        if (processedPosts.size >= 20) {
+            const firstId = processedPosts.values().next().value; // Get the first item
+            processedPosts.delete(firstId); // Remove the oldest item
+        }
+        processedPosts.add(postId); // Add the new post ID
     }
 
     function getCookie(name) {

@@ -1443,7 +1443,7 @@ class ViewDurationCountView(View):
         duration = request.POST.get('duration')
 
         try:
-            post = Posts.objects.select_related('poster').get(id=post_id)
+            post = Posts.objects.only('views_count', 'poster', 'favorite_count', 'content_length', 'avg_duration', 'poster__boost_type').select_related('poster').get(id=post_id)
         except Posts.DoesNotExist:
             return JsonResponse({'error': 'Post not found'}, status=404)
 
@@ -1452,16 +1452,15 @@ class ViewDurationCountView(View):
         post.update_favorite_rate()
         post.update_qp_if_necessary()
 
-        # 滞在時間の更新（あれば）
+        # 滞在時間の更新
         post.update_avg_duration(int(duration))
         post.save()
         
-        content_view = ViewDurations.objects.create(
+        ViewDurations.objects.create(
             user=request.user,
             post_id=post_id,
             duration=duration
         )
-        post.save()
 
         return JsonResponse({'message': 'Successfully updated post interactions'})
     

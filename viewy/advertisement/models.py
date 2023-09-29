@@ -11,7 +11,7 @@ class AndFeatures(models.Model):
     def __str__(self):
         feature_names_ja = [str(feature.name_ja) for feature in self.orfeatures.all()]
         features_str_ja = "または".join(feature_names_ja)
-        return f"{self.id}: {features_str_ja}"
+        return features_str_ja
 
 class AdCampaigns(models.Model):
     created_by = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='created_campaigns')
@@ -49,4 +49,7 @@ class AdInfos(models.Model):
         if self.post.views_count == 0:
             return 0
         return (self.clicks_count / self.post.views_count) * 100
+
+    def __str__(self):
+        return f"{self.ad_campaign.title} - {self.post.title}"
 

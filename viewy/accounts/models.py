@@ -103,7 +103,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
         return reverse_lazy('accounts:home')
     
     def __str__(self):
-        return self.username
+        if self.groups.filter(name='Poster').exists():
+            return self.displayname or self.username
+        else:
+            return self.email
     
     def increment_view_post_count(self):
         self.view_post_count += 1
