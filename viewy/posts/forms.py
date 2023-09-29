@@ -75,29 +75,26 @@ class VideoForm(forms.Form):
     video = forms.FileField(
         label="動画",
         widget=forms.ClearableFileInput(attrs={'accept': 'video/*'}),
-        )
-
-    class Meta:
-        model = Videos
-        fields = ['video']
+    )
 
     def clean_video(self):
         video = self.cleaned_data.get('video')
-        # ここで任意のバリデーションを追加
+
+        # ファイルサイズのチェック
+        if video.size > 200 * 1024 * 1024:  # 200MBを超えるサイズはエラー
+            raise ValidationError("200MB以上の動画は投稿できません。")
+
         # ファイルのMIMEタイプをチェック
         main_type = video.content_type.split('/')[0]
         if not main_type == 'video':
             raise ValidationError("動画ファイルを選択してください。")
 
         # 動画の長さをチェック
-        # InMemoryUploadedFileかTemporaryUploadedFileか判別する
-        # InMemoryUploadedFileは通常VideoFileClipを利用できないから変換
         if isinstance(video, InMemoryUploadedFile):
-        # メモリ上のファイルの場合、一時的なファイルにデータを書き出す
-            tmp_file = tempfile.NamedTemporaryFile(delete=False)  # delete=False を追加
+            tmp_file = tempfile.NamedTemporaryFile(delete=False)
             for chunk in video.chunks():
                 tmp_file.write(chunk)
-            tmp_file.close()  # ファイルをクローズ
+            tmp_file.close()
             clip_path = tmp_file.name
         elif isinstance(video, TemporaryUploadedFile):
             clip_path = video.temporary_file_path()
@@ -107,7 +104,7 @@ class VideoForm(forms.Form):
                 raise ValidationError('２分以上の動画は投稿できません。')
                 
         if isinstance(video, InMemoryUploadedFile):
-            tmp_file.close()
+            tmp_file.close()  # テンポラリファイルをクローズ
 
         return video
     

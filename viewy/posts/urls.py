@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, EmoteCountView, DeleteAllViewDurations, ViewDurationCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, EmoteCountView, ViewDurationCountView
 )
 
 app_name = 'posts'
@@ -48,5 +48,4 @@ urlpatterns = [
    path('report/', SubmitReportView.as_view(), name='report'),
    path('emote_count/<int:post_id>/<int:emote_number>/', EmoteCountView.as_view(), name='emote_count'),
    path('view_duration_count/', ViewDurationCountView.as_view(), name='view_duration_count'),
-   path('delete_all_view_durations/', DeleteAllViewDurations.as_view(), name='delete_all_view_durations'),
 ]

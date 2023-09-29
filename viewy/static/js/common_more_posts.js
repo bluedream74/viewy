@@ -1,12 +1,12 @@
 'use strict'
 
 // まだ見てない部分の色指定
-export const baseColor = 'rgba(150, 150, 150, 0.539)';
+const baseColor = 'rgba(150, 150, 150, 0.539)';
 // 見た部分の色指定
-export const activeColor = 'rgba(255, 255, 255, 0.639)';
+const activeColor = 'rgba(255, 255, 255, 0.639)';
 
 // コントロールバーの設定
-export function setupControlBar(video, seekSlider) {
+function setupControlBar(video, seekSlider) {
   video.addEventListener('loadedmetadata', function() {
     seekSlider.max = video.duration;
   });
@@ -88,7 +88,7 @@ export function setupControlBar(video, seekSlider) {
 }
 
 // コントロールバーを動画に適応させる処理
-export function applyControlBarToNewVideos() {
+function applyControlBarToNewVideos() {
   const videos = document.querySelectorAll('.post-video:not(.initialized)');
   const sliders = document.querySelectorAll('.custom-controlbar:not(.initialized)');
 
@@ -103,7 +103,7 @@ export function applyControlBarToNewVideos() {
 }
 
 // csrfトークン用のクッキーの設定
-export function getCookie(name) {
+function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(';').shift();

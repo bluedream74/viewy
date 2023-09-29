@@ -21,7 +21,7 @@
             <th>平均滞在時間</th>
             <th>QP</th>
         </tr>
-        {% for ad, avg_duration in ads_with_avg_duration %}
+        {% for ad in ads %}
         <tr>
             <td>
                 <div class="square-img">
@@ -61,35 +61,12 @@
             </td>
             <td class="url"><a href="{{ ad.url }}">{{ ad.url }}</a></td>
             <td>{{ ad.views_count }}</td>
-            <td>{{ avg_duration|floatformat:3 }} 秒</td>
+            <td>{{ ad.avg_duration|floatformat:3 }} 秒</td>
             <td>{{ ad.qp|floatformat:3 }}</td>
         </tr>
         {% endfor %}
     </table>
 </div>
 
-<button id="delete-all-view-durations">全ての視聴履歴データを削除</button>
-<script>
-    document.getElementById('delete-all-view-durations').addEventListener('click', function() {
-    if (confirm('本当に全ての視聴履歴データを削除してよろしいですか？この操作は取り消せません。')) {
-        fetch('/posts/delete_all_view_durations/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),  // DjangoのCSRFトークンを取得する関数を使用
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        })
-        .then(response => response.json())
-        .then(data => alert(data.message))  // レスポンスメッセージをアラートで表示
-        .catch(error => console.error('Error:', error));
-    }
-});
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-</script>
 {% endblock %}

@@ -1602,9 +1602,3 @@ class EmoteCountView(View):
 
         return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})
 
-class DeleteAllViewDurations(View):
-    def post(self, request, *args, **kwargs):
-        # 全てのViewDurationsレコードを削除
-        ViewDurations.objects.all().delete()
-        print("全部消したよ")
-        return JsonResponse({'message': 'All ViewDurations records deleted successfully'})
