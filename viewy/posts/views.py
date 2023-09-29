@@ -1454,10 +1454,19 @@ class ViewDurationCountView(View):
 
         # 滞在時間の更新
         post.update_avg_duration(int(duration))
-        post.save()
         
+        Posts.objects.filter(id=post_id).update(
+            views_count=post.views_count,
+            favorite_count=post.favorite_count,
+            content_length=post.content_length,
+            avg_duration=post.avg_duration,
+            favorite_rate=post.favorite_rate,
+            qp=post.qp
+        )
+        
+        user_id = request.session.get('_auth_user_id')
         ViewDurations.objects.create(
-            user=request.user,
+            user_id=user_id,
             post_id=post_id,
             duration=duration
         )
