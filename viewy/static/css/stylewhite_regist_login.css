@@ -427,11 +427,11 @@ a{
   margin-bottom: 4px;
 }
 
-ul{
+.main-area ul{
   padding-left: 16px;
 }
 
-li{
+.main-area li{
   list-style: decimal;
   font-size: 12px;
   margin-bottom: 8px;

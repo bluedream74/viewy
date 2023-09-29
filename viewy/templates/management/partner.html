@@ -6,10 +6,23 @@
 
 {% block content %}
 
-<div class="block total_table flex">
-  <div class="total_title">総パートナー数：</div>
-  <div class="total_number">{{ poster_users_count }}</div>
+<div class="flex">
+  <div class="block total_table flex">
+    <div class="total_title">総パートナー数：</div>
+    <div class="total_number">{{ poster_users_count }}</div>
+  </div>
+  
+  <div class="block total_table flex" style="margin-left: 16px;">
+    <div class="total_title">３次元パートナー数：</div>
+    <div class="total_number">{{ real_posters_count }}</div>
+  </div>
+  
+  <div class="block total_table flex" style="margin-left: 16px;">
+    <div class="total_title">２次元パートナー数：</div>
+    <div class="total_number">{{ not_real_posters_count }}</div>
+  </div>
 </div>
+
 
 <div class="flex">
   <div class="block scroll">
@@ -25,7 +38,7 @@
         <th>ブースト</th>
       </tr>
       {% for user in users %}
-      <tr class="{% if user.is_real %}is-real{% endif %}">
+      <tr class="{% if not user.is_real %}not-real{% endif %}">
         <td>{{ user.username }}</td>
         <td>{{ user.displayname }}</td>
         <td>{{ user.follow_count }}</td>
@@ -35,7 +48,7 @@
         <td>
           <form method="post" action="{% url 'management:update_boost_type' user.id %}" class="boostTypeForm" data-user-id="{{ user.id }}">
             {% csrf_token %}
-            <select class="{% if user.boost_type == 'normal' %}normal{% elif user.boost_type == 'boost' %}boost{% elif user.boost_type == 'superboost' %}super-boost{% elif user.boost_type == 'viewyboost' %}viewy-boost{% endif %}" name="boost_type" class="boostTypeSelect">
+            <select class="{% if user.boost_type == 'normal' %}normal{% elif user.boost_type == 'boost' %}boost{% elif user.boost_type == 'superboost' %}super-boost{% elif user.boost_type == 'viewyboost' %}viewy-boost{% endif %} boostTypeSelect" name="boost_type">
               <option value="normal" {% if user.boost_type == 'normal' %}selected{% endif %}>Normal</option>
               <option class="boost" value="boost" {% if user.boost_type == 'boost' %}selected{% endif %}>Boost</option>
               <option class="super-boost" value="superboost" {% if user.boost_type == 'superboost' %}selected{% endif %}>Super Boost</option>
@@ -85,11 +98,13 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
 $(document).ready(function() {
     $('.boostTypeSelect').change(function() {
         var form = $(this).closest('form');
         var url = form.attr('action');
         var data = form.serialize(); // フォーム内の全データをシリアライズ
+
         $.ajax({
             type: 'POST',
             url: url,

@@ -146,13 +146,19 @@ class Partner(SuperUserCheck, TemplateView):
         
         # Posterグループに属しているユーザーの総数を取得
         poster_group = Group.objects.get(name='Poster')
-        poster_users_count = poster_group.user_set.count()
+        poster_users = poster_group.user_set.all()
         
         # コンテキストに poster_users_count を追加
-        context['poster_users_count'] = poster_users_count
+        context['poster_users_count'] = poster_users.count()
         
-        poster_users = poster_group.user_set.all()
-
+        # is_realがTrueのユーザーとFalseのユーザーの数を計算
+        real_users_count = poster_users.filter(is_real=True).count()
+        not_real_users_count = poster_users.filter(is_real=False).count()
+        
+        # コンテキストに real_users_count と not_real_users_count を追加
+        context['real_posters_count'] = real_users_count
+        context['not_real_posters_count'] = not_real_users_count
+        
         users = Users.objects.filter(id__in=poster_users).annotate(
             total_posts=Count('posted_posts'),
             avg_qp=Avg('posted_posts__qp'),
@@ -200,7 +206,9 @@ class UpdateBoostTypeView(View):
         form = BoostTypeForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-        return redirect('management:partner')
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors})
     
     
 class Post(SuperUserCheck, View):
@@ -397,15 +405,7 @@ class Ad(SuperUserCheck, View):
     def get(self, request, *args, **kwargs):
         ads = Posts.objects.filter(poster__is_advertiser=True)
 
-        # 平均滞在時間を計算し、広告とともにコンテキストに追加
-        ads_with_avg_duration = []
-        for ad in ads:
-            view_durations = ViewDurations.objects.filter(post=ad)
-            total_duration = sum(duration.duration for duration in view_durations)
-            avg_duration = total_duration / view_durations.count() if view_durations.count() > 0 else 0
-            ads_with_avg_duration.append((ad, avg_duration))
-
-        context = {'ads_with_avg_duration': ads_with_avg_duration}
+        context = {'ads': ads}
         return render(request, self.template_name, context)
 
 class PosterWaiterList(SuperUserCheck, ListView):
