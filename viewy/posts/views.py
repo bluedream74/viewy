@@ -107,11 +107,11 @@ class BasePostListView(ListView):
 
     def get_advertiser_posts(self, user, count=1):
         cache_key = f"advertiser_posts_for_user_{user.id}"
-        cached_posts = cache.get(cache_key)
+        cached_post_ids = cache.get(cache_key)
 
-        if cached_posts:
+        if cached_post_ids:
             print(f"Cache HIT for user {user.id}")  # キャッシュがヒットした場合にログを表示
-            return cached_posts
+            return Posts.objects.filter(id__in=cached_post_ids)
         else:
             print(f"Cache MISS for user {user.id}")  # キャッシュがミスした場合にログを表示
         
@@ -169,8 +169,10 @@ class BasePostListView(ListView):
             post.favorited_by_user = post.id in favorited_ads_set
             post.followed_by_user = post.poster.id in followed_ad_posters_set
         
+        ad_post_ids = [post.id for post in posts]
+        
         # 結果をキャッシュに保存
-        cache.set(cache_key, posts, 3600)  # 1時間キャッシュする
+        cache.set(cache_key, ad_post_ids, 3600)  # 1時間キャッシュする
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
         print(posts)
         return posts
@@ -1447,14 +1449,15 @@ class ViewDurationCountView(View):
         except Posts.DoesNotExist:
             return JsonResponse({'error': 'Post not found'}, status=404)
 
+        # 滞在時間の更新
+        post.update_avg_duration(int(duration))
+
         # 視聴回数のカウントアップ
         post.views_count += 1
         post.update_favorite_rate()
         post.update_qp_if_necessary()
 
-        # 滞在時間の更新
-        post.update_avg_duration(int(duration))
-        
+
         Posts.objects.filter(id=post_id).update(
             views_count=post.views_count,
             favorite_count=post.favorite_count,

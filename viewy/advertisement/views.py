@@ -467,7 +467,9 @@ class AdClickCountView(AdvertiserCheckView, View):
     def post(self, request, post_id):
         try:
             ad_info = AdInfos.objects.get(post_id=post_id)
+            print(f"Found ad with post_id: {post_id}");
         except AdInfos.DoesNotExist:
+            print(f"Advertisement with post_id: {post_id} not found."); 
             return JsonResponse({"status": "error", "message": "Advertisement not found"}, status=404)
 
         # F()式を使用して、clicks_countフィールドをデータベースレベルでインクリメント
