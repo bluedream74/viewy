@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewy</title>
+
+  <!-- ツイッターのカード設定 -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@Viewy_official" />
+  <meta name="twitter:domain" content="www.viewy.net" />
+  <meta name="twitter:title" content="Viewy[ビューイー]| 広告主様に向けて" />
+  <meta name="twitter:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+  <meta name="twitter:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+
+  <!-- Open Graph設定 -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.viewy.net" />
+  <meta property="og:title" content="Viewy[ビューイー]| 広告主様に向けて" />
+  <meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+  <meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/set-meeting.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+
+  gtag('config', 'G-C5HF2NBPEV');
+</script>
+
+<body>
+
+
+
+ <form id="meeting-form" method="post">
+    {% csrf_token %}
+
+    <div class="mid-logo">
+      <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
+    </div>
+
+    <div class="title">打ち合わせ設定</div>
+
+    <!-- Company Name -->
+    <div class="form-group main-info">
+        <div class="main-info-title">会社名</div>
+        <div class="error">{{ form.company_name.errors }}</div>
+        <div class="input">{{ form.company_name }}</div>
+    </div>
+
+    <!-- Address -->
+    <div class="form-group main-info">
+        <div class="main-info-title">住所</div>
+        <div class="error">{{ form.address.errors }}</div>
+        <div class="input">{{ form.address }}</div>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="form-group main-info">
+        <div class="main-info-title">電話番号</div>
+        <div class="error">{{ form.phone_number.errors }}</div>
+        <div class="input">{{ form.phone_number }}</div>
+    </div>
+    
+    <!-- Meeting Type -->
+    <div class="form-group meeting-type info">
+      <div class="info-title">打ち合わせ方法をお選びください</div>
+      <div class="input">
+          <input type="radio" name="{{ form.meeting_type.name }}" value="zoom" id="id_meeting_type_0"
+                 {% if form.meeting_type.value == 'zoom' %}checked{% endif %}>
+          <label for="id_meeting_type_0">Zoom</label>
+  
+          <input type="radio" name="{{ form.meeting_type.name }}" value="email" id="id_meeting_type_1"
+                 {% if form.meeting_type.value == 'email' %}checked{% endif %}>
+          <label for="id_meeting_type_1">メール</label>
+  
+          <input type="radio" name="{{ form.meeting_type.name }}" value="chat" id="id_meeting_type_2"
+                 {% if form.meeting_type.value == 'chat' %}checked{% endif %}>
+          <label for="id_meeting_type_2">DM(X)</label>
+      </div>
+  </div>
+
+    
+<!-- Date Time Fields -->
+    <div class="date info">
+      <div class="info-title">候補日時を３つ以上設定してください</div>
+      <div class="guide">ミ－ティングは30分から1時間を予定しております。<br>日時は５つの候補から選ばせていただき、メールにてリンクと合わせてお知らせいたします。</div>
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+          {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+      <div class="form-group">
+        <div class="label">候補日時１</div>
+        <div class="input">{{ form.date_time_1 }}</div>
+      </div>
+      <div class="form-group">
+        <div class="label">候補日時２</div>
+        <div class="input">{{ form.date_time_2 }}</div>
+      </div>
+      <div class="form-group">
+        <div class="label">候補日時３</div>
+        <div class="input">{{ form.date_time_3 }}</div>
+      </div>
+      <div class="form-group">
+        <div class="label">候補日時４</div>
+        <div class="input">{{ form.date_time_4 }}</div>
+      </div>
+      <div class="form-group">
+        <div class="label">候補日時５</div>
+        <div class="input">{{ form.date_time_5 }}</div>
+      </div>
+    </div>
+
+    
+    <!-- Email Field -->
+    <div class="form-group info email" id="email">
+      <div class="info-title">連絡用のメールアドレスを入力してください</div>
+      <div class="guide">入力されたメールアドレス宛てにこちらからご連絡させていただきます。<br>ZOOMの場合はミーティング可能な日時も合わせてお伝えいたします。</div>
+      <div class="error">{{ form.email.errors }}</div>
+      <div class="input">{{ form.email }}</div>
+    </div>
+    
+    <!-- X Account Field -->
+    <div class="form-group info x" id="x-account">
+      <div class="info-title">DM用のX(旧Twitter)のアカウントIDを入力してください</div>
+      <div class="guide">入力されたIDのアカウントに対して、Viewy公式アカウントよりダイレクトメッセージを送らせていただきます。<br>メッセージを送るために貴社のアカウントをフォローさせていただく場合があります。
+      </div>
+      <div class="error">{{ form.x_account.errors }}</div>
+      <div class="input">{{ form.x_account }}</div>
+      <div>当サイトの公式Xアカウント：<a href="https://twitter.com/Viewy_official">Viewy公式</a></div>
+    </div>
+
+    <div class="button">
+      <button type="submit">決定</button>
+    </div>
+  </form> 
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    function toggleFields() {
+      const meetingType = $('input[name="meeting_type"]:checked').val();
+      
+      $('#email, #x-account, .date, .button').hide(); // Initially hide all
+      
+      if(meetingType === 'zoom') {
+        $('.date, #email, .button').show();
+      } else if(meetingType === 'email') {
+        $('#email, .button').show();
+      } else if(meetingType === 'chat') {
+        $('#x-account, .button').show();
+      }
+    }
+    
+    // On change of meeting type, toggle fields
+    $('input[name="meeting_type"]').change(function() {
+      toggleFields();
+    });
+    
+    // On page load, toggle fields based on selected meeting type
+    toggleFields();
+  });
+  </script>
+</body>
+
+</html>

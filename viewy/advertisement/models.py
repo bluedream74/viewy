@@ -55,4 +55,36 @@ class AdInfos(models.Model):
 
     def __str__(self):
         return f"{self.ad_campaign.title} - {self.post.title}"
+    
+    
+class RequestDocument(models.Model):
+    company_name = models.CharField(max_length=255, verbose_name='社名')
+    email = models.EmailField(verbose_name='メールアドレス')
+    address = models.CharField(max_length=255, verbose_name='住所')
+    phone_number = models.CharField(max_length=20, verbose_name='電話番号')
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.email}"
+
+
+class SetMeeting(models.Model):
+    MEETING_CHOICES = [
+        ('zoom', 'Zoom'),
+        ('email', 'Email'),
+        ('chat', 'Chat'),
+    ]
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    meeting_type = models.CharField(max_length=5, choices=MEETING_CHOICES)
+    date_time_1 = models.DateTimeField(null=True, blank=True)
+    date_time_2 = models.DateTimeField(null=True, blank=True)
+    date_time_3 = models.DateTimeField(null=True, blank=True)
+    date_time_4 = models.DateTimeField(null=True, blank=True)
+    date_time_5 = models.DateTimeField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    x_account = models.CharField(max_length=15, null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.meeting_type}"
 

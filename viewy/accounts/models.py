@@ -104,9 +104,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
     
     def __str__(self):
         if self.groups.filter(name='Poster').exists():
-            return self.displayname or self.username
+            return f"{self.displayname or self.username} - {self.gender}"
         else:
-            return self.email
+            return f"{self.email} - {self.gender}"
     
     def increment_view_post_count(self):
         self.view_post_count += 1

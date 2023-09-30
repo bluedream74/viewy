@@ -277,13 +277,14 @@
       </div>
       
       <div class="guide block">
-        <p>ご協力いただける場合は、お手数ですが、<br>こちらのページリンクを送らせていただいたメールにご返信ください。</p>
+        <p>ご協力いただける場合は、お手数ですが、</p>
+        <p>下のボタンから<span class="underline">広告掲載に向けた打ち合わせの方法、及び日時の設定</span>にお進みください</p>
+        <p>zoom、メール、チャット（DM）にて対応させていただいております。</p>
 
-        <p>すぐに、広告掲載についての契約書と広告主様用のアカウント作成フォームを送信させていただきます。</p>
+        <a href="{% url 'set_meeting'%}" class="set-meeting">打ち合わせ設定</a>
 
         <p>詳細につきましてもメールにてご気軽にお尋ねください。</p>
 
-        <p class="underline">zoomでも対応させていただいております。</p>
       </div>
 
     </div>
@@ -372,11 +373,13 @@
       <hr>
 
       <div class="step-container">
-        <div class="step aqua block">当ページのリンクが添付されたメールに返信</div>
+        <div class="step aqua block">当ページのフォームから打ち合わせ方法、日時を決定</div>
         <div class="arrow block">↓</div>
-        <div class="step block">送信された広告掲載契約書に同意</div>
+        <div class="step aqua block">打ち合わせ</div>
         <div class="arrow block">↓</div>
-        <div class="step block">送信された専用フォームから広告主用のアカウント作成</div>
+        <div class="step block">広告掲載契約書に署名</div>
+        <div class="arrow block">↓</div>
+        <div class="step block">送信される専用フォームから広告主用のアカウント作成</div>
         <div class="arrow block">↓</div>
         <div class="step block">管理画面にログイン</div>
         <div class="arrow block">↓</div>
@@ -388,6 +391,8 @@
       </div>
 
       <p class="last-message">Viewyが、アダルト関連の領域で活躍する企業様の魅力を発信できる新たな場としてその選択肢に加わることを願っています。</p>
+
+      <a href="{% url 'set_meeting'%}" class="set-meeting">打ち合わせ設定</a>
 
     </div>
 
@@ -422,6 +427,10 @@
       <div class="viewy">
         <a href="{% url 'posts:visitor_postlist'%}">Viewyを体験→</a>
       </div>
+    </div>
+
+    <div class="set-meeting-fixed">
+      <a href="{% url 'set_meeting'%}" class="set-meeting">打ち合わせ設定</a>
     </div>
 
   </div>
@@ -472,6 +481,7 @@
     });
 
   </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script>
     document.querySelectorAll('#tab-bar a, #foot-bar a').forEach(anchor => {
       // .viewy > a は除外
@@ -496,6 +506,23 @@
       });
     });
   </script>
+  <script>
+    $(document).ready(function() {
+      $(window).scroll(function() {
+        if ($(this).scrollTop() > 100) { // 100pxスクロールしたら
+          $('.set-meeting-fixed').css({
+            'opacity': '1',
+            'bottom': '-80px'
+          });
+        } else {
+          $('.set-meeting-fixed').css({
+            'opacity': '0',
+            'bottom': '-180px'
+          });
+        }
+      });
+    });
+    </script>
 </body>
 
 </html>

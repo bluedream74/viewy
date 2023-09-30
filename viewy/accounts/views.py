@@ -50,7 +50,8 @@ from .utils import send_delete_request_notification
 from django.utils.safestring import mark_safe
 
 
-
+from advertisement.forms import RequestDocumentForm, SetMeetingForm
+from advertisement.models import RequestDocument
 
 from .models import Users
 
@@ -141,6 +142,94 @@ class ForAdvertiserView(TemplateView):
         context['poster_imgs1'] = poster_imgs1
         context['poster_imgs2'] = poster_imgs2
         return context
+
+    
+class RequestDocumentsView(TemplateView):
+    template_name = 'request_documents.html'
+
+    def get(self, request, *args, **kwargs):
+        form = RequestDocumentForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = RequestDocumentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            self.send_request_document_notification(form.instance)
+            return HttpResponseRedirect(reverse('request_success'))
+        return render(request, self.template_name, {'form': form})
+    
+    def send_request_document_notification(self, request_document):
+        subject = '新しい資料請求がありました'
+        message = f"新しい資料請求がありました。\n\n詳細:\n\n社名: {request_document.company_name}\nメールアドレス: {request_document.email}\n住所: {request_document.address}\n電話番号: {request_document.phone_number}"
+        from_email = 'Viewy広告資料請求 <request-document@viewy.net>'
+        recipient_list = ['support@viewy.net']
+        send_mail(subject, message, from_email, recipient_list)
+        
+        # 入力されたメールアドレス宛にメールを送信
+        user_subject = '資料請求ありがとうございます - Viewy'
+        user_message = f'''
+{request_document.company_name} 様
+
+この度は、Viewyへの資料請求、誠にありがとうございます。
+お手数ですが、下記のリンクから更なる詳細の確認や打ち合わせの依頼にお進みいただけます。
+↓
+[Viewyへの広告掲載について](http://www.viewy.net/for_advertiser/)
+
+ご質問やご不明点がございましたら、support@viewy.netまでお気軽にお問い合わせください。
+
+このメールアドレスは自動送信専用のため、ご返信いただけませんのでご了承ください。
+
+今後ともよろしくお願いいたします。
+
+Viewy サポートチーム
+'''
+
+        send_mail(user_subject, user_message, from_email, [request_document.email])
+        
+
+class RequestSuccessView(TemplateView):
+    template_name = 'request_success.html'
+        
+
+class SetMeetingView(FormView):
+    template_name = 'set_meeting.html'
+    form_class = SetMeetingForm
+    success_url = '/set_meeting_success/'
+
+    def form_valid(self, form):
+        form.save()
+        
+        # ミーティング設定が完了した際の通知メール
+        self.send_set_meeting_notification(form.instance)
+        
+        return super().form_valid(form)
+    
+    def send_set_meeting_notification(self, set_meeting):
+        subject = '新しい打ち合わせ設定がありました'
+        message = f'''
+新しい打ち合わせ設定がありました。
+
+詳細:
+社名: {set_meeting.company_name}
+住所: {set_meeting.address}
+電話番号: {set_meeting.phone_number}
+打ち合わせ方法: {set_meeting.meeting_type}
+候補日時1: {set_meeting.date_time_1 or '未設定'}
+候補日時2: {set_meeting.date_time_2 or '未設定'}
+候補日時3: {set_meeting.date_time_3 or '未設定'}
+候補日時4: {set_meeting.date_time_4 or '未設定'}
+候補日時5: {set_meeting.date_time_5 or '未設定'}
+メールアドレス: {set_meeting.email or '未設定'}
+x_account: {set_meeting.x_account or '未設定'}
+        '''
+        from_email = 'Viewy打ち合わせ設定 <set-meeting@viewy.net>'
+        recipient_list = ['support@viewy.net']
+        send_mail(subject, message, from_email, recipient_list)
+
+
+class SetMeetingSuccessView(TemplateView):
+    template_name = 'set_meeting_success.html'
 
 class GuideView(TemplateView):
     template_name = 'guide.html'

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView, ForAdvertiserView, DeleteRequestView, DeleteRequestSuccessView, PartnerApplicationGuideView, ForbiddenView, NotFoundView, BadRequestView, UnauthorizedView, ForbiddenView, NotFoundView, ServerErrorView, BadGatewayView, ServiceUnavailableView, ServerErrorView
+from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView, ForAdvertiserView, RequestDocumentsView, RequestSuccessView, SetMeetingView, SetMeetingSuccessView, DeleteRequestView, DeleteRequestSuccessView, PartnerApplicationGuideView, ForbiddenView, NotFoundView, BadRequestView, UnauthorizedView, ForbiddenView, NotFoundView, ServerErrorView, BadGatewayView, ServiceUnavailableView, ServerErrorView
 # from . import settings
 from django.conf import settings
 from django.contrib.staticfiles.urls import static
@@ -14,6 +14,10 @@ urlpatterns = [
     path('partner_application_guide/', PartnerApplicationGuideView.as_view(), name='partner_application_guide'),
     path('for_invited/', ForInvitedView.as_view(), name='for_invited'),
     path('for_advertiser/', ForAdvertiserView.as_view(), name='for_advertiser'),
+    path('request_documents/', RequestDocumentsView.as_view(), name='request_documents'),
+    path('request_success/', RequestSuccessView.as_view(), name='request_success'),
+    path('set_meeting/', SetMeetingView.as_view(), name='set_meeting'),
+    path('set_meeting_success/', SetMeetingSuccessView.as_view(), name='set_meeting_success'),
     path('guide/', GuideView.as_view(), name='guide'),
     path('guideline/', GuideLineView.as_view(), name='guideline'),
     path('terms/', TermsView.as_view(), name='terms'),

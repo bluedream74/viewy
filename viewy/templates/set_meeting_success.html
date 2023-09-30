@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Viewy</title>
+
+  <!-- ツイッターのカード設定 -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@Viewy_official" />
+  <meta name="twitter:domain" content="www.viewy.net" />
+  <meta name="twitter:title" content="Viewy[ビューイー]| 広告主様に向けて" />
+  <meta name="twitter:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+  <meta name="twitter:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+
+  <!-- Open Graph設定 -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.viewy.net" />
+  <meta property="og:title" content="Viewy[ビューイー]| 広告主様に向けて" />
+  <meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
+  <meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/set-meeting.css' %}">
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  {% load static %}
+
+  {% block static %}
+  {% endblock %}
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+
+  gtag('config', 'G-C5HF2NBPEV');
+</script>
+
+<body>
+
+  <div class="message">
+    <div class="tom">
+      <img src="{{ MEDIA_URL }}others/おちゃんこ２.png" alt="">
+    </div>
+    <div>
+      設定内容を送信しました。<br>
+      確認及び審査が完了いたしましたら、入力されたメールアドレスかXのアカウント宛に、メッセージを送らせていただきます。<br>※２日ほどお時間をいただく場合がございます。ご了承ください。
+    </div>
+    <a href="{% url 'for_advertiser'%}">戻る</a>
+
+    <hr>
+
+    <div class="step-title">広告掲載開始までの手順</div>
+
+    <div class="step-container">
+      <div class="step gray">当ページのフォームから打ち合わせ方法、日時を決定</div>
+      <div class="arrow block">↓</div>
+      <div class="step orange block">打ち合わせ</div>
+      <div class="arrow block">↓</div>
+      <div class="step block">広告掲載契約書に書名</div>
+      <div class="arrow block">↓</div>
+      <div class="step block">送信される専用フォームから広告主用のアカウント作成</div>
+      <div class="arrow block">↓</div>
+      <div class="step block">管理画面にログイン</div>
+      <div class="arrow block">↓</div>
+      <div class="step aqua block">キャンペーン及び広告を作成、掲載開始</div>
+    </div>
+  </div>
+</body>
+
+</html>
