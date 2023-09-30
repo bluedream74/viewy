@@ -14,6 +14,7 @@ $('.screen').on('click', '.ad-click', function (e) {
   isClickable = false;
   const postID = $(this).closest('.post').data('post-id');
   const csrfToken = getCookie('csrftoken');
+  console.log(`Clicked on ad with postID: ${postID}`);
   const url = `/advertisement/ad_click_count/${postID}/`;
 
   $.ajax({

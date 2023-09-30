@@ -368,8 +368,6 @@ label {
   /* 親要素を超える部分を隠します。 */
 }
 
-
-
 .mini-follow-button {
   display: none;
 }
@@ -545,6 +543,7 @@ label {
 .poster-name {
   font-weight: bold;
   color: #ffffff;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .ad-tag {
@@ -609,11 +608,12 @@ label {
 .hashtags {
   margin-top: 4px;
   line-height: 28px;
+  outline: none;
 }
 
 .url {
   margin-right: 8px;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(230, 230, 230, 0.5);
   border-radius: 4px;
   height: 28px;
   width: 36px;
@@ -628,6 +628,12 @@ label {
   color: white;
   text-decoration: none;
   font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.url:hover {
+  cursor: pointer;
+  background-color: rgba(220, 220, 220, 0.68);
 }
 
 .url-icon {
@@ -640,21 +646,20 @@ label {
   margin-right: 4px;
   background-color: rgba(255, 255, 255, 0.306);
   border-radius: 4px;
-  padding: 1px 2px 2px 5px;
   white-space: nowrap;
 }
 
-.hashtag :hover {
+.hashtag:hover {
   cursor: pointer;
-  background-color: rgba(220, 220, 220, 0.68);
+  background-color: rgba(243, 243, 243, 0.68);
 }
 
 .hashtag>a {
   color: white;
+  padding: 1px 6px 1px 6px;
   text-decoration: none;
-  padding-left: 1px;
-  padding-right: 4px;
   font-size: 14px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .likeorfollow {
@@ -1347,5 +1352,9 @@ label {
 
   .hide {
     bottom: 56px;
+  }
+
+  .poster-name:hover {
+    color: #ececec; 
   }
 }

@@ -39,7 +39,7 @@
       <th>表示回数</th>
       <th>クリック回数</th>  
       <th>クリック率</th>
-      <th>滞在率</th>
+      <th>滞在時間</th>
       <th>料金</th>
       <th>停止／再開</th>
       <th>プレビュー</th>
@@ -73,7 +73,7 @@
       <td>{{ ad_info.post.views_count }}</td>
       <td>{{ ad_info.clicks_count }}</td>  <!-- 追加 -->
       <td>{{ ad_info.calculated_click_through_rate|floatformat:2 }}%</td>
-      <td>{{ ad_info.post.stay_rate|floatformat:2 }}%</td>
+      <td>{{ ad_info.post.avg_duration|floatformat:1 }}秒</td>
       <td>??</td>
       <td>
         <button class="toggle-hidden release-button {% if ad_info.post.is_hidden %}stop{% else %}release{% endif %}" data-post-id="{{ ad_info.post.id }}">

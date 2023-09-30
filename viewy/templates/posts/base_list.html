@@ -44,45 +44,46 @@
   {% if not post.poster.is_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
 
-  {% if post.poster.is_advertiser %}
-  <a href="{{ post.url }}" class="ad-click">
-  {% endif %}
+    {% if post.poster.is_advertiser %}
+    <a href="{{ post.url }}" class="ad-click">
+    {% endif %}
 
     {% if post.ismanga %}
     <!-- マンガの場合 -->
-    <div class="book">
-      {% for visual in post.visuals.all %}
-      <div class="manga-page">
-        {% if post.show_icon %}
-        <div class="horizontal-slide-icon">
-          <i class="fa-solid fa-arrow-left-long"></i>
-          <div class="slide-icon-word">横読み</div>
-        </div>
-        {% endif %}
-        <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+      <div class="book">
+        {% for visual in post.visuals.all %}
+          <div class="manga-page">
+            {% if post.show_icon %}
+            <div class="horizontal-slide-icon">
+              <i class="fa-solid fa-arrow-left-long"></i>
+              <div class="slide-icon-word">横読み</div>
+            </div>
+            {% endif %}
+            <img class="page-content" src="{{ visual.visual.url }}" alt="{{ post.title }}">
+          </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
 
     {% else %}
 
     <!-- 動画の場合 -->
-    {% for video in post.videos.all %}
-    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
-      src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
-    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
-    <br>
-    {% endfor %}
+      {% for video in post.videos.all %}
+        <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+          src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+        <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+        <br>
+      {% endfor %}
 
     {% endif %}
-  {% if post.poster.is_advertiser %}
-  </a>
-  {% endif %}
+
+    {% if post.poster.is_advertiser %}
+    </a>
+    {% endif %}
 
   {% else %}
 
   <!-- アフィリエイターの広告の場合 -->
-  <div class="affiliate-ad">
+  <div class="affiliate-ad ad-click">
     {{ post.affiliate_tag|safe }}
   </div>
 
@@ -218,29 +219,29 @@
       <div class="poster-name">
         {% if post.poster.is_advertiser %}
 
-        {% if post.poster.is_affiliateadvertiser %}
-        <span class="poster-name">＠{{post.poster.displayname}}</span>
-        {% else %}
+          {% if post.poster.is_affiliateadvertiser %}
+            <span class="poster-name">＠{{post.poster.displayname}}</span>
+          {% else %}
 
-        {% if post.poster.displayname %}
-        <a href="{{ post.url }}" class="poster_name ad-click">
-          ＠{{post.poster.displayname}}
-        </a>
-        {% else %}
-        <a href="{{ post.url }}"
-          class="poster-name ad-click">＠{{post.poster.username}}</a>
-        {% endif %}
+            {% if post.poster.displayname %}
+              <a href="{{ post.url }}" class="poster_name ad-click">
+                ＠{{post.poster.displayname}}
+              </a>
+            {% else %}
+              <a href="{{ post.url }}"
+                class="poster-name ad-click">＠{{post.poster.username}}</a>
+            {% endif %}
 
-        {% endif %}
+          {% endif %}
 
         {% else %}
-        {% if post.poster.displayname %}
-        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
-          class="poster-name">＠{{post.poster.displayname}}</a>
-        {% else %}
-        <a href="{% url 'posts:poster_page' username=post.poster.username %}"
-          class="poster-name">＠{{post.poster.username}}</a>
-        {% endif %}
+          {% if post.poster.displayname %}
+          <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+            class="poster-name">＠{{post.poster.displayname}}</a>
+          {% else %}
+          <a href="{% url 'posts:poster_page' username=post.poster.username %}"
+            class="poster-name">＠{{post.poster.username}}</a>
+          {% endif %}
 
         {% endif %}
 
@@ -259,7 +260,7 @@
 
         <!-- URLがあればアプリに応じたアイコンを表示する -->
         {% if post.url %}
-        <span class="url"><a href="{{post.url}}" target="_blank">
+        <span class="url"><a href="{{post.url}}" target="_blank" {% if post.poster.is_advertiser %}class="ad-click"{% endif %}>
             {% if post.get_url_prefix and post.get_url_prefix != "default" %}
             <img class="url-icon" src="{{ MEDIA_URL }}link_logo/{{ post.get_url_prefix }}_white.png" alt="">
             {% elif post.get_url_prefix == "default" %}
