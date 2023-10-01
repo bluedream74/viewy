@@ -388,11 +388,12 @@ class VisitorPostListView(BasePostListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        # まず、いいね数の多い順に並べる
-        posts = super().get_queryset().order_by('-favorite_count')
-        # 6-10番目を取得
-        posts = posts[6:11]  
-
+        # 指定したIDの投稿を取得
+        specified_ids = [399, 190, 302, 433, 318]
+        queryset = super().get_queryset().filter(id__in=specified_ids)
+        
+        # 指定したIDの順番に合わせて投稿を並べ替える
+        posts = sorted(queryset, key=lambda post: specified_ids.index(post.id))
         return posts
 
     def get_context_data(self, **kwargs):

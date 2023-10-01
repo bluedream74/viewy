@@ -108,8 +108,6 @@ class CampaignFormView(AdvertiserCheckView, View):
         form = AdCampaignForm()
         sex = self.get_andfeature_by_orfeatures_name("男性")
         dimension = self.get_andfeature_by_orfeatures_name("３次元好き")
-        print(sex)
-        print(dimension)
         return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
 
     def post(self, request, *args, **kwargs):
@@ -418,7 +416,6 @@ class AdCampaignStatusView(AdvertiserCheckView, View):
         
         if not campaign:
             raise Http404("Campaign not found")
-        print(campaign.is_hidden)
 
         # is_ongoing メソッドで現在進行中か確認
         if campaign.is_ongoing():
@@ -429,7 +426,6 @@ class AdCampaignStatusView(AdvertiserCheckView, View):
             campaign.is_hidden = True
 
         campaign.save()
-        print(campaign.is_hidden)
 
         # そのキャンペーンに紐づくすべてのAdInfosとPostsの状態を更新
         for ad_info in campaign.ad_infos.all():
@@ -461,13 +457,12 @@ class AdCampaignDelete(AdvertiserCheckView, View):
         return JsonResponse({'success': True, 'redirect_url': redirect_url})
 
 
-class AdClickCountView(AdvertiserCheckView, View):
+class AdClickCountView(View):
 
     @method_decorator(login_required)
     def post(self, request, post_id):
         try:
             ad_info = AdInfos.objects.get(post_id=post_id)
-            print(f"Found ad with post_id: {post_id}");
         except AdInfos.DoesNotExist:
             print(f"Advertisement with post_id: {post_id} not found."); 
             return JsonResponse({"status": "error", "message": "Advertisement not found"}, status=404)
@@ -477,6 +472,5 @@ class AdClickCountView(AdvertiserCheckView, View):
 
         # もし、インクリメント後の値を取得する必要がある場合は、オブジェクトを再取得
         ad_info.refresh_from_db()
-        print(ad_info.clicks_count)
 
         return JsonResponse({"status": "success"})

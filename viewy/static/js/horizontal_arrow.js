@@ -1,4 +1,4 @@
-'use sirict'
+'use sirict';
 
 document.addEventListener("DOMContentLoaded", function () {
   let icon = document.querySelector('.horizontal-slide-icon');
