@@ -19,6 +19,21 @@
   width: 48px;
 }
 
+.main-message{
+  font-size: 13px;
+  padding: 16px;
+  margin: 16px;
+}
+
+.underline{
+  font-size: 16px;
+  color: black;
+  text-decoration: underline;
+  text-decoration-color: rgb(71, 227, 227);
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
 .forms{
   width: 90%;
   text-align: center;

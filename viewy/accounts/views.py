@@ -85,7 +85,7 @@ def send_email_ses(to_email, subject, verification_code):
     send_mail(
         subject,
         body,
-        'regist@viewy.net',  # From
+        'Viewy <regist@viewy.net>',  # From
         [to_email],  # To
         fail_silently=False,
     )

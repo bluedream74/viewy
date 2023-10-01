@@ -11,6 +11,7 @@ body {
   scroll-snap-type: y mandatory;
   /* 縦方向にスナップするように設定 */
   -webkit-overflow-scrolling: touch; /* 慣性スクロールを有効にする */
+  min-height: 600px;
 }
 
 .post {

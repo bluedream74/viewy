@@ -98,8 +98,11 @@
     </a>
   </div>
 
-
-  {% if forloop.counter == 2 %}
+  {% if forloop.counter == 1 %}
+  <a href="{% url 'request_documents' %}" class="ad-ad">
+    <img src="{{ MEDIA_URL }}others/ad_ad.png" alt="">
+  </a>
+  {% elif forloop.counter == 2 %}
   <div class="ad-space wide-ad" data-ad-id="{{ random_ad2.id }}">
     {{ random_ad2.ad_tag|safe }}
   </div>

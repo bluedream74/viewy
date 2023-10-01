@@ -955,10 +955,7 @@ class BasePostCreateView(UserPassesTestMixin, LoginRequiredMixin, SuccessMessage
     # Posterグループかどうか
     def test_func(self):
         return self.request.user.groups.filter(name='Poster').exists() and not self.request.user.is_advertiser
-    
-    # Posterじゃなかったとき
-    def handle_no_permission(self):
-        return HttpResponseForbidden("You are not allowed to access this page.")
+
         
 
 class MangaCreateView(BasePostCreateView):

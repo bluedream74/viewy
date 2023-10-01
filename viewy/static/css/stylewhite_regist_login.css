@@ -8,9 +8,10 @@ a{
 
 .screen{
   background-color: rgb(255, 255, 255);
-  min-height: max-content;
+  height: max-content;
   padding-bottom: 144px;
   position: relative;
+  min-height: 500px;
 }
 
 
