@@ -10,6 +10,7 @@ body {
   /* 縦スクロールを許可 */
   scroll-snap-type: y mandatory;
   /* 縦方向にスナップするように設定 */
+  -webkit-overflow-scrolling: touch; /* 慣性スクロールを有効にする */
 }
 
 .post {
@@ -19,12 +20,13 @@ body {
   /* 要素の上端をスナップ位置にする */
   position: relative;
   overflow: hidden;
+  outline: none;
 }
 
 /* ボトムスペース */
 .bottom-space {
   width: 100%;
-  height: 60px;
+  height: 100vh;
 }
 
 .hit-area {
@@ -549,27 +551,25 @@ label {
 .ad-tag {
   font-size: 12px;
   padding: 2px 4px;
-  /* border: 1px white solid; */
   border-radius: 4px;
   margin-left: 8px;
   background-color: #696969;
   text-shadow: none;
   box-shadow: gray 0px 1px 3px;
+  white-space: nowrap; /* 追加 */
+  overflow-wrap: break-word; /* 追加 */
 }
 
-.by_specialadvertiser{
-  color: aqua;
+.ss{
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-left: 4px;
+  background-color: rgb(43, 212, 212);
   text-shadow: none;
-  position: absolute;
-  font-size: 20px;
-  top: 18px;
-  right: 26px;
-  animation: ViewyblinkAnimation 3s infinite; 
-}
-
-@keyframes ViewyblinkAnimation {
-  0%, 100% {color: rgb(0, 195, 255);}
-  50% {color: aqua;}
+  box-shadow: gray 0px 1px 3px;
+  white-space: nowrap; /* 追加 */
+  overflow-wrap: break-word; /* 追加 */  
 }
 
 .clear{
@@ -715,7 +715,7 @@ label {
   position: absolute;
   bottom: 32px;
   right: 18px;
-  color: rgba(177, 177, 177, 0.667);
+  color: rgba(255, 255, 255, 0.797);
   z-index: 9999;
 }
 

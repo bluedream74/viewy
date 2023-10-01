@@ -455,7 +455,7 @@ video::-webkit-media-controls-enclosure {
 .tolike{
   height: 32px;
   font-size: 18px;
-  border-right: 2px white solid;
+  /* border-right: 2px white solid; */
   line-height: 32px;
   padding-right: 8px;
   font-weight: bold;
