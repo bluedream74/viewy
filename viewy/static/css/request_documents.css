@@ -1,0 +1,128 @@
+.screen{
+  background-color: rgb(255, 255, 255);
+  height: max-content;
+  min-height: 600px;
+  padding-bottom: 96px;
+  position: relative;
+  color: rgb(69, 69, 69);
+}
+
+
+.mid-logo{
+  width: 100%;
+  text-align: center;
+  padding-top: 32px;
+  margin-bottom: 8px;
+}
+
+.mid-logo > img{
+  width: 48px;
+}
+
+.forms{
+  width: 90%;
+  text-align: center;
+  margin: 16px auto;
+  background-color: rgb(246, 246, 246);
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px gainsboro;
+  padding: 16px 0px;
+}
+
+.form-title{
+  padding: 16px 0px 0px;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: rgb(71, 232, 232);
+}
+
+.guide{
+  font-size: 10px;
+  color: gray;
+  margin: 4px 32px 8px;
+  text-align: left;
+}
+
+.item{
+  width: 90%;
+  margin: 0px auto;
+}
+
+label{
+  width: max-content;
+  display: block;
+  text-align: left;
+  font-size: 12px;
+  background-color: rgb(177, 177, 177);
+  color: white;
+  border-radius: 2px;
+  padding: 2px 8px;
+  margin-bottom: 2px;
+}
+
+input, textarea{
+  width: 92%;
+  background-color: rgb(255, 255, 255);
+  color: rgb(117, 117, 117);
+  margin: 0px auto 8px;
+  border: 1px gray solid;
+  height: 32px;
+  border-radius: 4px;
+  padding: 0px 8px;
+}
+
+textarea{
+  line-height: 16px;
+  padding: 8px;
+}
+
+button{
+  margin-top: 16px;
+  margin-bottom: 16px;
+  color: rgb(255, 255, 255);
+  background-color: rgb(71, 232, 232);
+  border: none;
+  padding: 8px 48px;
+  font-size: 16px;
+  border-radius: 50px;
+  font-weight: bold;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+button:hover{
+  cursor: pointer;
+  background-color: rgb(56, 185, 185);
+  box-shadow: none;
+}
+
+.message{
+  margin: 32px 32px;
+  font-size: 14px;
+  padding: 32px;
+  background-color: rgb(246, 246, 246);
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+.message a{
+  display: block;
+  width: max-content;
+  margin: 16px auto 0px;
+  color: rgb(255, 255, 255);
+  background-color: rgb(71, 232, 232);
+  border: none;
+  padding: 8px 32px;
+  font-size: 14px;
+  border-radius: 50px;
+  font-weight: bold;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+.tom{
+  text-align: center;
+}
+
+.tom > img{
+  width: 80px;
+}

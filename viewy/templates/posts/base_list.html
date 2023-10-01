@@ -93,10 +93,7 @@
     <div class="side-bar">
 
       <div class="poster">
-        <!-- 広告主がスペシャルアドバタイザーだったらメダルをかける -->
-        {% if post.poster.is_specialadvertiser %}
-        <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
-        {% endif %}
+
         <div>
           {% if post.poster.is_advertiser %}
           {% if post.poster.is_affiliateadvertiser %}
@@ -224,7 +221,7 @@
           {% else %}
 
             {% if post.poster.displayname %}
-              <a href="{{ post.url }}" class="poster_name ad-click">
+              <a href="{{ post.url }}" class="poster-name ad-click">
                 ＠{{post.poster.displayname}}
               </a>
             {% else %}
@@ -247,6 +244,9 @@
 
         {% if post.poster.is_advertiser %}
         <span class="ad-tag">広告</span>
+        {% endif %}
+        {% if post.poster.is_specialadvertiser %}
+        <span class="ss">SS</span>
         {% endif %}
 
       </div>
@@ -365,6 +365,7 @@
 <div id="posts"></div>
 
 
+<img class="logo-img" src="{{ MEDIA_URL }}others/viewy-logo.png" alt="">
 
 
 

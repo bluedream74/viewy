@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/request_documents.css' %}">
+{% endblock %}
+{%block content%}
+<div class="mid-logo">
+  <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
+</div>
+
+<div class="forms">
+  <form method="post" action="">
+    {% csrf_token %}
+    <div class="form-title">資料請求フォーム</div>
+    <div class="guide">入力されたメールアドレス宛に、専用ウェブページのリンクを掲載したメールを送らせていただきます。</div>
+    <div class="item">
+      <label for="id_company_name">{{ form.company_name.label }}</label>
+      {{ form.company_name }}
+    </div>
+
+    <div class="item">
+      <label for="id_email">{{ form.email.label }}</label>
+      {{ form.email }}      
+    </div>
+
+    <div class="item">
+      <label for="id_address">{{ form.address.label }}</label>
+      {{ form.address }}
+    </div>
+    
+    <div class="item">
+      <label for="id_phone_number">{{ form.phone_number.label }}</label>
+      {{ form.phone_number }}           
+    </div>
+
+    <button type="submit">入力内容を確認し送信</button>
+</form>
+</div>
+
+
+{%endblock%}

@@ -152,6 +152,7 @@ body{
 
 
 
+
 .partner-list{
   width: 100%;
   height: 120px;
@@ -487,6 +488,27 @@ hr{
   text-decoration-color: var(--primary-color);
 }
 
+.set-meeting{
+  display: block;
+  font-size: 24px;
+  padding: 24px 128px;
+  border-radius: 50px;
+  background-color: rgb(255, 174, 0);
+  font-weight: bold;
+  color: white;
+  box-shadow: 0px 2px 4px rgb(164, 164, 164);
+  width: max-content;
+  text-decoration: none;
+  text-align: center;
+  margin: 32px auto;
+}
+
+.set-meeting:hover{
+  cursor: pointer;
+  background-color: rgb(243, 166, 0);
+  box-shadow: none;
+}
+
 .gift{
   font-size: 24px;
   text-align: center;
@@ -519,7 +541,7 @@ hr{
 .underline{
   font-size: 22px;
   text-decoration: underline;
-  text-decoration-color: rgb(14, 232, 232);
+  text-decoration-color: rgb(255, 174, 0);
 }
 
 .detail > .title{
@@ -571,8 +593,6 @@ hr{
   text-align: center;
   font-weight: bold;  
 }
-
-
 
 .step-container{
   text-align: center;
@@ -711,6 +731,17 @@ hr{
   color: rgb(20, 233, 233); /* ホバー時のテキストの色をアクアにします */
 }
 
+.set-meeting-fixed {
+  opacity: 0;
+  position: fixed;
+  bottom: -80px;
+  right: 0px;
+  transition: all 0.4s ease-in-out;
+}
+.set-meeting-fixed > a {
+  font-size: 20px;
+  padding: 16px 64px;
+}
 
 
 /* スマートフォン用のスタイル */
@@ -1041,5 +1072,16 @@ hr{
   color: rgb(20, 233, 233); /* ホバー時のテキストの色をアクアにします */
 }
 
+.step{
+  font-size: 16px;
+}
+
+.last-message{
+  font-size: 16px;
+}
+
+.set-meeting{
+  padding: 12px 48px;
+}
 
 }

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/request_documents.css' %}">
+{% endblock %}
+{%block content%}
+<div class="mid-logo">
+  <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
+</div>
+
+<div class="message">
+  <div class="tom">
+    <img src="{{ MEDIA_URL }}others/おちゃんこ２.png" alt="">
+  </div>
+  <div>
+    入力内容を送信しました。<br>
+    入力されたメールアドレス宛に、専用ウェブページのリンクを掲載したメールを送らせていただきます。<br>
+  </div>
+  <a href="{% url 'posts:postlist'%}">Viewyに戻る</a>
+</div>
+
+
+{%endblock%}

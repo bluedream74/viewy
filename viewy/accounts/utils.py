@@ -23,7 +23,7 @@ def send_email_ses(to_email, subject, body):
     send_mail(
         subject,
         body,
-        'regist@viewy.net',  # From
+        'Viewy <regist@viewy.net>',  # From
         [to_email],  # To
         fail_silently=False,
     )
@@ -51,7 +51,7 @@ def send_delete_request_notification(delete_request):
     """
     subject = '削除依頼が送信されました'
     message = f"新しい削除依頼が送信されました。\n\n詳細:\n\n依頼者: {delete_request.email}\n対象パートナー: {delete_request.postername}\n対象の投稿のタイトル: {delete_request.post_title}\nケースの種類: {delete_request.case_type}\n詳細: {delete_request.details}"
-    from_email = 'delete-request@viewy.net'
+    from_email = 'Viewy投稿削除依頼 <delete-request@viewy.net>'
     recipient_list = ['support@viewy.net']
 
     send_mail(subject, message, from_email, recipient_list)
