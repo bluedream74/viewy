@@ -371,7 +371,6 @@ class VerifyView(FormView):
             # ここで現在の総ユーザー数を保存するようにする
             today = timezone.now().date()
             total_users = Users.objects.filter(is_active=True).count()
-            print(f'Total users: {total_users}')
 
             record, created = UserStats.objects.get_or_create(date=today, defaults={'total_users': total_users})
 
@@ -448,14 +447,12 @@ class UserLoginView(LoginView):
         # nextパラメータが存在する場合、セッションに保存
         if 'next' in request.GET:
             request.session['return_to'] = request.GET['next']
-            print(f"Received return_to URL: {request.GET['next']}")  # ここでURLを出力
+         # ここでURLを出力
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        print("[DEBUG] form_valid method started.")
         email = form.cleaned_data['email']
         password = form.cleaned_data['password']
-        print("[DEBUG] Authenticating user.")
         user = authenticate(request=self.request, username=email, password=password)
 
         # 認証失敗時
