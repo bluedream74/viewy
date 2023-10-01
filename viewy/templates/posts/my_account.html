@@ -11,7 +11,7 @@
   <img src="{{ MEDIA_URL }}accounts_prf_imgs/仮ヘッダー２.png" alt="" class="header">
   <div class="not-caption">
     <div class="user-img">
-      {% if request.user and is_poster %}
+      {% if is_poster %}
 
         {% if request.user.is_advertiser %}
             {% if request.user.prf_img %}
@@ -47,7 +47,7 @@
 
 
     <div class="name-grade">
-      {% if request.user and is_poster %}
+      {% if is_poster %}
         {% if user.displayname %}
           <div>
             {{ user.displayname }}
