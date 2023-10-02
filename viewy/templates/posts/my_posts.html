@@ -42,7 +42,8 @@
         {% if video.thumbnail %}
         <img class="post-video" loading="lazy" src="{{ video.thumbnail.url }}" alt="">
         {% else %}
-        <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+        <!-- <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video> -->
+        <div class="encoding-error">動画が正しくアップロードされませんでした。<br>この投稿を削除するか、対応処理が終わるまでしばらくお待ちください。</div>
         {% endif %}
       {% endfor %}
     {% endif %}

@@ -240,7 +240,7 @@
 <script>
 function copyToClipboard() {
   const username = "{{ request.user.username }}";  // Djangoテンプレートタグでユーザ名を取得
-  const link = "https://www.viewy.net/posts/poster_page/" + username;  // URLを構築
+  const link = "https://www.viewy.net/posts/poster_page/" + username + "/";
 
   // Create a dummy input to copy the link from
   const el = document.createElement('textarea');

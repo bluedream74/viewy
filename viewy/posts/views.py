@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
-from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField
+from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField, Subquery
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -238,6 +238,11 @@ class BasePostListView(ListView):
         queryset = queryset.select_related('poster')
         queryset = self.annotate_user_related_info(queryset)
         queryset = queryset.prefetch_related('visuals', 'videos')
+        
+        # is_mangaがFalseの場合に、関連するVideosのencoding_doneが全てTrueである投稿だけを含める
+        videos = Videos.objects.filter(post=OuterRef('pk'), encoding_done=False)
+        queryset = queryset.exclude(ismanga=False, videos__in=Subquery(videos.values('pk')))
+        
         return queryset
 
 
@@ -389,7 +394,7 @@ class VisitorPostListView(BasePostListView):
 
     def get_queryset(self):
         # 指定したIDの投稿を取得
-        specified_ids = [399, 190, 302, 433, 318]
+        specified_ids = [446, 190, 439, 302, 433, 318]
         queryset = super().get_queryset().filter(id__in=specified_ids)
         
         # 指定したIDの順番に合わせて投稿を並べ替える
@@ -1230,9 +1235,10 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
     
   
 # マイアカウントページ
-class MyAccountView(TemplateView):
+class MyAccountView(LoginRequiredMixin, TemplateView):
     template_name = os.path.join('posts', 'my_account.html')
-
+    login_url = '/accounts/user_login/'  # ユーザがログインしていない場合にリダイレクトされるURL。これはプロジェクトの設定に基づいて変更してください。
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -1325,6 +1331,10 @@ class HotHashtagView(TemplateView):
             'favorite_count',
             'posted_at'
         ).filter(final_query, is_hidden=False).order_by('-posted_at').prefetch_related('visuals', 'videos')
+        
+        # is_mangaがFalseの場合に、関連するVideosのencoding_doneが全てTrueである投稿だけを含める
+        videos = Videos.objects.filter(post=OuterRef('pk'), encoding_done=False)
+        posts = posts.exclude(ismanga=False, videos__in=Subquery(videos.values('pk')))
 
         if self.request.user.is_authenticated:
             reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))

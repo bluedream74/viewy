@@ -4,6 +4,7 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 import os
 import subprocess
+import pytz
 import json
 from django.conf import settings
 
@@ -513,9 +514,12 @@ class Videos(models.Model):
   
   
 class Favorites(models.Model):
-  user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='favorite_received')
-  post = models.ForeignKey(Posts, on_delete=models.CASCADE)
-  created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='favorite_received')
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.post}-{self.user}"
   
   
   
@@ -577,7 +581,11 @@ class ViewDurations(models.Model):
         unique_together = ('user', 'post', 'viewed_at')  # 同一ユーザーが同一投稿を同一日時に複数回閲覧することは考慮しない
 
     def __str__(self):
-        return f"{self.user} - {self.post} - {self.duration}"
+        # viewed_atを日本時間に変換
+        jst = pytz.timezone('Asia/Tokyo')
+        viewed_at_jst = self.viewed_at.astimezone(jst)
+        
+        return f"{self.user} - {self.post} - {self.duration} - {viewed_at_jst}"
     
     
 
