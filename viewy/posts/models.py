@@ -4,7 +4,6 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 import os
 import subprocess
-import pytz
 import json
 from django.conf import settings
 
@@ -581,11 +580,7 @@ class ViewDurations(models.Model):
         unique_together = ('user', 'post', 'viewed_at')  # 同一ユーザーが同一投稿を同一日時に複数回閲覧することは考慮しない
 
     def __str__(self):
-        # viewed_atを日本時間に変換
-        jst = pytz.timezone('Asia/Tokyo')
-        viewed_at_jst = self.viewed_at.astimezone(jst)
-        
-        return f"{self.user} - {self.post} - {self.duration} - {viewed_at_jst}"
+        return f"{self.user} - {self.post} - {self.duration} - {self.viewed_at}"
     
     
 

@@ -394,7 +394,7 @@ class VisitorPostListView(BasePostListView):
 
     def get_queryset(self):
         # 指定したIDの投稿を取得
-        specified_ids = [446, 190, 439, 302, 433, 318]
+        specified_ids = [446, 190, 302, 433, 318]
         queryset = super().get_queryset().filter(id__in=specified_ids)
         
         # 指定したIDの順番に合わせて投稿を並べ替える
