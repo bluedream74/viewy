@@ -40,6 +40,7 @@
         <th>投稿日時</th>
         <th>視聴回数</th>
         <th>長さ</th>
+        <th>平均視聴時間</th>
         <th>QP</th>
     </tr>
     {% for post in posts %}
@@ -50,6 +51,7 @@
         <td>{{ post.posted_at }}</td>
         <td>{{ post.views_count }}</td>
         <td>{{ post.content_length }}</td>
+        <td>{{ post.avg_duration|floatformat:3 }}</td>
         <td>{{ post.qp|floatformat:3 }}</td>
     </tr>
     {% endfor %}

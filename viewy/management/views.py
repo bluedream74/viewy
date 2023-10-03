@@ -1,13 +1,14 @@
 import json
 import math
 import re
+import pytz
 import random
 from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core import serializers
-from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, F, Sum, Value, When)
-from django.db.models.functions import Concat, TruncMonth
+from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, F, Sum, Value, When, OuterRef, Subquery, Min)
+from django.db.models.functions import Concat, TruncMonth, TruncDate, TruncHour
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
@@ -91,8 +92,7 @@ class Account(SuperUserCheck, TemplateView):
         context['other_gender_users_percentage'] = other_gender_users_percentage
 
 
-        return context
-
+        return context  
 
 
 class RecordUserStats(SuperUserCheck, View):
@@ -108,6 +108,97 @@ class GetUserStats(SuperUserCheck, View):
         user_stats_json = serializers.serialize('json', user_stats)
         user_stats_python = json.loads(user_stats_json)
         return JsonResponse(user_stats_python, safe=False)
+    
+    
+    
+class UserAnalytics(TemplateView):
+    template_name = 'management/user_analytics.html'
+  
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 日本のタイムゾーンを取得
+        jp_timezone = pytz.timezone('Asia/Tokyo')
+
+        # ３日前の日時を取得
+        start_time = timezone.now().astimezone(jp_timezone) - timedelta(days=3)
+        start_time = start_time.replace(minute=0, second=0, microsecond=0)
+        end_time = timezone.now().astimezone(jp_timezone)
+
+        # ３日間の時間帯ごとのユーザー数を取得
+        hourly_users_data = (
+            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time))
+            .annotate(hour=TruncHour('viewed_at'))
+            .values('hour')
+            .annotate(users=Count('user', distinct=True))
+            .order_by('hour')
+        )
+
+        hourly_users = {data['hour'].strftime('%Y-%m-%d %H:%M:%S'): data['users'] for data in hourly_users_data}
+        
+
+
+        # 各ユーザーの最初の視聴時間をサブクエリとして取得
+        first_viewed_subquery = ViewDurations.objects.filter(user_id=OuterRef('user_id')).order_by('viewed_at').values('viewed_at')[:1]
+
+        # ３日間の時間帯ごとに初めて見たユーザー数を取得
+        first_time_users_data = (
+            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time), viewed_at=Subquery(first_viewed_subquery))
+            .annotate(hour=TruncHour('viewed_at'))
+            .values('hour')
+            .annotate(first_time_users=Count('user', distinct=True))
+            .order_by('hour')
+        )
+
+        first_time_users = {data['hour'].strftime('%Y-%m-%d %H:%M:%S'): data['first_time_users'] for data in first_time_users_data}
+
+        # 繰り返しユーザー数の計算
+        repeat_users = {key: hourly_users[key] - first_time_users.get(key, 0) for key in hourly_users.keys()}
+
+        context = {
+            'hourly_users_labels': list(hourly_users.keys()),
+            'hourly_users_values': list(hourly_users.values()),
+            'hourly_repeat_values': list(repeat_users.values()),
+            # 必要に応じて他のデータも渡すことができます。
+        }
+
+        # 日にちごとの全ユニークユーザー数
+        daily_users_data = (
+            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time))
+            .annotate(day=TruncDate('viewed_at'))
+            .values('day')
+            .annotate(users=Count('user', distinct=True))
+            .order_by('day')
+        )
+        daily_users = {data['day'].strftime('%Y-%m-%d'): data['users'] for data in daily_users_data}
+
+        # 日にちごとに初めて訪れたユーザー数
+        first_viewed_subquery_daily = ViewDurations.objects.filter(user_id=OuterRef('user_id')).order_by('viewed_at').values('viewed_at')[:1]
+
+        first_time_users_daily_data = (
+            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time), viewed_at=Subquery(first_viewed_subquery_daily))
+            .annotate(day=TruncDate('viewed_at'))
+            .values('day')
+            .annotate(first_time_users=Count('user', distinct=True))
+            .order_by('day')
+        )
+        first_time_users_daily = {data['day'].strftime('%Y-%m-%d'): data['first_time_users'] for data in first_time_users_daily_data}
+
+        # 日にちごとの繰り返しユーザー数の計算
+        repeat_users_daily = {key: daily_users[key] - first_time_users_daily.get(key, 0) for key in daily_users.keys()}
+
+        context.update({
+            'daily_users_labels': list(daily_users.keys()),
+            'daily_users_values': list(daily_users.values()),
+            'daily_repeat_users_values': list(repeat_users_daily.values())
+        })
+
+
+        # 全ユーザーの中で視聴履歴が2日以上のユーザーを取得
+        two_day_viewed_users = ViewDurations.objects.values('user').annotate(viewed_days=Count('viewed_at__date', distinct=True)).filter(viewed_days__gte=2).count()
+        context['two_day_viewed_users'] = two_day_viewed_users
+
+        return context
     
 
 class Partner(SuperUserCheck, TemplateView):
@@ -179,7 +270,7 @@ class Partner(SuperUserCheck, TemplateView):
             recommended_users = RecommendedUser.objects.order_by('order')
             initial_data = {}
             for i, recommended_user in enumerate(recommended_users, start=1):
-                initial_data[f"user{i}"] = recommended_user.user
+                initial_data[f"user{i}"] = recommended_user.user.username  # Here, change from user object to username string
             context['form'] = RecommendedUserForm(initial=initial_data)
 
         return context
