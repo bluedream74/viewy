@@ -154,6 +154,15 @@ class Partner(SuperUserCheck, TemplateView):
         # is_realがTrueのユーザーとFalseのユーザーの数を計算
         real_users_count = poster_users.filter(is_real=True).count()
         not_real_users_count = poster_users.filter(is_real=False).count()
+
+        # 1週間前の日時を計算
+        one_week_ago = datetime.now() - timedelta(days=7)
+
+        # 上記の期間にViewDurationsモデルにエントリがあるPosterグループのユーザーを取得
+        active_posters = poster_users.filter(viewed_user__viewed_at__gte=one_week_ago).distinct()
+
+        context['active_posters'] = active_posters
+        context['active_posters_count'] = active_posters.count()
         
         # コンテキストに real_users_count と not_real_users_count を追加
         context['real_posters_count'] = real_users_count
@@ -185,7 +194,7 @@ class Partner(SuperUserCheck, TemplateView):
         return context
 
 # おすすめユーザーをランダムに選んでくれる機能    
-class RandomRecommendedUsers(View):
+class RandomRecommendedUsers(SuperUserCheck, View):
     def get(self, request, *args, **kwargs):
         # 平均QPが上位の30人のユーザーを取得
         users = Users.objects.annotate(avg_qp=Avg('posted_posts__qp')).order_by('-avg_qp')[:30]
@@ -199,7 +208,7 @@ class RandomRecommendedUsers(View):
         return JsonResponse({'users': usernames})
 
 # 各パートナーのブースト状態をその場で変更できる機能    
-class UpdateBoostTypeView(View):
+class UpdateBoostTypeView(SuperUserCheck, View):
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         user = get_object_or_404(Users, id=user_id)

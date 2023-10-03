@@ -11,6 +11,7 @@ from axes.handlers.proxy import AxesProxyHandler
 
 # Third-party Django
 from django import forms
+from django.core.cache import cache
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
@@ -650,8 +651,18 @@ class FollowView(LoginRequiredMixin, View):
         # only()メソッドを使用して、必要なフィールドのみを取得
         poster = get_object_or_404(Users.objects.only('id', 'follow_count', 'prf_img'), pk=kwargs['pk'])
         follow, created = Follows.objects.get_or_create(user=request.user, poster=poster)
+
+        # キャッシュをクリアするためのキーを取得
+        cache_key_followed_user_ids = f'followed_user_ids_for_user_{request.user.id}'
+        cache_key_followed_posts = f'followed_posts_for_user_{request.user.id}'
+
         if not created:
           follow.delete()
+
+        # キャッシュをクリア
+        cache.delete(cache_key_followed_user_ids)
+        cache.delete(cache_key_followed_posts)
+        
         poster.follow_count = poster.follow.count()
         poster.save(update_fields=['follow_count'])  # 保存時にも特定のフィールドのみを更新
         data = {'follow_count': poster.follow_count}
