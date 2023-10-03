@@ -262,6 +262,15 @@ p > input{
   background-color: aliceblue;
 }
 
+.active-dot {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 

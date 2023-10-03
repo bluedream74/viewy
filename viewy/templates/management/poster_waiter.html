@@ -7,15 +7,6 @@
 
 {% block content %}
 
-<!-- 検索フォーム -->
-<div class="serch">
-  <form method="get">
-    <label for="username"></label>
-    <input type="text" id="username" name="username" value="{{ request.GET.username|default:'' }}">
-    <button type="submit">検索</button>
-  </form>
-</div>
-
 <div class="block">
   <table class="wait-table">
     <thead>

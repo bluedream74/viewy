@@ -21,6 +21,11 @@
     <div class="total_title">２次元パートナー数：</div>
     <div class="total_number">{{ not_real_posters_count }}</div>
   </div>
+
+  <div class="block total_table flex" style="margin-left: 16px;">
+    <div class="total_title">一週間内に来たパートナー数：</div>
+    <div class="total_number">{{ active_posters_count }}</div>
+  </div>
 </div>
 
 
@@ -40,7 +45,12 @@
       {% for user in users %}
       <tr class="{% if not user.is_real %}not-real{% endif %}">
         <td>{{ user.username }}</td>
-        <td>{{ user.displayname }}</td>
+        <td>
+          {% if user in active_posters %}
+          <span class="active-dot"></span>
+          {% endif %}
+          {{ user.displayname }}
+        </td>
         <td>{{ user.follow_count }}</td>
         <td>{{ user.total_posts }}</td>
         <td>{{ user.total_views }}</td>

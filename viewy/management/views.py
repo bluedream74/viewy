@@ -245,6 +245,15 @@ class Partner(SuperUserCheck, TemplateView):
         # is_realがTrueのユーザーとFalseのユーザーの数を計算
         real_users_count = poster_users.filter(is_real=True).count()
         not_real_users_count = poster_users.filter(is_real=False).count()
+
+        # 1週間前の日時を計算
+        one_week_ago = datetime.now() - timedelta(days=7)
+
+        # 上記の期間にViewDurationsモデルにエントリがあるPosterグループのユーザーを取得
+        active_posters = poster_users.filter(viewed_user__viewed_at__gte=one_week_ago).distinct()
+
+        context['active_posters'] = active_posters
+        context['active_posters_count'] = active_posters.count()
         
         # コンテキストに real_users_count と not_real_users_count を追加
         context['real_posters_count'] = real_users_count
@@ -276,7 +285,7 @@ class Partner(SuperUserCheck, TemplateView):
         return context
 
 # おすすめユーザーをランダムに選んでくれる機能    
-class RandomRecommendedUsers(View):
+class RandomRecommendedUsers(SuperUserCheck, View):
     def get(self, request, *args, **kwargs):
         # 平均QPが上位の30人のユーザーを取得
         users = Users.objects.annotate(avg_qp=Avg('posted_posts__qp')).order_by('-avg_qp')[:30]
@@ -290,7 +299,7 @@ class RandomRecommendedUsers(View):
         return JsonResponse({'users': usernames})
 
 # 各パートナーのブースト状態をその場で変更できる機能    
-class UpdateBoostTypeView(View):
+class UpdateBoostTypeView(SuperUserCheck, View):
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         user = get_object_or_404(Users, id=user_id)
@@ -506,12 +515,7 @@ class PosterWaiterList(SuperUserCheck, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(poster_waiter=True)
-        # usernameでの検索
-        username = self.request.GET.get('username')
-        if username:
-            queryset = queryset.filter(Q(username__icontains=username))
-        
+        queryset = queryset.filter(poster_waiter=True)        
         return queryset
 
 class AddToPosterGroup(SuperUserCheck, View):
@@ -527,7 +531,11 @@ class AddToPosterGroup(SuperUserCheck, View):
         group.user_set.add(user)
         
         user.save()
-        return redirect('management:poster_waiter_list')
+        # 分岐してリダイレクト
+        if 'redirect_to' in request.GET and request.GET['redirect_to'] == 'search_user':
+            return redirect('management:search_user')
+        else:
+            return redirect('management:poster_waiter_list')
 
 class RemoveFromWaitList(SuperUserCheck, View):
     def get(self, request, user_id):
@@ -535,6 +543,18 @@ class RemoveFromWaitList(SuperUserCheck, View):
         user.poster_waiter= False
         user.save()
         return redirect('management:poster_waiter_list')
+
+
+class SearchEmailandAddPoster(SuperUserCheck, View):
+    template_name = 'management/search_user.html'
+    
+    def get(self, request):
+        users = []
+        email_query = request.GET.get('email')
+        if email_query:
+            users = Users.objects.filter(email__exact=email_query)
+        return render(request, self.template_name, {'users': users})
+    
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 @method_decorator(require_POST, name='dispatch')
