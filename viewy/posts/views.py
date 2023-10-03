@@ -1060,6 +1060,13 @@ class VideoCreateView(BasePostCreateView):
 
 # いいね（非同期）
 class FavoriteView(LoginRequiredMixin, View):
+
+    @staticmethod
+    def clear_favorite_cache_for_user(user):
+        """指定されたユーザーのお気に入りキャッシュをクリアする"""
+        cache_key = f'favorite_posts_for_user_{user.id}'
+        cache.delete(cache_key)
+        
     def post(self, request, *args, **kwargs):
         try:
             post_id = kwargs['pk']
@@ -1068,6 +1075,10 @@ class FavoriteView(LoginRequiredMixin, View):
             favorite, created = Favorites.objects.get_or_create(user=request.user, post=post)
             if not created:
                 favorite.delete()
+                
+            # キャッシュをクリア
+            self.clear_favorite_cache_for_user(request.user)
+
             post.favorite_count = post.favorite.count()
             post.update_favorite_rate()  # 更新
             post.save()
