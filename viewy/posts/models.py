@@ -146,7 +146,7 @@ class Posts(models.Model):
             'normal': 1,
             'boost': 1.2,
             'superboost': 1.5,
-            'viewyboost': 2
+            'viewyboost': 10
         }
         
         # この投稿の投稿者のブーストの倍数を取得
