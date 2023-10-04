@@ -7,16 +7,16 @@ const activeColor = 'rgba(255, 255, 255, 0.639)';
 
 // コントロールバーの設定
 function setupControlBar(video, seekSlider) {
-  video.addEventListener('loadedmetadata', function() {
+  video.addEventListener('loadedmetadata', function () {
     seekSlider.max = video.duration;
   });
 
-  video.addEventListener('timeupdate', function() {
+  video.addEventListener('timeupdate', function () {
     seekSlider.value = video.currentTime;
     updateSlider(seekSlider);
   });
 
-  seekSlider.addEventListener('input', function() {
+  seekSlider.addEventListener('input', function () {
     video.currentTime = seekSlider.value;
   });
 
@@ -28,7 +28,7 @@ function setupControlBar(video, seekSlider) {
   // ヒットエリアにドラッグ動作のイベントリスナを追加
   hitArea.addEventListener('mousedown', startDrag);
   hitArea.addEventListener('touchstart', startDrag);
-  
+
   function startDrag(event) {
     event.preventDefault(); // ブラウザのデフォルトのタッチ動作を防ぎます
 
@@ -44,39 +44,39 @@ function setupControlBar(video, seekSlider) {
     document.addEventListener('touchend', endDrag);
 
     function onMouseMove(event) {
-        if (!isDragging) {
-            isDragging = true; // 最初のmousemoveまたはtouchmoveイベントでtrueに設定
-            updateSliderValue(event);
-        } else {
-            updateSliderValue(event);
-        }
+      if (!isDragging) {
+        isDragging = true; // 最初のmousemoveまたはtouchmoveイベントでtrueに設定
+        updateSliderValue(event);
+      } else {
+        updateSliderValue(event);
+      }
     }
 
     function updateSliderValue(event) {
-        var currentX = (event.touches ? event.touches[0].clientX : event.clientX);
-        var rect = hitArea.getBoundingClientRect();
-        var dx = currentX - initialClientX;
-        var changeInValue = (dx / rect.width) * parseFloat(seekSlider.getAttribute('max'));
-        var newValue = initialSliderValue + changeInValue;
+      var currentX = (event.touches ? event.touches[0].clientX : event.clientX);
+      var rect = hitArea.getBoundingClientRect();
+      var dx = currentX - initialClientX;
+      var changeInValue = (dx / rect.width) * parseFloat(seekSlider.getAttribute('max'));
+      var newValue = initialSliderValue + changeInValue;
 
-        newValue = Math.min(Math.max(newValue, 0), parseFloat(seekSlider.getAttribute('max')));
+      newValue = Math.min(Math.max(newValue, 0), parseFloat(seekSlider.getAttribute('max')));
 
-        seekSlider.value = newValue;
-        video.currentTime = newValue;
-        updateSlider(seekSlider);
+      seekSlider.value = newValue;
+      video.currentTime = newValue;
+      updateSlider(seekSlider);
     }
 
     function endDrag() {
-        isDragging = false;
+      isDragging = false;
 
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('touchmove', onMouseMove);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('touchmove', onMouseMove);
 
-        document.removeEventListener('mouseup', endDrag);
-        document.removeEventListener('touchend', endDrag);
+      document.removeEventListener('mouseup', endDrag);
+      document.removeEventListener('touchend', endDrag);
     }
-}
-  
+  }
+
 
   function updateSlider(slider) {
     var progress = (slider.value / slider.max) * 100;
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLoading = false; // セマフォア変数を追加
 
- // コントロールバー関連
+  // コントロールバー関連
   //  カスタムイベントの定義
   const newPostEvent = new Event('newPostAdded')
 
@@ -143,9 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const allPosts = document.querySelectorAll('.post:not([data-is-advertisement="True"])');
     const lastPostId = allPosts[allPosts.length - 1].dataset.postId;
 
-  
+
     const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
-  
+
     fetch(`/posts/get_more_follow/`, { //次の投稿を読み込むビューに送信！
       method: 'POST', // メソッドをPOSTに変更
       body: `last_post_id=${lastPostId}`, // 最後の投稿のIDを送信
@@ -207,14 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const trigger = document.querySelector('.top-load-trigger');
   const addHere = document.querySelector('.top-space');
-  
-  let isLoading = false; 
+
+  let isLoading = false;
 
   const newPostEvent = new Event('newPostAdded')
 
 
   applyControlBarToNewVideos();
-  
+
   document.addEventListener('newPostAdded', applyControlBarToNewVideos);
   // コントロールバー終了
 
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstPostId = allPosts[0].dataset.postId;
 
     const csrftoken = getCookie('csrftoken');
-  
+
     let data = new FormData();
     data.append('first_post_id', firstPostId);
 
@@ -251,18 +251,27 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(data => {
         const html = data.html;
-        addHere.insertAdjacentHTML('afterend', html); 
+        addHere.insertAdjacentHTML('afterend', html);
 
         // Apply control bar to the new video elements
         document.dispatchEvent(newPostEvent);
-        
-        // Scroll to the first post
-        const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
-        if (targetPost) {
-          setTimeout(() => {
-              targetPost.scrollIntoView();
-          }, 0);
-      }
+
+        // Wait for a little bit longer to ensure DOM is properly updated
+        requestAnimationFrame(() => {
+          const targetPost = document.querySelector(`[data-post-id='${firstPostId}']`);
+          if (targetPost) {
+            targetPost.scrollIntoView();
+
+            // Check in the next frame
+            requestAnimationFrame(() => {
+              const targetRect = targetPost.getBoundingClientRect();
+              if (targetRect.top < 0 || targetRect.bottom > window.innerHeight) {
+                // If the post is still not in the viewport, force scroll again
+                targetPost.scrollIntoView();
+              }
+            });
+          }
+        });
       })
       .catch(error => {
         console.error('Error:', error);
@@ -272,30 +281,30 @@ document.addEventListener('DOMContentLoaded', () => {
         isLoading = false;
       });
   }
-  
+
   let timer;
 
   function isActive(entries) {
-      console.log('Intersection Observer triggered');
-      console.log('isIntersecting:', entries[0].isIntersecting);
-      console.log('isLoading:', isLoading);
-  
-      if (entries[0].isIntersecting && !isLoading) {
-          timer = setTimeout(() => {
-              loadPreviousPost();
-          }, 500);  // 0.5秒後にloadPreviousPostを呼び出す
-      } else if (!entries[0].isIntersecting) {
-          clearTimeout(timer);  // 要素がビューポートから出た場合、タイマーをクリア
-      }
+    console.log('Intersection Observer triggered');
+    console.log('isIntersecting:', entries[0].isIntersecting);
+    console.log('isLoading:', isLoading);
+
+    if (entries[0].isIntersecting && !isLoading) {
+      timer = setTimeout(() => {
+        loadPreviousPost();
+      }, 500);  // 0.5秒後にloadPreviousPostを呼び出す
+    } else if (!entries[0].isIntersecting) {
+      clearTimeout(timer);  // 要素がビューポートから出た場合、タイマーをクリア
+    }
   }
-  
+
   const options = {
     threshold: 0.1,
     rootMargin: '0px 0px 0px 0px',
   };
-  
+
   const observer = new IntersectionObserver(isActive, options);
-  
+
   observer.observe(trigger);
 });
 
