@@ -85,7 +85,7 @@
       <div class="favorite">
         <a class="fa-regular fa-heart not-liked" href="{% url 'accounts:user_login'%}"
           style="color: rgb(255, 255, 255);"></a>
-        <p class="favorite-count">{{ post.favorite_count }}</p>
+        <p class="favorite-count">{{ post.favorite_count|add:post.support_favorite_count }}</p>
       </div>
 
       <div class="mute">

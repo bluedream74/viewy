@@ -303,7 +303,7 @@ class PostListView(BasePostListView):
 
         # 最新の100個の投稿を取得して、dimensionフィルターを適用
         latest_100_posts = Posts.objects.all().order_by('-id')
-        latest_100_posts = self.filter_by_dimension(latest_100_posts)[:100]
+        latest_100_posts = self.filter_by_dimension(latest_100_posts)[:500]
 
         # 最新の100件のIDを取得
         post_ids = list(latest_100_posts.values_list('id', flat=True))

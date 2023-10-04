@@ -44,6 +44,7 @@ class Posts(models.Model):
     content_length = models.PositiveIntegerField(default=0)
     favorite = models.ManyToManyField(Users, through='Favorites', related_name='favorite_posts')
     favorite_count = models.PositiveIntegerField(default=0)
+    support_favorite_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
     report_count = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False)

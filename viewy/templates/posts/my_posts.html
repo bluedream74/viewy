@@ -51,7 +51,7 @@
     <div class="title">
       <div>{{post.title}}</div>
       <div><i class="fa-solid fa-play play"></i> {{ post.views_count }}</div>
-      <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count }}</div>
+      <div><i class="fa-solid fa-heart liked"></i> {{ post.favorite_count|add:post.support_favorite_count }}</div>
     </div>
 
     {% if post.is_hidden %}

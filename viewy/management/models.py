@@ -28,3 +28,11 @@ class ClickCount(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class SupportRate(models.Model):
+    name = models.CharField(max_length=255)  # 変数名を保存するためのフィールド
+    value = models.DecimalField(max_digits=10, decimal_places=3)  # 小数点を保存するためのフィールド
+
+    def __str__(self):
+        return f"{self.name}: {self.value}"

@@ -14,7 +14,8 @@ body{
   min-width: 180px;
   min-height: 400px;
   background-color: rgb(32, 41, 43);
-  padding-top: 160px;
+  padding-top: 120px;
+  padding-bottom: 40px;
   color: white;
   box-shadow: 1px 2px 3px gray;
 }

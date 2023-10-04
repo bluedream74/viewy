@@ -156,7 +156,7 @@
             {% else %}
             <i class="fa-regular fa-heart not-liked"></i>
             {% endif %}
-            <p class="favorite-count">{{ post.favorite_count }}</p>
+            <p class="favorite-count">{{ post.favorite_count|add:post.support_favorite_count }}</p>
             <input type="checkbox" class="like-button" {% if post.favorited_by_user %}checked{% endif %}>
           </label>
         </form>
