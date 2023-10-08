@@ -1356,6 +1356,7 @@ class HotHashtagView(TemplateView):
             'hashtag2',
             'hashtag3',
             'favorite_count',
+            'support_favorite_count',
             'posted_at'
         ).filter(final_query, is_hidden=False).order_by('-posted_at').prefetch_related('visuals', 'videos')
         
@@ -1426,14 +1427,15 @@ class AutoCorrectView(View):
 
         # クエリが空もしくは空白のみの場合、最新の1000件の検索履歴から検索回数の多いハッシュタグ上位5つを返す
         if not query or query.isspace():
-            recent_searched_queries = list(SearchHistorys.objects.order_by('-searched_at').values_list('query', flat=True)[:1000])
-            top_searched = (SearchHistorys.objects.filter(query__in=recent_searched_queries)
-                            .values('query')
-                            .annotate(search_count=Sum('search_count'))
-                            .order_by('-search_count', '-searched_at')[:5])
+            top_searched = list(SearchHistorys.objects.all()
+                                .values('query')
+                                .annotate(total_search_count=Sum('search_count')))
+
+            # Pythonでソートとフィルタリング
+            top_searched = sorted(top_searched, key=lambda x: (-x['total_search_count'], x['query']))[:5]
+
             data = [{"type": "hashtag", "value": record['query']} for record in top_searched]
             return JsonResponse(data, safe=False)
-
         
         hiragana_query = jaconv.kata2hira(jaconv.z2h(query.lower()))
         katakana_query = jaconv.hira2kata(hiragana_query)
