@@ -27,25 +27,26 @@
   <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
   <link rel="stylesheet" href="{% static 'css/for_invited.css' %}">
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-C5HF2NBPEV');
+  </script>
   {% load static %}
 
   {% block static %}
   {% endblock %}
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-C5HF2NBPEV');
-</script>
 <body>
 
   <div class="screen">
     <div class="header">
-      <img class="main-img" src="{{ MEDIA_URL }}others/スマホ素材ロゴ付きアクア光.png" alt="">
+      <img class="main-img" src="{{ MEDIA_URL }}others/スマホ入りロゴ.png" alt="">
       <div class="catch-right">スマホ専用の、</div>
       <div class="catch-left">大人のサイト。</div>
         <!-- <div class="sub-catch">縦長の動画とマンガが楽しめる<br>
@@ -60,22 +61,109 @@
 
       <hr>
 
-      <div class="big-title">Viewyとは？</div>
-
-      <div class="block">
-        <div class="content">
-          <span>Viewy</span>とは、<br><span>最大２分の動画</span>と<span>最大３１ページのマンガ</span>が<br>投稿・視聴できる、<br><span>スマホ向け無料ウェブサービス</span>です。<br>
-          スマホ向けにデザインされ、<br>投稿は<span>リール形式で表示</span>されます。
+      <div class="team">※登録済パートナー</div>
+      <div class="sample">
+        <div class="partner-list list1">
+          {% for img_url in poster_imgs1 %}
+          <div class="partner-img">
+            <img src="{{ img_url }}" alt="">
+          </div>
+          {% endfor %}
+        </div>
+        <div class="partner-list list2">
+          {% for img_url in poster_imgs2 %}
+          <div class="partner-img">
+            <img src="{{ img_url }}" alt="">
+          </div>
+          {% endfor %}
         </div>
       </div>
 
-      <div class="block">
-        <div class="img-box">
-          <img src="{{ MEDIA_URL }}others/投稿.png" alt="">
-          <img src="{{ MEDIA_URL }}others/いいね欄.png" alt="">
-          <img src="{{ MEDIA_URL }}others/検索画面.png" alt="">
-          <img src="{{ MEDIA_URL }}others/プロフィール.png" alt="">
-          <img src="{{ MEDIA_URL }}others/投稿画面.png" alt="">
+      <div id="big-container">
+        <img src="{{ MEDIA_URL }}others\パートナーになりませんか.png" alt="" class="big">
+      </div>
+
+      <div class="scores">
+        <div class="score">
+          <img src="{{ MEDIA_URL }}others\100人以上.png" alt="">
+        </div>
+        <div class="score">
+          <img src="{{ MEDIA_URL }}others\500個以上.png" alt="">
+        </div>
+      </div>
+
+      <div class="about-viewy">
+        <div class="big-title mega">Viewyとは？</div>
+        <div class="line"></div>
+
+        <div class="video block">
+          <video src="{{ MEDIA_URL }}others\イメージ動画.mp4" playsinline loop muted autoplay width="280px"></video>
+        </div>
+  
+        <div class="points">
+          <div class="container left">
+            <div class="point block">
+              <div class="number">1</div>
+              <div class="img">
+                <img src="{{ MEDIA_URL }}others\動画と画像.png" alt="">
+              </div>
+              <div class="point-title">成人向けの動画と画像が共有できる</div>
+              <div class="sub">最大２分の動画と最大３１ページの画像がシェアできる</div>
+            </div>
+            <div class="point block">
+              <div class="number">2</div>
+              <div class="img">
+                <img src="{{ MEDIA_URL }}others\operation_smartphone_simple.png" alt="">
+              </div>
+              <div class="point-title">リール形式の投稿表示</div>
+              <div class="sub">コンパクトなボリュームの投稿が今はやりのリール形式でサクサク見れる</div>
+            </div>
+            <div class="point block">
+              <div class="number">3</div>
+              <div class="img">
+                <img src="{{ MEDIA_URL }}others/切り替え.png" alt="" id="number">
+              </div>
+              <div class="point-title">投稿は２次元と３次元で絞り込み可能</div>
+              <div class="sub">Viewyは２次エロも３次エロも扱っております。<br>お好みにあわせて表示を切り替えることができます。<br>もちろん両方表示することも。</div>
+            </div>
+
+          <div class="container">
+            <div class="point block">
+              <div class="number">4</div>
+              <div class="img">
+                <img src="{{ MEDIA_URL }}others/costgood_man_simple.png" alt="">
+              </div>
+              <div class="point-title">完全無料</div>
+              <div class="sub">Viewyは完全無料でお使いいただけます。<br>多くのユーザーが気軽に利用することができます</div>
+            </div>
+  
+            <div class="point block">
+              <div class="number">5</div>
+              <div class="img">
+                <img src="{{ MEDIA_URL }}others/handshake_suit_simple.png" alt="">
+              </div>
+              <div class="point-title">投稿はパートナーのみが可能</div>
+              <div class="sub">視聴は成人であれば誰でも可能ですが、投稿は運営が認可したパートナーに限定しているため、安心安全</div>
+            </div>
+            <div class="point block">
+              <div class="number">6</div>
+              <div class="img" style="margin-bottom: 32px;">
+                <img src="{{ MEDIA_URL }}others/各種ファンサイト.png" alt="" id="fansite">
+              </div>
+              <div class="point-title">投稿・プロフに各種リンクを掲載可能！</div>
+              <div class="sub">Viewyで獲得したファンをご自身が活用しているファンサイト等へスムーズに誘導できる！</div>
+            </div>
+          </div>
+            <div class="point block">
+              <div class="number">7</div>
+              <div class="img">
+                <img src="{{ MEDIA_URL }}others/harry_man_simple.png" alt="" id="harry">
+              </div>
+              <div class="point-title">凍結の心配なし</div>
+              <div class="sub">アダルトコンテンツ専用であるうえ、パートナとの密な連絡によって、投稿者重視の運営を実現します。</div>
+            </div>
+  
+          </div>
         </div>
       </div>
 
@@ -83,22 +171,14 @@
 
       <div class="block">
         <div class="part partner">
-          <div class="title">パートナーになって、<br>新たなファンを増やしませんか？</div>
-            <div class="content"><span>投稿は運営がパートナーとして登録したユーザーのみが可能</span>になっています。<br>
-  
-              パートナーになると投稿ができることはもちろん、<span>各投稿やプロフィールにご自身のファンサイト等のリンクを貼ることができます。</span><br>
-              これにより<span>Viewyなしでは出会わなかった新たなファンをスムーズにファンサイトに誘導</span>できます。<br>
-          </div>
-      </div>
-
+          <div class="title white">パートナーになって、<br>新たなファンを増やしませんか？</div>
 
 
       <div class="block">
         <div class="case">
           <div class="case-title">一般的なSNSの場合</div>
           <img src="{{ MEDIA_URL }}others/SNSの場合.png" alt="">
-          <div class="description">アダルトコンテンツ専用ではないため、別のことに関心がある人がほとんど。<br>
-            予期せぬアカウント凍結の可能性も。</div>
+          <div class="description">アダルトコンテンツ専用ではないため、<span class="red">シャドウバンや予期せぬアカウント凍結の可能性アリ。</span></div>
         </div>
       </div>
 
@@ -108,8 +188,8 @@
         <div class="case">
           <div class="case-title">無料の違法アダルトサイトの場合</div>
           <img src="{{ MEDIA_URL }}others/違法サイトの場合.png" alt="">
-          <div class="description">全員がアダルトコンテンツに関心があるが、ファンサイトへの誘導は当然なく、
-            利用者が多くても作者の稼ぎにはつながらない。そもそも違法。</div>
+          <div class="description">
+            利用者が多くてもファンサイトへの誘導は当然なく、<span class="red">作者の稼ぎにはつながらない。</span>そもそも違法。</div>
         </div>
       </div>
 
@@ -119,69 +199,43 @@
         <div class="case solution">
           <div class="case-title solution-title">Viewyの場合</div>
           <img src="{{ MEDIA_URL }}others/Viewyの場合.png" alt="">
-          <div class="description">無料で使えるため訪問者が多い。<br>
-            全員がアダルトコンテンツに関心がある、あなたの潜在的なファン。<br>
-            Viewyは、獲得した新たなファンを、投稿とプロフィールに添付されているリンクから、スムーズにあなたのファンサイトへと誘導。
-            さらなる収益につながります。</div>
+          <div class="description">
+            <div class="good-point">
+              <span class="good">完全無料</span>で使えるため訪問者が多い。
+            </div>
+            <div class="good-point">
+              アダルトコンテンツ専用であるため、<br><span class="good">凍結の心配なし。</span>
+            </div>
+            <div class="good-point">
+              投稿とプロフィールに掲載したリンクを経由して<br><span class="good">獲得した新たなファンをスムーズにあなたのファンサイトへと誘導。</span><br>
+              さらなる収益につながります。
+            </div>
+            </div>
         </div>
       </div>
       </div>
+    </div>
+
 
       <div class="block">
         <div class="part">
           <div class="title">
             ユーザーネームを送信するだけの、簡単なパートナー登録
           </div>
+          <div class="chat-img">
+            <div class="example">※X（Twitter）の場合</div>
+            <img src="{{ MEDIA_URL }}others/ツイッターのやりとり.jpg" alt="">
+          </div>
           <div class="content">
-            本来パートナー登録には、本人確認などの手順が必要ですが、<br>特別招待の場合は、このリンクが送信されたDMかメールに<span>ご自身が決めたユーザーネームを送るだけで登録が完了</span>します。</div>
+            ファインサイトでの活動が確認できれば、このリンクが送信されたDMかメールに<br><span>ご自身が決めたユーザーネームを送るだけで登録が完了</span>します。</div>
             
-            <div class="chat-img">
-              <div class="example">※X（Twitter）の場合</div>
-              <img src="{{ MEDIA_URL }}others/ツイッターのやりとり.jpg" alt="">
-            </div>
+
           </div>
       </div>
-
-
 
 
       <div class="block">
-
-        <div class="part special">
-          <div class="title">
-            早めの登録で、２倍稼ごう
-          </div>
-
-          <div class="content">
-            特別招待された方に限り、<br><span>８月３１日まで</span>に<br><span>パートナー登録および、最低３つの投稿</span><br>をしていただければ、<br>
-            <span style="font-size: 20px; text-decoration: underline; text-decoration-color: rgb(0, 251, 255);">Viewyにおける投稿の表示率が永久に２倍になる</span>というプレミアを付与させていただきます。<br>
-            このプレミアを手に入れることで、<br><span>このサイトを通した収益が永久に２倍になる</span>ことが見込まれます。ぜひともお早めの登録、投稿をよろしくお願いします。
-          </div>
-        </div>
-      </div>
-
-      <div class="table special">
-        <div class="block">
-
-          <div class="table-title">表示率２倍までのステップ</div>
-          <div class="step">ユーザー登録し、ユーザーネームを送る</div>
-          ↓
-          <div class="step">パートナー登録が完了する</div>
-          ↓
-          <div class="step">８月３１日までに３つ以上の投稿をする</div>
-          ↓
-          <div class="step goal">
-            <div class="mini">プレミア</div>
-            <div>投稿の表示率が永久に２倍に！！</div>
-          </div>
-
-        </div>
-      </div>
-
-
-
-      <div class="block">
-        <div class="title" style="text-decoration-color: rgb(255, 174, 0);">下のボタンから<br>さっそくプレミアを手に入れましょう。</div>
+        <div class="title" style="text-decoration-color: rgb(255, 174, 0);">下のボタンから<br>さっそくViewyに参加しましょう。</div>
       </div>
 
 
@@ -199,6 +253,28 @@
 {% block script %}
 
 {% endblock %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // スクロール速度（大きいほど速くなる）
+    let speed = 1;
+
+    // list1要素を取得し、左から右にスクロール
+    let list1 = document.querySelector('.list1');
+    let scrollAmount1 = 0;
+    setInterval(function () {
+      scrollAmount1 += speed;
+      list1.scrollLeft = scrollAmount1;
+    }, 30);
+
+    // list2要素を取得し、左から右にスクロール（見た目は逆方向）
+    let list2 = document.querySelector('.list2');
+    let scrollAmount2 = 0;
+    setInterval(function () {
+      scrollAmount2 += speed;
+      list2.scrollLeft = list2.scrollWidth - list2.clientWidth - scrollAmount2;
+    }, 30);
+  });
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var blocks = document.querySelectorAll('.block');

@@ -37,8 +37,10 @@
         <th>パートナー</th>
         <th>表示名</th>
         <th>フォロワー</th>
+        <th>Sフォロワー</th>
         <th>投稿数</th>
         <th>視聴回数</th>
+        <th>S視聴回数</th>
         <th>平均QP</th>
         <th>ブースト</th>
       </tr>
@@ -52,9 +54,11 @@
           {{ user.displayname }}
         </td>
         <td>{{ user.follow_count }}</td>
+        <td>{{ user.support_follow_count}}</td>
         <td>{{ user.total_posts }}</td>
         <td>{{ user.total_views }}</td>
-        <td>{{ user.avg_qp|floatformat:3 }}</td>
+        <td>{{ user.total_support_views|floatformat:"0" }}</td>
+        <td>{{ user.avg_qp|floatformat:2 }}</td>
         <td>
           <form method="post" action="{% url 'management:update_boost_type' user.id %}" class="boostTypeForm" data-user-id="{{ user.id }}">
             {% csrf_token %}

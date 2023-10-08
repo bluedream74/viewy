@@ -2,6 +2,8 @@ from django import forms
 from .models import AdCampaigns, AdInfos, RequestDocument, SetMeeting
 from posts.models import Posts
 from django.shortcuts import render
+from django.core.exceptions import ValidationError
+
 
 class AdCampaignForm(forms.ModelForm):
     class Meta:
@@ -110,3 +112,5 @@ class SetMeetingForm(forms.ModelForm):
         elif meeting_type == 'chat':
             if not x_account:
                 self.add_error('x_account', 'IDを入力してください。')
+                
+                

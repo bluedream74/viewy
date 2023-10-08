@@ -44,6 +44,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 128px;
+  font-weight: bold;
   /* text-decoration: underline;
   text-decoration-color: aqua; */
 }
@@ -92,6 +93,10 @@
 
 .follow-button{
   display: none;
+}
+
+.follow-count{
+  font-weight: bold;
 }
 
 

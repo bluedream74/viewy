@@ -10,6 +10,7 @@ from django.conf import settings
 # Third-party libraries
 from django.core.files.base import File, ContentFile
 from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Sum, Count
 from django.db.models.signals import post_save
@@ -22,6 +23,7 @@ import imageio_ffmpeg as ffmpeg
 
 # Local application/library specific imports
 from accounts.models import Users
+from management.models import SupportRate
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
@@ -46,6 +48,7 @@ class Posts(models.Model):
     favorite_count = models.PositiveIntegerField(default=0)
     support_favorite_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
+    support_views_count = models.FloatField(default=0.0) 
     report_count = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False)
     favorite_rate = models.FloatField(default=0.0) 
@@ -150,15 +153,29 @@ class Posts(models.Model):
             'viewyboost': 10
         }
         
+
         # この投稿の投稿者のブーストの倍数を取得
         multiplier = boost_multipliers.get(self.poster.boost_type, 1)  # boost_typeが認識されない場合はデフォルトで1を使用
 
         self.qp = ((self.favorite_rate / 100 * factor_a) + (self.stay_rate_point() / 100 * factor_b)) * multiplier
-        
+
+        # postのposterのis_realがfalseであれば、SupportRateモデルのsupport_manga_rateでQPを掛ける
+        if hasattr(self.poster, 'is_real') and not self.poster.is_real:
+            try:
+                manga_rate = SupportRate.objects.get(name='support_manga_rate').value
+                self.qp *= float(manga_rate)  # manga_rateをfloatにキャスト
+                print(f"マンガの倍数: {manga_rate}")
+            except ObjectDoesNotExist:
+                pass  # support_manga_rateが見つからなかった場合、何もしない
+
+        # QPが3より大きい場合、3に制限する
+        if self.qp > 3:
+            self.qp = 3
+
         # boostより上のブーストタイプを持つ場合、その状態をprint
         if multiplier > boost_multipliers['boost']:
             print(f"この投稿者は {self.poster.boost_type} 状態です。")
-        
+
         print(f"QP（{self.poster.boost_type}適用）: {self.qp}")
         
     def update_qp_if_necessary(self):

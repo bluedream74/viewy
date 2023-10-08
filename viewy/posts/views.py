@@ -2,6 +2,7 @@
 from datetime import datetime
 import os
 import random
+import math
 from random import sample  
 
 # Third-party Django
@@ -29,6 +30,7 @@ from django.views.generic.list import ListView
 # Local application/library specific
 from accounts.models import Follows, SearchHistorys, Surveys
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
+from management.models import SupportRate
 from .forms import PostForm, SearchForm, VisualForm, VideoForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
 
@@ -393,17 +395,25 @@ class VisitorPostListView(BasePostListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        # 指定したIDの投稿を取得
-        specified_ids = [446, 190, 302, 433, 318]
-        queryset = super().get_queryset().filter(id__in=specified_ids)
-        
-        # 指定したIDの順番に合わせて投稿を並べ替える
-        posts = sorted(queryset, key=lambda post: specified_ids.index(post.id))
-        return posts
+        # 親クラスのget_querysetを呼び出し
+        base_query = super().get_queryset()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+        # is_realがTrueのユーザーの投稿で、favorite_countが上位5件を取得
+        real_user_posts = base_query.filter(poster__is_real=True).order_by('-favorite_count')[:5]
+
+        # is_realがFalseのユーザーの投稿で、favorite_countが上位5件を取得
+        not_real_user_posts = base_query.filter(poster__is_real=False).order_by('-favorite_count')[:5]
+
+        # 上記の2つのクエリセットを結合
+        combined_query = real_user_posts.union(not_real_user_posts).order_by('-favorite_count')[:10]
+
+        # クエリを実行して結果をリストに変換
+        combined_posts = list(combined_query)
+
+        # 10件の投稿の中からランダムに5件を選択
+        posts = random.sample(combined_posts, 5)
+        
+        return posts
     
 
 class BaseFavoriteView(BasePostListView):
@@ -984,12 +994,8 @@ class MangaCreateView(BasePostCreateView):
         response = super().form_valid(form)
         image_files = self.request.FILES.getlist('visuals')
 
-        # 画像の枚数が4ページ以下の場合は、content_lengthを20秒に設定
-        if len(image_files) <= 4:
-            form.instance.content_length = 20
-        else:
-            # 画像の枚数に5を掛けて秒数を計算
-            form.instance.content_length = len(image_files) * 5
+        # 画像の枚数に5を掛けて秒数を計算
+        form.instance.content_length = len(image_files) * 5
 
         form.save()
 
@@ -1464,7 +1470,7 @@ class ViewDurationCountView(View):
         duration = request.POST.get('duration')
 
         try:
-            post = Posts.objects.only('views_count', 'poster', 'favorite_count', 'content_length', 'avg_duration', 'poster__boost_type').select_related('poster').get(id=post_id)
+            post = Posts.objects.only('views_count', 'poster', 'favorite_count', 'content_length', 'avg_duration', 'poster__boost_type','support_favorite_count','support_views_count','qp').select_related('poster').get(id=post_id)
         except Posts.DoesNotExist:
             return JsonResponse({'error': 'Post not found'}, status=404)
 
@@ -1473,19 +1479,58 @@ class ViewDurationCountView(View):
 
         # 視聴回数のカウントアップ
         post.views_count += 1
+
+        # データベースからmaster_denominatorの値を取得
+        support_rate = SupportRate.objects.get(name="master_denominator")
+        denominator = int(support_rate.value)  # valueを整数に変換
+
+        # qpの値を少数第2位まで切り捨て
+        qp_rounded = math.floor(post.qp * 100) / 100
+
+        # qp_roundedの1.34乗を計算
+        numerator = qp_rounded ** 1.34
+
+        # 0からdenominatorの範囲でランダムな浮動小数点数を生成して、それがnumeratorより小さいか確認
+        if random.uniform(0, denominator) < numerator:
+            post.support_favorite_count += 1
+            
+            # QPに基づいてsupport_follow_countの増加確率を計算
+            if post.qp >= 3:
+                chance = 1.0
+            elif 1 < post.qp < 3:
+                chance = 1.0 - 0.5 * ((3 - post.qp) / 2)
+            else:
+                chance = 0.5
+
+            # 計算された確率でposterのsupport_follow_countを増加させる
+            if random.random() < chance:
+                post.poster.support_follow_count += 1
+
+        # 見られるごとにsupport_views_countを増やす
+        additional_views = (numerator / denominator) * 125 * (qp_rounded + 1) ** -1.322
+        incremented_views = math.floor(additional_views * 10) / 10  # 少数第2位を切り捨てて、少数第1位を残す
+        post.support_views_count += incremented_views
+
         post.update_favorite_rate()
         post.update_qp_if_necessary()
 
-
+        # すべての更新をデータベースに反映
         Posts.objects.filter(id=post_id).update(
             views_count=post.views_count,
             favorite_count=post.favorite_count,
             content_length=post.content_length,
             avg_duration=post.avg_duration,
             favorite_rate=post.favorite_rate,
-            qp=post.qp
+            qp=post.qp,
+            support_favorite_count=post.support_favorite_count,
+            support_views_count=post.support_views_count  # これも追加
         )
-        
+
+        # 投稿者のsupport_follow_countをデータベースに反映
+        Users.objects.filter(id=post.poster.id).update(
+            support_follow_count=post.poster.support_follow_count
+        )
+
         user_id = request.session.get('_auth_user_id')
         ViewDurations.objects.create(
             user_id=user_id,
@@ -1633,3 +1678,4 @@ class EmoteCountView(View):
 
         return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})
 
+# ああ

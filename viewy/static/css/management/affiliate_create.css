@@ -1,0 +1,32 @@
+.block{
+  background-color: white;
+  padding: 16px;
+  margin: 0px 32px;
+  box-shadow: 0px 2px 3px gainsboro;
+  text-align: center;
+  border-radius: 8px;
+}
+
+form > div{
+  margin: 24px 0px;
+}
+
+input{
+  border-radius: 50px;
+  padding: 4px;
+  margin: 0px 8px;
+}
+
+.title input{
+  width: 70%;
+}
+
+button{
+  padding: 8px 32px;
+  background-color: rgb(72, 239, 239);
+  font-weight: bold;
+  color: white;
+  border-radius: 50px;
+  font-size: 18px;
+  border: none;
+}
