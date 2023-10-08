@@ -32,7 +32,7 @@
   <div>
     <form data-pk="{{ poster.pk }}" action="{% url 'accounts:follow' pk=poster.pk %}" method="POST">
       {% csrf_token %}
-      <div class="counter">フォロワー <span class="follow-count">{{ poster.follow_count }}</span>人</div>
+      <div class="counter">フォロワー <span class="follow-count">{{ poster.follow_count|add:poster.support_follow_count }}</span>人</div>
       <input type="hidden" name="poster_pk" value="{{ poster.pk }}">
       <label>
         {% if poster.is_followed_by_current_user %}

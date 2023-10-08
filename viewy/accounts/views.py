@@ -118,7 +118,30 @@ class PartnerApplicationGuideView(TemplateView):
     template_name = 'partner_application_guide.html'    
     
 class ForInvitedView(TemplateView):
-    template_name = 'for_invited.html'    
+    template_name = 'for_invited.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # 'Poster' グループを取得
+        poster_group = Group.objects.get(name='Poster')
+        
+        # 'Poster' グループのメンバーでis_real=Trueを取得し、follow_countが大きい順にソート
+        real_users = poster_group.user_set.filter(is_active=True, is_real=True).order_by('-follow_count')[:15]
+
+        # 'Poster' グループのメンバーでis_real=Falseを取得し、follow_countが大きい順にソート
+        not_real_users = poster_group.user_set.filter(is_active=True, is_real=False).order_by('-follow_count')[:15]
+        
+        # ユーザーからプロフィール画像を取得
+        poster_imgs1 = [user.prf_img.url for user in real_users if user.prf_img]
+        poster_imgs2 = [user.prf_img.url for user in not_real_users if user.prf_img]
+        
+        # コンテキストにプロフィール画像のリストを追加
+        context['poster_imgs1'] = poster_imgs1
+        context['poster_imgs2'] = poster_imgs2
+        
+        return context
+    
     
 class ForAdvertiserView(TemplateView):
     template_name = 'for_advertiser.html'
@@ -129,19 +152,20 @@ class ForAdvertiserView(TemplateView):
         # 'Poster' グループを取得
         poster_group = Group.objects.get(name='Poster')
         
-        # 'Poster' グループのメンバーを取得
-        poster_users = poster_group.user_set.filter(is_active=True)
+        # 'Poster' グループのメンバーでis_real=Trueを取得し、follow_countが大きい順にソート
+        real_users = poster_group.user_set.filter(is_active=True, is_real=True).order_by('-follow_count')[:15]
+
+        # 'Poster' グループのメンバーでis_real=Falseを取得し、follow_countが大きい順にソート
+        not_real_users = poster_group.user_set.filter(is_active=True, is_real=False).order_by('-follow_count')[:15]
         
-        # ランダムにユーザーを選び、そのプロフィール画像を取得
-        selected_users = random.sample(list(poster_users), min(30, len(poster_users)))
-        
-        # プロフィール画像を15個ずつに分ける
-        poster_imgs1 = [user.prf_img.url for user in selected_users[:15] if user.prf_img]
-        poster_imgs2 = [user.prf_img.url for user in selected_users[15:30] if user.prf_img]
+        # ユーザーからプロフィール画像を取得
+        poster_imgs1 = [user.prf_img.url for user in real_users if user.prf_img]
+        poster_imgs2 = [user.prf_img.url for user in not_real_users if user.prf_img]
         
         # コンテキストにプロフィール画像のリストを追加
         context['poster_imgs1'] = poster_imgs1
         context['poster_imgs2'] = poster_imgs2
+        
         return context
 
     

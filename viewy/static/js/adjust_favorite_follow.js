@@ -37,11 +37,9 @@ document.addEventListener('change', event => {
       body: formData,
     })
       .then(response => response.json())
-      .then(data => {
+      .then(() => {
         // 応答を受け取った後、ボタンを再度有効化
         likeButton.disabled = false;
-        // サーバーからの応答を受けてカウントを更新（必要に応じて）
-        favoriteCountElement.textContent = data.favorite_count;
       })
       .catch(error => {
         console.log(error);
@@ -138,8 +136,7 @@ FollowButtons.forEach(FollowButton => {
         }
         return response.json();
       })
-      .then(data => {
-        followCountElement.textContent = data.follow_count;
+      .then(() => {
         // 応答を受け取った後、ボタンを再度有効化
         FollowButton.disabled = false;
       })

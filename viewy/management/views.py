@@ -12,6 +12,7 @@ from django.db.models.functions import Concat, TruncMonth, TruncDate, TruncHour
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
+from django.views.generic.edit import FormView, CreateView
 
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -24,7 +25,7 @@ from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys
 from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations
-from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm
+from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm, AffiliateForm, AffiliateInfoForm
 from .models import UserStats, ClickCount
 
 from django.contrib.auth.models import Group
@@ -263,6 +264,7 @@ class Partner(SuperUserCheck, TemplateView):
             total_posts=Count('posted_posts'),
             avg_qp=Avg('posted_posts__qp'),
             total_views=Sum('posted_posts__views_count'),
+            total_support_views=Sum('posted_posts__support_views_count')
         )
 
         for user in users:
@@ -315,8 +317,8 @@ class Post(SuperUserCheck, View):
     template_name = 'management/post.html'
 
     def get(self, request, *args, **kwargs):
-        # Posts と関連する Users をプリフェッチし、QPが高い投稿順に上位から３０投稿だけ取得
-        posts = Posts.objects.all().prefetch_related('poster').order_by('-qp')[:30]
+        # Posts と関連する Users をプリフェッチし、QPが高い投稿順に上位から60投稿だけ取得
+        posts = Posts.objects.all().prefetch_related('poster').order_by('-qp')[:60]
 
         # すべての投稿の数をカウント
         total_posts = Posts.objects.count()
@@ -507,7 +509,43 @@ class Ad(SuperUserCheck, View):
 
         context = {'ads': ads}
         return render(request, self.template_name, context)
+    
+class AffiliateCreateView(SuperUserCheck, CreateView):
+    template_name = 'management/affiliate_create.html'
+    
+    def get(self, request, *args, **kwargs):
+        affiliate_form = AffiliateForm()
+        adinfo_form = AffiliateInfoForm()  # user引数の渡し方を削除
+        return render(request, self.template_name, {
+            'affiliate_form': affiliate_form,
+            'adinfo_form': adinfo_form,
+        })
+    
+    def post(self, request, *args, **kwargs):
+        affiliate_form = AffiliateForm(request.POST)
+        adinfo_form = AffiliateInfoForm(request.POST)  # user引数の渡し方を削除
+        
+        if affiliate_form.is_valid() and adinfo_form.is_valid():
+            affiliate_instance = affiliate_form.save(commit=False) 
+            
+            # affiliate@gmail.comのメールアドレスのユーザーを取得
+            poster_user = Users.objects.get(email='affiliate@gmail.com')
+            affiliate_instance.poster = poster_user  # そのユーザーをposterに設定
+            
+            affiliate_instance.save()  # 保存
 
+            adinfo_instance = adinfo_form.save(commit=False)
+            adinfo_instance.post = affiliate_instance
+            adinfo_instance.save()
+
+            return redirect(reverse_lazy('management:affiliate_create'))
+
+        return render(request, self.template_name, {
+            'affiliate_form': affiliate_form,
+            'adinfo_form': adinfo_form,
+        })
+        
+        
 class PosterWaiterList(SuperUserCheck, ListView):
     template_name = 'management/poster_waiter.html'
     context_object_name = 'users'

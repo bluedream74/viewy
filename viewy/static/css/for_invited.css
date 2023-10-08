@@ -18,9 +18,10 @@
 }
 
 .main-img{
-  width: 400px;
+  width: 130px;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 30px;
   opacity: 0; /* 初期の透明度 */
   transition: opacity 1s ease; /* 透明度の変化を1秒かけて */
 }
@@ -81,7 +82,30 @@
   animation: slideIn 1s ease forwards;
 }
 
+.about-viewy{
+  padding-bottom: 32px;
+}
 
+.sample{
+  margin: 4px 0px 32px;
+}
+
+.big{
+  width: 100%;
+  position: relative;
+  top: -58px;
+}
+
+.scores{
+  display: flex;
+  justify-content: space-around;
+  position: relative;
+  top: -48px;
+}
+
+.score > img{
+  width: 100%;
+}
 
 .main{
   width: 100%;
@@ -106,6 +130,8 @@ span{
   font-weight: bold;
 }
 
+
+
 .sub-catch{
   width: 100%;
   text-align: center;
@@ -115,10 +141,41 @@ span{
   color: rgb(69, 69, 69);
 }
 
+.partner-list{
+  width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  overflow: scroll;
+}
+
+.partner-img{
+  border-radius: 50%;
+  height: 64px;
+  width: 64px;
+  min-width: 64px;
+  border: 1px solid black;
+  margin-left: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.partner-img > img{
+  width: 64px;
+}
+
 .be-partner1{
   width: 100%;
   text-align: center;
   margin-top: 16px;
+}
+
+.team{
+  font-size: 13px;
+  margin-left: 8px;
+  color: gray;
 }
 
 hr{
@@ -127,6 +184,79 @@ hr{
   margin-bottom: 48px;
 }
 
+.video{
+  text-align: center;
+  background-color: rgb(14, 14, 14);
+}
+
+video{
+  border-radius: 4px;
+  margin: 32px auto;
+}
+
+#number{
+  width: 130px;
+}
+
+.point{
+  padding: 32px 24px;
+  text-align: center;
+  background-color: rgb(247, 255, 255);
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px gainsboro;
+  margin: 24px;
+  position: relative;
+  border: 2px solid #5cefe8;
+}
+
+.number{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background-color: #5cefe8;
+  color: white;
+  border-radius: 4px 0px 8px 0px;
+  text-align: center;
+  font-weight: bold;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+}
+
+.point img{
+  width: 100px;
+}
+
+.point .img{
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin:0px auto 16px;
+}
+
+.point-title{
+  font-weight: bold;
+}
+
+.sub{
+  font-size: 12px;
+  color: rgb(97, 97, 97);
+}
+
+#fansite{
+  width: 130px;
+}
+
+#harry{
+  width: 140px;
+}
 
 .part{
   max-width: 100%;
@@ -142,10 +272,7 @@ hr{
   font-size: 32px;
   font-weight: bold;
   color: rgb(69, 69, 69);
-  margin-left: 32px;
-  text-decoration: underline;
-  text-decoration-color: rgb(77, 239, 239);
-  text-decoration-line: 4px;
+  text-align: center;
 }
 
 .title{
@@ -159,6 +286,16 @@ hr{
   text-decoration-line: 4px;
 }
 
+.mega{
+  color: black;
+  font-size: 38px;
+}
+
+.line{
+  width: 60px;
+  margin: 8px auto;
+  border-bottom: #5cefe8 4px solid;
+}
 
 .content{
   margin-top: 16px;
@@ -194,37 +331,53 @@ hr{
   box-shadow: 0px 2px 3px grey;
 }
 
+.white{
+  padding: 16px 24px;
+  margin: auto 16px;
+  background-color: white;
+  border-radius: 8px;
+}
+
 .case{
   width: 85%;
   text-align: center;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 32px;
-  margin-top: 8px;
+  margin-top: 32px;
   font-size: 14px;
   padding: 32px 16px;
   border-radius: 8px;
-  background-color: rgb(237, 237, 237);
-  box-shadow: 0px 1px 3px grey;
+  background-color: rgb(250, 250, 250);
+  box-shadow: 0px 2px 4px gainsboro;
   color: rgb(69, 69, 69);
+  font-weight: bold;
 }
 
 .case-title{
   width: max-content;
   margin-left: auto;
   margin-right: auto;
-  font-size: 14px;
+  font-size: 16px;
   padding: 4px 16px;
   border-radius: 4px;
-  background-color: rgb(174, 174, 174);
+  background-color: rgb(129, 129, 129);
   box-shadow: 0px 1px 3px grey;
   color: white;
   margin-bottom: 8px;
+  font-weight: bold;
 }
 
 .case >img{
   width: 85%;
   margin-bottom: 8px;
+}
+.red{
+  color: rgb(255, 50, 50);
+}
+.good{
+  color: orange;
+  font-size: 20px;
 }
 
 .description{
@@ -233,11 +386,10 @@ hr{
 }
 
 .partner{
-  background-color: rgb(246, 255, 254);
+  background-color: #5cefe8;
 }
 
 .solution{
-  margin-top: 80px;
   background-color: rgb(255, 255, 255);
 }
 
@@ -248,7 +400,11 @@ hr{
 .solution-title{
   font-size: 16px;
   font-weight: bold;
-  background-color: rgb(76, 230, 230);
+  background-color: rgb(116, 228, 228);
+}
+
+.good-point{
+  margin-bottom: 8px;
 }
 
 .example{

@@ -1,0 +1,67 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/management/affiliate_create.css' %}">
+
+{% endblock %}
+
+
+{% block content %}
+<div class="page-title">アフィリエイト広告作成</div>
+
+<div class="block">
+  <form method="post">
+    {% csrf_token %}
+  
+    <div>
+      <!-- AdInfoFormのフィールド -->
+      <label>{{ adinfo_form.ad_campaign.label }}</label>
+      {{ adinfo_form.ad_campaign }}
+    </div>
+  
+    <div class="title">
+      {{ affiliate_form.title }}
+    </div>
+    <div class="flex">
+      <div>
+        {{ affiliate_form.hashtag1 }}    
+      </div>
+      <div>
+        {{ affiliate_form.hashtag2 }}    
+      </div>
+      <div>
+        {{ affiliate_form.hashtag3 }}    
+      </div>      
+    </div>
+
+    <div>
+      {{ affiliate_form.caption }}    
+    </div>
+    <div>
+      {{ affiliate_form.affiliate_tag }}    
+    </div>
+    <div>
+      <button type="submit">投稿</button> 
+    </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

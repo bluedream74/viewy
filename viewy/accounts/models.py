@@ -87,6 +87,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     view_post_count = models.PositiveIntegerField(default=0)  # 視聴ポスト数のフィールド
     follow = models.ManyToManyField('self', through='Follows', symmetrical=False, related_name='followed_by')
     follow_count = models.PositiveIntegerField(default=0)
+    support_follow_count = models.PositiveIntegerField(default=0)
     report_count = models.PositiveIntegerField(default=0)  # 報告回数のフィールド
     verification_code = models.CharField(max_length=5, null=True, blank=True)   # 認証用のコード
     verification_code_generated_at = models.DateTimeField(null=True)

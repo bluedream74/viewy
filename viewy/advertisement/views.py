@@ -346,6 +346,7 @@ class AdVideoCreateView(BaseAdCreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
+
 class IsHiddenToggle(AdvertiserCheckView, View):
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')

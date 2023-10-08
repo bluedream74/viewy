@@ -6,9 +6,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Viewy</title>
-  <meta name="description" content="Viewy[ビューイー]は、最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。">
-  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <title>無料でエロ動画・エロ漫画が楽しめるアダルト版Tiktok『Viewy（ビューイー）』</title>
+  <meta name="description" content="無料でTiktok風のエロ動画とエロ漫画がリール形式で楽しめる夢のエロサイト。オナニー動画、ハメ撮り、エロ漫画、エロイラストを見るならViewy(ビューイー)がおすすめ！今日も裏垢女子やエロ漫画家の新しいえっちな投稿が続々更新中！邪魔なポップアップ広告や違法広告は一切なく、認可を受けたパートナーが投稿しているから安心安全。">
+  <link rel="icon" href="https://bucket-for-viewy-static-imgs.s3.ap-northeast-1.amazonaws.com/favicon.ico" type="image/x-icon">
 
   
   <!-- ツイッターのカード設定 -->
@@ -17,32 +17,33 @@
   <meta name="twitter:domain" content="www.viewy.net" />
   <meta name="twitter:title" content="Viewy[ビューイー]" />
   <meta name="twitter:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
-  <meta name="twitter:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+  <meta name="twitter:image" content="{{ MEDIA_URL }}others/card_for_all.png" />
 
   <!-- Open Graph設定 -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.viewy.net" />
   <meta property="og:title" content="Viewy[ビューイー]| 動画とマンガがリール形式で楽しめる スマホ向けウェブサービス" />
   <meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
-  <meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
+  <meta property="og:image" content="{{ MEDIA_URL }}/others/card_for_all.png" />
   
   <link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
   <link rel="stylesheet" href="{% static 'css/stylecheck_age.css' %}">
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-C5HF2NBPEV');
+  </script>
   {% load static %}
 
   {% block static %}
   {% endblock %}
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-C5HF2NBPEV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-C5HF2NBPEV');
-</script>
 <body>
   <div class="screen">
 
