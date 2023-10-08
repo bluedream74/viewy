@@ -162,9 +162,9 @@ class Posts(models.Model):
         # postのposterのis_realがfalseであれば、SupportRateモデルのsupport_manga_rateでQPを掛ける
         if hasattr(self.poster, 'is_real') and not self.poster.is_real:
             try:
-                manga_rate = SupportRate.objects.get(name='support_manga_rate').value
+                manga_rate = SupportRate.objects.get(name='support_manga_qp_rate').value
                 self.qp *= float(manga_rate)  # manga_rateをfloatにキャスト
-                print(f"マンガの倍数: {manga_rate}")
+                print(f"マンガのQP倍数: {manga_rate}")
             except ObjectDoesNotExist:
                 pass  # support_manga_rateが見つからなかった場合、何もしない
 

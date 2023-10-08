@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core import serializers
 from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField, Subquery
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
@@ -278,8 +279,16 @@ class PostListView(BasePostListView):
             return redirect('accounts:user_login')
         return super().dispatch(request, *args, **kwargs)
     
+    def apply_manga_rate_to_rp(self, post):
+        if hasattr(post.poster, 'is_real') and not post.poster.is_real:
+            try:
+                manga_rate = SupportRate.objects.get(name='support_manga_rp_rate').value
+                post.rp *= float(manga_rate)  # manga_rateをfloatにキャストしてRPに掛ける
+            except ObjectDoesNotExist:
+                pass  # support_manga_rateが見つからなかった場合、何もしない
+
     def get_combined_posts(self, posts, user):
-    # 1. QP順でソート
+        # 1. QP順でソート
         sorted_posts_by_qp = sorted(posts, key=lambda post: post.qp, reverse=True)
 
         # 投稿IDのリストを取得
@@ -293,6 +302,7 @@ class PostListView(BasePostListView):
         for post in sorted_posts_by_qp:
             viewed_count = viewed_count_dict.get(post.id, 0)  # 辞書から閲覧数を取得。デフォルト値は0。
             post.rp = post.calculate_rp_for_user(user, followed_posters_set, viewed_count)
+            self.apply_manga_rate_to_rp(post)  # 必要な場合、マンガレートをRPに適用する
 
         # 3. RP順で再ソート
         sorted_posts_by_rp = sorted(sorted_posts_by_qp, key=lambda post: post.rp, reverse=True)
@@ -1496,11 +1506,15 @@ class ViewDurationCountView(View):
             
             # QPに基づいてsupport_follow_countの増加確率を計算
             if post.qp >= 3:
-                chance = 1.0
-            elif 1 < post.qp < 3:
-                chance = 1.0 - 0.5 * ((3 - post.qp) / 2)
-            else:
-                chance = 0.5
+                chance = 2/3  # 三分の二 (2/3)
+            elif post.qp <= 1:
+                chance = 1/5  # 五分の一 (1/5)
+            else:  # 1 < post.qp < 3 の場合
+                linear_interpolation = 1/5 + (2/3 - 1/5) * ((3 - post.qp) / 2)
+                chance = linear_interpolation
+
+            # qpとchanceの値を表示
+            print(f"QP: {post.qp}, Chance: {chance}")
 
             # 計算された確率でposterのsupport_follow_countを増加させる
             if random.random() < chance:
