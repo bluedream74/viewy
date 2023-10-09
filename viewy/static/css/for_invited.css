@@ -247,7 +247,9 @@ video{
 
 .sub{
   font-size: 12px;
+  font-weight: bold;
   color: rgb(97, 97, 97);
+  margin-top: 8px;
 }
 
 #fansite{
@@ -299,7 +301,7 @@ video{
 
 .content{
   margin-top: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
   font-size: 15px;
   line-height: 28px;
   color: rgb(69, 69, 69);
@@ -336,19 +338,19 @@ video{
   margin: auto 16px;
   background-color: white;
   border-radius: 8px;
+  text-align: center;
 }
 
 .case{
-  width: 85%;
+  max-width: 100%;
   text-align: center;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 32px;
   margin-top: 32px;
   font-size: 14px;
-  padding: 32px 16px;
-  border-radius: 8px;
-  background-color: rgb(250, 250, 250);
+  padding: 32px 8px;
+  background-color: rgb(255, 255, 255);
   box-shadow: 0px 2px 4px gainsboro;
   color: rgb(69, 69, 69);
   font-weight: bold;
@@ -358,22 +360,31 @@ video{
   width: max-content;
   margin-left: auto;
   margin-right: auto;
-  font-size: 16px;
+  font-size: 20px;
   padding: 4px 16px;
   border-radius: 4px;
-  background-color: rgb(129, 129, 129);
+  background-color: rgb(255, 63, 124);
   box-shadow: 0px 1px 3px grey;
   color: white;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   font-weight: bold;
 }
 
+.ice{
+  background-color: rgb(26, 134, 234);
+}
+
+.alive{
+  color: rgb(26, 134, 234);
+}
+
 .case >img{
-  width: 85%;
+  width: 100%;
   margin-bottom: 8px;
+  margin-top: 16px;
 }
 .red{
-  color: rgb(255, 50, 50);
+  color: rgb(234, 93, 0);
 }
 .good{
   color: orange;
@@ -382,15 +393,19 @@ video{
 
 .description{
   text-align: left;
+  font-size: 16px;
+  padding: 0px 12px;
   line-height: 24px;
+  line-height: 32px;
 }
 
 .partner{
-  background-color: #5cefe8;
+  background-color: #f0f0f0;
 }
 
 .solution{
   background-color: rgb(255, 255, 255);
+  margin-bottom: 0px;
 }
 
 .solution > img{
@@ -398,13 +413,68 @@ video{
 }
 
 .solution-title{
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
-  background-color: rgb(116, 228, 228);
+  background-color: rgb(0, 207, 207);
 }
 
 .good-point{
   margin-bottom: 8px;
+}
+
+.dark{
+  background-color: rgb(0, 167, 167);
+  padding: 48px 10px;
+}
+
+.plus{
+  box-shadow: 0px 2px 4px rgb(113, 113, 113);
+  background-color: white;
+}
+
+.gate{
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 8px;
+  padding-left: 32px;
+  border-radius: 4px;
+  box-shadow: 0px 2px 4px gainsboro;
+  position: relative;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: black;
+}
+
+.count{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  border-radius: 4px 0px 4px 0px;
+  background-color: rgb(0, 207, 207);
+  color: white;
+  margin-right: 8px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+.gift{
+  padding: 12px 24px;
+  margin: 8px 16px 24px;
+  border-radius: 50px;
+  background: linear-gradient(to right, rgb(0, 225, 225), rgb(0, 243, 243));
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+.double{
+  background-color: rgb(233, 0, 50);
 }
 
 .example{
@@ -422,7 +492,7 @@ video{
   padding: 16px 16px;
   text-align: center;
   border-radius: 8px;
-  box-shadow: 0px 2px 3px grey;
+  box-shadow: 0px 2px 4px gainsboro;
 
 }
 
