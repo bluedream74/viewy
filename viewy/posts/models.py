@@ -35,11 +35,11 @@ from PIL import ImageSequence
 class Posts(models.Model):
     poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posted_posts')
     ismanga = models.BooleanField(default=False)
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=40)
     hashtag1 = models.CharField(max_length=20, blank=True, null=True)
     hashtag2 = models.CharField(max_length=20, blank=True, null=True)
     hashtag3 = models.CharField(max_length=20, blank=True, null=True)
-    caption = models.CharField(max_length=100, blank=True)
+    caption = models.CharField(max_length=140, blank=True)
     url = models.URLField(max_length=500, blank=True, null=True)
     affiliate_tag = models.TextField(max_length=1000, blank=True, null=True)  # 広告タグを保存するフィールドを追加
     posted_at = models.DateTimeField(auto_now_add=True)
