@@ -73,9 +73,9 @@
         {% if url %}
         <div class="url-container">
           <div class="url"><a href="{{ url }}">
-            {% if url_prefix and url_prefix != "link" %}
+            {% if url_prefix and url_prefix != "link" and url_prefix != "pixiv" and url_prefix != "fanbox" and url_prefix != "patreon" %}
             <img class="url-icon" src="{{ MEDIA_URL }}link_logo/{{ url_prefix }}_black.png" alt="">
-            {% elif url_prefix == "link" %}
+            {% elif url_prefix == "link" or url_prefix == "pixiv" or url_prefix == "fanbox" or url_prefix == "patreon" %}
             <i class="fas fa-link"></i>
             {% endif %}
             </a></div>

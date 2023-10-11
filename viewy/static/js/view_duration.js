@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addPostIdToProcessedPosts(postId) {
-        if (processedPosts.size >= 20) {
+        if (processedPosts.size >= 8) {
             const firstId = processedPosts.values().next().value; // Get the first item
             processedPosts.delete(firstId); // Remove the oldest item
         }

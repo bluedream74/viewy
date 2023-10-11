@@ -146,7 +146,13 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'profu.link' in self.url1:
             return 'profu.link'      
         elif 'knip' in self.url1:
-            return 'knip'      
+            return 'knip'
+        elif 'pixiv' in self.url1:
+            return 'pixiv'
+        elif 'fanbox' in self.url1:
+            return 'fanbox'
+        elif 'patreon' in self.url1:
+            return 'patreon'      
         else:
             return 'link'
 
@@ -181,7 +187,13 @@ class Users(AbstractBaseUser, PermissionsMixin):
         elif 'profu.link' in self.url2:
             return 'profu.link'      
         elif 'knip' in self.url2:
-            return 'knip'      
+            return 'knip'  
+        elif 'pixiv' in self.url2:
+            return 'pixiv'
+        elif 'fanbox' in self.url2:
+            return 'fanbox'
+        elif 'patreon' in self.url2:
+            return 'patreon'       
         else:
             return 'link'
 
@@ -216,6 +228,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'profu.link'      
         elif 'knip' in self.url3:
             return 'knip'      
+        elif 'pixiv' in self.url3:
+            return 'pixiv'
+        elif 'fanbox' in self.url3:
+            return 'fanbox'
+        elif 'patreon' in self.url3:
+            return 'patreon'   
         else:
             return 'link'
 
@@ -250,6 +268,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'profu.link'      
         elif 'knip' in self.url4:
             return 'knip'      
+        elif 'pixiv' in self.url4:
+            return 'pixiv'
+        elif 'fanbox' in self.url4:
+            return 'fanbox'
+        elif 'patreon' in self.url4:
+            return 'patreon'   
         else:
             return 'link'
 
@@ -284,6 +308,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
             return 'profu.link'      
         elif 'knip' in self.url5:
             return 'knip'      
+        elif 'pixiv' in self.url5:
+            return 'pixiv'
+        elif 'fanbox' in self.url5:
+            return 'fanbox'
+        elif 'patreon' in self.url5:
+            return 'patreon'   
         else:
             return 'link'
         
