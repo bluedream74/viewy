@@ -403,3 +403,54 @@ class SurveyResults(models.Model):
 
     def __str__(self):
         return f"{self.user.username} answered {self.survey.question} with {self.selected_option.name}"
+    
+
+    
+# 通知用のモデル
+class Notification(models.Model):
+    title = models.CharField(max_length=255)
+    content1 = models.TextField()
+    img = models.ImageField(upload_to='notifications/images/')
+    video = models.FileField(upload_to='notifications/videos/')  # 注意: 適切な動画フィールドやライブラリを使用することも考慮してください。
+    content2 = models.TextField()
+    only_partner = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title
+
+# 通知の視聴履歴用のモデル    
+class NotificationView(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="notification_views")
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name="views")
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'notification']
+
+    def __str__(self):
+        return f"{self.user.username} viewed {self.notification.title} at {self.viewed_at}"
+    
+
+
+# 凍結通知用のモデル    
+class FreezeNotification(models.Model):
+    poster = models.ManyToManyField(Users, related_name="ice_alerts")
+    new_url = models.URLField(max_length=200)
+    approve = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"IceAlert {self.id} - URL: {self.new_url}"
+
+# 凍結通知の視聴履歴用のモデル      
+class FreezeNotificationView(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="freeze_notification_views")
+    freeze_notification = models.ForeignKey(FreezeNotification, on_delete=models.CASCADE, related_name="views")
+    viewed_at = models.DateTimeField(auto_now_add=True)
+    deleted = models.BooleanField(default=False)  # ユーザーが通知を消したかどうかを示すフィールド
+
+    class Meta:
+        unique_together = ['user', 'freeze_notification']
+
+    def __str__(self):
+        status = "deleted" if self.deleted else "active"
+        return f"{self.user.username} viewed FreezeNotification {self.freeze_notification.id} ({status}) at {self.viewed_at}"
