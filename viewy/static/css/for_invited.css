@@ -399,6 +399,13 @@ video{
   line-height: 32px;
 }
 
+.date{
+  font-weight: bold;
+  font-size: 20px;
+  text-decoration: underline;
+  text-decoration-color: #5cefe8;
+}
+
 .partner{
   background-color: #f0f0f0;
 }
@@ -430,6 +437,7 @@ video{
 .plus{
   box-shadow: 0px 2px 4px rgb(113, 113, 113);
   background-color: white;
+  font-weight: bold;
 }
 
 .gate{
