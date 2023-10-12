@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block static %}
+<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
 <link rel="stylesheet" href="{% static 'css/stylecreate.css' %}">
 {% endblock %}
 {% block content %}
@@ -33,7 +34,7 @@
       <div class="error">{{ form.title.errors }}</div>
       {{ form.title }}
     </div>
-    <div class="url">
+    <div class="url-set">
       <div class="error">{{ form.url.errors }}</div>
       {{ form.url }}
     </div>
@@ -41,16 +42,133 @@
       <div class="error">{{ form.hashtag1.errors }}</div>
       <div class="error">{{ form.hashtag2.errors }}</div>
       <div class="error">{{ form.hashtag3.errors }}</div>
-      #{{ form.hashtag1 }}
-      #{{ form.hashtag2 }}
-      #{{ form.hashtag3 }}
+      <div class="hashtag1">#{{ form.hashtag1 }}</div>
+      <div class="hashtag2">#{{ form.hashtag2 }}</div>
+      <div class="hashtag3">#{{ form.hashtag3 }}</div>
     </div>
     <div class="caption">
       <div class="error">{{ form.caption.errors }}</div>
       {{ form.caption }}
     </div>
+    <input type="submit" class="submit-button"  name="preview_button" value="プレビュー">
     <input class="button" type="submit" value="投稿する" id="submit-button">
   </form>
+</div>
+
+<div class="post-preview">
+  <div class="close-preview">戻る</div>
+  <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
+    <div class="spinner"></div>
+    <div class="book">
+    </div>
+
+    <div class="content">
+      <div class="side-bar">
+
+        <div class="poster">
+          <div>
+            <a class="poster_username">
+              <img class="poster-img" src="{{user.prf_img.url}}" alt="{{user.prf_img}}">
+            </a>
+          </div>
+        </div>
+
+        <div class="follow-poster">
+          <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
+        </div>
+
+        <div class="favorite">
+          <a class="fa-regular fa-heart not-liked" style="color: rgb(255, 255, 255);"></a>
+        </div>
+
+
+        <div class="emotes" data-formatted-total-emote="{{ post.emote_total_count }}">
+          <div class="emote emote-icon">
+            <i class="fa-regular fa-face-smile"></i>
+            <span class="emote-count total-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="Emote 2" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/発射36ppi.png" alt="Emote 3" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/尊い36ppi.png" alt="Emote 4" />
+            <span class="emote-count">0</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/よだれ36ppi.png" alt="Emote 5" />
+            <span class="emote-count">0</span>
+          </div>
+        </div>
+
+
+
+        <div class="mute">
+          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+            <input type="checkbox" class="mute-frag" checked>
+          </label>
+        </div>
+        <div class="space-for-hide"></div>
+
+      </div>
+
+      <div class="captions">
+        <div class="poster-name">
+          {% if user.displayname %}
+          <a class="poster-name">＠{{user.displayname}}</a>
+          {% else %}
+          <a class="poster-name">＠{{user.username}}</a>
+          {% endif %}
+        </div>
+        <div class="preview-title">
+        </div>
+
+        <div class="preview-caption"></div>
+        <div class="preview-hashtags">
+
+          <span class="url preview-url"><a href="" target="_blank">
+              <i class="fas fa-link"></i>
+            </a></span>
+          <span class="hashtag"><a></a></span>
+          <span class="hashtag"><a></a></span>
+          <span class="hashtag"><a></a></span>
+
+        </div>
+      </div>
+
+      <div class="report not-yet">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+
+    </div>
+
+
+    <label class="hide-label fa-solid fa-angle-down hide">
+      <input class="hide-input" type="checkbox" style="display: none;">
+    </label>
+
+
+    <div class="page-count">
+      <span id="current-page">?</span>/<span class="total-page">?</span>
+    </div>
+
+  </div>
+  
+  <div class="tab-bar">
+    <a class="home"><i class="fa-solid fa-house fa-xs"></i></a>
+    <a class="serch"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+    <a class="add-post visitor"><i class="fa-solid fa-square-plus fa-sm"></i></a>
+    <a class="like visitor"><i class="fa-solid fa-star fa-xs"></i></a>
+    <a class="my-account visitor"><i class="fa-solid fa-user fa-xs"></i></a>
+  </div>
 </div>
 
 <div class="bottom-space"></div>
@@ -93,4 +211,6 @@
       buttonElement.style.cursor = "not-allowed"; 
   }
 </script>
+<script src="{% static 'js/preview_manga.js' %}"></script>
+<script src="{% static 'js/hide_contents.js' %}"></script>
 {% endblock %}
