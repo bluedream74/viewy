@@ -90,6 +90,59 @@
 {% endif %}
 {% endif %}
 
+{% if user.gender %}
+<!-- 通常の通知モーダル -->
+{% for notification in unread_notifications %}
+<div id="NotificationModal{{ notification.id }}" class="notification-modal">
+  <div class="notification-modal-content">
+    {% if notification.only_partner %}
+    <div class="notification-main-title">パートナーへお知らせ</div>
+    {% else %}
+    <div class="notification-main-title">お知らせ</div>
+    {% endif %}
+    <div class="notification-modal-title">{{ notification.title }}</div>
+    <div class="notification-content">{{ notification.content1 }}</div>
+    {% if notification.img %}
+    <img src="{{ notification.img.url }}" alt="Notification Image">
+    {% endif %}
+    {% if notification.video %}
+    <video controls  playsinline loop muted autoplay>
+      <source src="{{ notification.video.url }}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    {% endif %}
+    <div class="notification-content">{{ notification.content2 }}</div>
+    <button class="notification-close">閉じる</button>
+  </div>
+</div>
+{% endfor %}
+
+<!-- 凍結通知モーダル -->
+{% for freeze_notification in unread_freeze_notifications %}
+<div id="FreezeNotificationModal{{ freeze_notification.id }}" class="freeze-notification-modal">
+  <div class="freeze-notification-modal-content">
+    <div class="freeze-notification-main-title">HELP!</div>
+    <div class="freezed-partner"><img src="{{freeze_notification.poster.prf_img.url}}" alt=""></div>
+    <i class="fa-regular fa-snowflake freeze"></i>
+
+    <div class="freeze-notification-modal-title"><span class="freeze-name">{{ freeze_notification.poster.displayname|default:freeze_notification.poster.username }}</span>様</div>
+    <div class="freeze-notification-modal-title">のXアカウントが凍結しました。</div>
+    <div class="freeze-notification-url"><a href="{{ freeze_notification.new_url }}" class="new_url">新しいアカウントを確認</a></div>
+    <button class="freeze-notification-close"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+</div>
+{% endfor %}
+
+{% endif %}
+
+
+
+
+
+
+
+
+
 <style>
   .home{
     border-top: solid 2px aqua;
@@ -117,6 +170,46 @@ $(function() {
         }, 3000);  // 3 secs
         
     }, 500);  // 0.5 sec
+});
+</script>
+<script>
+  $(document).ready(function() {
+    // 最初のモーダルを表示
+    $(".notification-modal:first").show();
+
+    // 閉じるボタンをクリックした時の動作
+    $(".notification-close").click(function() {
+        // 現在のモーダルを非表示にする
+        var currentModal = $(this).closest(".notification-modal");
+        currentModal.hide();
+
+        // 次のモーダルを表示する
+        currentModal.next(".notification-modal").show();
+
+        // Ajaxを使用して視聴履歴に保存する
+        var notificationId = currentModal.attr("id").replace("NotificationModal", "");
+        $.post("/accounts/save_notification_view/", { notification_id: notificationId });
+    });
+});
+</script>
+<script>
+  $(document).ready(function() {
+    // 最初のモーダルを表示
+    $(".freeze-notification-modal:first").show();
+
+    // 閉じるボタンやリンクをクリックした時の動作
+    $(".freeze-notification-close, .new_url").click(function() {
+        // 現在のモーダルを非表示にする
+        var currentModal = $(this).closest(".freeze-notification-modal");
+        currentModal.hide();
+
+        // 次のモーダルを表示する
+        currentModal.next(".freeze-notification-modal").show();
+
+        // Ajaxを使用して視聴履歴に保存する
+        var freezeNotificationId = currentModal.attr("id").replace("FreezeNotificationModal", "");
+        $.post("/accounts/save_freeze_notification_view/", { freeze_notification_id: freezeNotificationId });  // エンドポイントを正しく設定してください
+    });
 });
 </script>
 {% if not user.gender %}

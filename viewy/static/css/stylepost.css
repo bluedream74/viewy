@@ -1266,6 +1266,189 @@ label {
   margin-bottom: 16px;
 }
 
+/* 通知モーダルのスタイル */
+.notification-modal {
+  /* .survey-modalのスタイルをコピー */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1002; /* 通知モーダルがsurvey-modalの上に表示されるようにz-indexを調整 */
+  opacity: 0;
+  animation: surveyFadeIn 0.5s forwards;
+  display: none;
+}
+
+.notification-modal-content {
+  /* .survey-modal-contentのスタイルをコピー */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  animation: surveySlideUp 1s forwards;
+  padding: 32px 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: rgb(69, 69, 69);
+}
+
+.notification-main-title{
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.notification-modal-title{
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+}
+
+.notification-content{
+  font-size: 12px;
+  margin-bottom: 8px;
+  text-align: left;
+  padding: 0px 8px;
+}
+
+.notification-modal img{
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.notification-modal video{
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.notification-close{
+  background-color: rgb(74, 234, 234);
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 50px;
+  font-size: 16px;
+  padding: 8px 36px;
+}
+
+/* 凍結通知モーダルのスタイル */
+.freeze-notification-modal {
+  /* .survey-modalのスタイルをコピー */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1003; /* 凍結通知モーダルが他のモーダルの上に表示されるようにz-indexを調整 */
+  opacity: 0;
+  animation: surveyFadeIn 0.5s forwards;
+  display: none;
+}
+
+.freeze-notification-modal-content {
+  /* .survey-modal-contentのスタイルをコピー */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  animation: surveySlideUp 1s forwards;
+  padding: 32px;
+  background-color: #eff3f9;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: rgb(69, 69, 69);
+}
+
+.freezed-partner > img{
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid rgb(0, 187, 255);
+}
+
+.freeze-tom > img{
+  width: 40px;
+}
+
+.freeze-notification-modal-title{
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 3px;
+  margin-top: 8px;
+}
+
+.freeze-name{
+  display: inline-block;
+  padding: 4px 8px;
+  margin-right: 8px;
+  font-size: 18px;
+  border-radius: 4px;
+  background-color: white;
+  box-shadow: 0px 1px 3px gainsboro;
+}
+
+.freeze-notification-main-title{
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-decoration: underline;
+  text-decoration-color: rgb(0, 187, 255);
+}
+
+.freeze{
+  color: rgb(160, 230, 255);
+  position: absolute;
+  font-size: 18px;
+  top: 120px;
+  right: 112px;
+}
+
+.new_url{
+  display: block;
+  padding: 8px 8px;
+  font-size: 16px;
+  color: white;
+  font-weight: bold;
+  background-color: rgb(0, 187, 255);
+  border-radius: 50px;
+  margin-top: 16px;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+.new_url:hover{
+  cursor: pointer;
+  box-shadow: none;
+  background-color: rgb(0, 127, 173);
+}
+
+.freeze-notification-close{
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  color: #535353;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: none;
+  border: none;
+}
+
+.freeze-notification-close:hover{
+  cursor: pointer;
+  color: #000;
+}
+
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 

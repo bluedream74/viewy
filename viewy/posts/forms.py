@@ -1,5 +1,6 @@
 from django import forms
 from .models import Posts, Videos
+from accounts.models import FreezeNotification
 from django.core.exceptions import ValidationError
 from moviepy.editor import VideoFileClip
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
@@ -116,5 +117,11 @@ class SearchForm(forms.Form):
         label=False,  # ラベルを非表示にする
         )
     
-    
-# Masterユーザー用
+# 凍結通知申請フォーム
+class FreezeNotificationForm(forms.ModelForm):
+    class Meta:
+        model = FreezeNotification
+        fields = ['new_url']
+        widgets = {
+            'new_url': forms.URLInput(attrs={'placeholder': 'URLを入力'}),
+        }

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView
+  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView
 )
 from . import views
 
@@ -30,4 +30,6 @@ urlpatterns = [
   path('change_dimension/', ChangeDimensionView.as_view(), name='change_dimension'),
   path('first_setting/', FirstSettingView.as_view(), name='first_setting'),
   path('survey_answer/<int:selected_option_id>/', SurveyAnswerView.as_view(), name='survey_answer'),
+  path('save_notification_view/', SaveNotificationView.as_view(), name='save_notification_view'),
+  path('save_freeze_notification_view/', SaveFreezeNotificationView.as_view(), name='save_freeze_notification_view'),
 ]

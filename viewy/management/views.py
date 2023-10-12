@@ -6,6 +6,7 @@ import random
 from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib import messages
 from django.core import serializers
 from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, F, Sum, Value, When, OuterRef, Subquery, Min)
 from django.db.models.functions import Concat, TruncMonth, TruncDate, TruncHour
@@ -13,6 +14,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView, CreateView
+
 
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -23,7 +25,7 @@ from django.views.generic import ListView, DeleteView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
-from accounts.models import Users, SearchHistorys
+from accounts.models import Users, SearchHistorys, FreezeNotification
 from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations
 from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm, AffiliateForm, AffiliateInfoForm
 from .models import UserStats, ClickCount
@@ -608,3 +610,36 @@ class ClickCountView(View):
             # 実際のプロダクション環境では、エラー内容をロギングするなどの対応が必要です。
             print(f"Error processing RUClickCount for {name}: {e}")
             return JsonResponse({"error": "Unable to process request."}, status=500)
+        
+
+class FreezeNotificationApproveView(View):
+    template_name = 'management/freeze_notification_approve.html'
+
+    def get(self, request, *args, **kwargs):
+        # 未承認の凍結通知を取得
+        unapproved_notifications = FreezeNotification.objects.filter(approve=False)
+        return render(request, self.template_name, {'unapproved_notifications': unapproved_notifications})
+
+    def post(self, request, *args, **kwargs):
+        try:
+            notification_id = request.POST.get('notification_id')
+            notification = FreezeNotification.objects.get(id=notification_id)
+            notification.approve = True
+            notification.save()
+            messages.success(request, "承認が完了しました。")
+        except FreezeNotification.DoesNotExist:
+            messages.error(request, "該当する通知が見つかりません。")
+        return redirect('/management/freeze_notification_approve/')
+    
+
+class DeleteFreezeNotificationView(View):
+
+    def post(self, request, *args, **kwargs):
+        notification_id = request.POST.get('notification_id')
+        try:
+            notification = FreezeNotification.objects.get(id=notification_id)
+            notification.delete()
+            messages.success(request, "通知を削除しました。")
+        except FreezeNotification.DoesNotExist:
+            messages.error(request, "該当する通知が見つかりません。")
+        return redirect('management:freeze_notification_approve') 

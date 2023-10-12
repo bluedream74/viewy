@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+  <link rel="stylesheet" href="{% static 'css/freeze_list.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="title">凍結通知申請</div>
+<div class="top-space"></div>
+
+<div class="block">
+  <div class="freeze-title">申請完了</div>
+  <div class="survey-tom"><img src="{{ MEDIA_URL }}others/指さし.png" alt=""></div>
+  <div class="guide">凍結通知申請を受け付けました。<br>
+  通知されるまで１日ほどお時間をいただきます。通知が開始しましたら、「運営からのメッセージ」にてお知らせいたします。もうしばらくお待ちください。</div>
+  <a href="{% url 'posts:my_account' %}" class="back">もどる</a>
+</div>
+
+
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script type="module" src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+{% endblock %}

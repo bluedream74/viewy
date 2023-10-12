@@ -32,7 +32,7 @@ from django.contrib.auth.views import LoginView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
-from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults
+from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults, NotificationView, FreezeNotificationView
 from management.models import UserStats
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
@@ -41,7 +41,6 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.template.loader import render_to_string
-from accounts.models import Users
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import random
@@ -937,3 +936,28 @@ class SurveyAnswerView(View):
                 return JsonResponse({'status': 'error', 'message': 'Invalid survey'}, status=400)
         else:
             return JsonResponse({'status': 'error', 'message': 'Not authenticated'}, status=401)
+        
+        
+class SaveNotificationView(View):
+    
+    def post(self, request, *args, **kwargs):
+        notification_id = request.POST.get('notification_id')
+        
+        if notification_id:
+            NotificationView.objects.create(user=request.user, notification_id=notification_id)
+            return JsonResponse({"status": "success"})
+        
+        return JsonResponse({"status": "error"})
+    
+
+class SaveFreezeNotificationView(View):
+    def post(self, request, *args, **kwargs):
+        freeze_notification_id = request.POST.get('freeze_notification_id')
+        
+        if freeze_notification_id:
+            FreezeNotificationView.objects.create(user=request.user, freeze_notification_id=freeze_notification_id)
+            return JsonResponse({"status": "success"})
+        
+        return JsonResponse({"status": "error"})
+    
+    

@@ -1,0 +1,46 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="block">
+    <table>
+      <thead>
+          <tr>
+              <th>依頼者</th>
+              <th>新しいURL</th>
+              <th>承認</th>
+              <th>削除</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for notification in unapproved_notifications %}
+          <tr>
+              <td>{{ notification.poster.display_name|default:notification.poster.username }}</td>
+              <td><a href="{{ notification.new_url }}">{{ notification.new_url }}</a></td>
+              <td>
+                  <form method="post" action="{% url 'management:freeze_notification_approve' %}" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                      <button type="submit">承認</button>
+                  </form>
+              </td>
+              <td>
+                  <!-- ここから削除フォームの追加部分 -->
+                  <form method="post" action="{% url 'management:delete_freeze_notification' %}" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                      <button type="submit">削除</button>
+                  </form>
+              </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+{% endblock %}

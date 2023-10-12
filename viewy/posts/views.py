@@ -8,6 +8,8 @@ from random import sample
 # Third-party Django
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
@@ -29,10 +31,10 @@ from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
 # Local application/library specific
-from accounts.models import Follows, SearchHistorys, Surveys
+from accounts.models import Follows, SearchHistorys, Surveys, Notification, FreezeNotification, FreezeNotificationView, NotificationView
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from management.models import SupportRate
-from .forms import PostForm, SearchForm, VisualForm, VideoForm
+from .forms import PostForm, SearchForm, VisualForm, VideoForm, FreezeNotificationForm
 from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
 
 from collections import defaultdict
@@ -277,15 +279,20 @@ class PostListView(BasePostListView):
         # ユーザーがログインしていない場合、ログイン画面にリダイレクト
         if not request.user.is_authenticated:
             return redirect('accounts:user_login')
-        return super().dispatch(request, *args, **kwargs)
-    
-    def apply_manga_rate_to_rp(self, post):
-        if hasattr(post.poster, 'is_real') and not post.poster.is_real:
+        
+        # SupportRateからsupport_manga_rp_rateを事前に取得して保持する
+        if not hasattr(self, 'manga_rate'):
+            self.manga_rate = None
             try:
-                manga_rate = SupportRate.objects.get(name='support_manga_rp_rate').value
-                post.rp *= float(manga_rate)  # manga_rateをfloatにキャストしてRPに掛ける
+                self.manga_rate = float(SupportRate.objects.get(name='support_manga_rp_rate').value)
             except ObjectDoesNotExist:
-                pass  # support_manga_rateが見つからなかった場合、何もしない
+                pass
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def apply_manga_rate_to_rp(self, post):
+        if hasattr(post.poster, 'is_real') and not post.poster.is_real and self.manga_rate:
+            post.rp *= self.manga_rate
 
     def get_combined_posts(self, posts, user):
         # 1. QP順でソート
@@ -371,6 +378,24 @@ class PostListView(BasePostListView):
                 context['unanswered_survey'] = unanswered_survey
             else:
                 context['unanswered_survey'] = None
+                
+            # 未読の通知を取得
+            read_notifications = NotificationView.objects.filter(user=user).values_list('notification_id', flat=True)
+            if user.groups.filter(name='Poster').exists():  # ユーザーがPosterグループに所属しているかチェック
+                # Posterグループのユーザーには、only_partnerがTrueまたはFalseの通知を表示
+                unread_notifications = Notification.objects.exclude(id__in=read_notifications)
+            else:
+                # それ以外のユーザーには、only_partnerがFalseの通知のみを表示
+                unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
+            context['unread_notifications'] = unread_notifications
+
+            # ユーザーがフォローしているposterのIDリストを取得
+            followed_posters_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
+
+            # approveがTrueである未読の凍結通知を取得
+            read_freeze_notifications = FreezeNotificationView.objects.filter(user=user).values_list('freeze_notification_id', flat=True)
+            unread_freeze_notifications = FreezeNotification.objects.exclude(id__in=read_freeze_notifications).filter(approve=True, poster_id__in=followed_posters_ids)
+            context['unread_freeze_notifications'] = unread_freeze_notifications
 
         return context
        
@@ -1258,7 +1283,59 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
             poster.is_followed_by_current_user = poster.id in followed_by_user_ids
 
         return follow_posters
+
+
+class FreezeNotificationRequest(View):
+    template_name = 'posts/freeze_notification_request.html'
+
+    def get(self, request):
+        form = FreezeNotificationForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = FreezeNotificationForm(request.POST)
+        if form.is_valid():
+            freeze_notification = form.save(commit=False)
+            freeze_notification.poster = request.user
+            freeze_notification.save()
+            # ここで適切なメッセージを表示したり、他のページにリダイレクトすることも可能です
+            return redirect('/posts/freeze_notification_request_success/')
+
+        return render(request, self.template_name, {'form': form})
     
+
+class FreezeNotificationRequestSuccessView(TemplateView):
+    template_name = 'posts/freeze_notification_request_success.html'
+    
+
+class FreezeListView(TemplateView):
+    template_name = 'posts/freeze_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 現在の日時を取得
+        now = timezone.now()
+
+        # 3ヶ月前の日時を計算
+        three_months_ago = now - timedelta(days=90)
+
+        # ユーザーがフォローしているposterのIDリストを取得
+        followed_posters_ids = Follows.objects.filter(user=self.request.user).values_list('poster_id', flat=True)
+
+        # その中で最近凍結され、かつ3ヶ月以内に作成されたポスターのIDリストを取得
+        recently_frozen_posters_ids = FreezeNotification.objects.filter(
+            approve=True, 
+            poster_id__in=followed_posters_ids, 
+            created_at__gte=three_months_ago   # 3ヶ月以内に作成されたものに絞り込み
+        ).values_list('poster_id', flat=True)
+        
+        # IDリストを使用して、Usersモデルから該当するポスターの情報を取得
+        recently_frozen_posters = Users.objects.filter(id__in=recently_frozen_posters_ids)
+        
+        context['freeze_posters'] = recently_frozen_posters
+
+        return context
     
   
 # マイアカウントページ
@@ -1502,7 +1579,11 @@ class ViewDurationCountView(View):
         # qp_roundedの1.34乗を計算
         numerator = qp_rounded ** 1.34
 
-        # 0からdenominatorの範囲でランダムな浮動小数点数を生成して、それがnumeratorより小さいか確認
+        # 0からdenominatorの範囲でランダムな浮動小数点数を生成して、それがnumeratorより小さいか確認の前に、
+        # サポートいいねの数と普通のいいねの数を確認し、条件に応じてnumeratorを調整
+        if post.support_favorite_count > 3 * post.favorite_count:  # ここで普通のいいねの数を確認する仮定
+            numerator /= 5  # numeratorの値を5分の1にします
+
         if random.uniform(0, denominator) < numerator:
             post.support_favorite_count += 1
             

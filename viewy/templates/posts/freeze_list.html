@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+  <link rel="stylesheet" href="{% static 'css/freeze_list.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="title">最近Xが凍結したパートナー</div>
+<div class="top-space"></div>
+
+{% if freeze_posters %}
+{% for poster in freeze_posters %}
+<div class="follow-poster">
+  <div>
+    <a href="{% url 'posts:poster_page' username=poster.username %}">
+      <img class="poster-img" src="{{poster.prf_img.url}}">
+    </a>
+  </div>
+  <div class="caption">
+    <a href="{% url 'posts:poster_page' username=poster.username %}">
+      {% if poster.displayname %}
+        <div class="poster-name">{{poster.displayname}}</div>
+      {% else %}
+        <div class="poster-name">{{poster.username}}</div>
+      {% endif %}
+    </a>
+    <div class="view-new">
+      <!-- 新しいアカウントを見るボタン -->
+      {% with notification=poster.ice_alerts.first %}
+      <a href="{{ notification.new_url }}" class="view-new-account">新しいアカウントを確認</a>
+      {% endwith %}
+    </div>
+  </div>
+
+</div>
+{% endfor %}
+<div class="bottom-space"></div>
+{% else %}
+<div class="no-content">最近凍結したアカウントはありません</div>
+{% endif %}
+
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script type="module" src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+{% endblock %}

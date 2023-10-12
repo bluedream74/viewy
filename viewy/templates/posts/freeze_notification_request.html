@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+  <link rel="stylesheet" href="{% static 'css/freeze_list.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="title">凍結通知申請</div>
+<div class="top-space"></div>
+
+<div class="block">
+  <div class="freeze-title">回復を早めよう</div>
+  <div class="survey-tom"><img src="{{ MEDIA_URL }}others/アンケート.png" alt=""></div>
+  <div class="guide">新しいXアカウントのURLを入力してください。確認後、ご自身のフォロワーに通知致します。</div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {# フィールド名が "new_url" だと仮定します。 #}
+    <div class="form-group">
+        {{ form.new_url }}
+        {% if form.new_url.errors %}
+            <div class="error">
+                {% for error in form.new_url.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <input type="submit" value="申請" class="submit">
+</form>
+</div>
+
+
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script type="module" src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+{% endblock %}

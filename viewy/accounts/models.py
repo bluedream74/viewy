@@ -440,10 +440,10 @@ class SurveyResults(models.Model):
 class Notification(models.Model):
     title = models.CharField(max_length=255)
     content1 = models.TextField()
-    img = models.ImageField(upload_to='notifications/images/')
-    video = models.FileField(upload_to='notifications/videos/')  # 注意: 適切な動画フィールドやライブラリを使用することも考慮してください。
-    content2 = models.TextField()
-    only_partner = models.BooleanField(default=False)
+    img = models.ImageField(upload_to='notifications_images/', blank=True, null=True)  # オプショナル
+    video = models.FileField(upload_to='notifications_videos/', blank=True, null=True)  # オプショナル、注意: 適切な動画フィールドやライブラリを使用することも考慮してください。
+    content2 = models.TextField(blank=True, null=True)  # オプショナル
+    only_partner = models.BooleanField(default=False, blank=True)  # defaultを設定したままで、フォーム上でオプショナルにするためにはblank=Trueを追加
 
     def __str__(self):
         return self.title
@@ -464,9 +464,10 @@ class NotificationView(models.Model):
 
 # 凍結通知用のモデル    
 class FreezeNotification(models.Model):
-    poster = models.ManyToManyField(Users, related_name="ice_alerts")
+    poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="ice_alerts")
     new_url = models.URLField(max_length=200)
     approve = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)  # 作成日を追加
 
     def __str__(self):
         return f"IceAlert {self.id} - URL: {self.new_url}"

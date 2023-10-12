@@ -202,10 +202,20 @@
       <div class="line"></div>
     </div>
 
+    <div class="freeze-notification-request">
+      <a href="{% url 'posts:freeze_notification_request'%}"><i class="fa-solid fa-bullhorn fa-lg mini-logo"></i>凍結通知申請</a>
+      <div class="line"></div>
+    </div>
+
   {% endif %}
 
   <div class="follow-list">
     <a href="{% url 'posts:my_follow_list'%}"><i class="fa-solid fa-user-group mini-logo"></i>フォロー中</a>
+    <div class="line"></div>
+  </div>
+
+  <div class="freeze-list">
+    <a href="{% url 'posts:freeze_list'%}"><i class="fa-regular fa-snowflake fa-lg mini-logo" style="margin-left: 1px;"></i>X凍結中のパートナー</a>
     <div class="line"></div>
   </div>
 

@@ -378,6 +378,25 @@ video{
   color: rgb(26, 134, 234);
 }
 
+.img-guide{
+  text-align: center;
+  margin-top: 16px;
+}
+
+#freeze{
+  width: 70%;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px gainsboro;
+  margin: 0px;
+}
+
+#freeze-list{
+  width: 70%;
+  box-shadow: 0px 2px 4px gainsboro;
+  margin: 0px;
+
+}
+
 .case >img{
   width: 100%;
   margin-bottom: 8px;
@@ -403,7 +422,9 @@ video{
   font-weight: bold;
   font-size: 20px;
   text-decoration: underline;
-  text-decoration-color: #5cefe8;
+  text-decoration-color: #ef5c5c;
+  margin-top: 8px;
+  color: black;
 }
 
 .partner{
@@ -429,6 +450,10 @@ video{
   margin-bottom: 8px;
 }
 
+.flex{
+  display: flex;
+}
+
 .dark{
   background-color: rgb(0, 167, 167);
   padding: 48px 10px;
@@ -441,16 +466,20 @@ video{
 }
 
 .gate{
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  padding: 4px 8px;
-  padding-left: 32px;
+  width: 70%;
+  margin: 0px auto;
+  text-align: center;
+  padding: 4px 20px;
   border-radius: 4px;
   box-shadow: 0px 2px 4px gainsboro;
   position: relative;
-  margin-top: 8px;
-  margin-bottom: 8px;
   color: black;
+}
+
+.and{
+  text-align: center;
 }
 
 .count{
@@ -479,6 +508,7 @@ video{
   font-weight: bold;
   text-align: center;
   box-shadow: 0px 2px 4px gainsboro;
+  text-shadow: 0px 0px 2px rgb(0, 185, 185);
 }
 
 .double{

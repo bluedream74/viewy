@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (Account, RecordUserStats, GetUserStats, UserAnalytics, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, AffiliateCreateView, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, SearchEmailandAddPoster, ClickCountView)
+from .views import (Account, RecordUserStats, GetUserStats, UserAnalytics, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, AffiliateCreateView, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, SearchEmailandAddPoster, ClickCountView, FreezeNotificationApproveView, DeleteFreezeNotificationView)
 from . import views
 
 app_name = 'management'
@@ -22,4 +22,6 @@ urlpatterns = [
   path('remove_from_wait_list/<int:user_id>/', RemoveFromWaitList.as_view(), name='remove_from_wait_list'),
   path('search_user/', SearchEmailandAddPoster.as_view(), name='search_user'),
   path('click_count/<str:name>/', ClickCountView.as_view(), name='click_count'),
+  path('freeze_notification_approve/', FreezeNotificationApproveView.as_view(), name='freeze_notification_approve'),
+  path('delete_freeze_notification/', DeleteFreezeNotificationView.as_view(), name='delete_freeze_notification'),
 ]
