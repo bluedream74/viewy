@@ -104,7 +104,7 @@ form input{
   width: 80%;
 }
 
-.url{
+.url-set{
   margin-top: 24px;
 }
 
@@ -115,10 +115,22 @@ form input{
 .hashtags{
   color: white;
   margin-top: 24px;
+  margin-left: 17px;
+  display: flex;
+  align-items: center;
 }
 
-.hashtags > input{
+.hashtag1, .hashtag2, .hashtag3 {
+  margin-right: 5px;  /* 右の余白を5pxに設定 */
+}
+
+.hashtag3 {
+  margin-right: 0;  /* 最後のハッシュタグの右の余白を0に設定 */
+}
+
+.hashtags > div > input{
   width: 80px;
+  box-sizing: border-box; 
 }
 
 .caption{
@@ -132,6 +144,27 @@ form input{
   background-color: rgb(50, 50, 50);
   border-radius: 4px;
   color: white;
+}
+
+.preview-caption {
+ font-size: 14px;
+}
+
+.preview-hashtags {
+  margin-top: 4px;
+}
+
+.preview-url {
+  margin-right: 8px;
+  background-color: rgba(230, 230, 230, 0.5);
+  border-radius: 4px;
+  height: 28px;
+  width: 36px;
+  line-height: 28px;
+  text-align: center;
+  position: relative;
+  top: 1px;
+  display: inline-block;
 }
 
 
@@ -192,6 +225,31 @@ form input{
   width: 100%;
 }
 
+.post-preview {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, transparent 0%, transparent 56px, rgba(0, 0, 0, 0.8) 48px);
+  z-index: 900;
+}
+
+
+.close-preview {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #ffffff;
+  z-index: 1001;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
@@ -234,11 +292,13 @@ form input{
   
   .hashtags{
     color: white;
+    width: 100%;
     margin-top: 24px;
+    margin-left: 0;
   }
   
-  .hashtags > input{
-    width: 25%;
+  .hashtags > div > input{
+    width: 80%;
   }
   
   .caption{
@@ -261,6 +321,18 @@ form input{
     border: aqua 1.5px solid;
     border-bottom:  rgb(0, 153, 153) 1.5px solid;
     border-right:  rgb(0, 182, 182) 1.5px solid;
+    border-radius: 50px;
+    height: 40px;
+    width: 120px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .submit-button{
+    color: white;
+    margin-top: 24px;
+    border: rgb(120, 120, 120) 1.5px solid;
     border-radius: 50px;
     height: 40px;
     width: 120px;

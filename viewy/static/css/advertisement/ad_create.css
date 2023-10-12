@@ -146,10 +146,14 @@ textarea{
 }
 
 .post-preview{
-margin-left: auto;
+  position: relative; 
+  margin-left: auto;
 }
 
 .post-video {
+  position: absolute; /* 追加 */
+  top: 50%; /* 追加 */
+  left: 50%;
   transform: translate(-50%, -50%);
 }
 
