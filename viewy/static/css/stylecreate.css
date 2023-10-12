@@ -232,20 +232,20 @@ form input{
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(0deg, transparent 0%, transparent 56px, rgba(0, 0, 0, 0.8) 48px);
+  background: linear-gradient(0deg, transparent 0%, transparent 56px, rgb(0, 0, 0) 48px);
   z-index: 900;
 }
 
 
 .close-preview {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 24px;
+  left: 12px;
   font-size: 16px;
   cursor: pointer;
   color: #ffffff;
   z-index: 1001;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(146, 146, 146, 0.6);
   border-radius: 5px;
   padding: 5px 10px;
 }
