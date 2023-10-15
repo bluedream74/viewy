@@ -693,6 +693,20 @@ ul{
   margin-top: 32px;
 }
 
+.collection-name {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  opacity: 0.9;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  
+  /* Add these styles */
+  max-width: 80%;        /* Set max width to 80% */
+  overflow: hidden;      /* Hide the overflow content */
+  text-overflow: ellipsis; /* Use ... for overflow content */
+  white-space: nowrap;    /* Ensure content stays on a single line */
+}
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {

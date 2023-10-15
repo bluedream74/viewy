@@ -1,0 +1,351 @@
+.screen{
+  position: relative;
+}
+
+.menu-info{
+  width: 350px;
+  text-align: center;
+  height: 60px;
+  color: white;
+  position: fixed;
+  top: 0px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-title{
+  font-size: 18px;
+  margin-top: 16px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.947);
+  text-decoration: underline;
+  text-decoration-color: aqua;
+}
+
+.menu-area {
+  margin-top: 84px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0px;  /* 各コレクションアイテムの間隔を4pxに設定 */
+  justify-content: space-between;
+  color: white;
+  padding-bottom: 90px;
+}
+
+.menu-area a{
+  display: block;
+}
+
+.collection {
+  flex: 0 0 calc(50% - 16px);  /* 2列のレイアウトを強制するために50%に設定。gapの半分を引く */
+  position: relative;
+  height: 200px;  /* 適切な高さに調整してください */
+  border-radius: 4px;
+  background-color: rgb(39, 39, 39);
+  margin: 8px;
+  overflow: hidden;
+}
+
+.collection:hover{
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.collection-img{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  height: 200px;
+}
+
+.collection img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.collection-name {
+  font-size: 13px;
+  box-sizing: border-box;
+  padding: 8px 8px;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+  /* text-shadow: 0px 1px 2px rgb(54, 54, 54); */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.696), transparent);
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+}
+
+.collect-cont{
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background-color: rgba(109, 109, 109, 0.897);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(255, 255, 255);
+  width: 24px;
+  height: 24px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.empty{
+  font-size: 32px;
+  color: gray;
+}
+
+.ellipsis{
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  color: rgba(255, 255, 255, 0.947);
+  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.653);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ellipsis:hover{
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.modal {
+  transform: translateY(100%); /* 初期状態では画面の下側 */
+  transition: transform 0.3s ease-out; /* アニメーションの設定 */
+  position: fixed; 
+  bottom: 40px; 
+  width: 350px;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 2;
+}
+
+.modal.active {
+  transform: translateY(0); /* 画面内にモーダルを移動 */
+}
+
+.top-line{
+  background-color: rgb(166, 166, 166);
+  border-radius: 50px;
+  width: 32px;
+  height: 3px;
+  margin: 0px auto 16px;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  max-width: 100%;
+  padding: 8px 16px 64px;
+  border-radius: 16px 16px 0px 0px;
+  position: relative;
+  transition: padding-bottom 0.5s; /* アニメーションの追加 */
+  overflow: hidden;
+}
+
+#overlay, #new-overlay {
+  display: none;  /* 最初は非表示 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;  /* モーダルの背後に配置 */
+}
+
+.ellipsis-title{
+  text-align: center;
+  margin: 0px 0px 16px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+}
+
+.option{
+  padding: 8px 16px;
+  margin-top: 4px;
+  background-color: #ededed;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+}
+
+.option-icon{
+  margin-right: 16px;
+}
+
+.option:hover{
+  cursor: pointer;
+  background-color: #d0d0d0;
+}
+
+#confirmDeleteDiv {
+  opacity: 0;
+  transform: translateY(100%);  /* 初期状態は右に完全にオフセット */
+  transition: opacity 0.5s, transform 0.5s; /* transformのアニメーションも追加 */
+  display: none;
+  position: absolute;
+  bottom: 40px;
+  width: calc(100% - 32px);
+  text-align: center;
+}
+
+.confirm-message{
+  font-size: 12px;
+}
+
+#confirmDeleteYes{
+  border: none;
+  background-color: rgb(79, 235, 235);
+  font-weight: bold;
+  color: white;
+  border-radius: 50px;
+  padding: 6px 16px;
+  margin-right: 16px;
+  width: 80px;
+}
+
+#confirmDeleteYes:hover{
+  cursor: pointer;
+  background-color: rgb(60, 177, 177);
+}
+
+#confirmDeleteNo{
+  border: none;
+  background-color: rgb(207, 207, 207);
+  font-weight: bold;
+  color: rgb(61, 61, 61);
+  border-radius: 50px;
+  padding: 6px 16px;
+  width: 80px;
+
+}
+
+#confirmDeleteNo:hover{
+  cursor: pointer;
+  background-color: #858585;
+}
+
+#renameCollectionDiv{
+  opacity: 0;
+  transform: translateY(100%);  /* 初期状態は右に完全にオフセット */
+  transition: opacity 0.5s, transform 0.5s; /* transformのアニメーションも追加 */
+  display: none;
+  position: absolute;
+  bottom: 40px;
+  width: calc(100% - 32px);
+  text-align: center;
+}
+
+#confirmRename{
+  border: none;
+  background-color: rgb(79, 235, 235);
+  font-weight: bold;
+  color: white;
+  border-radius: 50px;
+  padding: 4px 8px;
+  width: 64px;
+}
+
+#confirmRename:hover{
+  cursor: pointer;
+  background-color: rgb(60, 177, 177);
+}
+
+#collectionNameInput{
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: none;
+  background-color: #ededed;
+}
+
+.add-collection{
+  position: fixed;
+  bottom: 64px;
+  margin-left: 24px;
+  width: 40px;
+  height: 40px;
+  color: white;
+  background-color: rgb(73, 214, 214);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.342);
+}
+
+.new-collection-title{
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: rgb(63, 224, 224);
+  margin-bottom: 16px;
+}
+
+#newCollectionForm{
+  text-align: center;
+}
+
+#newCollectionForm input{
+  padding: 8px 16px;
+  width: 85%;
+  border-radius: 50px;
+  border: none;
+  background-color: #ededed;
+}
+
+.make-collection{
+  border: none;
+  background-color: rgb(79, 235, 235);
+  font-weight: bold;
+  color: white;
+  border-radius: 50px;
+  padding: 4px 8px;
+  width: 64px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.make-collection:hover{
+  cursor: pointer;
+  background-color: rgb(60, 177, 177);
+}
+
+.no-collection{
+  text-align: center;
+  margin-top: 120px;
+  font-weight: bold;
+  color: #696969;
+  width: 100%;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+  .menu-info{
+    width: 100%;
+  }
+
+  .modal{
+    width: 100%;
+  }
+
+  
+.add-collection{
+  position: fixed;
+  bottom: 80px;
+  margin-left: 32px;
+}
+
+}

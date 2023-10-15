@@ -1,0 +1,21 @@
+{% extends 'posts/base_list.html' %}
+{% load static %}
+{% block title%}
+<!-- <p>あなたがいいねした投稿が見れる画面です</p> -->
+
+
+<!-- いいねリストとフォローリストを選ぶ -->
+<div class="likeorfollow">
+  <div class="collection-name">{{ collection_name }}</div>
+</div>
+
+<div id="collection-data" data-collection-id="{{ collection_id }}" style="display: none;"></div>
+<style>
+  .like{
+    border-top: solid 2px aqua;
+      }
+</style>
+<!-- <script src="{% static 'js/jump_to_post.js' %}"></script> -->
+<script src="{% static 'js/more_collection.js' %}"></script>
+<script src="{% static 'js/view_duration.js' %}"></script>
+{% endblock %}

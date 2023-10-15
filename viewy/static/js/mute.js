@@ -3,20 +3,27 @@ $(document).ready(function() {
   let isMuted = $('video').prop('muted');
   updateMuteIcons(isMuted);
 
-  $(document).on("change", ".mute-frag", function() {
-    let isChecked = $(this).is(":checked");
+  let pressStartTime;
 
-    // 他のすべてのミュートボタンを連動させる
-    $(".mute-frag").not(this).prop("checked", isChecked);
+  $(document.body).on("mousedown", function(event) {
+    // .tab-bar や .side-bar でのクリックを無視
+    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay').length) return;
 
-    if (isChecked) {
-      isMuted = true;
-    } else {
-      isMuted = false;
+    pressStartTime = new Date().getTime();
+  });
+
+  $(document.body).on("mouseup", function(event) {
+    // .tab-bar や .side-bar でのクリックを無視
+    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay').length) return;
+
+    let pressEndTime = new Date().getTime();
+
+    if (pressEndTime - pressStartTime < 200) {
+      // 200ミリ秒未満のクリックだった場合
+      isMuted = !isMuted; // 状態を反転
+      muteVideos(isMuted);
+      updateMuteIcons(isMuted);
     }
-
-    muteVideos(isMuted);
-    updateMuteIcons(isMuted);
   });
 
   // 動画のミュート状態を一括設定する関数

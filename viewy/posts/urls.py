@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, MyFollowListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
 )
 
 app_name = 'posts'
@@ -16,6 +16,14 @@ urlpatterns = [
    path('fovorite_list/', FavoritePostListView.as_view(), name='favorite_list'),
    path('get_more_favorite/',  GetMoreFavoriteView.as_view(), name='get_more_favorite'),
    path('get_more_previous_favorite/',  GetMorePreviousFavoriteView.as_view(), name='get_more_previous_favorite'),
+   path('collections_menu/', CollectionsMenuView.as_view(), name='collections_menu'),
+   path('collection_page/<int:collection_id>/', CollectionPageView.as_view(), name='collection_page'),
+   path('collection_list/<int:collection_id>/', CollectionPostListView.as_view(), name='collection_list'),
+   path('get_more_collection/', GetMoreCollectionView.as_view(), name='get_more_collection'),
+   path('get_more_previous_collection/', GetMorePreviousCollectionView.as_view(), name='get_more_previous_collection'),
+   path('delete_collection/<int:collection_id>/', DeleteCollectionView.as_view(), name='delete_collection'),
+   path('rename_collection/<int:collection_id>/', RenameCollectionView.as_view(), name='rename_collection'),
+   path('create_new_collection/', CreateNewCollection.as_view(), name='create_new_collection'),
    path('hashtag_dimension_change/', HashtagDimensionChangeView.as_view(), name='hashtag_dimension_change'),
    path('hashtag/<str:hashtag>/', HashtagPageView.as_view(), name='hashtag'),
    path('hashtag_list/<str:hashtag>/', HashtagPostListView.as_view(), name='hashtag_list'),
@@ -48,6 +56,10 @@ urlpatterns = [
    path('wideads_view_count/<int:ad_id>', WideAdsViewCount.as_view(), name='wideads_view_count'),
    path('ads_click_count/<int:ad_id>', AdsClickCount.as_view(), name='ads_click_count'),
    path('wideads_click_count/<int:ad_id>', WideAdsClickCount.as_view(), name='Wideads_click_count'),
+   path('add_to_collection/', AddToCollectionView.as_view(), name='add_to_collection'),
+   path('remove_from_collection/', RemoveFromCollectionView.as_view(), name='remove_from_collection'),
+   path('create_collection_and_add_post/', CreateCollectionAndAddPost.as_view(), name='create_collection_and_add_post'),
+   path('get_collections_for_post/<int:post_id>/', CollectionsForPostView.as_view(), name='get_collections_for_post'),
    path('report/', SubmitReportView.as_view(), name='report'),
    path('emote_count/<int:post_id>/<int:emote_number>/', EmoteCountView.as_view(), name='emote_count'),
    path('view_duration_count/', ViewDurationCountView.as_view(), name='view_duration_count'),

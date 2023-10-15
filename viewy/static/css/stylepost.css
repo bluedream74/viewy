@@ -264,8 +264,8 @@ label {
 }
 
 .poster,
-.favorite,
-.mute {
+.favorite, 
+.ellipsis{
   width: 72px;
   height: 60px;
   text-align: center;
@@ -273,6 +273,31 @@ label {
   font-size: 24px;
   color: white;
   text-shadow: gray 0px 1px 3px;
+}
+
+.ellipsis:hover{
+  cursor: pointer;
+}
+
+.fa-ellipsis {
+  pointer-events: none;
+}
+
+.mute{
+  width: 72px;
+  text-align: center;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.703);
+  text-shadow: gray 0px 1px 3px;
+}
+
+.fa-volume-low{
+  opacity: 0;
+}
+
+.mute-box{
+  position: absolute;
+  top: 16px;
 }
 
 .space-for-hide {
@@ -529,7 +554,7 @@ label {
 
 .hide-label {
   cursor: pointer;
-  z-index: 999;
+  z-index: 98;
 }
 
 .page-count {
@@ -717,7 +742,7 @@ label {
   bottom: 32px;
   right: 18px;
   color: rgba(255, 255, 255, 0.797);
-  z-index: 9999;
+  z-index: 97;
 }
 
 .report:hover {
@@ -1448,6 +1473,254 @@ label {
   color: #000;
 }
 
+.collection-name{
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  opacity: 0.9;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+}
+
+.modal-overlay {
+  display: none; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 98;
+}
+
+.modal {
+  transform: translateY(110%); /* 初期状態では画面の下側 */
+  transition: transform 0.3s ease-out; /* アニメーションの設定 */
+  position: fixed; 
+  bottom: 40px;
+  left: 50%; /* 画面の中央に配置するため */
+  transform-origin: bottom center;
+  width: 350px;
+  margin-left: -175px; /* widthの半分をオフセット */
+  background-color: #fefefe;
+  z-index: 99; /* overlayより上に配置するために3に設定 */
+  border-radius: 16px 16px 0 0;
+  overflow: hidden; /* overflowを隠すことで見えない部分を非表示にします */
+
+}
+
+.modal.active {
+  transform: translateY(0); /* 画面内にモーダルを移動 */
+}
+
+#overlay {
+  display: none;  /* 最初は非表示 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.5); /* 透明な黒で背景を少し暗くする */
+  z-index: 2;  /* モーダルの背後に配置 */
+}
+
+.modal.active + #overlay {
+  display: block; /* モーダルがアクティブのときにオーバーレイを表示 */
+}
+
+.top-line {
+  background-color: rgb(166, 166, 166);
+  border-radius: 50px;
+  width: 32px;
+  height: 3px;
+  margin: 16px auto 16px;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 0px 24px 32px;
+  position: relative;
+}
+
+.ellipsis-title {
+  text-align: center;
+  margin: 0px 0px 16px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+}
+
+.option {
+  padding: 12px 16px;
+  margin-top: 8px;
+  background-color: #ededed;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s; /* 追加: 色変更のアニメーション */
+}
+
+.option-icon {
+  margin-right: 16px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.option:hover {
+  cursor: pointer;
+  background-color: #d0d0d0;
+}
+
+/* オーバーレイをクリックしたときにモーダルを非表示にするための追加のスタイリング */
+#overlay:hover {
+  cursor: pointer;
+}
+
+.modal-wrapper {
+  display: flex;
+  transition: transform 0.3s ease-out; /* アニメーションの追加 */
+  transform: translateX(0); /* 初期位置 */
+}
+
+.modal-content,
+.modal-content-new {
+  box-sizing: border-box; /* パディングとボーダーを含むサイズ計算 */
+  min-width: 100%;
+  transition: transform 0.3s ease-out; /* アニメーションの追加 */
+}
+
+.modal-content-new {
+  display: none; /* 初期状態では非表示 */
+  padding: 8px 0px 48px;
+}
+
+/* オプションがクリックされた時に新しいモーダルコンテンツを表示 */
+.option-selected .modal-content-new {
+  display: block;
+}
+
+/* モーダルコンテンツを左にスライドさせるクラス */
+.modal-shift .modal-wrapper {
+  transform: translateX(-100%); /* 左にスライドさせる */
+}
+
+.modal-content-new{
+  text-align: center;
+  font-size: 14px;
+  position: relative;
+}
+
+.collections-list{
+  max-height: 300px;
+  overflow: hidden;
+  overflow-y: scroll;
+  transition: padding-top 0.2s ease-out; 
+}
+
+.collection-choice{
+  box-sizing: border-box;
+  width: 100%;
+  font-weight: bold;
+  text-align: left;
+}
+
+.collection-choice > div{
+  display: flex;
+  align-items: center;
+  padding: 8px 32px;
+}
+
+.collection-choice > div:hover{
+  cursor: pointer;
+  background-color: rgb(237, 237, 237);
+}
+
+.collection-icon{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: white;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  background-color: rgb(196, 196, 196);
+}
+
+.new-collection .collection-icon{
+  background-color: #56e6e9;
+}
+
+.collection-choice .fa-check {
+  color: #56e6e9;
+  margin-left: auto;
+  transform: scale(0.5); /* 初期状態ではちょっと小さくしておきます */
+  opacity: 0; /* 初期状態では完全に透明にしておきます */
+  transition: opacity 0.3s; /* 透明度の変化を滑らかにするためのtransition */
+}
+
+.collection-choice .fa-check.already {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.create-collection-form {
+  width: 350px;
+  display: none;
+  opacity: 0;
+  position: absolute;
+  top: 0px;
+  right: -100%; /* または -300px など、フォームの幅に応じて調整する */
+  transition: opacity 0.3s, right 0.3s;
+}
+
+#new-collection-name{
+  border: none;
+  background-color: rgb(236, 236, 236);
+  padding: 6px 16px;
+  border-radius: 50px;
+  margin-right: 2px;
+  width: 200px;
+}
+
+#create-collection-btn{
+  border: none;
+  background-color: rgb(79, 235, 235);
+  font-weight: bold;
+  color: white;
+  border-radius: 50px;
+  padding: 4px 8px;
+  width: 48px;
+  font-size: 13px;
+}
+
+#create-collection-btn:hover{
+  cursor: pointer;
+  background-color: rgb(60, 177, 177);
+}
+
+/* ポヨンと飛び出すアニメーションの定義 */
+@keyframes popOutAnimation {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* チェックマークが表示される場合にアニメーションを適用 */
+.collection-choice i.fa-check.active {
+  animation: popOutAnimation 0.3s forwards;
+  opacity: 1; /* アニメーション終了後の透明度を1に設定 */
+}
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
@@ -1541,4 +1814,20 @@ label {
   .poster-name:hover {
     color: #ececec; 
   }
+
+  .modal{
+    width: 100%;
+    left: 0px;
+    margin-left: 0px;
+    z-index: 999;
+  }
+
+  .create-collection-form{
+    width: 100%;
+  }
+
+  #new-collection-name{
+    width: 60%;
+  }
+
 }

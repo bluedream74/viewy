@@ -35,7 +35,7 @@ from accounts.models import Follows, SearchHistorys, Surveys, Notification, Free
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from management.models import SupportRate
 from .forms import PostForm, SearchForm, VisualForm, VideoForm, FreezeNotificationForm
-from .models import Favorites, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
+from .models import Favorites, Collection, Collect, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
 
 from collections import defaultdict
 import logging
@@ -388,6 +388,19 @@ class PostListView(BasePostListView):
                 # それ以外のユーザーには、only_partnerがFalseの通知のみを表示
                 unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
             context['unread_notifications'] = unread_notifications
+            
+            # ユーザーが作成したコレクションを取得（新しい順に並べる）
+            user_collections = Collection.objects.filter(user=user).order_by('-created_at')
+            context['user_collections'] = user_collections
+
+            # 新規コレクション作成の選択肢をリストの先頭に追加
+            # それぞれの要素は(コレクション名, コレクションID)のタプルです
+            collection_choices_with_ids = [('新規コレクション作成', None)] + list(user_collections.values_list('name', 'id'))
+            context['collection_choices_with_ids'] = collection_choices_with_ids
+            already_added_collections = []
+            for post in context['posts']:
+                already_added_collections.extend(post.collected_in.all().values_list('collection_id', flat=True))
+            context['already_added_collections'] = list(set(already_added_collections))
 
             # ユーザーがフォローしているposterのIDリストを取得
             followed_posters_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
@@ -577,6 +590,213 @@ class GetMorePreviousFavoriteView(BaseFavoriteView):
 
         # 投稿リストに広告を組み込む
         return self.integrate_ads(queryset, iter(ad_posts))
+
+
+
+class CollectionsMenuView(ListView):
+    template_name = 'posts/collections_menu.html'
+    context_object_name = 'collections'
+
+    def get_queryset(self):
+        return Collection.objects.filter(user=self.request.user).prefetch_related('collects__post').order_by('-created_at')
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for collection in context['collections']:
+            # Add the number of posts in the collection
+            collection.post_count = collection.collects.count()
+
+            latest_post = collection.collects.order_by('-added_at').first().post if collection.collects.exists() else None
+            if latest_post:
+                if latest_post.ismanga:
+                    collection.latest_thumbnail = latest_post.visuals.first().visual.url if latest_post.visuals.exists() else None
+                else:
+                    video = latest_post.videos.first()
+                    collection.latest_thumbnail = video.thumbnail.url if video and video.thumbnail else None
+        return context
+
+
+class BaseCollectionView(BasePostListView):  # BasePostListViewを継承
+    def get_user_collection_post_ids(self, collection_id):
+        """コレクションに含まれる投稿のIDを取得"""
+        cache_key = f'collection_posts_for_user_{self.request.user.id}_collection_{collection_id}'
+        cached_post_ids = cache.get(cache_key)
+
+        if cached_post_ids:
+            print(f"Cache HIT for collection posts for user {self.request.user.id}")
+            return cached_post_ids
+
+        print(f"Cache MISS for collection posts for user {self.request.user.id}")
+        user_collection_posts = Collect.objects.filter(collection__id=collection_id).order_by('-added_at')
+        post_ids = [collect.post_id for collect in user_collection_posts]
+
+        cache.set(cache_key, post_ids, 300)  # 5分間キャッシュ
+        return post_ids
+    
+
+class CollectionPageView(BaseCollectionView):
+    template_name = os.path.join('posts', 'collection_page.html')
+
+    def get_queryset(self):
+        collection_id = self.kwargs['collection_id']  # URLからコレクションのIDを取得
+        post_ids = self.get_user_collection_post_ids(collection_id)
+        queryset = super().get_queryset().filter(id__in=post_ids)
+        queryset = sorted(queryset, key=lambda post: post_ids.index(post.id))
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        collection_id = self.kwargs['collection_id']
+        collection = get_object_or_404(Collection, id=collection_id)
+        context['collection_name'] = collection.name
+        context['collection_id'] = collection_id  # 追加
+        return context
+    
+    
+class CollectionPostListView(BaseCollectionView):
+    template_name = os.path.join('posts', 'collection_list.html')
+
+    def get_queryset(self):
+        # URLから'post_id'パラメータを取得
+        selected_post_id = int(self.request.GET.get('post_id', 0))
+
+        # コレクションに含まれる全ての投稿を取得 (BaseCollectionView から取得)
+        collection_id = self.kwargs['collection_id']  # URLからコレクションのIDを取得
+        post_ids = self.get_user_collection_post_ids(collection_id)
+
+        queryset = super().get_queryset().filter(id__in=post_ids)
+        if selected_post_id in post_ids:
+            selected_post_index = post_ids.index(selected_post_id)
+            selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
+            queryset = [post for post in queryset if post.id in selected_post_ids]
+            queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+
+        # 現在のユーザーを取得
+        user = self.request.user
+
+        # 2つの広告ポストをランダムに取得 (注: この関数はFavoritePostListViewにのみ存在します。CollectionPostListViewにもこの機能が必要な場合は、対応する関数を追加するか、BasePostListViewに移動してください)
+        ad_posts = self.get_random_ad_posts(user) 
+
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, iter(ad_posts))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        collection = get_object_or_404(Collection, id=self.kwargs['collection_id'])
+        context['collection_name'] = collection.name
+        context['collection_id'] = self.kwargs['collection_id']  # 追加: collection_id を context に設定
+        return context
+
+    
+    
+class GetMoreCollectionView(BaseCollectionView):
+
+    def get_queryset(self):
+        last_post_id = int(self.request.POST.get('last_post_id', 0))
+        
+        collection_id = self.request.POST.get('collection_id')
+        post_ids = self.get_user_collection_post_ids(collection_id)
+
+        if last_post_id:
+            try:
+                last_collection_index = post_ids.index(last_post_id)
+            except ValueError:
+                # last_post_idがpost_idsに存在しない場合のエラーハンドリング
+                return []
+
+            next_post_ids = post_ids[last_collection_index+1:last_collection_index+8]
+
+            queryset = super().get_queryset().filter(id__in=next_post_ids)
+            queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        return queryset
+    
+    
+class GetMorePreviousCollectionView(BaseCollectionView):
+
+    def get_queryset(self):
+        first_post_id = int(self.request.POST.get('first_post_id', 0))
+
+        # URLからコレクションのIDを取得
+        collection_id = self.request.POST.get('collection_id')
+        post_ids = self.get_user_collection_post_ids(collection_id)
+
+        if first_post_id:
+            try:
+                first_collection_index = post_ids.index(first_post_id)
+            except ValueError:
+                # first_post_idがpost_idsに存在しない場合のエラーハンドリング
+                return []
+
+            prev_post_ids = post_ids[max(0, first_collection_index - 8):first_collection_index]
+
+            queryset = super().get_queryset().filter(id__in=prev_post_ids)
+            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+        # 現在のユーザーを取得
+        user = self.request.user
+
+        # 2つの広告ポストをランダムに取得
+        ad_posts = self.get_random_ad_posts(user)
+
+        # 投稿リストに広告を組み込む
+        return self.integrate_ads(queryset, iter(ad_posts))
+    
+    
+class DeleteCollectionView(View):
+    def post(self, request, *args, **kwargs):
+        collection_id = kwargs.get('collection_id')
+        try:
+            collection = Collection.objects.get(pk=collection_id)
+            collection.delete()
+            return JsonResponse({'status': 'success', 'message': 'Collection deleted successfully.'})
+        except Collection.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Collection not found.'})
+        
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class RenameCollectionView(View):
+
+    def post(self, request, collection_id):
+        try:
+            # リクエストボディからJSONとしてデータを取得
+            data = json.loads(request.body.decode('utf-8'))
+            new_name = data.get('newName')
+            
+            # DBから該当のコレクションを取得
+            collection = Collection.objects.get(id=collection_id)
+            collection.name = new_name  # コレクション名を更新
+            collection.save()  # 変更を保存
+
+            return JsonResponse({"status": "success", "message": "コレクション名を変更しました。"})
+        
+        except Collection.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "コレクションが存在しません。"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"エラー: {str(e)}"})
+
+    def get(self, request, collection_id):
+        return JsonResponse({"status": "error", "message": "不正なリクエストです。"})
+    
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateNewCollection(View):
+    
+    def post(self, request):
+        try:
+            collection_name = request.POST.get('collectionName')
+            # リクエストユーザーをCollectionのuserフィールドにセット
+            new_collection = Collection(name=collection_name, user=request.user)
+            new_collection.save()
+
+            return JsonResponse({"status": "success", "message": "コレクションを作成しました。"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"エラー: {str(e)}"})
     
 
 class  BasePosterView(BasePostListView):
@@ -1684,7 +1904,86 @@ class AdsClickCount(AdClickCountBase):
 
 class WideAdsClickCount(AdClickCountBase):
     model = WideAds
+    
+    
+class AddToCollectionView(View):
+    
+    def post(self, request, *args, **kwargs):
+        collection_id = request.POST.get('collection_id')
+        post_id = request.POST.get('post_id')
 
+        # 既に追加されているかチェック
+        if Collect.objects.filter(collection_id=collection_id, post_id=post_id).exists():
+            return JsonResponse({'message': 'Already added'}, status=400)
+
+        # ここで追加
+        Collect.objects.create(collection_id=collection_id, post_id=post_id)
+        return JsonResponse({'message': 'Added successfully'})
+
+
+class RemoveFromCollectionView(View):
+
+    def post(self, request, *args, **kwargs):
+        collection_id = request.POST.get('collection_id')
+        post_id = request.POST.get('post_id')
+        
+        # 該当する Collect オブジェクトをすべて取得
+        collect_objs = Collect.objects.filter(collection_id=collection_id, post_id=post_id)
+        
+        # 該当するオブジェクトがある場合、すべて削除
+        if collect_objs.exists():
+            collect_objs.delete()
+
+            # 関連するコレクションのキャッシュを削除
+            cache_key = f'collection_posts_for_user_{request.user.id}_collection_{collection_id}'
+            cache.delete(cache_key)
+
+            return JsonResponse({"message": "Removed successfully"})
+        else:
+            return JsonResponse({"message": "Relation not found between collection and post"}, status=400)
+        
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateCollectionAndAddPost(View):
+    
+    def post(self, request):
+        try:
+            collection_name = request.POST.get('collectionName')
+            post_id = request.POST.get('postId')
+
+            # コレクションの作成
+            new_collection = Collection(name=collection_name, user=request.user)
+            new_collection.save()
+
+            # 投稿を新しいコレクションに追加
+            post_to_add = Posts.objects.get(id=post_id)
+            # 中間モデルを使用して、コレクションと投稿の関連付けレコードを作成
+            Collect.objects.create(collection=new_collection, post=post_to_add)
+
+            # 関連するコレクションのキャッシュを削除
+            cache_key = f'collection_posts_for_user_{request.user.id}_collection_{new_collection.id}'
+            cache.delete(cache_key)
+
+            return JsonResponse({
+                "status": "success",
+                "message": "コレクションを作成し、投稿を追加しました。",
+                "collection_id": new_collection.id,
+                "collectionName": collection_name
+            })
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"エラー: {str(e)}"})
+        
+
+class CollectionsForPostView(View):
+    def get(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        collects_for_post = Collect.objects.filter(post_id=post_id)
+        collection_ids = list(collects_for_post.values_list('collection_id', flat=True))
+        
+        print("Post ID:", post_id)
+        print("Collection IDs for the Post:", collection_ids)
+
+        return JsonResponse({'collection_ids': collection_ids})
 
 # 報告処理
 class SubmitReportView(View):
@@ -1775,4 +2074,3 @@ class EmoteCountView(View):
 
         return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})
 
-# ああ

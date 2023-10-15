@@ -197,12 +197,8 @@
       </div>
 
 
+      <div class="ellipsis" data-post-id="{{ post.id }}"><i class="fa-solid fa-ellipsis"></i></div>
 
-      <div class="mute">
-        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-          <input type="checkbox" class="mute-frag" checked>
-        </label>
-      </div>
 
 
       <div class="space-for-hide"></div>
@@ -282,7 +278,68 @@
       </div>
     </div>
 
+    <div class="mute-box">
+      <div class="mute">
+        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+          <input type="checkbox" class="mute-frag" checked>
+        </label>
+      </div>
+    </div>
+
     {% if user.is_authenticated and not post.poster.is_advertiser %}
+
+<div class="modal-overlay"></div>
+<!-- モーダルのテンプレート -->
+<div id="others-modal" class="modal">
+  <div class="top-line"></div>
+  <div class="modal-wrapper">
+      <div class="modal-content">
+        <div class="option" id="add-to-collection">
+          <i class="fa-regular fa-bookmark option-icon"></i>
+          コレクションに追加する
+        </div>
+        <div class="option" id="block-poster">
+            <i class="fa-solid fa-ban option-icon"></i>
+            この投稿者をブロックする
+        </div>
+        <div class="option" id="report-post">
+            <i class="fa-solid fa-exclamation option-icon" style="color: orangered;"></i>
+            通報する
+        </div>
+      </div>
+      <div class="modal-content-new add-to-collection-content">
+        <div class="create-collection-form" style="display: none;">
+          <input type="text" id="new-collection-name" placeholder="コレクション名">
+          <button id="create-collection-btn">作成</button>
+      </div>
+        <div class="collections-list">
+          {% for choice_name, choice_id in collection_choices_with_ids %}
+          <div class="collection-choice" data-collection-id="{{ choice_id }}">
+          
+              {% if choice_name == "新規コレクション作成" %}
+                  <div class="new-collection"><i class="fa-solid fa-plus collection-icon "></i>{{ choice_name }}</div>
+              {% else %}
+              <div class="collection-choice" data-collection-id="{{ choice_id }}">
+                <i class="fa-regular fa-bookmark collection-icon"></i>
+                {{ choice_name|truncatechars_custom:"20" }}
+                <i class="fa-solid fa-check {% if choice_id in already_added_collections %}already{% endif %}" {% if choice_id not in already_added_collections %}style="display: none;"{% endif %}></i>
+            </div>
+              {% endif %}
+          </div>
+      {% endfor %}
+      </div>
+    </div>
+      <div class="modal-content-new block-poster-content">
+          この投稿者をブロックしますか＞
+          <!-- Content for blocking a poster -->
+      </div>
+      <div class="modal-content-new report-post-content">
+        理由をお聞かせください
+          <!-- Content for reporting a post -->
+      </div>
+  </div>
+</div>
+
     {% if post.reported_by_user %}
     <div class="report already">
       <i class="fa-solid fa-check-circle"></i>
@@ -396,4 +453,5 @@
 <script src="{% static 'js/mangapage_count.js' %}"></script>
 <script src="{% static 'js/horizontal_arrow.js' %}"></script>
 <script src="{% static 'js/emote_count.js' %}"></script>
+<script src="{% static 'js/others_modal.js' %}"></script>
 {% endblock %}

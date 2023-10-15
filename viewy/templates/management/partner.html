@@ -62,8 +62,9 @@
         <td>
           <form method="post" action="{% url 'management:update_boost_type' user.id %}" class="boostTypeForm" data-user-id="{{ user.id }}">
             {% csrf_token %}
-            <select class="{% if user.boost_type == 'normal' %}normal{% elif user.boost_type == 'boost' %}boost{% elif user.boost_type == 'superboost' %}super-boost{% elif user.boost_type == 'viewyboost' %}viewy-boost{% endif %} boostTypeSelect" name="boost_type">
+            <select class="{% if user.boost_type == 'normal' %}normal{% elif user.boost_type == 'firstboost' %}first-boost{% elif user.boost_type == 'boost' %}boost{% elif user.boost_type == 'superboost' %}super-boost{% elif user.boost_type == 'viewyboost' %}viewy-boost{% endif %} boostTypeSelect" name="boost_type">
               <option value="normal" {% if user.boost_type == 'normal' %}selected{% endif %}>Normal</option>
+              <option class="first-boost" value="firstboost" {% if user.boost_type == 'firstboost' %}selected{% endif %}>First Boost</option>
               <option class="boost" value="boost" {% if user.boost_type == 'boost' %}selected{% endif %}>Boost</option>
               <option class="super-boost" value="superboost" {% if user.boost_type == 'superboost' %}selected{% endif %}>Super Boost</option>
               <option class="viewy-boost" value="viewyboost" {% if user.boost_type == 'viewyboost' %}selected{% endif %}>Viewy Boost</option>

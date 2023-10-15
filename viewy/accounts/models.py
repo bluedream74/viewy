@@ -57,10 +57,11 @@ DIMENSION_CHOICES = [
 
 BOOST_TYPE_CHOICES = [
     ('normal', 'Normal'),
+    ('firstboost', 'FIRST BOOST'),
     ('boost', 'Boost'),
     ('superboost', 'Super Boost'),
-    ('viewyboost', 'Viewy Boost')
-]
+    ('viewyboost', 'Viewy Boost'),
+    ]
          
 class Users(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)

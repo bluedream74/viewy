@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+{% load custom_tags %}
+<link rel="stylesheet" href="{% static 'css/stylemenu.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="menu-info">
+  <div class="main-title">コレクション</div>
+</div>
+
+<div class="menu-area">
+  {% for collection in collections %}
+      <a href="{% url 'posts:collection_page' collection.id %}" class="collection-link collection">  <!-- URLパターンの名前と、コレクションのIDを使用してURLを生成 -->
+        <div class="collection-img">
+            {% if collection.latest_thumbnail %}
+                <img src="{{ collection.latest_thumbnail }}" alt="Thumbnail for {{ collection.name }}" />
+            {% else %}
+                <p class="empty"><i class="fa-regular fa-bookmark"></i></p>
+            {% endif %}
+        </div>
+        <!-- <div class="collect-cont">{{ collection.post_count }}</div> -->
+        <div class="ellipsis" data-collection-id="{{ collection.id }}"><i class="fa-solid fa-ellipsis"></i></div>
+        <div class="collection-name">{{ collection.name|truncatechars_custom:"30" }}</div>
+      </a>
+  {% empty %}
+      <div class="no-collection">作成したコレクションはありません。</div>
+  {% endfor %}
+</div>
+
+<div id="overlay"></div>
+<div id="collectionModal" class="modal">
+  <div class="modal-content">
+    <div class="top-line"></div>
+    <div class="ellipsis-title">コレクションの設定</div>
+    <div id="renameCollection" class="option"><i class="fa-solid fa-pen option-icon"></i>名前を変更</div>
+    <div id="deleteCollection" class="option"><i class="fa-solid fa-trash option-icon"></i>削除</div>
+    
+    <!-- 確認用のdivをここに移動 -->
+    <div id="confirmDeleteDiv" style="display: none;">
+        <p class="confirm-message">このコレクションを削除してもよろしいですか？</p>
+        <button id="confirmDeleteYes">はい</button>
+        <button id="confirmDeleteNo">いいえ</button>
+    </div>
+
+    <div id="renameCollectionDiv" style="display: none;">
+      <p class="rename-message confirm-message">コレクションの名前を入力してください</p>
+      <input type="text" id="collectionNameInput" value="元のコレクション名">
+      <button id="confirmRename">変更</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="new-overlay"></div>
+<div id="newCollectionModal" class="modal">
+  <div class="modal-content">
+    <div class="top-line"></div>
+      <div class="new-collection-title">新しいコレクションを追加</div>
+      <form id="newCollectionForm">
+          <input type="text" name="collectionName" placeholder="コレクション名" required>
+          <div>
+            <button class="make-collection" type="submit">作成</button>
+          </div>
+      </form>
+  </div>
+</div>
+
+<div class="add-collection"><i class="fa-solid fa-plus"></i></div>
+
+<div class="bottom-space"></div>
+
+
+<script src="{% static 'js/lazyload.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const ellipsises = document.querySelectorAll('.ellipsis');
+    const modal = document.getElementById('collectionModal');
+    const renameBtn = modal.querySelector('#renameCollection');
+    const deleteBtn = modal.querySelector('#deleteCollection');
+    const overlay = document.getElementById('overlay');
+    const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    const confirmDeleteYesBtn = document.getElementById('confirmDeleteYes');
+    const confirmDeleteNoBtn = document.getElementById('confirmDeleteNo');
+    
+    let currentDeletingCollectionId = null;
+
+    ellipsises.forEach((ellipsis) => {
+    ellipsis.addEventListener('click', function(event) {
+        event.stopPropagation();   
+        event.preventDefault();    
+
+        const collectionId = ellipsis.getAttribute('data-collection-id');
+
+        // コレクションの名前を取得
+        const collectionName = ellipsis.nextElementSibling.textContent;
+
+        console.log('ellipsis clicked for collection: ' + collectionId);
+
+        // Set data-collection-id for delete button based on clicked ellipsis
+        deleteBtn.setAttribute('data-collection-id', collectionId);
+
+        // Set collection name to the input field
+        document.getElementById("collectionNameInput").value = collectionName;
+
+        modal.classList.add('active');
+        overlay.style.display = 'block';  // Display the overlay
+    });
+});
+
+function resetRenameDiv() {
+    const renameDiv = document.getElementById("renameCollectionDiv");
+    renameDiv.style.opacity = "0";
+    renameDiv.style.transform = "translateY(100%)";  // 右にオフセットして隠す
+    setTimeout(() => {
+        renameDiv.style.display = "none";
+    }, 200);
+}
+
+function resetConfirmDiv() {
+    const confirmDiv = document.getElementById("confirmDeleteDiv");
+    confirmDiv.style.opacity = "0";
+    confirmDiv.style.transform = "translateY(100%)";  // 右にオフセットして隠す
+    setTimeout(() => {
+        confirmDiv.style.display = "none";
+    }, 200);
+}
+
+    deleteBtn.addEventListener('click', function() {
+        // 名前変更のDivを元の位置に戻す
+        resetRenameDiv();
+        currentDeletingCollectionId = deleteBtn.getAttribute('data-collection-id');
+        confirmDeleteModal.classList.add('active');
+        overlay.style.display = 'block';
+    });
+
+    function getCookie(name) {
+    let value = "; " + document.cookie;
+    let parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    confirmDeleteYesBtn.addEventListener('click', function() {
+    if (currentDeletingCollectionId) {
+        // Send a delete request to the server
+        fetch(`/posts/delete_collection/${currentDeletingCollectionId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')  // Assuming you have a getCookie function to get CSRF token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log(data.message);
+                
+                // Automatically reload the page
+                location.reload();
+
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});
+
+deleteBtn.addEventListener('click', function() {
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.style.paddingBottom = "120px";
+
+    const confirmDiv = document.getElementById("confirmDeleteDiv");
+    confirmDiv.style.display = "block";
+    setTimeout(() => {
+        confirmDiv.style.opacity = "1";
+        confirmDiv.style.transform = "translateY(0)";  // 元の位置に戻す
+    }, 200);
+});
+
+confirmDeleteNoBtn.addEventListener('click', function() {
+    const confirmDiv = document.getElementById("confirmDeleteDiv");
+    const modalContent = document.querySelector('.modal-content');
+
+    confirmDiv.style.opacity = "0";
+    confirmDiv.style.transform = "translateY(100%)";  // 右にオフセットして隠す
+
+    setTimeout(() => {
+        confirmDiv.style.display = "none";
+        modalContent.style.paddingBottom = "64px";
+    }, 200);
+});
+
+function hideConfirmDiv() {
+    const confirmDiv = document.getElementById("confirmDeleteDiv");
+    const modalContent = document.querySelector('.modal-content');
+
+    confirmDiv.style.opacity = "0";
+    confirmDiv.style.transform = "translateY(100%)";  // 右にオフセットして隠す
+
+    setTimeout(() => {
+        confirmDiv.style.display = "none";
+        modalContent.style.paddingBottom = "64px";
+    }, 200);
+}
+
+
+// When the overlay is clicked, hide modals and the overlay
+overlay.addEventListener('click', function() {
+    modal.classList.remove('active');
+    hideConfirmDiv(); // 確認用のdivを非表示にする関数を呼び出す
+    hideRenameDiv();  // 名前変更用のdivを非表示にする関数を呼び出す
+    overlay.style.display = 'none';
+});
+
+// When clicking outside the modal, close it
+window.addEventListener('click', function(event) {
+    if (event.target == modal) {
+        modal.classList.remove('active');
+        hideConfirmDiv(); // 確認用のdivを非表示にする関数を呼び出す
+        hideRenameDiv();  // 名前変更用のdivを非表示にする関数を呼び出す
+    }
+});
+
+// 名前変更ボタンがクリックされたときの処理
+document.getElementById("renameCollection").addEventListener('click', function() {
+
+    // 削除の確認Divを元の位置に戻す
+    resetConfirmDiv();
+
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.style.paddingBottom = "120px";
+    
+    const renameDiv = document.getElementById("renameCollectionDiv");
+    renameDiv.style.display = "block";
+
+    setTimeout(() => {
+        renameDiv.style.opacity = "1";
+        renameDiv.style.transform = "translateY(0)";  // 元の位置に戻す
+    }, 200);
+});
+
+// 名前変更の確認ボタンやキャンセルボタンがクリックされたときの処理
+function hideRenameDiv() {
+    const renameDiv = document.getElementById("renameCollectionDiv");
+    const modalContent = document.querySelector('.modal-content');
+
+    renameDiv.style.opacity = "0";
+    renameDiv.style.transform = "translateY(100%)";  // 右にオフセットして隠す
+
+    setTimeout(() => {
+        renameDiv.style.display = "none";
+        modalContent.style.paddingBottom = "64px";
+    }, 200);
+}
+
+document.getElementById("confirmRename").addEventListener('click', function() {
+    // ellipsisからではなく、deleteBtnからdata-collection-idを取得
+    const collectionId = deleteBtn.getAttribute('data-collection-id');
+    currentDeletingCollectionId = collectionId;
+    const newName = document.getElementById("collectionNameInput").value;
+
+    console.log("New collection name:", newName);
+    console.log("Collection ID to be renamed:", currentDeletingCollectionId);
+
+    // Send a request to the server to rename the collection
+    fetch(`/posts/rename_collection/${currentDeletingCollectionId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ newName: newName })
+    })
+    .then(response => {
+    console.log("Server response:", response);
+    return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            console.log(data.message);
+            
+            // Automatically reload the page
+            location.reload();
+        } else {
+            console.error(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+const newCollectionBtn = document.querySelector('.add-collection');
+const newCollectionModal = document.getElementById('newCollectionModal');
+const newOverlay = document.getElementById('new-overlay');
+
+// モーダルを表示する
+newCollectionBtn.addEventListener('click', () => {
+    newCollectionModal.style.transform = 'translateY(0)';
+    newOverlay.style.display = 'block';
+});
+
+// When the overlay is clicked, hide the newCollectionModal and the overlay
+newOverlay.addEventListener('click', function() {
+    newCollectionModal.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+        newOverlay.style.display = 'none';
+    }, 800);  // 0.3s transition time
+});
+
+
+// フォームが送信された際の処理
+const newCollectionForm = document.getElementById('newCollectionForm');
+newCollectionForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    const formData = new FormData(newCollectionForm);
+    
+    // ここでサーバーサイドのエンドポイントにPOSTリクエストを送る
+    const response = await fetch('/posts/create_new_collection/', {
+        method: 'POST',
+        body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+        location.reload();
+    } else {
+        alert(result.message);
+    }
+});
+});
+
+
+</script>
+
+{% endblock %}

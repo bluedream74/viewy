@@ -50,10 +50,17 @@ body{
   overflow-y: scroll;
 }
 
+
+@keyframes OrangeblinkAnimation {
+  0%, 100% {color: rgb(255, 102, 0);}
+  50% {color: rgb(255, 213, 0);}
+}
+
 @keyframes RedblinkAnimation {
   0%, 100% {color: rgb(255, 42, 0);}
   50% {color: rgb(255, 166, 0);}
 }
+
 
 @keyframes PurpleblinkAnimation {
   0%, 100% {color: rgb(255, 0, 238);}
@@ -63,6 +70,10 @@ body{
 @keyframes ViewyblinkAnimation {
   0%, 100% {color: rgb(0, 85, 255);}
   50% {color: rgb(51, 248, 248);}
+}
+
+.first-boost {
+  animation: OrangeblinkAnimation 5s infinite; 
 }
 
 .boost{

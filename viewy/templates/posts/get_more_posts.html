@@ -165,12 +165,7 @@
       </div>
 
 
-
-      <div class="mute">
-        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-          <input type="checkbox" class="mute-frag" checked>
-        </label>
-      </div>
+      <div class="ellipsis" data-post-id="{{ post.id }}"><i class="fa-solid fa-ellipsis"></i></div>
 
 
       <div class="space-for-hide"></div>
@@ -242,6 +237,15 @@
 
       </div>
     </div>
+
+    <div class="mute-box">
+      <div class="mute">
+        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+          <input type="checkbox" class="mute-frag" checked>
+        </label>
+      </div>
+    </div>
+
 
     {% if user.is_authenticated and not post.poster.is_advertiser %}
       {% if post.reported_by_user %}

@@ -25,3 +25,18 @@ def is_master(user):
 @register.simple_tag
 def get_attr(obj, attr_name):
     return getattr(obj, attr_name, None)
+
+@register.filter(name='truncatechars_custom')
+def truncatechars_custom(value, arg):
+    """
+    Truncates a string after a certain number of characters, 
+    and appends an ellipsis ('...').
+    """
+    try:
+        length = int(arg)
+    except ValueError:  # invalid literal for int()
+        return value  # Fail silently
+    if len(value) > length:
+        value = value[:length-3]  # -3 to account for the length of the '...'
+        return value + '...'
+    return value

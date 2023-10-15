@@ -86,6 +86,8 @@
         {% if request.user and is_poster %}
           {% if request.user.boost_type == "boost" %}
             <div class="boost_type boost">BOOST</div>
+          {% elif request.user.boost_type == "firstboost" %}
+            <div class="boost_type first-boost">FIRST BOOST</div>
           {% elif request.user.boost_type == "superboost" %}
             <div class="boost_type super-boost">SUPER BOOST</div>
           {% elif request.user.boost_type == "viewyboost" %}

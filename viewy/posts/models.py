@@ -148,8 +148,9 @@ class Posts(models.Model):
         
         boost_multipliers = {
             'normal': 1,
-            'boost': 1.2,
-            'superboost': 1.5,
+            'firstboost': 1.2,
+            'boost': 1.4,
+            'superboost': 1.6,
             'viewyboost': 10
         }
         
@@ -539,6 +540,26 @@ class Favorites(models.Model):
         return f"{self.post}-{self.user}"
   
   
+class Collection(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='collections')
+    name = models.CharField(max_length=40)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.user.username}"
+
+class Collect(models.Model):
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, related_name='collects')
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='collected_in')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['collection', 'post']
+
+    def __str__(self):
+        return f"{self.collection.name} - {self.post.title}"
+    
+    
   
 # 報告のモデル
 class Report(models.Model):
