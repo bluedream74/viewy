@@ -54,10 +54,7 @@
     <div class="side-bar">
 
       <div class="poster">
-        <!-- 広告主がスペシャルアドバタイザーだったらメダルをかける -->
-        {% if post.poster.is_specialadvertiser %}
-        <span class="by_specialadvertiser"><i class="fa-solid fa-medal"></i></span>
-        {% endif %}
+
         <div>
           {% if post.poster.is_advertiser %}
 

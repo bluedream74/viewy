@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', function (e) {
     const content = e.target.closest('.content');
     const label = e.target.classList.contains('hide-label') ? e.target : null;
-    
+
     if (content) {
       e.stopPropagation();
       return;
@@ -37,12 +37,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-// 特定の要素がクリックされたときに実行される関数
+  // 特定の要素がクリックされたときに実行される関数
   function handleClick(event) {
+
+    const element = event.currentTarget;
+  
+    if (element.dataset.isAdvertisement === 'True' || event.target.closest('[data-is-advertisement="True"]')) {
+      console.log("Advertisement detected. Content will not be hidden on click.");
+      return;
+    }
     if (event.target.closest('.content')) {
       return;
     }
-    const element = event.currentTarget;
     const contentElement = element.querySelector('.content');
     const labelElement = element.querySelector('.hide-label');
 
@@ -52,17 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (contentElement) toggleVisibility(contentElement, labelElement);
   }
-// 新しい要素を監視対象として追加する関数
+  // 新しい要素を監視対象として追加する関数
   function observeTargets(newTargets) {
     newTargets.forEach(target => {
+      console.log("Observing target: ", target);
       observer.observe(target);
+
+      console.log("Advertisement attribute of the observed target: ", target.dataset.isAdvertisement);
 
       if (target.matches('.book, .post') || target.querySelector('.book, .post')) {
         target.addEventListener('click', handleClick);
       }
     });
   }
- // 交差を検出したときに実行される関数
+  // 交差を検出したときに実行される関数
   function isactive(entries) {
     entries.forEach(entry => {
       const element = entry.target;
@@ -73,10 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentElement = element.querySelector('.content');
         const labelElement = element.querySelector('.hide-label');
 
+        // ここで広告かどうかをチェック
+        if (element.dataset.isAdvertisement === 'True') {
+          console.log("Advertisement detected. Content will not be hidden automatically.");
+          return;
+        }
+
         if ((element.querySelector('.book') || element.classList.contains('book')) && contentElement) {
           setTimeout(() => {
-            if (contentElement.style.opacity !== '0') { 
-              contentElement.style.transition = "opacity 0.3s ease"; 
+            if (contentElement.style.opacity !== '0') {
+              contentElement.style.transition = "opacity 0.3s ease";
               toggleVisibility(contentElement, labelElement);
             }
           }, 3000);

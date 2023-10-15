@@ -452,7 +452,8 @@ class Videos(models.Model):
 
             with open(output_path, 'rb') as f:
                 encoded_video_basename = os.path.basename(self.video.name)
-                encoded_video_name = os.path.splitext(encoded_video_basename)[0] + "_encoded.mp4"
+                # この行でタイムスタンプを追加
+                encoded_video_name = f"{os.path.splitext(encoded_video_basename)[0]}_{datetime.now().strftime('%Y%m%d%H%M%S')}_encoded.mp4"
                 self.video.save(encoded_video_name, File(f), save=False)
 
         finally:
