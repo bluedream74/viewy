@@ -31,7 +31,7 @@ from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
 # Local application/library specific
-from accounts.models import Follows, SearchHistorys, Surveys, Notification, FreezeNotification, FreezeNotificationView, NotificationView
+from accounts.models import Follows, SearchHistorys, Surveys, Notification, FreezeNotification, FreezeNotificationView, NotificationView, Blocks
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from management.models import SupportRate
 from .forms import PostForm, SearchForm, VisualForm, VideoForm, FreezeNotificationForm
@@ -235,10 +235,22 @@ class BasePostListView(ListView):
         # これらのユーザーによって作成された投稿を除外します
         return queryset.exclude(poster_id__in=advertiser_user_ids)
 
-        
+    def exclude_blocked_posters(self, queryset):
+        """ログインユーザーがブロックしたポスターの投稿を除外する"""
+        user = self.request.user
+        if user.is_authenticated:
+            # BlocksモデルからブロックされたポスターのIDを取得
+            blocked_posters_ids = Blocks.objects.filter(user=user).values_list('poster_id', flat=True)
+            # それらのポスターによる投稿を除外
+            queryset = queryset.exclude(poster_id__in=blocked_posters_ids)
+        return queryset
+
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(is_hidden=False)
+
+        queryset = self.exclude_blocked_posters(queryset)  # ブロックされたポスターの投稿を除外
+
         queryset = self.exclude_advertiser_posts(queryset)  # Advertiserの投稿を除外
         queryset = queryset.select_related('poster')
         queryset = self.annotate_user_related_info(queryset)
@@ -320,8 +332,9 @@ class PostListView(BasePostListView):
         # 全ての広告からランダムに2つを選びます。
         advertiser_posts = self.get_random_ad_posts(user)
 
-        # 最新の100個の投稿を取得して、dimensionフィルターを適用
+        # 最新の100個の投稿を取得して、dimensionフィルターとexclude_blocked_postersを適用
         latest_100_posts = Posts.objects.all().order_by('-id')
+        latest_100_posts = self.exclude_blocked_posters(latest_100_posts)
         latest_100_posts = self.filter_by_dimension(latest_100_posts)[:500]
 
         # 最新の100件のIDを取得
@@ -840,11 +853,13 @@ class PosterPageView(BasePosterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
         # テンプレートでのクエリを避けるためのリストを作成
         followers_ids = self.poster.follow.all().values_list('id', flat=True)
-        context['is_user_following'] = self.request.user.id in followers_ids
+        context['is_user_following'] = user.id in followers_ids
         # ユーザーがフォローしているかどうかの確認
         context['about_poster'] = self.poster
+        context['is_user_blocking'] = Blocks.objects.filter(user=user, poster=self.poster).exists()
         return context
 
 

@@ -372,6 +372,11 @@ class Follows(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
 
 
+class Blocks(models.Model):
+    poster = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='blocked_actions')
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 #運営からのメッセージ機能

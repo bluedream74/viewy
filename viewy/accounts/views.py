@@ -32,7 +32,7 @@ from django.contrib.auth.views import LoginView
 
 # Local application/library specific
 from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
-from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults, NotificationView, FreezeNotificationView
+from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults, NotificationView, FreezeNotificationView, Blocks
 from management.models import UserStats
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
@@ -689,6 +689,18 @@ class FollowView(LoginRequiredMixin, View):
         poster.follow_count = poster.follow.count()
         poster.save(update_fields=['follow_count'])  # 保存時にも特定のフィールドのみを更新
         data = {'follow_count': poster.follow_count}
+        return JsonResponse(data)
+
+
+class BlockView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        poster = get_object_or_404(Users.objects.only('id'), pk=kwargs['pk'])
+        block, created = Blocks.objects.get_or_create(user=request.user, poster=poster)
+
+        if not created:
+            block.delete()
+
+        data = {'blocked': created}
         return JsonResponse(data)
   
   

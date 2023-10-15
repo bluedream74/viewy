@@ -36,6 +36,22 @@
                             class="fas fa-link"></i></span></div>
                 {% endif %}
             </div>
+
+            <div class="details-container">
+                {% if user.pk != about_poster.pk %}
+                <button class="details-icon" data-pk="{{about_poster.pk }}" data-postername="{{ about_poster.displayname|default:about_poster.username }}">...</button>
+            
+                <div id="actionModal" class="action-modal">
+                    <div class="block-modal-content">
+                        <span class="close" data-modalid="{{about_poster.pk }}">&times;</span>
+                        <button class="block-btn" data-url="{% url 'accounts:block' pk=about_poster.pk %}" data-postername="{{ about_poster.displayname|default:about_poster.username }}" data-csrf="{{ csrf_token }}" data-pk="{{about_poster.pk }}" {% if is_user_blocking %}data-blocked="true"{% endif %}>
+                            {% if is_user_blocking %}ブロック中{% else %}ブロック{% endif %}
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
             <div class="follow-container">
                 <form data-pk="{{ about_poster.pk }}" action="{% url 'accounts:follow' pk=about_poster.pk %}"
                     method="POST">
@@ -146,6 +162,7 @@
 {% endblock %}
 {% block script %}
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+<script src="{% static 'js/block.js' %}"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/login_modal.js' %}"></script>
 
