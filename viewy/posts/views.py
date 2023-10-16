@@ -873,12 +873,18 @@ class PosterPageView(BasePosterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        # テンプレートでのクエリを避けるためのリストを作成
-        followers_ids = self.poster.follow.all().values_list('id', flat=True)
-        context['is_user_following'] = user.id in followers_ids
-        # ユーザーがフォローしているかどうかの確認
+
+        if user.is_authenticated:  # ユーザーがログインしている場合のみ以下の処理を実行
+            # テンプレートでのクエリを避けるためのリストを作成
+            followers_ids = self.poster.follow.all().values_list('id', flat=True)
+            context['is_user_following'] = user.id in followers_ids
+            # ユーザーがフォローしているかどうかの確認
+            context['is_user_blocking'] = Blocks.objects.filter(user=user, poster=self.poster).exists()
+        else:
+            context['is_user_following'] = False
+            context['is_user_blocking'] = False
+
         context['about_poster'] = self.poster
-        context['is_user_blocking'] = Blocks.objects.filter(user=user, poster=self.poster).exists()
         return context
 
 

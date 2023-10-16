@@ -64,6 +64,13 @@
     loading="lazy" playsinline loop muted></video>
   <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0"><br>
   {% endfor %}
+  <div class="mute-box">
+    <div class="mute">
+      <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+        <input type="checkbox" class="mute-frag" checked>
+      </label>
+    </div>
+  </div>
   {% endif %}
 
   <div class="content">
@@ -88,11 +95,7 @@
         <p class="favorite-count">{{ post.favorite_count|add:post.support_favorite_count }}</p>
       </div>
 
-      <div class="mute">
-        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-          <input type="checkbox" class="mute-frag" checked>
-        </label>
-      </div>
+      <div class="add-space"></div>
 
       <div class="space-for-hide"></div>
       

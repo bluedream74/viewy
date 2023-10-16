@@ -298,6 +298,7 @@ label {
 .mute-box{
   position: absolute;
   top: 16px;
+  z-index: 97;
 }
 
 .space-for-hide {
@@ -517,6 +518,10 @@ label {
 .hidden-emote {
   opacity: 0;
   visibility: hidden;
+}
+
+.add-space{
+  height: 80px;
 }
 
 /* ミュートボタン */
@@ -1718,7 +1723,7 @@ label {
 }
 
 .block-options button{
-  border: 1px gray solid;
+  border: 1px rgb(206, 206, 206) solid;
   padding: 6px 16px;
   width: 80px;
   border-radius: 50px;

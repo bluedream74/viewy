@@ -61,6 +61,7 @@
                     </label>
             </div>
         </div>
+        {% if user.is_authenticated %}
         <div class="details-container">
             {% if user.pk != about_poster.pk %}
             <div class="details-icon" data-pk="{{about_poster.pk }}" data-postername="{{ about_poster.displayname|default:about_poster.username }}"><i class="fa-solid fa-ellipsis-vertical"></i></div>
@@ -75,6 +76,7 @@
             </div>
             {% endif %}
         </div>
+        {% endif %}
     </div>
     {% if about_poster.caption %}
     <div class="caption">
@@ -138,7 +140,7 @@
     <div class="login-modal-content">
         <span class="close-btn">&times;</span>
         <div class="login-title">Viewyにログインしよう</div>
-        <div class="login-content">無制限のコンテンツの視聴に加え、<br>いいねやフォローなどができるようになります。</div>
+        <div class="login-content">ログインすれば無料で全投稿が見放題！<br>気に入ったらいいねとフォローで保存しよう！</div>
         <a href="{% url 'accounts:user_login' %}?next={{ request.get_full_path }}" class="login-btn">ログイン</a>
     </div>
 </div>
@@ -162,7 +164,9 @@
 {% endblock %}
 {% block script %}
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
+{% if user.is_authenticated %}
 <script src="{% static 'js/block.js' %}"></script>
+{% endif %}
 <script src="{% static 'js/lazyload.js' %}"></script>
 <script src="{% static 'js/login_modal.js' %}"></script>
 
