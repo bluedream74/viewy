@@ -172,8 +172,8 @@
 }
 
 .option{
-  padding: 8px 16px;
-  margin-top: 4px;
+  padding: 12px 16px;
+  margin-top: 8px;
   background-color: #ededed;
   border-radius: 8px;
   font-size: 14px;
@@ -211,9 +211,10 @@
   font-weight: bold;
   color: white;
   border-radius: 50px;
-  padding: 6px 16px;
+  padding: 8px 16px;
   margin-right: 16px;
   width: 80px;
+  font-size: 15px;
 }
 
 #confirmDeleteYes:hover{
@@ -227,9 +228,9 @@
   font-weight: bold;
   color: rgb(61, 61, 61);
   border-radius: 50px;
-  padding: 6px 16px;
+  padding: 8px 16px;
   width: 80px;
-
+  font-size: 15px;
 }
 
 #confirmDeleteNo:hover{
@@ -254,8 +255,9 @@
   font-weight: bold;
   color: white;
   border-radius: 50px;
-  padding: 4px 8px;
+  padding: 8px 8px;
   width: 64px;
+  font-size: 15px;
 }
 
 #confirmRename:hover{
@@ -299,7 +301,7 @@
 }
 
 #newCollectionForm input{
-  padding: 8px 16px;
+  padding: 12px 16px;
   width: 85%;
   border-radius: 50px;
   border: none;
@@ -312,10 +314,10 @@
   font-weight: bold;
   color: white;
   border-radius: 50px;
-  padding: 4px 8px;
-  width: 64px;
+  padding: 8px 8px;
+  width: 80px;
   margin-top: 12px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .make-collection:hover{
@@ -344,8 +346,15 @@
   
 .add-collection{
   position: fixed;
+  width: 64px;
+  height: 64px;
   bottom: 80px;
   margin-left: 32px;
+  font-size: 24px;
 }
 
+#collectionNameInput{
+  width: 70%;
+  padding: 12px 16px;
+}
 }

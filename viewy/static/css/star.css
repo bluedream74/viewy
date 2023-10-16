@@ -1,24 +1,15 @@
 
-.mid-logo{
-  width: 100%;
-  text-align: center;
-  padding-top: 32px;
-  margin-bottom: 8px;
-}
-
-.mid-logo > img{
-  width: 56px;
-}
 
 .title{
   width: 100%;
   text-align: center;
-  margin-top: 32px;
+  margin-top: 28px;
   font-size: 18px;
   font-weight: bold;
   text-decoration: underline;
   text-decoration-color: aqua;
   color: white;
+  margin-bottom: 32px;
 }
 
 .options{

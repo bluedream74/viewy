@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let collectionList = document.querySelector('.collections-list');
     
         // コレクションリストのpadding-topを増やしてスペースを作成
-        collectionList.style.paddingTop = "28px";
+        collectionList.style.paddingTop = "40px";
     
         // フォームを表示する
         createForm.style.display = 'block';
