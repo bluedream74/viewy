@@ -359,9 +359,9 @@ class PostListView(BasePostListView):
         first_4_by_rp = sorted_posts_by_rp[:4]
         next_2_by_rp = sorted_posts_by_rp[4:6]
 
-
         # 全ての広告からランダムに2つを選びます。
         advertiser_posts = self.get_random_ad_posts(user)
+        
 
         # 最新の100個の投稿を取得して、dimensionフィルターとexclude_blocked_postersを適用
         latest_100_posts = Posts.objects.all().order_by('-id')
@@ -375,10 +375,11 @@ class PostListView(BasePostListView):
         num_posts_to_select = min(2, len(post_ids))
         selected_ids = sample(post_ids, num_posts_to_select)
 
+
         # 選択したIDを使って投稿を取得
         random_two_posts = (Posts.objects.filter(id__in=selected_ids)
-                    .select_related('poster')   # 仮定: PostsモデルにposterというForeignKeyがある場合
-                    .prefetch_related('visuals')  # 仮定: Postsモデルと関連付けられた他のモデルの名前
+                    .select_related('poster')
+                    .prefetch_related('visuals', 'collected_in__collection')  # 'collected_in'とその'collection'を追加
                     .all())
 
         # 残りのフィルターとアノテーションを適用
@@ -494,6 +495,19 @@ class VisitorPostListView(BasePostListView):
         posts = random.sample(combined_posts, 5)
         
         return posts
+    
+    
+# 好みページ
+class StarView(TemplateView):
+    template_name = os.path.join('posts', 'star.html')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(Users, pk=self.request.user.id)  # 仮定：現在のログインユーザーの情報を取得
+        context['favorite_count'] = user.favorite_received.count()  # いいねの数
+        context['collection_count'] = user.collections.count()      # コレクションの数
+        context['follow_count'] = Follows.objects.filter(user=user).count()  # フォローしている人数
+        return context
     
 
 class BaseFavoriteView(BasePostListView):
@@ -1964,17 +1978,28 @@ class WideAdsClickCount(AdClickCountBase):
     
 class AddToCollectionView(View):
     
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
+        print("AddToCollectionView post method called")  # Called at the start of the post method
+
         collection_id = request.POST.get('collection_id')
         post_id = request.POST.get('post_id')
 
+        print(f"Received collection_id: {collection_id}, post_id: {post_id}")  # Log the received IDs
+
         # 既に追加されているかチェック
         if Collect.objects.filter(collection_id=collection_id, post_id=post_id).exists():
+            print("Post already added to collection")  # Log if post is already added
             return JsonResponse({'message': 'Already added'}, status=400)
 
         # ここで追加
-        Collect.objects.create(collection_id=collection_id, post_id=post_id)
-        return JsonResponse({'message': 'Added successfully'})
+        try:
+            Collect.objects.create(collection_id=collection_id, post_id=post_id)
+            print("Post added to collection successfully")  # Log successful addition
+            return JsonResponse({'message': 'Added successfully'})
+        except Exception as e:
+            print(f"Error while adding post to collection: {e}")  # Log any error during addition
+            return JsonResponse({'message': 'Error occurred'}, status=500)
 
 
 class RemoveFromCollectionView(View):

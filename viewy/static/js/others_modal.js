@@ -180,44 +180,47 @@ function blockPoster(postId) {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-  let newCollectionElement = document.querySelector('.new-collection');
-  newCollectionElement.addEventListener('click', function() {
-      let createForm = document.querySelector('.create-collection-form');
-      let collectionList = document.querySelector('.collections-list');
+    let newCollectionElement = document.querySelector('.new-collection');
+    newCollectionElement.addEventListener('click', function() {
+        let createForm = document.querySelector('.create-collection-form');
+        let collectionList = document.querySelector('.collections-list');
+    
+        // コレクションリストのpadding-topを増やしてスペースを作成
+        collectionList.style.paddingTop = "28px";
+    
+        // フォームを表示する
+        createForm.style.display = 'block';
+    
+        // フォームをレンダリングに十分な時間を与えるための小さな遅延
+        setTimeout(() => {
+            createForm.style.opacity = '1';
+            createForm.style.right = '0';
+        }, 200); // 200ミリ秒の遅延
+    });
   
-      // コレクションリストのpadding-topを増やしてスペースを作成
-      collectionList.style.paddingTop = "28px";
+    let collectionList = document.querySelector('.collections-list');
   
-      // フォームを表示する
-      createForm.style.display = 'block';
+    console.log("Adding event listener");
+    collectionList.addEventListener('click', function(event) {
+      let choice = event.target.closest('.collection-choice');
+      if (!choice) return; // `.collection-choice` がクリックされていない場合、何もしない
   
-      // フォームをレンダリングに十分な時間を与えるための小さな遅延
-      setTimeout(() => {
-          createForm.style.opacity = '1';
-          createForm.style.right = '0';
-      }, 200); // 10ミリ秒の遅延
-  });
-
-  let collectionChoices = document.querySelectorAll('.collections-list .collection-choice');
-
-  collectionChoices.forEach(choice => {
-    choice.addEventListener('click', function() {
-        let checkmark = choice.querySelector('.fa-solid.fa-check');
-        
-        let collection_id = choice.dataset.collectionId;
-        let modal = document.getElementById('others-modal');
-        let post_id = modal.dataset.postId;
-
-        if(checkmark.classList.contains('already')) {
-            // 既に追加されている場合、削除のアクションを実行
-            removeFromCollection(collection_id, post_id, checkmark);
-        } else {
-            // まだ追加されていない場合、追加のアクションを実行
-            addToCollection(collection_id, post_id, checkmark);
-        }
+      console.log("Click event triggered");
+      let checkmark = choice.querySelector('.fa-solid.fa-check');
+          
+      let collection_id = choice.dataset.collectionId;
+      let modal = document.getElementById('others-modal');
+      let post_id = modal.dataset.postId;
+  
+      if(checkmark.classList.contains('already')) {
+          // 既に追加されている場合、削除のアクションを実行
+          removeFromCollection(collection_id, post_id, checkmark);
+      } else {
+          // まだ追加されていない場合、追加のアクションを実行
+          addToCollection(collection_id, post_id, checkmark);
+      }
     });
   });
-});
 
 function removeFromCollection(collection_id, post_id, checkmark) {
   fetch('/posts/remove_from_collection/', {
@@ -244,28 +247,36 @@ function removeFromCollection(collection_id, post_id, checkmark) {
 }
 
 function addToCollection(collection_id, post_id, checkmark) {
-  fetch('/posts/add_to_collection/', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': csrf_token
-      },
-      body: `collection_id=${collection_id}&post_id=${post_id}`
-  })
-  .then(response => response.json())
-  .then(data => {
-      if (data.message === 'Added successfully') {
-          checkmark.style.opacity = '1'; 
-          checkmark.style.display = 'block'; // displayをblockに設定
-          checkmark.classList.add('already'); // 「already」クラスを追加
-          checkmark.classList.add('active'); // 「active」クラスも追加
-      } else {
-          console.error(data.message);
-      }
-  })
-  .catch(error => {
-      console.error('Error:', error);
-  });
+    fetch('/posts/add_to_collection/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrf_token
+        },
+        body: `collection_id=${collection_id}&post_id=${post_id}`
+    })
+    .then(response => {
+        // レスポンスの内容タイプをチェック
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            return response.json();
+        } else {
+            throw new Error("Invalid content-type received: " + contentType);
+        }
+    })
+    .then(data => {
+        if (data.message === 'Added successfully') {
+            checkmark.style.opacity = '1'; 
+            checkmark.style.display = 'block'; 
+            checkmark.classList.add('already');
+            checkmark.classList.add('active');
+        } else {
+            console.error(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 document.getElementById('create-collection-btn').addEventListener('click', function() {
@@ -288,13 +299,23 @@ document.getElementById('create-collection-btn').addEventListener('click', funct
   })
   .then(response => response.json())
   .then(data => {
-      if(data.status === "success") {
-          // 新しいコレクションの要素を作成
-          let newCollectionElem = document.createElement('div');
-          newCollectionElem.className = 'collection-choice';
+        if(data.status === "success") {
+            // 新しいコレクションの要素を作成
+            let newCollectionElem = document.createElement('div');
+            newCollectionElem.className = 'collection-choice-container';
+
+            // 1. レスポンスから新しいコレクションのIDを取得
+            let newCollectionId = data.collection_id;
+
+            // 2. 新しいコレクション要素に `data-collection-id` 属性を追加
+            newCollectionElem.setAttribute('data-collection-id', newCollectionId);
   
-          // 内部divを作成
-          let innerDivElem = document.createElement('div');
+            // 内部divを作成
+            let innerDivElem = document.createElement('div');
+            innerDivElem.className = 'collection-choice'; 
+
+            // レスポンスから新しいコレクションのIDを取得して、それをdata-collection-id属性として使用
+            innerDivElem.setAttribute('data-collection-id', newCollectionId);
   
           // アイコンを作成
           let collectionIconElem = document.createElement('i');
@@ -319,10 +340,10 @@ document.getElementById('create-collection-btn').addEventListener('click', funct
           // 新しいコレクション要素に内部divを追加
           newCollectionElem.appendChild(innerDivElem);
   
-          // 新規コレクションの要素の次の位置に新しいコレクション要素を挿入
-          let collectionsList = document.querySelector('.collections-list');
-          let newCollectionPlaceholder = document.querySelector('.new-collection').parentElement;
-          collectionsList.insertBefore(newCollectionElem, newCollectionPlaceholder.nextElementSibling);
+            // 新規コレクションの要素の次の位置に新しいコレクション要素を挿入
+            let collectionsList = document.querySelector('.collections-list');
+            let newCollectionPlaceholder = document.querySelector('.new-collection').parentElement;
+            collectionsList.insertBefore(newCollectionElem, newCollectionPlaceholder.nextElementSibling);
   
       } else {
           alert("コレクションの作成または投稿の追加に失敗しました。");

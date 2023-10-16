@@ -1614,20 +1614,21 @@ label {
   transition: padding-top 0.2s ease-out; 
 }
 
-.collection-choice{
+.collection-choice-container{
   box-sizing: border-box;
   width: 100%;
   font-weight: bold;
   text-align: left;
 }
 
-.collection-choice > div{
+.collection-choice, .new-collection{
   display: flex;
   align-items: center;
   padding: 8px 32px;
 }
 
-.collection-choice > div:hover{
+
+.collection-choice:hover, .new-collection:hover{
   cursor: pointer;
   background-color: rgb(237, 237, 237);
 }

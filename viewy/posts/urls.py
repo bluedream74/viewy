@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, MyBlockListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, StarView,FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, MyBlockListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
 )
 
 app_name = 'posts'
@@ -11,6 +11,7 @@ urlpatterns = [
    path('postlist/', PostListView.as_view(), name='postlist'),
    path('visitor_postlist/', VisitorPostListView.as_view(), name='visitor_postlist'),
    path('get_more_posts/', GetMorePostsView.as_view(), name='get_more_posts'),
+   path('star/', StarView.as_view(), name='star'),
    path('favorite/<int:pk>/', FavoriteView.as_view(), name='favorite'),
    path('fovorite_page/', FavoritePageView.as_view(), name='favorite_page'),
    path('fovorite_list/', FavoritePostListView.as_view(), name='favorite_list'),
