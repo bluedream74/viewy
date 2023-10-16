@@ -265,7 +265,38 @@ class BasePostListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['posts'] = context['object_list']
+        user = self.request.user
+
+        # ユーザー認証チェック
+        if user.is_authenticated:
+            # ユーザーが作成したコレクションを取得（新しい順に並べる）
+            user_collections = Collection.objects.filter(user=user).order_by('-created_at')
+            context['user_collections'] = user_collections
+            
+            # 新規コレクション作成の選択肢をリストの先頭に追加
+            collection_choices_with_ids = [('新規コレクション作成', None)] + list(user_collections.values_list('name', 'id'))
+            context['collection_choices_with_ids'] = collection_choices_with_ids
+
+        posts = context.get('object_list', [])
+        context['posts'] = posts
+
+        # 全てのpost_idを取得
+        post_ids = [post.id for post in posts]
+
+        # 一度のクエリで全てのcollected_inの情報を取得
+        collections_for_posts = Collect.objects.filter(post__id__in=post_ids).values_list('post_id', 'collection_id')
+
+        # post_idをキーにしてcollection_idのリストを生成
+        collections_map = {}
+        for post_id, collection_id in collections_for_posts:
+            collections_map.setdefault(post_id, []).append(collection_id)
+
+        already_added_collections = set()
+        for post_id, collection_ids in collections_map.items():
+            already_added_collections.update(collection_ids)
+
+        context['already_added_collections'] = list(already_added_collections)
+
         return context
     
     def post(self, request, *args, **kwargs):
@@ -402,18 +433,6 @@ class PostListView(BasePostListView):
                 unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
             context['unread_notifications'] = unread_notifications
             
-            # ユーザーが作成したコレクションを取得（新しい順に並べる）
-            user_collections = Collection.objects.filter(user=user).order_by('-created_at')
-            context['user_collections'] = user_collections
-
-            # 新規コレクション作成の選択肢をリストの先頭に追加
-            # それぞれの要素は(コレクション名, コレクションID)のタプルです
-            collection_choices_with_ids = [('新規コレクション作成', None)] + list(user_collections.values_list('name', 'id'))
-            context['collection_choices_with_ids'] = collection_choices_with_ids
-            already_added_collections = []
-            for post in context['posts']:
-                already_added_collections.extend(post.collected_in.all().values_list('collection_id', flat=True))
-            context['already_added_collections'] = list(set(already_added_collections))
 
             # ユーザーがフォローしているposterのIDリストを取得
             followed_posters_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
@@ -1518,6 +1537,22 @@ class MyFollowListView(LoginRequiredMixin, ListView):    # フォローしたア
             poster.is_followed_by_current_user = poster.id in followed_by_user_ids
 
         return follow_posters
+    
+
+class MyBlockListView(LoginRequiredMixin, ListView):    
+    model = Blocks
+    context_object_name = 'blocked_posters'
+    template_name = os.path.join('posts', 'block_list.html')
+    
+    def get_queryset(self):
+        user = self.request.user
+        blocks = Blocks.objects.filter(user=user)\
+            .select_related('poster')\
+            .only('poster__username', 'poster__prf_img', 'poster__displayname')\
+            .order_by('-created_at')
+        blocked_posters = [b.poster for b in blocks]
+        
+        return blocked_posters
 
 
 class FreezeNotificationRequest(View):

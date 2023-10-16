@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, MyBlockListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
 )
 
 app_name = 'posts'
@@ -43,6 +43,7 @@ urlpatterns = [
    path('my_posts/', MyPostView.as_view(), name='my_posts'), 
    path('hidden_post/', HiddenPostView.as_view(), name='hidden_post'), 
    path('my_follow_list/', MyFollowListView.as_view(), name='my_follow_list'),
+   path('block-list/', MyBlockListView.as_view(), name='block_list'),
    path('freeze_notification_request/', FreezeNotificationRequest.as_view(), name='freeze_notification_request'),
    path('freeze_notification_request_success/', FreezeNotificationRequestSuccessView.as_view(), name='freeze_notification_request_success'),
    path('freeze-list/', FreezeListView.as_view(), name='freeze_list'),

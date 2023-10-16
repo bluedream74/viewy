@@ -34,6 +34,13 @@
     <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
     <br>
     {% endfor %}
+    <div class="mute-box">
+      <div class="mute">
+        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+          <input type="checkbox" class="mute-frag" checked>
+        </label>
+      </div>
+    </div>
 
     {% endif %}
     {% if post.poster.is_advertiser %}
@@ -232,14 +239,6 @@
         {% endif %}
 
 
-      </div>
-    </div>
-
-    <div class="mute-box">
-      <div class="mute">
-        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-          <input type="checkbox" class="mute-frag" checked>
-        </label>
       </div>
     </div>
 

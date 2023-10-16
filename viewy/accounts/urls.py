@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView, BlockView
+  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView, BlockView, BlockPosterView
 )
 from . import views
 
@@ -17,6 +17,7 @@ urlpatterns = [
   path('password_reset_complete/', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
   path('follow/<int:pk>/', FollowView.as_view(), name='follow'),
   path('block/<int:pk>/', BlockView.as_view(), name='block'),
+  path('block_poster/<int:post_id>/', BlockPosterView.as_view(), name='block_poster'),
   path('edit_prf/', EditPrfView.as_view(), name='edit_prf'),
   path('check_age/', CheckAgeView.as_view(), name='check_age'),
   path('verify/', VerifyView.as_view(), name='verify'),

@@ -61,29 +61,63 @@
   font-weight: bold;
 }
 
-.details-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.details-container{
+  margin-left: auto;
+  position: relative;
 }
+
+.details-icon {
+  width: 28px;
+  height: 28px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.667);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 16px;
+}
+
+.details-icon:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.details-icon i{
+  pointer-events: none;
+}
+
 
 .action-icon {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.5rem;
+
 }
 
 .action-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  width: 160px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.985);
   align-items: center;
   justify-content: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.326);
+  overflow: hidden;
+  transform-origin: top right;
+  transform: scale(0.7); /* 初期の縮小状態 */
+  opacity: 0; /* 初期の透明度 */
+  transition: transform 0.3s, opacity 0.3s; /* アニメーションの速度と種類 */
+  pointer-events: none;
+}
+
+.action-modal.active { /* activeクラスが追加されたときのスタイル */
+  display: block;
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: all;
 }
 
 .action-modal-content {
@@ -93,19 +127,20 @@
   text-align: center;
 }
 
-.close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  cursor: pointer;
+.option{
+  font-size: 12px;
+  color: rgb(69, 69, 69);
+  font-weight: bold;
+  padding: 12px 16px;
 }
 
-.block-btn {
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-radius: 5px;
+.option:hover{
+  background-color: rgba(220, 220, 220, 0.989);
+}
+
+.option-icon{
+  display: inline-block;
+  margin-right: 8px;
 }
 
 .counter {

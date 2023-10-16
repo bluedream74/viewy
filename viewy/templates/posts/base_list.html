@@ -71,7 +71,13 @@
         <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
         <br>
       {% endfor %}
-
+      <div class="mute-box">
+        <div class="mute">
+          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+            <input type="checkbox" class="mute-frag" checked>
+          </label>
+        </div>
+      </div>
     {% endif %}
 
     {% if post.poster.is_advertiser %}
@@ -197,7 +203,7 @@
       </div>
 
 
-      <div class="ellipsis" data-post-id="{{ post.id }}"><i class="fa-solid fa-ellipsis"></i></div>
+      <div class="ellipsis" data-post-id="{{ post.id }}" data-reported="{% if post.reported_by_user %}true{% else %}false{% endif %}"><i class="fa-solid fa-ellipsis"></i></div>
 
 
 
@@ -278,16 +284,17 @@
       </div>
     </div>
 
-    <div class="mute-box">
-      <div class="mute">
-        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-          <input type="checkbox" class="mute-frag" checked>
-        </label>
-      </div>
-    </div>
+  </div>
 
-    {% if user.is_authenticated and not post.poster.is_advertiser %}
 
+  <label class="hide-label fa-solid fa-angle-down hide">
+    <input class="hide-input" type="checkbox" style="display: none;">
+  </label>
+
+
+
+
+{% if user.is_authenticated and not post.poster.is_advertiser %}
 <div class="modal-overlay"></div>
 <!-- モーダルのテンプレート -->
 <div id="others-modal" class="modal">
@@ -302,10 +309,7 @@
             <i class="fa-solid fa-ban option-icon"></i>
             この投稿者をブロックする
         </div>
-        <div class="option" id="report-post">
-            <i class="fa-solid fa-exclamation option-icon" style="color: orangered;"></i>
-            通報する
-        </div>
+        <div class="report-option-container"></div>
       </div>
       <div class="modal-content-new add-to-collection-content">
         <div class="create-collection-form" style="display: none;">
@@ -330,75 +334,62 @@
       </div>
     </div>
       <div class="modal-content-new block-poster-content">
-          この投稿者をブロックしますか＞
-          <!-- Content for blocking a poster -->
+          <div class="block-options">
+            <div class="block-check">この投稿者をブロックしますか</div>
+            <div class="block-select">
+              <button id="no-block" data-action="cancel">いいえ</button>
+              <button id="go-block" data-action="block">はい</button>
+            </div>
+
+        </div>
+        <div class="block-response"></div> <!-- ブロック完了メッセージを表示 -->
       </div>
+      
       <div class="modal-content-new report-post-content">
-        理由をお聞かせください
           <!-- Content for reporting a post -->
+          <div class="report-menu">
+            <form action="{% url 'posts:report'%}">
+              {% csrf_token %}
+              <!-- フォームの入力フィールド -->
+              <div class="report-title">不適切なコンテンツを通報する</div>
+              <div class="report-sub-title">理由をお聞かせください</div>
+      
+              <div class="selects">
+                <label>
+                  <input type="radio" name="reason" value="underage"> 未成年者が出演している
+                </label>
+                <br>
+                <label>
+                  <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
+                </label>
+                <br>
+                <label>
+                  <input type="radio" name="reason" value="violent"> 暴力的な内容
+                </label>
+                <br>
+                <label>
+                  <input type="radio" name="reason" value="inappropriate"> 不適切な内容
+                </label>
+                <br>
+                <label>
+                  <input type="radio" name="reason" value="other"> その他
+                </label>
+                <br>
+              </div>
+      
+      
+              <!-- その他のフォームフィールド -->
+      
+              <!-- 送信ボタン -->
+              <button type="submit" class="submit-report">送信</button>
+            </form>
+            <div class="formResponse message"></div>
+          </div>
       </div>
+      
   </div>
 </div>
-
-    {% if post.reported_by_user %}
-    <div class="report already">
-      <i class="fa-solid fa-check-circle"></i>
-    </div>
-    {% else %}
-    <div class="report not-yet">
-      <i class="fa-solid fa-circle-exclamation"></i>
-    </div>
-    {% endif %}
-    <div class="report-menu">
-      <form data-pk="{{ post.pk }}" action="{% url 'posts:report'%}">
-        {% csrf_token %}
-        <!-- フォームの入力フィールド -->
-        <div class="report-title">不適切なコンテンツを報告する</div>
-        <div class="report-sub-title">理由をお聞かせください</div>
-
-        <div class="selects">
-          <label>
-            <input type="radio" name="reason" value="underage"> 未成年者が出演している
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="insufficient_mosaic"> モザイク処理が十分でない
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="violent"> 暴力的な内容
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="inappropriate"> 不適切な内容
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="reason" value="other"> その他
-          </label>
-          <br>
-        </div>
-
-
-        <!-- その他のフォームフィールド -->
-
-        <!-- 送信ボタン -->
-        <button type="submit" class="submit-report">送信</button>
-      </form>
-      <div class="formResponse message"></div>
-    </div>
-
-
-    {% else %}
-    {% endif %}
-
-  </div>
-
-
-  <label class="hide-label fa-solid fa-angle-down hide">
-    <input class="hide-input" type="checkbox" style="display: none;">
-  </label>
-
+{% endif %}
 
   <div class="page-count">
     {% if post.ismanga %}

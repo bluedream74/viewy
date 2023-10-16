@@ -703,6 +703,23 @@ class BlockView(LoginRequiredMixin, View):
         data = {'blocked': created}
         return JsonResponse(data)
   
+class BlockPosterView(View):
+    def post(self, request, post_id):
+        post = get_object_or_404(Posts, pk=post_id)
+        poster = post.poster
+
+        # すでにブロックしているかをチェック
+        existing_block = Blocks.objects.filter(poster=poster, user=request.user).first()
+
+        if existing_block:
+            return JsonResponse({"success": False, "error": "すでにブロックしています"})
+
+        # ユーザーをブロック
+        block = Blocks(poster=poster, user=request.user)
+        block.save()
+
+        return JsonResponse({"success": True})
+
   
   
 class MessageListView(ListView):

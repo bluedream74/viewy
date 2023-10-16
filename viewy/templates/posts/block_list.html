@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+  <link rel="stylesheet" href="{% static 'css/stylemy_follow_list.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="title">ブロック中</div>
+
+<div class="top-space"></div>
+
+{% if blocked_posters %}
+{% for poster in blocked_posters %}
+<div class="poster-container follow-poster">
+  <div>
+    <a href="{% url 'posts:poster_page' username=poster.username %}">
+      <img class="poster-img" src="{{poster.prf_img.url}}">
+    </a>
+  </div>
+  <div class="caption">
+    <a href="{% url 'posts:poster_page' username=poster.username %}">
+      <div class="poster-name">{{poster.displayname|default:poster.username}}</div>
+    </a>
+  </div>
+  <div class="block-space">
+    <form data-pk="{{ poster.pk }}" action="{% url 'accounts:block' pk=poster.pk %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="poster_pk" value="{{ poster.pk }}">
+      <label class="block-label">
+        <div class="block-status">{% if poster.is_blocked_by_current_user %}ブロックする{% else %}ブロック解除{% endif %}</div>
+        <input type="checkbox" class="block-toggle" {% if poster.is_blocked_by_current_user %}checked{% endif %} style="display: none;">
+      </label>
+    </form>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="no-content">ブロックしたアカウントはありません</div>
+{% endif %}
+
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script>
+const blockForms = document.querySelectorAll('form[data-pk]');
+
+blockForms.forEach(form => {
+  const blockToggle = form.querySelector('.block-toggle');
+  const blockStatusLabel = form.querySelector('.block-status');
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+  blockToggle.addEventListener('change', event => {
+    const formData = new FormData(form);
+    formData.append('csrfmiddlewaretoken', csrftoken);
+
+    blockToggle.disabled = true;  // チェックボックスを一時的に無効化
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.blocked) {
+          blockStatusLabel.innerText = 'ブロック解除';
+        } else {
+          blockStatusLabel.innerText = 'ブロックする';
+        }
+        blockToggle.disabled = false;
+      })
+      .catch(error => {
+        console.log(error);
+        blockToggle.disabled = false;
+      });
+  });
+});
+</script>
+{% endblock %}

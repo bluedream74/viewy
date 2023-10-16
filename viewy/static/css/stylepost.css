@@ -738,10 +738,7 @@ label {
 
 /* 報告ボタン */
 .report {
-  position: absolute;
-  bottom: 32px;
-  right: 18px;
-  color: rgba(255, 255, 255, 0.797);
+  color: rgba(0, 0, 0, 0.797);
   z-index: 97;
 }
 
@@ -751,20 +748,14 @@ label {
 }
 
 .report-menu {
-  display: none;
-  position: absolute;
-  bottom: 54px;
-  right: 16px;
-  width: 320px;
-  height: 256px;
-  background-color: rgba(255, 255, 255, 0.918);
-  border-radius: 8px;
   text-align: center;
-  color: rgb(102, 61, 54);
 }
 
 .report-title {
-  margin-top: 24px;
+  font-weight: bold;
+}
+
+.block-check{
   font-weight: bold;
 }
 
@@ -817,12 +808,12 @@ label {
 }
 
 .submit-report {
-  border: rgb(102, 61, 54) 1px solid;
-  border-radius: 4px;
-  color: rgb(102, 61, 54);
-  background-color: #ffffff93;
-  font-size: 13px;
-  margin-top: 4px;
+  padding: 4px 16px;
+  background-color: rgb(247, 247, 247);
+  border: rgb(212, 57, 0) 1px solid;
+  border-radius: 50px;
+  color: rgb(212, 57, 0);
+  font-weight: bold;
 }
 
 .submit-report:hover {
@@ -833,7 +824,7 @@ label {
 .message {
   font-size: 14px;
   position: relative;
-  top: 100px;
+  top: 48px;
 }
 
 /* 停止中に表示する再生ボタン */
@@ -1720,6 +1711,37 @@ label {
 .collection-choice i.fa-check.active {
   animation: popOutAnimation 0.3s forwards;
   opacity: 1; /* アニメーション終了後の透明度を1に設定 */
+}
+
+.block-select{
+  margin-top: 16px;
+}
+
+.block-options button{
+  border: 1px gray solid;
+  padding: 6px 16px;
+  width: 80px;
+  border-radius: 50px;
+  background-color: #ececec;
+  font-weight: bold;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+.block-options button:hover{
+  cursor: pointer;
+  box-shadow: none;
+  opacity: 0.8;
+}
+
+#go-block{
+  background-color: #eb5228;
+  border: 1px solid #eb5228;
+  color: white;
+  margin-left: 16px;
+}
+
+.block-response{
+  margin-top: 48px;
 }
 
 /* スマートフォン用のスタイル */

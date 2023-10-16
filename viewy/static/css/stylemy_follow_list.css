@@ -119,6 +119,21 @@ label:hover{
   height: 48px;
 }
 
+.block-status{
+  width: 96px;
+  height: 32px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50px;
+  background-color: rgb(173, 173, 173);
+  text-align: center;
+  line-height: 32px;
+  margin-left: 16px;
+  margin-top: 8px;
+  position: absolute;
+  right: 24px;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 

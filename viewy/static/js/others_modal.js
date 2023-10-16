@@ -3,110 +3,179 @@ let csrf_token = document.querySelector('input[name="csrfmiddlewaretoken"]').val
 document.body.addEventListener('click', function(event) {
   let modal = document.getElementById('others-modal');
   let overlay = document.querySelector('.modal-overlay');
+  let modalWrapper = modal.querySelector('.modal-wrapper'); 
+  let newContents = document.querySelectorAll('.modal-content-new');
+  let createForm = document.querySelector('.create-collection-form');
+  let collectionList = document.querySelector('.collections-list');
 
-  // オーバーレイがクリックされた場合、モーダルを閉じる
-  if (event.target === overlay) {
+  // オーバーレイがクリックされた場合、またはモーダル外部がクリックされた場合
+  if (event.target === overlay ||
+      (event.target !== modal && 
+      !event.target.closest('.ellipsis') && 
+      !event.target.closest('.modal-content') &&
+      !event.target.closest('.modal-wrapper'))||
+      event.target.closest('#no-block')){
+
       modal.classList.remove('active');
       overlay.style.display = "none";
-      return; // 早期return
-  }
-
-  if (event.target.matches('.ellipsis')) {
-      let ellipsis = event.target;
-      let post_id = ellipsis.dataset.postId;
-      modal.dataset.postId = post_id;
-
-      fetch(`/posts/get_collections_for_post/${post_id}/`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrf_token
-          },
-      })
-      .then(response => response.json())
-      .then(data => {
-          let collectionIdsForPost = data.collection_ids;
-
-          document.querySelectorAll('.collection-choice').forEach(choice => {
-              let choiceId = parseInt(choice.getAttribute('data-collection-id'));
-              let checkIcon = choice.querySelector('.fa-check');
-
-              if (!checkIcon) return;
-
-              if (collectionIdsForPost.includes(choiceId)) {
-                  checkIcon.classList.add('already');
-                  checkIcon.style.display = "";
-              } else {
-                  checkIcon.classList.remove('already');
-                  checkIcon.style.display = "none";
-              }
-          });
-
-          // モーダルとオーバーレイの表示切替
-          if (modal.classList.contains('active')) {
-              modal.classList.remove('active');
-              overlay.style.display = "none";
-          } else {
-              modal.classList.add('active');
-              overlay.style.display = "block";
-          }
-      });
-  }
-});
-
-window.onclick = function(event) {
-  let modal = document.getElementById('others-modal');
-  let modalWrapper = modal.querySelector('.modal-wrapper'); // モーダルのラッパーを取得
-  let newContents = document.querySelectorAll('.modal-content-new'); // 新しいモーダルのコンテンツを取得
-  let createForm = document.querySelector('.create-collection-form'); // フォームを取得
-  let collectionList = document.querySelector('.collections-list'); // コレクションリストを取得
-
-  if (
-    event.target !== modal && 
-    !event.target.closest('.ellipsis') && 
-    !event.target.closest('.modal-content') &&
-    !event.target.closest('.modal-wrapper') // モーダルのラッパーやその子要素をクリックした場合にもモーダルを閉じないように
-  ) {
-      modal.classList.remove('active');
-      
-      // 300ミリ秒後にモーダルの位置とフォームのスタイルをリセット
       setTimeout(function() {
-          modalWrapper.style.transform = ''; // モーダルの位置をリセット
-          createForm.style.display = 'none'; // フォームを非表示
-          createForm.style.opacity = '0';    // フォームの不透明度をリセット
-          createForm.style.right = '-100%';  // フォームの位置をリセット
-          collectionList.style.paddingTop = ''; // コレクションリストのpadding-topをリセット
+          modalWrapper.style.transform = ''; 
+          createForm.style.display = 'none';
+          createForm.style.opacity = '0';
+          createForm.style.right = '-100%';
+          collectionList.style.paddingTop = '';
 
-          // 全ての新しいモーダルコンテンツを非表示にする
           newContents.forEach(content => {
               content.style.display = 'none';
           });
       }, 300);
+      return; // 早期return
   }
+
+  if (event.target.matches('.ellipsis')) {
+    let ellipsis = event.target;
+    let post_id = ellipsis.dataset.postId;
+    let isReported = ellipsis.dataset.reported === 'true'; // 通報されているかどうか
+
+    // 通報のオプションを設定
+    let reportOption;
+    if (isReported) {
+        reportOption = `
+        <div class="option">
+            <i class="fa-solid fa-exclamation option-icon"></i>
+            通報済み
+        </div>
+        `;
+    } else {
+        reportOption = `
+        <div class="option" id="report-post">
+            <i class="fa-solid fa-exclamation option-icon" style="color: orangered;"></i>
+            通報する
+        </div>
+        `;
+    }
+
+    let reportContainer = document.querySelector('.modal .report-option-container'); // モーダル内の適切な場所を指定
+    reportContainer.innerHTML = reportOption;
+
+    // 通報フォームに投稿IDを設定
+    let reportForm = document.querySelector('.report-menu form');
+    reportForm.dataset.pk = post_id;
+    
+
+    modal.dataset.postId = post_id;
+    // .block要素にpost_idを設定
+    let blockElement = document.querySelector('.block-options');
+    blockElement.dataset.postId = post_id;
+
+    fetch(`/posts/get_collections_for_post/${post_id}/`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf_token
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        let collectionIdsForPost = data.collection_ids;
+
+        document.querySelectorAll('.collection-choice').forEach(choice => {
+            let choiceId = parseInt(choice.getAttribute('data-collection-id'));
+            let checkIcon = choice.querySelector('.fa-check');
+
+            if (!checkIcon) return;
+
+            if (collectionIdsForPost.includes(choiceId)) {
+                checkIcon.classList.add('already');
+                checkIcon.style.display = "";
+            } else {
+                checkIcon.classList.remove('already');
+                checkIcon.style.display = "none";
+            }
+        });
+
+        // モーダルとオーバーレイの表示切替
+        if (modal.classList.contains('active')) {
+            modal.classList.remove('active');
+            overlay.style.display = "none";
+        } else {
+            modal.classList.add('active');
+            overlay.style.display = "block";
+        }
+    });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  let options = document.querySelectorAll('.option');
-  let modalWrapper = document.querySelector('.modal-wrapper');
-  
-  options.forEach(option => {
-      option.addEventListener('click', function() {
-          let targetContent = option.id;
-          let newContents = document.querySelectorAll('.modal-content-new');
-          
-          // Hide all new modal contents
-          newContents.forEach(content => {
-              content.style.display = 'none';
-          });
+// .optionのクリック処理
+let option = event.target.closest('.option');
+if (option && option.id) { // ここでIDの存在を確認します
+  let targetContent = option.id;
+  let newContents = document.querySelectorAll('.modal-content-new');
 
-          // Display the correct new modal content based on the clicked option
-          document.querySelector(`.${targetContent}-content`).style.display = 'block';
-
-          // Move the modal contents to the left
-          modalWrapper.style.transform = 'translateX(-100%)';
-      });
+  // Hide all new modal contents
+  newContents.forEach(content => {
+    content.style.display = 'none';
   });
+
+  // If the 'report-post' option is clicked, reset the report form
+  if (targetContent === 'report-post') {
+    let reportForm = document.querySelector('.report-menu form');
+    let formResponse = reportForm.parentNode.querySelector('.formResponse');
+    
+    // Reset the form fields
+    reportForm.reset();
+    
+    // Make the form visible again
+    reportForm.style.display = '';
+    
+    // Clear the response message
+    formResponse.innerHTML = '';
+    formResponse.classList.remove('response-message');
+  }
+
+  // Display the correct new modal content based on the clicked option
+  document.querySelector(`.${targetContent}-content`).style.display = 'block';
+
+  // Move the modal contents to the left
+  modalWrapper.style.transform = 'translateX(-100%)';
+}
 });
+
+// Add block event listener
+document.querySelector('.block-options').addEventListener('click', function(event) {
+    if (event.target.dataset.action === 'block') {
+        const blockElement = document.querySelector('.block-options'); // これを修正
+        const postId = blockElement.dataset.postId;
+
+        // ここでpostIdの値をconsole.logで出力
+        console.log(postId);
+
+        blockPoster(postId);
+    } else {
+        // ブロックをキャンセルする場合の処理、例えばモーダルを閉じるなど
+    }
+});
+
+function blockPoster(postId) {
+  fetch(`/accounts/block_poster/${postId}/`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf_token
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+        document.querySelector('.block-response').textContent = "ブロックしました";
+        document.querySelector('.block-options').style.display = 'none';
+
+        // ブロックが完了したらページを再読み込み
+        window.location.reload();
+    } else {
+        document.querySelector('.block-response').textContent = "エラーが発生しました";
+    }
+  });
+}
 
 
 document.addEventListener("DOMContentLoaded", function() {

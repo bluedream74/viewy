@@ -10,6 +10,11 @@
 <div class="menu-list">
 
   <div>
+    <a href="{% url 'posts:block_list'%}" class="delete-account"  style="color: white;"><i class="fa-solid fa-ban fa-lg mini-logo"></i>ブロックリスト</a>
+   <div class="line"></div>
+  </div>
+
+  <div>
     <a href="{% url 'accounts:delete_user'%}" class="delete-account"><i class="fa-solid fa-user-slash fa-lg mini-logo"></i>アカウントを削除する</a>
    <div class="line"></div>
   </div>
