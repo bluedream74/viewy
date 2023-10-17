@@ -318,7 +318,7 @@
       </div>
         <div class="collections-list">
           {% for choice_name, choice_id in collection_choices_with_ids %}
-          <div class="collection-choice" data-collection-id="{{ choice_id }}">
+          <div class="collection-choice-container" data-collection-id="{{ choice_id }}">
           
               {% if choice_name == "新規コレクション作成" %}
                   <div class="new-collection"><i class="fa-solid fa-plus collection-icon "></i>{{ choice_name }}</div>

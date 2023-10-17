@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/star.css' %}">
+{% endblock %}
+{%block content%}
+
+<div class="title">お気に入り</div>
+
+<div class="options">
+
+  <a href="{% url 'posts:favorite_page'%}" class="option">
+    <div class="option-icon pink">
+      <i class="fa-solid fa-heart"></i>
+    </div>
+    <div class="option-info">
+      <div class="option-title">いいね</div>
+      <div class="sub-info">{{ favorite_count }}件の投稿</div>
+    </div>
+</a>
+
+<a href="{% url 'posts:collections_menu'%}" class="option">
+    <div class="option-icon gold">
+      <i class="fa-solid fa-bookmark"></i>
+    </div>
+    <div class="option-info">
+      <div class="option-title">コレクション</div>
+      <div class="sub-info">{{ collection_count }}件のコレクション</div>
+    </div>
+</a>
+
+<a href="{% url 'posts:follow_page'%}" class="option">
+    <div class="option-icon blue">
+      <i class="fa-solid fa-user-group"></i>
+    </div>
+    <div class="option-info">
+      <div class="option-title">フォロー</div>
+      <div class="sub-info">{{ follow_count }}人をフォロー中</div>
+    </div>
+</a>
+
+
+</div>
+
+<style>
+  .like {
+    border-top: solid 2px aqua;
+  }
+</style>
+
+{%endblock%}

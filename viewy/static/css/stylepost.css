@@ -813,12 +813,13 @@ label {
 }
 
 .submit-report {
-  padding: 4px 16px;
+  padding: 8px 40px;
   background-color: rgb(247, 247, 247);
   border: rgb(212, 57, 0) 1px solid;
   border-radius: 50px;
   color: rgb(212, 57, 0);
   font-weight: bold;
+  font-size: 15px;
 }
 
 .submit-report:hover {
@@ -1614,20 +1615,21 @@ label {
   transition: padding-top 0.2s ease-out; 
 }
 
-.collection-choice{
+.collection-choice-container{
   box-sizing: border-box;
   width: 100%;
   font-weight: bold;
   text-align: left;
 }
 
-.collection-choice > div{
+.collection-choice, .new-collection{
   display: flex;
   align-items: center;
   padding: 8px 32px;
 }
 
-.collection-choice > div:hover{
+
+.collection-choice:hover, .new-collection:hover{
   cursor: pointer;
   background-color: rgb(237, 237, 237);
 }
@@ -1686,9 +1688,9 @@ label {
   font-weight: bold;
   color: white;
   border-radius: 50px;
-  padding: 4px 8px;
-  width: 48px;
-  font-size: 13px;
+  padding: 6px 12px;
+  width: 56px;
+  font-size: 14px;
 }
 
 #create-collection-btn:hover{
@@ -1719,13 +1721,14 @@ label {
 }
 
 .block-select{
-  margin-top: 16px;
+  margin-top: 32px;
 }
 
 .block-options button{
   border: 1px rgb(206, 206, 206) solid;
-  padding: 6px 16px;
-  width: 80px;
+  padding: 8px 16px;
+  font-size: 15px;
+  width: 120px;
   border-radius: 50px;
   background-color: #ececec;
   font-weight: bold;
@@ -1743,6 +1746,10 @@ label {
   border: 1px solid #eb5228;
   color: white;
   margin-left: 16px;
+}
+
+#no-block{
+  color: #696969;
 }
 
 .block-response{
@@ -1851,10 +1858,16 @@ label {
 
   .create-collection-form{
     width: 100%;
+    z-index: 120;
   }
 
   #new-collection-name{
     width: 60%;
+    padding: 0px 16px;
+    height: 40px;
   }
 
+  .modal-content{
+    padding-bottom: 64px;
+  }
 }

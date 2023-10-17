@@ -708,6 +708,10 @@ class BlockPosterView(View):
         post = get_object_or_404(Posts, pk=post_id)
         poster = post.poster
 
+        # ユーザーが自分自身をブロックしようとしているかを確認
+        if poster == request.user:
+            return HttpResponseBadRequest("自分自身をブロックすることはできません")
+
         # すでにブロックしているかをチェック
         existing_block = Blocks.objects.filter(poster=poster, user=request.user).first()
 

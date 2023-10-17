@@ -1,0 +1,76 @@
+
+
+.title{
+  width: 100%;
+  text-align: center;
+  margin-top: 28px;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: aqua;
+  color: white;
+  margin-bottom: 32px;
+}
+
+.options{
+  padding: 8px 24px;
+}
+
+.option{
+  display: flex;
+  margin-top: 16px;
+  margin-left: 16px;
+}
+
+.option:hover{
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.option-icon{
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  background-color: aquamarine;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  opacity: 0.9;
+}
+
+.pink{
+  background-image: linear-gradient(to right bottom, rgb(255, 114, 192), rgb(255, 0, 43));
+}
+
+.gold{
+  background-image: linear-gradient(to right bottom, rgb(255, 221, 111), rgb(224, 149, 0));
+}
+
+.blue{
+  background-image: linear-gradient(to right bottom, rgb(52, 255, 208), rgb(0, 205, 232));
+}
+
+.option-info{
+  color: white;
+  padding: 12px 16px;
+}
+
+.option-title{
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.sub-info{
+  font-size: 13px;
+  color: gray;
+  margin-left: 8px;
+}
+
+/* スマートフォン用のスタイル */
+@media only screen and (max-width: 600px) {
+  .option{
+    margin-left: 5%;
+  }
+}
