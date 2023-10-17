@@ -60,6 +60,7 @@ textarea{
   padding-left: 298px;
   z-index: 999;
   pointer-events: none;
+  opacity: 0.65;
 }
 
 .tab-bar{
