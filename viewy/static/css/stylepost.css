@@ -225,7 +225,7 @@ input[type=range]::-webkit-slider-thumb {
   /* アニメーション名を指定 */
   animation-duration: 2.0s;
   /* アニメーションの持続時間を1秒に設定 */
-  animation-delay: 0.5s;
+  animation-delay: 0.8s;
   /* アニメーションの開始を1秒遅らせる */
   animation-fill-mode: forwards;
   /* アニメーション終了後に最後のフレームで止まるように設定 */
