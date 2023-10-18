@@ -37,3 +37,13 @@ class SupportRate(models.Model):
 
     def __str__(self):
         return f"{self.name}: {self.value}"
+    
+    
+class DailyVisitorCount(models.Model):
+    date = models.DateField(unique=True)
+    total_users = models.PositiveIntegerField(default=0)
+    new_users = models.PositiveIntegerField(default=0)
+    repeat_users = models.PositiveIntegerField(default=0)
+    
+    def __str__(self):
+        return f"Date: {self.date} - Total Users: {self.total_users} - New Users: {self.new_users} - Repeat Users: {self.repeat_users}"

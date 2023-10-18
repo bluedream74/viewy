@@ -86,3 +86,6 @@ class AffiliateForm(forms.ModelForm):
             raise ValidationError("タイトルは2文字以上で入力してください。")
         
         return cleaned_data
+    
+class AnalyzeDateForm(forms.Form):
+    analyze_date = forms.DateField(label="Analysis Date", widget=forms.DateInput(attrs={'type': 'date'}))

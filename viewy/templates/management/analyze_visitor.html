@@ -1,0 +1,22 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/management/ad.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="block">
+<!-- analyze_visitor.html -->
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Analyze</button>
+</form>
+</div>
+
+
+{% endblock %}
+

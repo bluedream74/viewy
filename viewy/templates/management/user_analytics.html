@@ -12,125 +12,70 @@
 
 <div>
 
-  <div class="total_table flex">
-    <div class="total_title">視聴履歴が2日以上のユーザー数：</div>
-    <div class="total_number">{{ two_day_viewed_users }}</div>
+<div class="total_table flex">
+    <div class="total_title">総訪問者数：</div>
+    <div class="total_number">{{ total_visitors }}</div>
+</div>
+
+<div class="total_table flex">
+    <div class="total_title">視聴履歴が1日以上のユーザー数：</div>
+    <div class="total_number">{{ one_day_viewed_users }}</div>
   </div>
 
 
-      <div class="block chart">
-        <!-- 時間ごとのユーザー数のグラフ -->
-        <canvas id="hourlyUsersChart" 
-        data-labels="{{ hourly_users_labels|json_script:'hourly_users_labels_data' }}" 
-        data-values="{{ hourly_users_values|json_script:'hourly_users_values_data' }}"
-        data-hourly-repeat-values="{{ hourly_repeat_values|json_script:'hourly_repeat_values_data' }}"></canvas>
-    </div>
+<div class="total_table flex">
+    <div class="total_title">視聴履歴が2日以上のユーザー数：</div>
+    <div class="total_number">{{ two_day_viewed_users }}</div>
+  </div>
     
-    
+  <div class="total_table flex">
+    <div class="total_title">視聴履歴が5日以上のユーザー数：</div>
+    <div class="total_number">{{ five_day_viewed_users }}</div>
+  </div>
+
     <div class="block chart">
-          <!-- 日ごとのユーザー数のグラフ -->
-        <canvas id="dailyUsersChart"
-        data-labels="{{ daily_users_labels|json_script:'daily_users_labels_data' }}"
-        data-values="{{ daily_users_values|json_script:'daily_users_values_data' }}"
-        data-daily-repeat-values="{{ daily_repeat_users_values|json_script:'daily_repeat_values_data' }}"></canvas>
+        <canvas id="userAnalyticsChart"></canvas>
     </div>
 
 
 
 
 </div>
-
-{{ hourly_users_labels|json_script:"hourly_users_labels_data" }}
-{{ hourly_users_values|json_script:"hourly_users_values_data" }}
-{{ hourly_repeat_values|json_script:"hourly_repeat_values_data" }}
-
-{{ daily_users_labels|json_script:"daily_users_labels_data" }}
-{{ daily_users_values|json_script:"daily_users_values_data" }}
-{{ daily_repeat_users_values|json_script:"daily_repeat_values_data" }}
-
 <script>
-var ctxHourly = document.getElementById('hourlyUsersChart').getContext('2d');  
-var hourlyLabels = JSON.parse(document.getElementById('hourly_users_labels_data').textContent);
-var hourlyValues = JSON.parse(document.getElementById('hourly_users_values_data').textContent);
-var hourlyRepeatValues = JSON.parse(document.getElementById('hourly_repeat_values_data').textContent);
-  
-var hourlyUsersChart = new Chart(ctxHourly, {
-    type: 'line',
-    data: {
-        labels: hourlyLabels,
-        datasets: [{
-            label: 'Hourly Users',
-            data: hourlyValues,
-            borderColor: 'rgba(75, 192, 192, 1)',
-            fill: false
-        }, {
-            label: 'Repeat Users',
-            data: hourlyRepeatValues,
-            borderColor: 'rgba(255, 165, 0, 1)',  // オレンジ色
-            fill: false,
-        }]
-    },
-    options: {
-        // 他のオプションがあればここに追加
-        plugins: {
-            annotation: {
-                annotations: generateAnnotations(hourlyLabels)
-            }
-        }
-    }
-});
-
-    var ctxDaily = document.getElementById('dailyUsersChart').getContext('2d');  
-    var dailyLabels = JSON.parse(document.getElementById('daily_users_labels_data').textContent);
-    var dailyValues = JSON.parse(document.getElementById('daily_users_values_data').textContent);
-    var dailyRepeatValues = JSON.parse(document.getElementById('daily_repeat_values_data').textContent);
-    
-    var dailyUsersChart = new Chart(ctxDaily, {
+    var ctx = document.getElementById('userAnalyticsChart').getContext('2d');
+    var userAnalyticsChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: dailyLabels,
+            labels: {{ daily_users_labels|safe }},
             datasets: [{
-                label: 'Daily Users',
-                data: dailyValues,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false
+                label: 'Total Users',
+                data: {{ daily_users_values|safe }},
+                borderColor: 'rgb(169, 169, 169)',
+                fill: false,
             }, {
-                label: 'Repeat Users Daily',
-                data: dailyRepeatValues,
-                borderColor: 'rgba(255, 165, 0, 1)',  // オレンジ色
+                label: 'New Users',  // 新規ユーザー数のラベルを追加
+                data: {{ daily_new_users_values|safe }},  // 新規ユーザー数のデータを追加
+                borderColor: 'rgb(161, 224, 255)',  // 新規ユーザー数のラインカラーを追加
+                fill: false,
+            }, {
+                label: 'Repeat Users',
+                data: {{ daily_repeat_users_values|safe }},
+                borderColor: 'rgb(255, 92, 33)',
                 fill: false,
             }]
         },
         options: {
-            // 必要なオプションをこちらに追加してください
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true
+                },
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
     });
-
-function generateAnnotations(labels) {
-    const annotations = [];
-    labels.forEach((label, index) => {
-        let borderColor = null;
-        
-        if (label.includes("00:00:00")) {
-            borderColor = 'rgba(255, 0, 0, 0.5)'; // 赤色
-        } else if (label.includes("12:00:00")) {
-            borderColor = 'rgba(173, 216, 230, 0.9)'; // 薄い青色
-        }
-
-        if (borderColor) {
-            annotations.push({
-                type: 'line',
-                mode: 'vertical',
-                scaleID: 'x',
-                value: index,
-                borderColor: borderColor,
-                borderWidth: 2
-            });
-        }
-    });
-    return annotations;
-}
-
-
 </script>
+
 {% endblock %}

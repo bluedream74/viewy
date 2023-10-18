@@ -27,8 +27,8 @@ from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys, FreezeNotification
 from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations
-from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm, AffiliateForm, AffiliateInfoForm
-from .models import UserStats, ClickCount
+from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm, AffiliateForm, AffiliateInfoForm, AnalyzeDateForm
+from .models import UserStats, ClickCount, DailyVisitorCount
 
 from django.contrib.auth.models import Group
 
@@ -123,85 +123,88 @@ class UserAnalytics(TemplateView):
         # 日本のタイムゾーンを取得
         jp_timezone = pytz.timezone('Asia/Tokyo')
 
-        # ３日前の日時を取得
-        start_time = timezone.now().astimezone(jp_timezone) - timedelta(days=3)
-        start_time = start_time.replace(minute=0, second=0, microsecond=0)
-        end_time = timezone.now().astimezone(jp_timezone)
+        # 30日前の日時を取得
+        start_date = timezone.now().astimezone(jp_timezone).date() - timedelta(days=30)
+        end_date = timezone.now().astimezone(jp_timezone).date()
 
-        # ３日間の時間帯ごとのユーザー数を取得
-        hourly_users_data = (
-            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time))
-            .annotate(hour=TruncHour('viewed_at'))
-            .values('hour')
-            .annotate(users=Count('user', distinct=True))
-            .order_by('hour')
-        )
+        # DailyVisitorCountモデルから過去30日間のデータを取得
+        visitor_data = DailyVisitorCount.objects.filter(date__range=(start_date, end_date))
 
-        hourly_users = {data['hour'].strftime('%Y-%m-%d %H:%M:%S'): data['users'] for data in hourly_users_data}
-        
-
-
-        # 各ユーザーの最初の視聴時間をサブクエリとして取得
-        first_viewed_subquery = ViewDurations.objects.filter(user_id=OuterRef('user_id')).order_by('viewed_at').values('viewed_at')[:1]
-
-        # ３日間の時間帯ごとに初めて見たユーザー数を取得
-        first_time_users_data = (
-            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time), viewed_at=Subquery(first_viewed_subquery))
-            .annotate(hour=TruncHour('viewed_at'))
-            .values('hour')
-            .annotate(first_time_users=Count('user', distinct=True))
-            .order_by('hour')
-        )
-
-        first_time_users = {data['hour'].strftime('%Y-%m-%d %H:%M:%S'): data['first_time_users'] for data in first_time_users_data}
-
-        # 繰り返しユーザー数の計算
-        repeat_users = {key: hourly_users[key] - first_time_users.get(key, 0) for key in hourly_users.keys()}
+        dates = [item.date.strftime('%Y-%m-%d') for item in visitor_data]
+        total_users_list = [item.total_users for item in visitor_data]
+        new_users_list = [item.new_users for item in visitor_data]
+        repeat_users_list = [item.repeat_users for item in visitor_data]
 
         context = {
-            'hourly_users_labels': list(hourly_users.keys()),
-            'hourly_users_values': list(hourly_users.values()),
-            'hourly_repeat_values': list(repeat_users.values()),
-            # 必要に応じて他のデータも渡すことができます。
+            'daily_users_labels': dates,
+            'daily_users_values': total_users_list,
+            'daily_new_users_values': new_users_list,  # ここを追加
+            'daily_repeat_users_values': repeat_users_list,
         }
-
-        # 日にちごとの全ユニークユーザー数
-        daily_users_data = (
-            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time))
-            .annotate(day=TruncDate('viewed_at'))
-            .values('day')
-            .annotate(users=Count('user', distinct=True))
-            .order_by('day')
-        )
-        daily_users = {data['day'].strftime('%Y-%m-%d'): data['users'] for data in daily_users_data}
-
-        # 日にちごとに初めて訪れたユーザー数
-        first_viewed_subquery_daily = ViewDurations.objects.filter(user_id=OuterRef('user_id')).order_by('viewed_at').values('viewed_at')[:1]
-
-        first_time_users_daily_data = (
-            ViewDurations.objects.filter(viewed_at__range=(start_time, end_time), viewed_at=Subquery(first_viewed_subquery_daily))
-            .annotate(day=TruncDate('viewed_at'))
-            .values('day')
-            .annotate(first_time_users=Count('user', distinct=True))
-            .order_by('day')
-        )
-        first_time_users_daily = {data['day'].strftime('%Y-%m-%d'): data['first_time_users'] for data in first_time_users_daily_data}
-
-        # 日にちごとの繰り返しユーザー数の計算
-        repeat_users_daily = {key: daily_users[key] - first_time_users_daily.get(key, 0) for key in daily_users.keys()}
-
-        context.update({
-            'daily_users_labels': list(daily_users.keys()),
-            'daily_users_values': list(daily_users.values()),
-            'daily_repeat_users_values': list(repeat_users_daily.values())
-        })
-
+        
+        # 全ユーザーの中で視聴履歴が1日以上のユーザーを取得
+        one_day_viewed_users = ViewDurations.objects.values('user').annotate(viewed_days=Count('viewed_at__date', distinct=True)).filter(viewed_days__gte=1).count()
+        context['one_day_viewed_users'] = one_day_viewed_users
 
         # 全ユーザーの中で視聴履歴が2日以上のユーザーを取得
         two_day_viewed_users = ViewDurations.objects.values('user').annotate(viewed_days=Count('viewed_at__date', distinct=True)).filter(viewed_days__gte=2).count()
         context['two_day_viewed_users'] = two_day_viewed_users
 
+        # 全ユーザーの中で視聴履歴が5日以上のユーザーを取得
+        five_day_viewed_users = ViewDurations.objects.values('user').annotate(viewed_days=Count('viewed_at__date', distinct=True)).filter(viewed_days__gte=5).count()
+        context['five_day_viewed_users'] = five_day_viewed_users
+
+        # DailyVisitorCountモデルから全ての日のtotal_usersを取得し、それを合計
+        total_visitors = DailyVisitorCount.objects.aggregate(sum=Sum('total_users'))['sum']
+        context['total_visitors'] = total_visitors
+
+
         return context
+    
+
+def update_daily_user_analytics(target_date):
+    start_time = target_date
+    end_time = start_time + timedelta(days=1)
+
+    # 当日訪問したユーザーのIDを取得
+    today_users = set(ViewDurations.objects.filter(viewed_at__range=(start_time, end_time)).values_list('user_id', flat=True))
+
+    # それまでの日にViewDurationsが存在しないユーザーを取得
+    previous_viewed_users = set(ViewDurations.objects.filter(viewed_at__lt=start_time).values_list('user_id', flat=True))
+
+    # 新規ユーザーの取得
+    new_users = today_users - previous_viewed_users
+
+    # リピーターユーザーの取得
+    repeat_users = today_users & previous_viewed_users  # 積集合を取ることでリピーターを取得
+
+    # DailyUserAnalyticsモデルに保存
+    DailyVisitorCount.objects.update_or_create(
+        date=target_date,
+        defaults={
+            'total_users': len(today_users),
+            'new_users': len(new_users),
+            'repeat_users': len(repeat_users)
+        }
+    )
+  
+    
+class DailyVisitorCountView(View):
+    template_name = 'management/analyze_visitor.html'
+    form_class = AnalyzeDateForm
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+    
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            target_date = form.cleaned_data['analyze_date']
+            update_daily_user_analytics(target_date)  # 更新関数を実行
+            return redirect('/management/analyze/') # 成功ページや任意のページにリダイレクト
+        return render(request, self.template_name, {'form': form})
     
 
 class Partner(SuperUserCheck, TemplateView):
