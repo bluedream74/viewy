@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 import os
 import subprocess
 import json
+import re
 from django.conf import settings
 
 # Third-party libraries
@@ -301,7 +302,16 @@ class Visuals(models.Model):
         if default_storage.exists(old_image_name):
             default_storage.delete(old_image_name)
     
-    
+# Videosのupload_toのための関数
+def upload_to(instance, filename):
+    base, ext = os.path.splitext(filename)
+    # ファイル名に既にタイムスタンプが含まれているか確認
+    timestamp_pattern = re.compile(r"_\d{14}")
+    if timestamp_pattern.search(base):
+        # 既にタイムスタンプがある場合、新しいタイムスタンプを付けずに元のファイル名を返す
+        return f"posts_videos/{base}{ext}"
+    new_name = f"{base}_{instance.post.poster.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}"
+    return f"posts_videos/{new_name}"
     
 class Videos(models.Model):
     post = models.ForeignKey(
@@ -309,7 +319,7 @@ class Videos(models.Model):
         on_delete=models.CASCADE,
         related_name='videos'
     )
-    video = models.FileField(upload_to='posts_videos')
+    video = models.FileField(upload_to=upload_to)
     thumbnail = models.ImageField(upload_to='posts_videos_thumbnails', null=True, blank=True)
     encoding_done = models.BooleanField(default=False)
 
@@ -322,7 +332,7 @@ class Videos(models.Model):
     def save(self, *args, **kwargs):
         print("save method started.")
         if not self.encoding_done:
-            # 最初にデータを保存
+            # 最初にデータを保存         
             super().save(*args, **kwargs)
             print("Original data saved.")
 
