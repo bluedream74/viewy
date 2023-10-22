@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
- MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, StarView,FavoriteView, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, MyBlockListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView
+ MangaCreateView, VisitorPostListView, PostListView, VideoCreateView, StarView, FavoriteView, RecommendPostView, GetRecommendUsers, FavoritePostListView, PosterPageView, HashtagPostListView, HashtagDimensionChangeView, HashtagPageView, FollowListView, FollowPageView, GetMoreFollowView, GetMorePreviousFollowView, GetMorePreviousCollectionView, DeleteCollectionView, RenameCollectionView, PosterPostListView, MyAccountView, SettingView, PinPostView, DeletePostView, AddPostView, SearchPageView, HotHashtagView, FavoritePageView, CollectionsMenuView, CollectionPageView, CollectionPostListView, GetMoreCollectionView, CreateNewCollection, BePartnerPageView, SubmitReportView, MyPostView, HiddenPostView, UnpublishedPostView, UpdateScheduledTimeView, AutoCorrectView, GetMorePostsView, GetMoreFavoriteView, GetMorePreviousFavoriteView, GetMorePosterPostsView, GetMorePreviousPosterPostsView, GetMoreHashtagView, GetMorePreviousHashtagView, AdsViewCount, WideAdsViewCount, AdsClickCount, WideAdsClickCount, AddToCollectionView, RemoveFromCollectionView, CreateCollectionAndAddPost, CollectionsForPostView, MyFollowListView, MyBlockListView, FreezeNotificationRequest, FreezeNotificationRequestSuccessView, FreezeListView, EmoteCountView, ViewDurationCountView, ShowMessageView
 )
 
 app_name = 'posts'
@@ -13,6 +13,8 @@ urlpatterns = [
    path('get_more_posts/', GetMorePostsView.as_view(), name='get_more_posts'),
    path('star/', StarView.as_view(), name='star'),
    path('favorite/<int:pk>/', FavoriteView.as_view(), name='favorite'),
+   path('recommend/', RecommendPostView.as_view(), name='recommend'),
+   path('get_recommend_users/<int:post_id>/', GetRecommendUsers.as_view(), name='get_recommend_users'),
    path('fovorite_page/', FavoritePageView.as_view(), name='favorite_page'),
    path('fovorite_list/', FavoritePostListView.as_view(), name='favorite_list'),
    path('get_more_favorite/',  GetMoreFavoriteView.as_view(), name='get_more_favorite'),
@@ -43,11 +45,14 @@ urlpatterns = [
    path('my_account/', MyAccountView.as_view(), name='my_account'),   
    path('my_posts/', MyPostView.as_view(), name='my_posts'), 
    path('hidden_post/', HiddenPostView.as_view(), name='hidden_post'), 
+   path('unpublished_post/', UnpublishedPostView.as_view(), name='unpublished_post'), 
+   path('update_scheduled_time/', UpdateScheduledTimeView.as_view(), name='update_scheduled_time'),
    path('my_follow_list/', MyFollowListView.as_view(), name='my_follow_list'),
    path('block-list/', MyBlockListView.as_view(), name='block_list'),
    path('freeze_notification_request/', FreezeNotificationRequest.as_view(), name='freeze_notification_request'),
    path('freeze_notification_request_success/', FreezeNotificationRequestSuccessView.as_view(), name='freeze_notification_request_success'),
    path('freeze-list/', FreezeListView.as_view(), name='freeze_list'),
+   path('pin_post/', PinPostView.as_view(), name='pin_post'),
    path('delete_post/', DeletePostView.as_view(), name='delete_post'),
    path('setting/', SettingView.as_view(), name='setting'),   
    path('searchpage/', SearchPageView.as_view(), name='searchpage'),
@@ -65,4 +70,5 @@ urlpatterns = [
    path('report/', SubmitReportView.as_view(), name='report'),
    path('emote_count/<int:post_id>/<int:emote_number>/', EmoteCountView.as_view(), name='emote_count'),
    path('view_duration_count/', ViewDurationCountView.as_view(), name='view_duration_count'),
+   path('show_message/', ShowMessageView.as_view(), name='show_message'),
 ]

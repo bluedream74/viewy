@@ -3,6 +3,7 @@ from datetime import datetime
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 import os
+import re
 import subprocess
 import json
 from django.conf import settings
@@ -28,7 +29,7 @@ from management.models import SupportRate
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
 from PIL import ImageSequence
-
+from .tasks import async_encode_video
 
 
 
@@ -42,6 +43,7 @@ class Posts(models.Model):
     caption = models.CharField(max_length=140, blank=True)
     url = models.URLField(max_length=500, blank=True, null=True)
     affiliate_tag = models.TextField(max_length=1000, blank=True, null=True)  # 広告タグを保存するフィールドを追加
+    scheduled_post_time = models.DateTimeField(blank=True, null=True)  # 予約投稿用の日時フィールド
     posted_at = models.DateTimeField(auto_now_add=True)
     content_length = models.PositiveIntegerField(default=0)
     favorite = models.ManyToManyField(Users, through='Favorites', related_name='favorite_posts')
@@ -185,11 +187,19 @@ class Posts(models.Model):
             # print(f"Updating QP for view count: {self.views_count}")
             self.calculate_qp()
     
-    def calculate_rp_for_user(self, user, followed_posters_set, viewed_count):
+    def calculate_rp_for_user(self, user, followed_posters_set, viewed_count, followed_recommends_set):
         rp = self.qp
         rp = rp / (3 ** viewed_count)
+
+        # ユーザーがフォローしているポスターによるポストの場合
         if self.poster.id in followed_posters_set:
             rp = rp * 1.5
+        
+        # ユーザーがフォローしているユーザーによるリコメンドの場合
+        if self.id in followed_recommends_set:
+            rp = rp * 1.5
+            print(f"Post ID: {self.id} - Boosted by recommendation from a followed user")
+
         return rp
 
     @property
@@ -197,6 +207,19 @@ class Posts(models.Model):
         if self.emote_total_count >= 10000:
             return f"{self.emote_total_count / 1000:.1f}K"
         return str(self.emote_total_count)
+
+
+
+# 投稿をピン止めするためのモデル
+class PinnedPost(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='pinned_by')
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='pinned_posts')
+    created_at = models.DateTimeField(auto_now_add=True)  # ピン留めの日時
+
+    class Meta:
+        unique_together = ('user', 'post')  # 同じ投稿を一人のユーザーが複数回ピン止めすることはできません
+        ordering = ['-created_at']  # created_atフィールドで降順にソートします
+
 
 
 
@@ -303,13 +326,25 @@ class Visuals(models.Model):
     
     
     
+# Videosのupload_toのための関数
+def adjust_video_pass(instance, filename):
+    base, ext = os.path.splitext(filename)
+    # ファイル名に既にタイムスタンプが含まれているか確認
+    timestamp_pattern = re.compile(r"_\d{14}")
+    if timestamp_pattern.search(base):
+        # 既にタイムスタンプがある場合、新しいタイムスタンプを付けずに元のファイル名を返す
+        return f"posts_videos/{base}{ext}"
+    new_name = f"{base}_{instance.post.poster.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}"
+    return f"posts_videos/{new_name}"
+
+    
 class Videos(models.Model):
     post = models.ForeignKey(
         Posts, 
         on_delete=models.CASCADE,
         related_name='videos'
     )
-    video = models.FileField(upload_to='posts_videos')
+    video = models.FileField(upload_to=adjust_video_pass)
     thumbnail = models.ImageField(upload_to='posts_videos_thumbnails', null=True, blank=True)
     encoding_done = models.BooleanField(default=False)
 
@@ -321,43 +356,10 @@ class Videos(models.Model):
 
     def save(self, *args, **kwargs):
         print("save method started.")
+        super().save(*args, **kwargs)
         if not self.encoding_done:
-            # 最初にデータを保存
-            super().save(*args, **kwargs)
-            print("Original data saved.")
-
-            original_video_name = self.video.name
-
-            # エンコード中に問題発生した場合、finallyで一時ファイルを削除
-            try:
-                # エンコード処理
-                print(f"Encoding video: {original_video_name}")
-                self.encode_video()
-
-                # サムネイルの作成
-                if not self.thumbnail:
-                    print("Creating thumbnail.")
-                    self.create_thumbnail()
-
-                # フラグの更新
-                self.encoding_done = True
-                super().save(*args, **kwargs)
-                print("Encoded data saved.")
-
-                # エンコード後、元の高画質の動画を削除
-                if default_storage.exists(original_video_name):
-                    default_storage.delete(original_video_name)
-                    print(f"Deleted original video: {original_video_name}")
-
-            except Exception as e:
-                # エンコードに失敗した場合、作成したレコードも削除する
-                self.delete()
-                error_msg = "ビデオの投稿中にエラーが発生しました。投稿中は他の操作をしないでください。"
-                print(f"Deleted the record due to: {e}")
-                raise e
-
+            async_encode_video.delay(self.id)
         else:
-            super().save(*args, **kwargs)
             print("save method completed without encoding.")
     
 # 縦長か横長か判別        
@@ -559,6 +561,18 @@ class Collect(models.Model):
 
     def __str__(self):
         return f"{self.collection.name} - {self.post.title}"
+    
+
+class Recommends(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='recommend_given')
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='recommend_received')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']  # 同じユーザーが同じポストに複数回リコメンドできないように制約を設定
+
+    def __str__(self):
+        return f"{self.user} recommends {self.post}"
     
     
   

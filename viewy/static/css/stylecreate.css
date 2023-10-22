@@ -1,3 +1,7 @@
+.screen{
+  min-height: 800px;
+}
+
 #spinner {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #34d5db;
@@ -170,7 +174,7 @@ form input{
 
 .button{
   color: white;
-  margin-top: 24px;
+  margin-top: 40px;
   border: aqua 1.5px solid;
   border-bottom:  rgb(0, 153, 153) 1.5px solid;
   border-right:  rgb(0, 182, 182) 1.5px solid;
@@ -249,6 +253,22 @@ form input{
   border-radius: 5px;
   padding: 5px 10px;
 }
+
+.schedule{
+  width: 160px;
+  margin: 24px auto 8px;
+  font-size: 14px;
+  display: block;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.schedule > input{
+  margin: 0px 4px 2px 0px;
+}
+
+
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {

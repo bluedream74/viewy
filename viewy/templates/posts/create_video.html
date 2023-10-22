@@ -9,6 +9,11 @@
 </script>
 <link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
 <link rel="stylesheet" href="{% static 'css/stylecreate.css' %}">
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 {% endblock %}
 {% block content %}
 <div class="big-logo">
@@ -55,6 +60,17 @@
       <div class="error">{{ form.caption.errors }}</div>
       {{ form.caption }}
     </div>
+    <div>
+      <label class="schedule">
+        <input type="checkbox">
+        予約投稿をする
+      </label>
+    </div>
+    <div class="scheduled-post-time">
+      <div class="error">{{ form.scheduled_post_time.errors }}</div>
+      {{ form.scheduled_post_time }}
+    </div>
+  
     <input type="submit" class="submit-button"  name="preview_button" value="プレビュー" style="margin-right: 16px;">
     <input class="button" type="submit" value="投稿する" id="submit-button">
   </form>
@@ -220,6 +236,27 @@
       buttonElement.style.opacity = '0.5'; 
       buttonElement.style.cursor = "not-allowed"; 
   }
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 予約投稿の日付フォームの要素を取得
+    const scheduledPostTimeDiv = document.querySelector('.scheduled-post-time');
+
+    // チェックボックスの要素を取得
+    const checkbox = document.querySelector('input[type="checkbox"]');
+
+    // 初期状態で予約投稿の日付フォームを非表示に
+    scheduledPostTimeDiv.style.display = 'none';
+
+    // チェックボックスのチェック状態が変更されたときのイベントリスナー
+    checkbox.addEventListener('change', function() {
+      if (checkbox.checked) {
+        scheduledPostTimeDiv.style.display = 'block';
+      } else {
+        scheduledPostTimeDiv.style.display = 'none';
+      }
+    });
+  });
 </script>
 <script src="{% static 'js/preview_video.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>

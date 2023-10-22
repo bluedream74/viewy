@@ -475,6 +475,170 @@ video::-webkit-media-controls-enclosure {
   text-shadow: gray 0px 1px 2px;
 }
 
+/* ピン止めアイコン */
+.pin-icon{
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  color: #25e0e6;
+  font-size: 16px;
+  text-shadow: gray 0px 1px 2px;
+  z-index: 100;
+}
+
+.ellipsis{
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #ffffff;
+  font-size: 16px;
+  text-shadow: gray 0px 1px 2px;
+}
+
+.ellipsis-active a {
+  pointer-events: none;
+}
+
+.ellipsis:hover{
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.modal-overlay {
+  display: none; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 98;
+  transition: opacity 0.3s ease-out;
+  opacity: 0;
+}
+
+.modal-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.modal {
+  transform: translateY(110%); /* 初期状態では画面の下側 */
+  transition: transform 0.3s ease-out; /* アニメーションの設定 */
+  position: fixed; 
+  bottom: 40px;
+  left: 50%; /* 画面の中央に配置するため */
+  transform-origin: bottom center;
+  width: 350px;
+  margin-left: -175px; /* widthの半分をオフセット */
+  background-color: #fefefe;
+  z-index: 99; /* overlayより上に配置するために3に設定 */
+  border-radius: 16px 16px 0 0;
+  overflow: hidden; /* overflowを隠すことで見えない部分を非表示にします */
+  transition: transform 0.3s ease-out, padding-bottom 0.3s ease-out; /* 複数のプロパティをカンマで区切る */
+}
+
+.modal.active {
+  transform: translateY(0); /* 画面内にモーダルを移動 */
+}
+
+#overlay {
+  display: none;  /* 最初は非表示 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.5); /* 透明な黒で背景を少し暗くする */
+  z-index: 2;  /* モーダルの背後に配置 */
+}
+
+.modal.active + #overlay {
+  display: block; /* モーダルがアクティブのときにオーバーレイを表示 */
+}
+
+.top-line {
+  background-color: rgb(166, 166, 166);
+  border-radius: 50px;
+  width: 32px;
+  height: 3px;
+  margin: 16px auto 16px;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 0px 24px 32px;
+  position: relative;
+}
+
+.ellipsis-title {
+  text-align: center;
+  margin: 0px 0px 16px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+}
+
+.option {
+  padding: 12px 16px;
+  margin-top: 8px;
+  background-color: #ededed;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: rgb(69, 69, 69);
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s; /* 追加: 色変更のアニメーション */
+}
+
+.option-icon {
+  margin-right: 16px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.option:hover {
+  cursor: pointer;
+  background-color: #d0d0d0;
+}
+
+#delete-confirmation {
+  transition: bottom 0.4s ease-out 0.2s; /* 0.5sの遅延を追加 */
+}
+
+.delete-message{
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.choices{
+  width: 100%;
+  text-align: center;
+}
+
+.choices button{
+  display: inline-block;
+  padding: 8px 24px;
+  width: 96px;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 50px;
+  box-shadow: 0px 2px 3px gainsboro;
+}
+
+.choices button:hover{
+  cursor: pointer;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.confirm-delete{
+  background-color: orangered;
+  color: white;
+  margin-left: 16px;
+}
+
 .play{
   margin-left: 2px;
   margin-top: 4px;
@@ -768,6 +932,48 @@ ul{
   }
 }
 
+/* 親要素（コンテナ）のスタイル */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* ビューポートに固定 */
+  top: 50%; /* 上から50%の位置 */
+  left: 50%; /* 左から50%の位置 */
+  transform: translate(-50%, -50%); /* 自身の50%ずらす */
+  flex-direction: column; /* 縦に並べる */
+}
+
+.spinner-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+  position: relative;
+}
+
+/* スピナーのスタイル */
+.spinner2 {
+  position: absolute; /* ビューポートに固定 */
+  top: 50%; /* 上から50%の位置 */
+  left: 50%; /* 左から50%の位置 */
+  transform: translate(-50%, -50%); /* 自身の50%ずらす */
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #34d5db;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 0.5s linear infinite;
+}
+
+.spinner-comment{
+  font-size: 10px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  padding: 0px 2px;  
+  width: max-content;
+  margin-top: 24px;
+}
+
 .encoding-error{
   font-size: 10px;
   color: rgb(206, 206, 206);
@@ -788,6 +994,23 @@ ul{
   overflow: hidden;      /* Hide the overflow content */
   text-overflow: ellipsis; /* Use ... for overflow content */
   white-space: nowrap;    /* Ensure content stays on a single line */
+}
+
+.unpublished{
+  position: absolute;
+  background-color: #00000091;
+  color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+.unpublished > div{
+  text-align: center;
+  padding: 0px 8px;
 }
 
 /* スマートフォン用のスタイル */

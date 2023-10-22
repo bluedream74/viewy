@@ -35,7 +35,7 @@ from accounts.models import Follows, SearchHistorys, Surveys, Notification, Free
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from management.models import SupportRate
 from .forms import PostForm, SearchForm, VisualForm, VideoForm, FreezeNotificationForm
-from .models import Favorites, Collection, Collect, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk
+from .models import Favorites, Collection, Collect, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk, Recommends, PinnedPost
 
 from collections import defaultdict
 import logging
@@ -92,6 +92,31 @@ class BasePostListView(ListView):
     def get_followed_posters_set(self, user, poster_ids):
         followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
         return set(followed_poster_ids)
+    
+    # フォローしているパートナーがリコメンドしている投稿を取得する
+    def get_followed_recommends_set(self, user, post_ids):
+        # ユーザーがフォローしているポスターのIDを取得
+        followed_poster_ids = Follows.objects.filter(user_id=user.id).values_list('poster_id', flat=True)
+
+        # 上記のIDを使用して、そのポスターたちがリコメンドした投稿のIDを取得
+        followed_recommends = Recommends.objects.filter(user_id__in=followed_poster_ids, post_id__in=post_ids).values_list('post_id', flat=True)
+        return set(followed_recommends)
+    
+    def get_followed_recommends(self, user):
+        # ユーザーがフォローしているポスターのIDを取得
+        followed_poster_ids = Follows.objects.filter(user_id=user.id).values_list('poster_id', flat=True)
+
+        # 上記のIDを使用して、そのポスターたちがリコメンドした投稿の詳細を取得
+        followed_recommends = Recommends.objects.filter(user_id__in=followed_poster_ids).values('post_id', 'user__username', 'user__displayname')
+
+        result = {}
+        for item in followed_recommends:
+            display_name_or_username = item['user__displayname'] if item['user__displayname'] else item['user__username']
+            if item['post_id'] not in result:
+                result[item['post_id']] = []
+            result[item['post_id']].append(display_name_or_username)
+
+        return result
 
     def get_advertiser_users(self):
         # キャッシュキーを設定
@@ -226,6 +251,10 @@ class BasePostListView(ListView):
         # Annotate for follows
         follows = Follows.objects.filter(user=self.request.user, poster=OuterRef('poster_id'))
         queryset = queryset.annotate(followed_by_user=Exists(follows))
+        
+        # Annotate for recommends
+        recommends = Recommends.objects.filter(user=self.request.user, post=OuterRef('pk'))
+        queryset = queryset.annotate(recommended_by_user=Exists(recommends))
 
         return queryset 
     
@@ -250,16 +279,19 @@ class BasePostListView(ListView):
         queryset = queryset.filter(is_hidden=False)
 
         queryset = self.exclude_blocked_posters(queryset)  # ブロックされたポスターの投稿を除外
-
         queryset = self.exclude_advertiser_posts(queryset)  # Advertiserの投稿を除外
         queryset = queryset.select_related('poster')
         queryset = self.annotate_user_related_info(queryset)
         queryset = queryset.prefetch_related('visuals', 'videos')
-        
+
         # is_mangaがFalseの場合に、関連するVideosのencoding_doneが全てTrueである投稿だけを含める
         videos = Videos.objects.filter(post=OuterRef('pk'), encoding_done=False)
         queryset = queryset.exclude(ismanga=False, videos__in=Subquery(videos.values('pk')))
-        
+
+        # 予約投稿日時が現在の日時より未来のものを除外
+        now = timezone.now()
+        queryset = queryset.exclude(scheduled_post_time__gt=now, scheduled_post_time__isnull=False)
+
         return queryset
 
 
@@ -279,6 +311,10 @@ class BasePostListView(ListView):
 
         posts = context.get('object_list', [])
         context['posts'] = posts
+        
+        # ユーザが'Poster'グループに属しているかどうかのチェック
+        is_poster = user.groups.filter(name='Poster').exists() if user.is_authenticated else False
+        context['is_poster'] = is_poster
 
         # 全てのpost_idを取得
         post_ids = [post.id for post in posts]
@@ -349,10 +385,13 @@ class PostListView(BasePostListView):
 
         # 2. RPを計算
         followed_posters_set = set(user.follow.all().values_list('id', flat=True))
+
+        followed_recommends_set = self.get_followed_recommends_set(user, post_ids)
+
         for post in sorted_posts_by_qp:
-            viewed_count = viewed_count_dict.get(post.id, 0)  # 辞書から閲覧数を取得。デフォルト値は0。
-            post.rp = post.calculate_rp_for_user(user, followed_posters_set, viewed_count)
-            self.apply_manga_rate_to_rp(post)  # 必要な場合、マンガレートをRPに適用する
+            viewed_count = viewed_count_dict.get(post.id, 0)
+            post.rp = post.calculate_rp_for_user(user, followed_posters_set, viewed_count, followed_recommends_set)
+            self.apply_manga_rate_to_rp(post)
 
         # 3. RP順で再ソート
         sorted_posts_by_rp = sorted(sorted_posts_by_qp, key=lambda post: post.rp, reverse=True)
@@ -416,6 +455,10 @@ class PostListView(BasePostListView):
         if user.is_authenticated:
             posts = context['posts']
             context['posts'] = self.get_combined_posts(posts, user)
+            
+            # フォローしているユーザーがリコメンドしている投稿のIDとユーザー名の辞書を取得
+            context['followed_recommends_details'] = self.get_followed_recommends(user)
+            
             # 未回答のアンケートを調べて、それをコンテキストに追加
             unanswered_survey = self.check_unanswered_surveys(user)
             # 10分の1の確率でアンケートを表示
@@ -875,14 +918,43 @@ class  BasePosterView(BasePostListView):
         # 投稿リストに広告を組み込む
         return self.integrate_ads(queryset, iter(ad_posts))
     
+    def get_pinned_posts(self):
+        """
+        投稿者がピン止めした投稿をorderフィールドの順番に返す。
+        """
+        # PinnedPostモデルを使用して、投稿者がピン止めした投稿を取得します。
+        pinned_post_objects = PinnedPost.objects.filter(user=self.poster)
+        
+        # 取得したPinnedPostオブジェクトから実際の投稿を取り出します。
+        pinned_posts = [pinned.post for pinned in pinned_post_objects]
+        
+        return pinned_posts
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # ユーザーが自身のページを見ている場合のみ、followed_recommends_detailsを追加
+        if self.request.user == self.poster:
+            context['followed_recommends_details'] = self.get_followed_recommends(self.request.user)
+
+        return context
+    
 
 class PosterPageView(BasePosterView):
     template_name = os.path.join('posts', 'poster_page.html')
 
     def get_queryset(self):
         self.set_poster_from_username()
-        queryset = super().get_queryset().filter(poster=self.poster).order_by('-posted_at')
-        return queryset
+
+        # `get_pinned_posts`メソッドを使って、ピン止めされた投稿を取得
+        pinned_posts = list(self.get_pinned_posts())
+        pinned_post_ids = [post.id for post in pinned_posts]
+
+        # 元のquerysetを取得し、ピン止めされた投稿を除外
+        queryset = super().get_queryset().filter(poster=self.poster).exclude(id__in=pinned_post_ids).order_by('-posted_at')
+
+        # ピン止めされた投稿を最初に追加して結果を返す
+        return pinned_posts + list(queryset)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -894,6 +966,11 @@ class PosterPageView(BasePosterView):
             context['is_user_following'] = user.id in followers_ids
             # ユーザーがフォローしているかどうかの確認
             context['is_user_blocking'] = Blocks.objects.filter(user=user, poster=self.poster).exists()
+
+            # ピン止めされた投稿のIDを取得
+            pinned_post_ids = PinnedPost.objects.filter(user=self.poster).values_list('post_id', flat=True)
+            context['pinned_post_ids'] = pinned_post_ids
+
         else:
             context['is_user_following'] = False
             context['is_user_blocking'] = False
@@ -914,14 +991,30 @@ class PosterPostListView(BasePosterView):
         poster_posts = self.get_filtered_posts()
 
         post_ids = [post.id for post in poster_posts]
-        queryset = super().get_queryset().filter(id__in=post_ids)
+        pinned_post_ids = [post.id for post in self.get_pinned_posts()]
 
-        if selected_post_id in post_ids:
-            selected_post_index = post_ids.index(selected_post_id)
-            selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
-            queryset = [post for post in queryset if post.id in selected_post_ids]
-            queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+        if selected_post_id in pinned_post_ids:
+            pinned_post_index = pinned_post_ids.index(selected_post_id)
 
+            # 残りのピン止め投稿
+            remaining_pinned = pinned_post_ids[pinned_post_index:]
+
+            # 残りの通常の投稿を取得
+            remaining_posts = post_ids[:8 - len(remaining_pinned)]
+            combined_ids = remaining_pinned + remaining_posts
+
+            queryset = super().get_queryset().filter(id__in=combined_ids)
+            queryset = sorted(queryset, key=lambda post: combined_ids.index(post.id))
+
+        else:
+            queryset = super().get_queryset().filter(id__in=post_ids)
+
+            if selected_post_id in post_ids:
+                selected_post_index = post_ids.index(selected_post_id)
+                selected_post_ids = post_ids[selected_post_index:selected_post_index+8]
+                queryset = [post for post in queryset if post.id in selected_post_ids]
+                queryset = sorted(queryset, key=lambda post: selected_post_ids.index(post.id))
+        
         # Use the integrate method from the BasePosterView
         return self.integrate_ads_to_queryset(queryset)
 
@@ -941,6 +1034,12 @@ class GetMorePosterPostsView(BasePosterView):
         poster_posts = self.get_filtered_posts()
         post_ids = list(poster_posts.values_list('id', flat=True))
 
+        # ピン止めされた投稿のIDを取得
+        pinned_post_ids = [post.id for post in self.get_pinned_posts()]
+
+        # ピン止めされた投稿を除外する
+        post_ids = [post_id for post_id in post_ids if post_id not in pinned_post_ids]
+
         if last_post_id:
             try:
                 last_poster_index = post_ids.index(last_post_id)
@@ -951,12 +1050,10 @@ class GetMorePosterPostsView(BasePosterView):
             queryset = super().get_queryset().filter(id__in=next_post_ids)
             queryset = sorted(queryset, key=lambda post: next_post_ids.index(post.id))
         else:
-            return Posts.objects.none()  # 分岐が不要である場合、何も返さない
+            return Posts.objects.none()
 
         # Use the integrate method from the BasePosterView
-        final_queryset = self.integrate_ads_to_queryset(queryset)
-
-        return final_queryset
+        return self.integrate_ads_to_queryset(queryset)
     
     
 class GetMorePreviousPosterPostsView(BasePosterView):
@@ -972,29 +1069,43 @@ class GetMorePreviousPosterPostsView(BasePosterView):
             return Posts.objects.none()
 
         # Use the get_filtered_posts method from the BasePosterView
-        poster_posts = self.get_filtered_posts()
+        poster_posts = self.get_filtered_posts().exclude(id__in=[pinned.post.id for pinned in PinnedPost.objects.filter(user=self.poster)])
         post_ids = list(poster_posts.values_list('id', flat=True))
 
-        if first_post_id:
-            # 最初の投稿IDのインデックスを取得
-            try:
-                first_post_index = post_ids.index(first_post_id)
-            except ValueError:
-                return Posts.objects.none()
-            
-            # 最初の投稿より前の10個の投稿IDを取得
-            prev_post_ids = post_ids[max(0, first_post_index - 8):first_post_index] 
+        # ピン止め投稿の取得
+        pinned_post_ids = [pinned.post.id for pinned in PinnedPost.objects.filter(user=self.poster)]
 
-            # querysetを取得し、投稿IDがprev_post_idsに含まれるものだけをフィルタリング
-            queryset = super().get_queryset().filter(id__in=prev_post_ids)
-            # querysetをprev_post_idsの順に並べ替え、順序を逆にする
-            queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))  
-        else:
-            # 最初の投稿IDが存在しない場合、全ての投稿を取得
-            queryset = super().get_queryset().filter(id__in=post_ids)
+        # 最初の投稿IDのインデックスを取得
+        try:
+            first_post_index = post_ids.index(first_post_id)
+        except ValueError:
+            return Posts.objects.none()
+
+        # 最初の投稿より前の投稿IDを取得するロジック
+        prev_post_ids = []
+
+        # ピン止めされた投稿を取得するための空きスペースの計算
+        remaining_slots = 8 - (first_post_index - max(0, first_post_index - 8))
+
+        # ピン止めされた投稿の追加
+        if remaining_slots > 0:
+            num_pinned_posts = min(len(pinned_post_ids), remaining_slots)
+            prev_post_ids.extend(pinned_post_ids[-num_pinned_posts:])
+
+            remaining_slots -= num_pinned_posts
+
+        # 通常の投稿の追加
+        if remaining_slots > 0:
+            prev_post_ids.extend(post_ids[max(0, first_post_index - remaining_slots):first_post_index])
+
+        # querysetを取得し、投稿IDがprev_post_idsに含まれるものだけをフィルタリング
+        queryset = super().get_queryset().filter(id__in=prev_post_ids)
+        # querysetをprev_post_idsの順に並べ替え、順序を逆にする
+        queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))
 
         # Use the integrate method from the BasePosterView
         return self.integrate_ads_to_queryset(queryset)
+
  
  
    
@@ -1225,11 +1336,37 @@ class MyPostView(BasePostListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = (Posts.objects.filter(poster=user)
-                    .select_related('poster')
-                    .prefetch_related('visuals', 'videos')
-                    .order_by('-posted_at'))
-        return queryset
+        
+        # ピン止めされた投稿のIDを取得
+        pinned_post_ids = list(PinnedPost.objects.filter(user=user).values_list('post_id', flat=True)[:3])
+        
+        # ピン止めされた投稿を直接取得
+        pinned_posts = Posts.objects.filter(id__in=pinned_post_ids)
+        
+        # 通常の投稿を取得
+        regular_posts = (Posts.objects.filter(poster=user)
+                            .exclude(id__in=pinned_post_ids)  # ピン止めされた投稿を除外
+                            .select_related('poster')
+                            .prefetch_related('visuals', 'videos')
+                            .order_by('-posted_at'))
+         # ピン止めした投稿と通常の投稿を結合
+        combined_posts = list(pinned_posts) + list(regular_posts)
+
+        return combined_posts
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # ピン止めされている投稿のIDを取得
+        user = self.request.user
+        pinned_post_ids = list(PinnedPost.objects.filter(user=user).values_list('post_id', flat=True))
+        
+        # ピン止めされている投稿のIDをテンプレートに渡す
+        context['pinned_post_ids'] = pinned_post_ids
+        context['now'] = timezone.now()  # 現在の日時をコンテキストに追加
+
+        return context 
+      
     
 class HiddenPostView(BasePostListView):
     template_name = os.path.join('posts', 'hidden_post.html')
@@ -1256,12 +1393,98 @@ class HiddenPostView(BasePostListView):
         context['posts'] = posts
         return context
     
+
+class UnpublishedPostView(BasePostListView):
+    template_name = os.path.join('posts', 'unpublished_post.html')
+
+    def get_queryset(self):
+        user = self.request.user
+        post_id = self.request.GET.get('post_id')
+        
+        if post_id:
+            now = timezone.now()
+            
+            queryset = Posts.objects.filter(
+                id=post_id, 
+                poster=user,  # 現在のユーザーが投稿者であることを確認
+                is_hidden=False,  # 隠されていることを確認
+                scheduled_post_time__gt=now  # 予約投稿日時が未来であることを確認
+            )
+            
+            queryset = queryset.select_related('poster')
+            queryset = queryset.prefetch_related('visuals', 'videos')
+            
+            return queryset
+
+        # post_idが指定されていない、または該当する投稿が存在しない場合は空のクエリセットを返す
+        return Posts.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        posts = context['object_list']
+        
+        for post in posts:
+            post.visuals_list = list(post.visuals.all())
+            post.videos_list = list(post.videos.all())
+            
+        context['posts'] = posts
+        return context
+    
+class UpdateScheduledTimeView(View):
+    # POSTリクエストを処理するためのメソッド
+    def post(self, request, *args, **kwargs):
+        post_id = request.POST.get('post_id')
+        action = request.POST.get('action')
+        
+        try:
+            post = Posts.objects.get(id=post_id)
+        except Posts.DoesNotExist:
+            # ポストが存在しない場合、リダイレクト先を決定する
+            return redirect(reverse_lazy('name_of_the_view_displaying_the_posts'))
+
+        if action == "update":
+            scheduled_time = request.POST.get('scheduled_time')
+            post.scheduled_post_time = scheduled_time
+            post.save()
+        elif action == "publish_now":
+            post.scheduled_post_time = None
+            post.save()
+
+        return redirect('posts:my_posts')
+    
+    
+class PinPostView(View):
+    def post(self, request, *args, **kwargs):
+        post_id = request.POST.get('post_id')
+        user = request.user
+
+        # 既にピン留めされているかどうかを確認します
+        pinned_post = PinnedPost.objects.filter(user=user, post_id=post_id).first()
+        if pinned_post:
+            # 既にピン留めされている場合は削除
+            pinned_post.delete()
+            return JsonResponse({'success': True, 'action': 'unpinned', 'message': 'Post unpinned successfully.'})
+        
+        # ユーザーによってピン留めされている投稿が3つの場合、最も古いものを削除
+        if PinnedPost.objects.filter(user=user).count() >= 3:
+            oldest_pinned = PinnedPost.objects.filter(user=user).last()
+            oldest_pinned.delete()
+
+        # 新しい投稿をピン留め
+        PinnedPost.objects.create(user=user, post_id=post_id)
+        return JsonResponse({'success': True, 'action': 'pinned', 'message': 'Post pinned successfully.'})
+    
     
 class DeletePostView(View):
     def post(self, request, *args, **kwargs):
         post_id = request.POST.get('post_id')
-        Posts.objects.filter(id=post_id).delete()
-        return redirect('posts:my_posts')
+        try:
+            Posts.objects.filter(id=post_id).delete()
+            return JsonResponse({"success": True})
+        except:
+            return JsonResponse({"success": False})
+        
+        
 
 
 # 投稿処理
@@ -1295,6 +1518,7 @@ class MangaCreateView(BasePostCreateView):
 
     def form_valid(self, form):
         form.instance.ismanga = True
+        form.instance.scheduled_post_time = form.cleaned_data['scheduled_post_time']  # 予約投稿日時を確実に保存
         visual_form = self.second_form_class(self.request.POST, self.request.FILES)
         if not visual_form.is_valid() or 'visuals' not in self.request.FILES:
             # ビジュアルフォームが無効な場合、エラーメッセージを含めて再度フォームを表示
@@ -1342,6 +1566,10 @@ class VideoCreateView(BasePostCreateView):
             form.instance.poster = self.request.user
             form.instance.posted_at = datetime.now()
             form.instance.ismanga = False
+            form.instance.scheduled_post_time = form.cleaned_data['scheduled_post_time']  # 予約投稿日時を確実に保存
+            
+            # ここでscheduled_post_timeの値を出力
+            print("Scheduled post time:", form.cleaned_data['scheduled_post_time'])
             
             video_file = video_form.cleaned_data.get('video')
             
@@ -1363,7 +1591,7 @@ class VideoCreateView(BasePostCreateView):
                 return self.form_invalid(form)
             finally:
                 # Remove the temporary file if it was created
-                if not hasattr(video_file, 'temporary_file_path'):
+                if os.path.exists(temp_file_path):
                     os.remove(temp_file_path)
         else:
             # ビデオフォームが無効な場合、エラーメッセージを含めて再度フォームを表示
@@ -1402,6 +1630,74 @@ class FavoriteView(LoginRequiredMixin, View):
             return JsonResponse({'error': str(e)})
         
         return JsonResponse(data)
+    
+    
+class RecommendPostView(View):
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        post_id = request.POST.get('post_id')
+        recommend = request.POST.get('recommend') == 'true'
+        user = request.user
+        
+        # For debugging
+        print(f"User: {user}")
+        print(f"Post ID: {post_id}")
+        print(f"Recommend: {recommend}")
+        
+        # レコメンドを追加するロジック
+        if recommend:
+            # すでに同じレコメンドが存在しないか確認
+            existing_recommend = Recommends.objects.filter(user=user, post_id=post_id).first()
+            
+            # For debugging
+            print(f"Existing Recommend (for adding): {existing_recommend}")
+            
+            if not existing_recommend:
+                # 新しいレコメンドを作成
+                new_recommend = Recommends.objects.create(user=user, post_id=post_id)
+                print(f"Newly Created Recommend: {new_recommend}")
+                return JsonResponse({'success': True, 'action': 'added'})
+
+        # レコメンドを削除するロジック
+        else:
+            existing_recommend = Recommends.objects.filter(user=user, post_id=post_id).first()
+            
+            # For debugging
+            print(f"Existing Recommend (for removing): {existing_recommend}")
+            
+            if existing_recommend:
+                existing_recommend.delete()
+                return JsonResponse({'success': True, 'action': 'removed'})
+
+        return JsonResponse({'success': False, 'error': 'Action not taken'})
+    
+class GetRecommendUsers(View):
+
+    def get(self, request, post_id, *args, **kwargs):
+        # この投稿をレコメンドしているユーザーを取得
+        recommended_users = Recommends.objects.filter(post_id=post_id).select_related('user').order_by('-created_at')
+
+        # リクエストユーザーが各ユーザーをフォローしているかどうかをチェック
+        following_users_ids = Follows.objects.filter(user=request.user).values_list('poster', flat=True)
+
+        users_data = []
+        for recommend in recommended_users:
+            user = recommend.user
+            users_data.append({
+                "id": user.id,
+                "username": user.username,
+                "display_name": user.displayname,  # 追加
+                "follow_count": user.follow_count,  # 追加
+                "support_follow_count": user.support_follow_count,  # 追加
+                "prf_img_url": user.prf_img.url,
+                'is_followed': user.id in following_users_ids
+            })
+
+        return JsonResponse(users_data, safe=False)
 
 
 # フォロー
@@ -1435,6 +1731,9 @@ class BaseFollowListView(BasePostListView):
         queryset = queryset.filter(poster__id__in=followed_user_ids).order_by('-posted_at')
         cache.set(cache_key, queryset, 300)  # 5分間キャッシュ
         return queryset
+    
+    
+
 
 
 class FollowPageView(BaseFollowListView):
@@ -2155,3 +2454,38 @@ class EmoteCountView(View):
 
         return JsonResponse({'success': True, 'new_count': new_count, 'new_total_count': new_total_count})
 
+
+from .tasks import delayed_message, another_delayed_message
+
+class ShowMessageView(TemplateView):
+    template_name = 'posts/show_message.html'
+
+    def post(self, request, *args, **kwargs):
+        print("View: POST request received...")
+
+        input_str = request.POST.get('input_str', '')
+        task_name = request.POST.get('task_name', 'delayed_message')
+        print(f"View: Task Name: {task_name}")
+        
+        if input_str:
+            print(f"View: Input String: {input_str}")
+
+        if task_name == "delayed_message":
+            print("View: Adding delayed_message task to queue...")
+            task_result = delayed_message.delay()
+        elif task_name == "another_delayed_message":
+            print("View: Adding another_delayed_message task to queue...")
+            task_result = another_delayed_message.delay(input_str)
+        else:
+            raise ValueError(f"Invalid task name: {task_name}")
+
+        print("View: Waiting for task result...")
+        self.message = task_result.get()
+        print(f"View: Received message: {self.message}")
+        return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        print("View: Getting context data...")
+        context = super().get_context_data(**kwargs)
+        context['message'] = getattr(self, 'message', None)
+        return context

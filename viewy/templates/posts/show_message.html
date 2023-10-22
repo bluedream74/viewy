@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/star.css' %}">
+{% endblock %}
+{%block content%}
+
+<form method="post">
+  {% csrf_token %}
+  
+  <!-- タスクの選択 -->
+  <label for="task_name">Choose a task:</label>
+  <select name="task_name" id="task_name" onchange="toggleInput()">
+      <option value="delayed_message">Delayed Message</option>
+      <option value="another_delayed_message">Reverse String</option>
+  </select>
+
+  <!-- 文字列の入力 (デフォルトでは非表示) -->
+  <div id="stringInput" style="display:none;">
+      <label for="input_str">Enter a string to reverse:</label>
+      <input type="text" name="input_str" id="input_str">
+  </div>
+  
+  <br>
+  <button type="submit">Execute Task</button>
+</form>
+
+{% if message %}
+<div style="color: white;">
+  <h2>Message:</h2>
+  <p>{{ message }}</p>
+</div>
+{% endif %}
+
+<script>
+function toggleInput() {
+    const taskName = document.getElementById('task_name').value;
+    const inputDiv = document.getElementById('stringInput');
+    if (taskName === 'another_delayed_message') {
+        inputDiv.style.display = 'block';
+    } else {
+        inputDiv.style.display = 'none';
+    }
+}
+</script>
+
+{%endblock%}

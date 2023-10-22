@@ -13,21 +13,23 @@
 
 <div class="list-area">
     {% for post in posts %}
-      {% if post.is_hidden %}
-      <a class="post" href="{% url 'posts:hidden_post' %}?post_id={{ post.id }}">
+      {% if post.scheduled_post_time and post.scheduled_post_time > now %}
+        <a class="post" href="{% url 'posts:unpublished_post' %}?post_id={{ post.id }}">
       {% else %}
-      <a class="post" href="{% url 'posts:poster_post_list' username=post.poster.username %}?post_id={{ post.id }}">
+      {% if post.is_hidden %}
+        <a class="post" href="{% url 'posts:hidden_post' %}?post_id={{ post.id }}">
+        {% else %}
+        <a class="post" href="{% url 'posts:poster_post_list' username=post.poster.username %}?post_id={{ post.id }}">
+        {% endif %}
       {% endif %}
 
-      <div class="delete">
-        <form method="post" action="{% url 'posts:delete_post' %}" class="delete-form">
-          {% csrf_token %}
-          <input type="hidden" name="post_id" value="{{ post.id }}">
-          <button type="submit" onclick="return confirm('本当にこの投稿を削除しますか？');" class="delete-btn">
-              <i class="fa-solid fa-xmark delete-button"></i>
-          </button>
-      </form>
-      </div>
+
+        {% if post.scheduled_post_time and post.scheduled_post_time > now %}
+        <div class="unpublished">
+          <div>{{ post.scheduled_post_time }}に公開予定</div>
+        </div>
+        {% endif %}
+
 
     {% if post.ismanga %}
      <div class="book">
@@ -42,8 +44,12 @@
         {% if video.thumbnail %}
         <img class="post-video" loading="lazy" src="{{ video.thumbnail.url }}" alt="">
         {% else %}
-        <!-- <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video> -->
-        <div class="encoding-error">動画が正しくアップロードされませんでした。<br>この投稿を削除するか、対応処理が終わるまでしばらくお待ちください。</div>
+        <div class="spinner-container">
+          <div class="spinner-box">
+            <div class="spinner2"></div>
+          </div>
+          <div class="spinner-comment">アップロード中</div>
+        </div>
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -57,10 +63,48 @@
     {% if post.is_hidden %}
     <i class="fa-solid fa-eye-slash hidden-icon"></i>
     {% endif %}
+
+    {% if post.id in pinned_post_ids %}
+    <i class="fa-solid fa-thumbtack pin-icon"></i>
+    {% endif %}
+
+    <div class="ellipsis" data-post-id="{{ post.id }}" data-pinned="{% if post.id in pinned_post_ids %}true{% else %}false{% endif %}">
+      <i class="fa-solid fa-ellipsis"></i>
+    </div>
+  
+
     </a>
 
   {% endfor %}
 </div>
+
+
+<div class="modal-overlay"></div>
+
+<div id="others-modal" class="modal">
+  <div class="top-line"></div>
+    <div class="modal-content">        
+
+    <div class="option option-pin" data-post-id="">
+      <span class="option-icon"><i class="fa-solid fa-thumbtack"></i></span>
+      <span class="option-text">この投稿をピン留めする</span>
+    </div>
+
+    <div class="option option-delete" data-post-id="">
+      <span class="option-icon"><i class="fa-solid fa-trash-alt" style="color: orangered;"></i></span>
+      この投稿を削除する
+    </div>
+
+    <div id="delete-confirmation" style="position: absolute; bottom: -64px; width: 100%;">
+      <div class="delete-message">本当に削除しますか？</div>
+      <div class="choices">
+        <button class="cancel-delete">いいえ</button>
+        <button class="confirm-delete">はい</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="bottom-space"></div>
 
@@ -71,6 +115,136 @@
     border-top: solid 2px aqua;
       }
 </style>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let ellipsises = document.querySelectorAll('.ellipsis');
+    
+    ellipsises.forEach(ellipsis => {
+        ellipsis.addEventListener('click', function(event) {
+            // ここで、モーダルの表示などの処理を追加します。
+            
+            // この行が、イベントの伝播を停止するキーとなる部分です。
+            event.stopPropagation();
+            event.preventDefault();
+        });
+    });
+});
+
+function getCookie(name) {
+    let value = "; " + document.cookie;
+    let parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ellipses = document.querySelectorAll('.ellipsis');
+    const modal = document.getElementById('others-modal');
+    const overlay = document.querySelector('.modal-overlay');
+
+    ellipses.forEach(ellipsis => {
+        ellipsis.addEventListener('click', function(event) {
+            event.stopPropagation();
+
+            const postId = ellipsis.getAttribute('data-post-id');
+            const isPinned = ellipsis.getAttribute('data-pinned') === 'true';
+
+            // ピン留め状態に基づいてテキストを更新
+            const pinOptionText = pinOption.querySelector('.option-text');
+            if (isPinned) {
+                pinOptionText.textContent = 'ピン留めを外す';
+            } else {
+                pinOptionText.textContent = 'この投稿をピン留めする';
+            }
+
+            // モーダル内のすべてのオプションに対してpost IDをセット
+            const options = modal.querySelectorAll('.option');
+            options.forEach(option => {
+                option.setAttribute('data-post-id', postId);
+            });
+
+            modal.classList.add('active');
+            overlay.classList.add('active');
+        });
+    });
+
+    const deleteConfirmation = document.getElementById('delete-confirmation');  // delete-confirmation要素の取得
+
+    overlay.addEventListener('click', function() {
+        modal.classList.remove('active');
+        overlay.classList.remove('active');
+        
+        // delete-confirmationとpadding-bottomのリセット
+        deleteConfirmation.style.bottom = '-64px';  // 元の位置に戻す
+        modal.style.paddingBottom = '0';            // モーダルのpaddingを初期状態に戻す
+    });
+
+
+    const deleteOption = modal.querySelector('.option-delete');  // 削除のオプションにクラスを追加したものと仮定
+    const confirmDelete = deleteConfirmation.querySelector('.confirm-delete');
+    const cancelDelete = deleteConfirmation.querySelector('.cancel-delete');
+
+    deleteOption.addEventListener('click', function() {
+        modal.style.paddingBottom = '80px';  // モーダルのpaddingを増やす
+        deleteConfirmation.style.bottom = '24px';  // 確認メッセージをスライドイン
+    });
+
+    
+
+    confirmDelete.addEventListener('click', function() {
+        const postId = deleteOption.getAttribute('data-post-id');
+        fetch('/posts/delete_post/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            // CSRFトークンを追加する必要があります（Djangoの場合）
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `post_id=${postId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            modal.classList.remove('active');
+            overlay.classList.remove('active');
+            location.reload();
+        } else {
+            alert('Error deleting post.');
+        }
+    });
+
+    });
+
+    cancelDelete.addEventListener('click', function() {
+    setTimeout(function() {
+        modal.style.paddingBottom = '0';  // 0.8秒後にモーダルのpaddingを初期状態に戻す
+    }, 400);  // 800ミリ秒（0.8秒）後に実行
+    deleteConfirmation.style.bottom = '-64px';  // 確認メッセージをスライドアウト
+});
+});
+</script>
+<script>
+const pinOption = document.querySelector('.option-pin');
+
+pinOption.addEventListener('click', function() {
+    const postId = pinOption.getAttribute('data-post-id');
+    fetch('/posts/pin_post/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `post_id=${postId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();  // ページをリロード
+        } else {
+            alert('Error toggling pin.');
+        }
+    });
+});
+</script>
 <script src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 <script src="{% static 'js/delete_mypost.js' %}"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>

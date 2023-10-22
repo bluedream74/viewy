@@ -19,9 +19,13 @@
 </div>
 <div class="top-space"></div>
 
-<div class="hidden-title"><i class="fa-solid fa-eye-slash hidden-icon"></i> 非表示の投稿</div>
+
 
 {% for post in posts %}
+<div class="scheduled_post_time" data-modal-id="modal-{{ post.id }}">
+  <div class="schedule-title">公開予定日時</div>
+  <div class="schedule">{{post.scheduled_post_time}}</div>
+</div>
 
 <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
   <div class="spinner"></div>
@@ -278,16 +282,6 @@
 
 
 
-
-{% if user.is_authenticated and not post.poster.is_advertiser %}
-<div class="modal-overlay"></div>
-<!-- モーダルのテンプレート -->
-<div id="others-modal" class="modal">
-  <div class="top-line"></div>
-
-</div>
-{% endif %}
-
   <div class="page-count">
     {% if post.ismanga %}
     <span id="current-page">1</span>/<span class="total-page">{{ post.visuals.all|length }}</span>
@@ -303,7 +297,29 @@
 
 </div>
 
+<!-- モーダルのテンプレート -->
+<div class="modal-overlay"></div>
+<div id="modal-{{ post.id }}" class="modal">
+  <div class="top-line"></div>
+  <div class="modal-wrapper schedule-modal">
+    <form action="{% url 'posts:update_scheduled_time' %}" method="post" class="schedule-setting">
+      {% csrf_token %}
+      <input type="hidden" name="post_id" value="{{ post.id }}">
+      <div class="publish_now">
+        <button type="submit" name="action" value="publish_now">今すぐ公開</button>
+      </div>
+      <div>
+        <input type="datetime-local" name="scheduled_time" value="{{ post.scheduled_post_time|date:'Y-m-d\TH:i' }}">
+        <button type="submit" name="action" value="update" class="update_scheduled">変更</button>
+      </div>
+
+    </form>
+  </div>
+</div>
 {% endfor %}
+
+
+
 
 
 <div id="posts"></div>
@@ -323,6 +339,55 @@
 {% endblock %}
 
 {% block script %}
+<style>
+  .my-account{
+    border-top: solid 2px aqua;
+      }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // すべてのscheduled_post_time要素にクリックイベントを追加
+    document.querySelectorAll('.scheduled_post_time').forEach(element => {
+        element.addEventListener('click', function(event) {
+            // クリックされた要素のdata-modal-id属性を取得
+            const modalId = element.getAttribute('data-modal-id');
+            
+            // 対応するモーダル要素とmodal-overlayを取得して.activeクラスを追加
+            document.getElementById(modalId).classList.add('active');
+            document.querySelector('.modal-overlay').classList.add('active');
+            
+            // イベントの伝播を止める
+            event.stopPropagation();
+        });
+    });
+
+    // すべてのmodal要素にクリックイベントを追加して、イベントのバブリングを停止
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    });
+
+    // すべてのmodal-overlay要素にクリックイベントを追加して、.activeクラスを削除
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function() {
+            const modalId = overlay.id.replace('modal-overlay-', 'modal-');
+            document.getElementById(modalId).classList.remove('active');
+            
+            // イベントの伝播を止める
+            event.stopPropagation();
+        });
+    });
+
+    // body要素がクリックされたときにすべてのモーダルとmodal-overlayから .active クラスを削除
+    document.body.addEventListener('click', function() {
+        document.querySelectorAll('.modal.active').forEach(activeModal => {
+            activeModal.classList.remove('active');
+        });
+        document.querySelector('.modal-overlay.active').classList.remove('active');
+    });
+});
+</script>
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>

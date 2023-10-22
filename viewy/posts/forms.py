@@ -20,6 +20,19 @@ class PostForm(forms.ModelForm):
     hashtag3 = forms.CharField(required=False, label='ハッシュタグ３', widget=forms.TextInput(attrs={'placeholder': ''}), error_messages={'max_length': "ハッシュタグは最大20字までです。",})
     caption = forms.CharField(required=False, label='説明欄', widget=forms.Textarea(attrs={'placeholder': 'キャプション（最大100字）'}))
     url = forms.URLField(required=False, widget=forms.TextInput(attrs={'placeholder': 'URL'}), error_messages={'invalid': '有効なURLを入力してください。',})
+    scheduled_post_time = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',  # HTML5 datetime-local input format
+            attrs={
+                'type': 'datetime-local',  # specifying the input type to be datetime-local
+                'placeholder': '公開日時'
+            }),
+        input_formats=['%Y-%m-%dT%H:%M'],  # Expected input format
+        error_messages={
+            'invalid': '有効な日付と時刻を入力してください。'
+        }
+    )
 
     class Meta:
         model = Posts

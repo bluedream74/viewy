@@ -7,14 +7,14 @@ $(document).ready(function() {
 
   $(document.body).on("mousedown", function(event) {
     // .tab-bar や .side-bar でのクリックを無視
-    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay, .content, .book').length) return;
+    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
 
     pressStartTime = new Date().getTime();
   });
 
   $(document.body).on("mouseup", function(event) {
     // .tab-bar や .side-bar でのクリックを無視
-    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay, .content, .book').length) return;
+    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
 
     let pressEndTime = new Date().getTime();
 
