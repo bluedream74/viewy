@@ -1,6 +1,8 @@
 html,
 body {
   touch-action: manipulation;
+  user-select: none; /* テキスト選択を防ぐ */
+  -webkit-user-select: none;/* テキスト選択を防ぐ */
 }
 
 .screen {
@@ -101,6 +103,7 @@ input[type=range]::-webkit-slider-thumb {
   left: 50%;
   transform: translate(-50%, -50%);
   /* 自身の幅と高さの半分分を左と上にずらすことで真ん中に配置 */
+  user-select: none; /* テキスト選択を防ぐ */
 }
 
 @keyframes spin {
@@ -874,6 +877,7 @@ label {
   display: none;
   z-index: 1000;
   pointer-events: none;
+  user-select: none; /* テキスト選択を防ぐ */
 }
 
 /* ページ遷移関連 */
@@ -2021,6 +2025,7 @@ label {
     /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
     pointer-events: auto;
     z-index: 1;
+    /* user-select: none; */
   }
 
   .manga-page {
@@ -2029,6 +2034,7 @@ label {
     justify-content: center;
     align-items: center;
     min-width: 100vw;
+    /* user-select: none; */
   }
 
   .page-content {
@@ -2039,6 +2045,7 @@ label {
 
   video {
     z-index: -999;
+    user-select: none;
   }
 
   .side-bar {

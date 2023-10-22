@@ -2,7 +2,7 @@
 
 let timeoutId;
 
-document.body.addEventListener('mousedown', (event) => {
+function handleStart(event) {
   if (event.target.matches('.post-video')) {
     timeoutId = setTimeout(() => {
       const targetVideo = event.target;
@@ -12,9 +12,9 @@ document.body.addEventListener('mousedown', (event) => {
       }
     }, 200); // 200ミリ秒後に動画を一時停止
   }
-});
+}
 
-document.body.addEventListener('mouseup', (event) => {
+function handleEnd(event) {
   if (event.target.matches('.post-video')) {
     clearTimeout(timeoutId); // タイムアウトをクリアして、200ミリ秒未満のクリックでの停止を防ぐ
     const targetVideo = event.target;
@@ -23,7 +23,14 @@ document.body.addEventListener('mouseup', (event) => {
       targetVideo.play();
     }
   }
-});
+}
+
+document.body.addEventListener('mousedown', handleStart);
+document.body.addEventListener('mouseup', handleEnd);
+
+// タッチデバイス用のイベントリスナーを追加
+document.body.addEventListener('touchstart', handleStart);
+document.body.addEventListener('touchend', handleEnd);
 
 // 停止中の再生ボタン表示の処理
 document.body.addEventListener('play', (event) => {
