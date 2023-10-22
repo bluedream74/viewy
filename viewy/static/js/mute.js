@@ -7,11 +7,12 @@ $(document).ready(function () {
 
   function handleEventStart(event) {
     pressStartTime = new Date().getTime();
+    if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
   }
 
   function handleEventEnd(event) {
     // タッチイベントの場合、デフォルトの動作（コンテキストメニューの表示など）をキャンセル
-    if (event.type === 'touchend') {
+    if (event.type === 'touchend' && $(event.target).closest('video').length) {
       event.preventDefault();
     }
 
