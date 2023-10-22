@@ -1498,7 +1498,18 @@ class BasePostCreateView(UserPassesTestMixin, LoginRequiredMixin, SuccessMessage
         form.instance.is_real = self.request.user.is_real  # Set the is_real value of the post based on the user's is_real value
         form.instance.posted_at = datetime.now()
         form.save()
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # 新しい投稿が保存された後にキャッシュをクリア
+        self.clear_poster_cache(self.request.user)
+        
+        return response
+
+    def clear_poster_cache(self, poster):
+        """投稿者のキャッシュをクリアするメソッド"""
+        cache_key = f'filtered_posts_for_user_{poster.id}'
+        cache.delete(cache_key)
+        print(f"Cache for user {poster.id} has been cleared.")
     
     # Posterグループかどうか
     def test_func(self):

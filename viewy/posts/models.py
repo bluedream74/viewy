@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import json
+import re
 from django.conf import settings
 
 # Third-party libraries
