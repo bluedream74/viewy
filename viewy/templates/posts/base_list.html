@@ -148,7 +148,7 @@
       </div>
       {% endif %}
 
-      {% if request.user and is_poster %}
+      {% if request.user|is_poster %}
       <div class="recommend" data-post-id="{{ post.id }}">
           <input type="checkbox" class="recommend-frag" {% if post.recommended_by_user %}checked{% endif %} id="recommend-{{ post.id }}">
           <label class="fa-solid fa-retweet recommend-label" for="recommend-{{ post.id }}"></label>

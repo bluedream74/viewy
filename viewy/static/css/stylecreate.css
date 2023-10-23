@@ -264,10 +264,13 @@ form input{
   align-items: center;
 }
 
-.schedule > input{
+.schedule input{
   margin: 0px 4px 2px 0px;
 }
 
+.scheduled-post-time input{
+  width: 60%;
+}
 
 
 /* スマートフォン用のスタイル */
@@ -286,7 +289,7 @@ form input{
   }
   
   .screen{
-    min-height: 750px;
+    min-height: 850px;
   }
 
   .mid-logo{

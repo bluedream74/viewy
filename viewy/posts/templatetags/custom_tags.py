@@ -5,12 +5,16 @@ register = template.Library()
 
 @register.filter
 def is_poster(user):
+    if not user.is_authenticated:
+        return False
+
     cache_key = f"is_poster_{user.id}"
     result = cache.get(cache_key)
 
-    # キャッシュに情報がない場合のフォールバック (理論的には発生しないはずですが、一応記述しておきます)
+    # キャッシュに情報がない場合
     if result is None:
         result = user.groups.filter(name='Poster').exists()
+        cache.set(cache_key, result, 3600)  # キャッシュ時間を3600秒（1時間）に設定
 
     return result
   

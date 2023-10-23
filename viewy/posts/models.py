@@ -194,11 +194,11 @@ class Posts(models.Model):
 
         # ユーザーがフォローしているポスターによるポストの場合
         if self.poster.id in followed_posters_set:
-            rp = rp * 1.5
+            rp = rp * 2
         
         # ユーザーがフォローしているユーザーによるリコメンドの場合
         if self.id in followed_recommends_set:
-            rp = rp * 1.5
+            rp = rp * 2
             print(f"Post ID: {self.id} - Boosted by recommendation from a followed user")
 
         return rp

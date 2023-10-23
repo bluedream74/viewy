@@ -98,8 +98,9 @@ class BasePostListView(ListView):
         # ユーザーがフォローしているポスターのIDを取得
         followed_poster_ids = Follows.objects.filter(user_id=user.id).values_list('poster_id', flat=True)
 
-        # 上記のIDを使用して、そのポスターたちがリコメンドした投稿のIDを取得
-        followed_recommends = Recommends.objects.filter(user_id__in=followed_poster_ids, post_id__in=post_ids).values_list('post_id', flat=True)
+        # 自分がフォローしているポスターがリコメンドした投稿のIDを取得
+        followed_recommends = Recommends.objects.filter(user_id__in=followed_poster_ids, post_id__in=post_ids).exclude(post__poster_id__in=followed_poster_ids).values_list('post_id', flat=True)
+        
         return set(followed_recommends)
     
     def get_followed_recommends(self, user):
@@ -311,10 +312,6 @@ class BasePostListView(ListView):
 
         posts = context.get('object_list', [])
         context['posts'] = posts
-        
-        # ユーザが'Poster'グループに属しているかどうかのチェック
-        is_poster = user.groups.filter(name='Poster').exists() if user.is_authenticated else False
-        context['is_poster'] = is_poster
 
         # 全てのpost_idを取得
         post_ids = [post.id for post in posts]
@@ -500,9 +497,15 @@ class GetMorePostsView(PostListView):
         # PostListViewの処理を実行
         context = self.get_context_data(**kwargs)
         posts = context['posts']
+        followed_recommends_details = context['followed_recommends_details']
 
-        # 投稿をHTMLフラグメントとしてレンダリング
-        html = render_to_string('posts/get_more_posts.html', {'posts': posts, 'user': request.user}, request=request)
+        # 投稿とその他のデータをHTMLフラグメントとしてレンダリング
+        data_to_pass = {
+            'posts': posts,
+            'user': request.user,
+            'followed_recommends_details': followed_recommends_details
+        }
+        html = render_to_string('posts/get_more_posts.html', data_to_pass, request=request)
         
         # HTMLフラグメントをJSONとして返す
         return JsonResponse({'html': html}, content_type='application/json')
@@ -652,6 +655,7 @@ class GetMoreFavoriteView(BaseFavoriteView):
 
         # 投稿リストに広告を組み込む
         return self.integrate_ads(queryset, iter(ad_posts))
+
     
 
 class GetMorePreviousFavoriteView(BaseFavoriteView):
@@ -679,6 +683,7 @@ class GetMorePreviousFavoriteView(BaseFavoriteView):
 
         # 投稿リストに広告を組み込む
         return self.integrate_ads(queryset, iter(ad_posts))
+
 
 
 
@@ -929,7 +934,7 @@ class  BasePosterView(BasePostListView):
         pinned_posts = [pinned.post for pinned in pinned_post_objects]
         
         return pinned_posts
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -938,6 +943,30 @@ class  BasePosterView(BasePostListView):
             context['followed_recommends_details'] = self.get_followed_recommends(self.request.user)
 
         return context
+    
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        more_posts = list(queryset)
+
+        if more_posts:
+            for post in more_posts:
+                post.visuals_list = post.visuals.all()
+                post.videos_list = post.videos.all()
+            
+            context = {
+                'posts': more_posts,
+                'user': request.user
+            }
+
+            # ユーザーが自身のページを見ている場合のみ、followed_recommends_detailsを追加
+            if request.user == self.poster:
+                context['followed_recommends_details'] = self.get_followed_recommends(request.user)
+
+            html = render_to_string('posts/get_more_posts.html', context, request=request)
+        else:
+            html = ""
+
+        return JsonResponse({'html': html})
     
 
 class PosterPageView(BasePosterView):
@@ -1062,18 +1091,22 @@ class GetMorePreviousPosterPostsView(BasePosterView):
         # POSTデータから最初の投稿IDを取得
         first_post_id = int(self.request.POST.get('first_post_id', 0))
 
-        # Use the method from the BasePosterView to set the poster
+        # BasePosterViewのメソッドを使って、投稿者を設定
         self.set_poster_from_pk()
 
         if not self.poster:
             return Posts.objects.none()
 
-        # Use the get_filtered_posts method from the BasePosterView
-        poster_posts = self.get_filtered_posts().exclude(id__in=[pinned.post.id for pinned in PinnedPost.objects.filter(user=self.poster)])
-        post_ids = list(poster_posts.values_list('id', flat=True))
+        # BasePosterViewのget_pinned_postsメソッドを使ってピン止めされた投稿を取得
+        pinned_posts = self.get_pinned_posts()
+        pinned_post_ids = [post.id for post in pinned_posts]
 
-        # ピン止め投稿の取得
-        pinned_post_ids = [pinned.post.id for pinned in PinnedPost.objects.filter(user=self.poster)]
+        # BasePosterViewのget_filtered_postsメソッドを使って投稿を取得
+        poster_posts = self.get_filtered_posts().exclude(id__in=pinned_post_ids)  # 既に取得したピン止め投稿を除外
+
+        # ピン止めされた投稿と他の投稿を結合
+        all_posts = pinned_posts + list(poster_posts)
+        post_ids = [post.id for post in all_posts]
 
         # 最初の投稿IDのインデックスを取得
         try:
@@ -1082,31 +1115,15 @@ class GetMorePreviousPosterPostsView(BasePosterView):
             return Posts.objects.none()
 
         # 最初の投稿より前の投稿IDを取得するロジック
-        prev_post_ids = []
-
-        # ピン止めされた投稿を取得するための空きスペースの計算
-        remaining_slots = 8 - (first_post_index - max(0, first_post_index - 8))
-
-        # ピン止めされた投稿の追加
-        if remaining_slots > 0:
-            num_pinned_posts = min(len(pinned_post_ids), remaining_slots)
-            prev_post_ids.extend(pinned_post_ids[-num_pinned_posts:])
-
-            remaining_slots -= num_pinned_posts
-
-        # 通常の投稿の追加
-        if remaining_slots > 0:
-            prev_post_ids.extend(post_ids[max(0, first_post_index - remaining_slots):first_post_index])
+        prev_post_ids = post_ids[max(0, first_post_index - 8):first_post_index]
 
         # querysetを取得し、投稿IDがprev_post_idsに含まれるものだけをフィルタリング
         queryset = super().get_queryset().filter(id__in=prev_post_ids)
-        # querysetをprev_post_idsの順に並べ替え、順序を逆にする
+        # querysetをprev_post_idsの順に並べ替え
         queryset = sorted(queryset, key=lambda post: prev_post_ids.index(post.id))
 
-        # Use the integrate method from the BasePosterView
+        # BasePosterViewのintegrateメソッドを使って、クエリセットに広告を組み込む
         return self.integrate_ads_to_queryset(queryset)
-
- 
  
    
 class BaseHashtagListView(BasePostListView):

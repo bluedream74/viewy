@@ -1,3 +1,5 @@
+{% load custom_tags %}
+
 {% for post in posts %}
 
 <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
@@ -114,8 +116,13 @@
       </div>
       {% endif %}
 
-
-
+      {% if request.user|is_poster %}
+      <div class="recommend" data-post-id="{{ post.id }}">
+          <input type="checkbox" class="recommend-frag" {% if post.recommended_by_user %}checked{% endif %} id="recommend-{{ post.id }}">
+          <label class="fa-solid fa-retweet recommend-label" for="recommend-{{ post.id }}"></label>
+      </div>
+      {% endif %}
+  
       {% if user.is_authenticated %}
       <div class="favorite">
         <form data-pk="{{ post.pk }}" action="{% url 'posts:favorite' pk=post.pk %}" method="POST"
@@ -265,6 +272,43 @@
   </div>
   {% endif %}
 
+
+  {% for recommend_post_id, names in followed_recommends_details.items %}
+  {% if recommend_post_id == post.id %}
+  <div class="recommend-tag" data-toggle="recommend-modal" data-post-id="{{ post.id }}">
+      {% if names|length <= 2 %}
+          {{ names|join:", " }}さんのリコメンド
+      {% else %}
+          {{ names.0 }}, {{ names.1 }}さん, 他のリコメンド
+      {% endif %}
+  </div>
+  {% endif %}
+{% endfor %}
+
+<!-- モーダル -->
+<div class="modal-overlay"></div>
+<div id="recommend-modal" class="modal">
+    <div class="top-line"></div>
+    <div class="recommend-modal-wrapper">
+        <div class="recommend-modal-header">
+            リコメンドしたユーザー
+        </div>
+        <div class="recommend-modal-body">
+            <!-- ここにユーザーリストを表示 -->
+            {% for user in recommend_users_for_post %}
+            <div class="user">
+                <span>{{ user.username }}</span>
+                <span>フォロワー数: {{ user.followers_count }}</span>
+                {% if user.is_followed %}
+                <button class="unfollow-btn" data-user-id="{{ user.id }}">フォロー解除</button>
+                {% else %}
+                <button class="follow-btn" data-user-id="{{ user.id }}">フォロー</button>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 </div>
 
 

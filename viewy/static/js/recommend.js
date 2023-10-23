@@ -55,40 +55,61 @@ $(document).ready(function() {
     
   }
 
-  // モーダルの表示
-  $('[data-toggle="recommend-modal"]').on('click', function() {
-      var postId = $(this).data('post-id');
+// モーダルの表示
+$(document).on('click', '[data-toggle="recommend-modal"]', function() {
+    var postId = $(this).data('post-id');
 
-      $.ajax({
-          url: '/posts/get_recommend_users/' + postId + '/',
-          method: 'GET',
-          success: function(data) {
-              updateRecommendModal(data);
-              $('#recommend-modal').addClass('active');
-              $('.modal-overlay').show();
-          },
-          error: function() {
-              alert('Error loading recommend users. Please try again.');
-          }
-      });
-  });
+    $.ajax({
+        url: '/posts/get_recommend_users/' + postId + '/',
+        method: 'GET',
+        success: function(data) {
+            updateRecommendModal(data);
+            $('#recommend-modal').addClass('active');
+            $('.modal-overlay').show();
+        },
+        error: function() {
+            alert('Error loading recommend users. Please try again.');
+        }
+    });
+});
 
-  // モーダルを閉じる
-  $('.modal-overlay').on('click', function() {
+// モーダルを閉じる
+$(document).on('click', '.modal-overlay', function() {
     $('#recommend-modal').removeClass('active');
     $('.modal-overlay').hide();
 });
 
 $(document).on('click', '.recommend-follow-btn, .recommend-unfollow-btn', function() {
-  var userId = $(this).data('user-id');
-
-  $.post('/accounts/follow/' + userId + '/', function(response) {
-      if ($(this).hasClass('recommend-follow-btn')) {
-          $(this).text('フォロー中').removeClass('recommend-follow-btn').addClass('recommend-unfollow-btn');
-      } else if ($(this).hasClass('recommend-unfollow-btn')) {
-          $(this).text('フォローする').removeClass('recommend-unfollow-btn').addClass('recommend-follow-btn');
-      }
-  }.bind(this));
-});
+    var userId = $(this).data('user-id');
+    
+    // ボタンを一時的に無効化
+    $(this).prop('disabled', true);
+    
+    // サーバーの応答を待たずにUIをすぐに更新
+    if ($(this).hasClass('recommend-follow-btn')) {
+        $(this).text('フォロー中').removeClass('recommend-follow-btn').addClass('recommend-unfollow-btn');
+    } else if ($(this).hasClass('recommend-unfollow-btn')) {
+        $(this).text('フォローする').removeClass('recommend-unfollow-btn').addClass('recommend-follow-btn');
+    }
+  
+    // AJAXリクエストを送信
+    $.post('/accounts/follow/' + userId + '/', function(response) {
+        // 必要に応じて、ここで応答を処理する追加のコードを追加できます。
+        
+        // ボタンを再度有効化
+        $(this).prop('disabled', false);
+    }.bind(this))
+    .fail(function() {
+        // エラーが発生した場合、UIの変更を元に戻す
+        if ($(this).hasClass('recommend-unfollow-btn')) {
+            $(this).text('フォローする').removeClass('recommend-unfollow-btn').addClass('recommend-follow-btn');
+        } else if ($(this).hasClass('recommend-follow-btn')) {
+            $(this).text('フォロー中').removeClass('recommend-follow-btn').addClass('recommend-unfollow-btn');
+        }
+        
+        // ボタンを再度有効化
+        $(this).prop('disabled', false);
+    }.bind(this));
+  });
 
 });

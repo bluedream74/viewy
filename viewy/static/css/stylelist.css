@@ -603,6 +603,11 @@ video::-webkit-media-controls-enclosure {
 
 #delete-confirmation {
   transition: bottom 0.4s ease-out 0.2s; /* 0.5sの遅延を追加 */
+  position: absolute; 
+  left: 0px;
+  bottom: -120px; 
+  box-sizing: border-box;
+  width: 350px;
 }
 
 .delete-message{
@@ -1134,6 +1139,16 @@ ul{
 }
 
 .alert-success{
+  width: 100%;
+}
+
+.modal{
+  width: 100%;
+  left: 0px;
+  margin-left: 0;
+}
+
+#delete-confirmation{
   width: 100%;
 }
 

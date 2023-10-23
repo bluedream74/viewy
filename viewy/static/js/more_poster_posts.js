@@ -169,7 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log("投稿を挿入するよ");
         const html = data.html;
         addHere.insertAdjacentHTML('beforebegin', html);
 

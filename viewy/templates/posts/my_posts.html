@@ -85,24 +85,25 @@
   <div class="top-line"></div>
     <div class="modal-content">        
 
-    <div class="option option-pin" data-post-id="">
-      <span class="option-icon"><i class="fa-solid fa-thumbtack"></i></span>
-      <span class="option-text">この投稿をピン留めする</span>
-    </div>
-
-    <div class="option option-delete" data-post-id="">
-      <span class="option-icon"><i class="fa-solid fa-trash-alt" style="color: orangered;"></i></span>
-      この投稿を削除する
-    </div>
-
-    <div id="delete-confirmation" style="position: absolute; bottom: -64px; width: 100%;">
-      <div class="delete-message">本当に削除しますか？</div>
-      <div class="choices">
-        <button class="cancel-delete">いいえ</button>
-        <button class="confirm-delete">はい</button>
+      <div class="option option-pin" data-post-id="">
+        <span class="option-icon"><i class="fa-solid fa-thumbtack"></i></span>
+        <span class="option-text">この投稿をピン留めする</span>
       </div>
+
+      <div class="option option-delete" data-post-id="">
+        <span class="option-icon"><i class="fa-solid fa-trash-alt" style="color: orangered;"></i></span>
+        この投稿を削除する
+      </div>
+
+      <div id="delete-confirmation">
+        <div class="delete-message">本当に削除しますか？</div>
+        <div class="choices">
+          <button class="cancel-delete">いいえ</button>
+          <button class="confirm-delete">はい</button>
+        </div>
+      </div>
+
     </div>
-  </div>
 </div>
 
 
@@ -174,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.classList.remove('active');
         
         // delete-confirmationとpadding-bottomのリセット
-        deleteConfirmation.style.bottom = '-64px';  // 元の位置に戻す
+        deleteConfirmation.style.bottom = '-120px';  // 元の位置に戻す
         modal.style.paddingBottom = '0';            // モーダルのpaddingを初期状態に戻す
     });
 
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     deleteOption.addEventListener('click', function() {
         modal.style.paddingBottom = '80px';  // モーダルのpaddingを増やす
-        deleteConfirmation.style.bottom = '24px';  // 確認メッセージをスライドイン
+        deleteConfirmation.style.bottom = '-48px';  // 確認メッセージをスライドイン
     });
 
     
@@ -218,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         modal.style.paddingBottom = '0';  // 0.8秒後にモーダルのpaddingを初期状態に戻す
     }, 400);  // 800ミリ秒（0.8秒）後に実行
-    deleteConfirmation.style.bottom = '-64px';  // 確認メッセージをスライドアウト
+    deleteConfirmation.style.bottom = '-120px';  // 確認メッセージをスライドアウト
 });
 });
 </script>
