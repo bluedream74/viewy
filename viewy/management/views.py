@@ -596,6 +596,8 @@ class SearchEmailandAddPoster(SuperUserCheck, View):
         email_query = request.GET.get('email')
         if email_query:
             users = Users.objects.filter(email__exact=email_query)
+            for user in users:
+                user.is_poster = user.groups.filter(name='Poster').exists() 
         return render(request, self.template_name, {'users': users})
     
 

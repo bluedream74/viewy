@@ -27,7 +27,11 @@
     <tbody>
       {% for user in users %}
       <tr>
-        <td>{{ user.email }}</td>
+        <td>{{ user.email }}
+          {% if user.is_poster %}
+          <span>すでにパートナーに追加しています</span>
+        </td>
+          {% else %}
         <td class="center">
           <a href="{% url 'management:add_to_poster_group' user.id %}?is_real=true&redirect_to=search_user"
             onclick="return confirm('{{ user.email }}を３次元のクリエイターとしてポスターグループに追加しますか？メールアドレスをもう一度確認してください。');"
@@ -38,10 +42,11 @@
             onclick="return confirm('{{ user.email }}を２次元のクリエイターとしてポスターグループに追加しますか？メールアドレスをもう一度確認してください。');"
             class="not-real">２次元として追加</a>
         </td>
+          {% endif %}
       </tr>
       {% empty %}
       <tr>
-          <td colspan="5">特別なユーザーが見つかりません。</td>
+        <td colspan="5">特別なユーザーが見つかりません。</td>
       </tr>
       {% endfor %}
     </tbody>
