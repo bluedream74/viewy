@@ -4,6 +4,7 @@ import re
 import pytz
 import random
 from datetime import datetime, timedelta
+from django.core.cache import cache
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
@@ -574,6 +575,11 @@ class AddToPosterGroup(SuperUserCheck, View):
         group.user_set.add(user)
         
         user.save()
+
+        # マイアカウントページのキャッシュをクリア
+        cache_key_poster = f"is_poster_{user_id}"  # キャッシュキーを作成
+        cache.delete(cache_key_poster)  # キャッシュを削除
+
         # 分岐してリダイレクト
         if 'redirect_to' in request.GET and request.GET['redirect_to'] == 'search_user':
             return redirect('management:search_user')
