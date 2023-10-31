@@ -2517,3 +2517,23 @@ class ShowMessageView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['message'] = getattr(self, 'message', None)
         return context
+    
+    
+class TestStreamingView(TemplateView):
+    template_name = 'posts/test_streaming.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        video = Videos.objects.get(id=472)
+
+        # videoオブジェクトをコンテキストに追加
+        context['video'] = video
+
+        AWS_S3_CUSTOM_DOMAIN = 'd26kmcll34ldze.cloudfront.net'
+
+        if video.hls_path:
+            context['hls_url'] = f'https://{AWS_S3_CUSTOM_DOMAIN}/{video.hls_path}'
+        if video.dash_path:
+            context['dash_url'] = f'https://{AWS_S3_CUSTOM_DOMAIN}/{video.dash_path}'
+
+        return context

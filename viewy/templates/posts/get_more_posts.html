@@ -31,10 +31,14 @@
 
     <!-- 動画の場合 -->
     {% for video in post.videos.all %}
-    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
-      src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
-    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
-    <br>
+    {% if video.hls_path %}
+      <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}"  id="postVideo{{ forloop.counter }}" width="200px" height="400px" loading="lazy" playsinline loop muted></video>
+    {% else %}
+      <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+        src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+    {% endif %}
+      <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+      <br>
     {% endfor %}
     <div class="mute-box">
       <div class="mute">

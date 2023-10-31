@@ -5,7 +5,11 @@ from tempfile import NamedTemporaryFile
 import os
 import re
 import subprocess
+import boto3
 import json
+import time
+import tempfile
+import shutil
 import re
 from django.conf import settings
 
@@ -348,6 +352,8 @@ class Videos(models.Model):
     video = models.FileField(upload_to=adjust_video_pass)
     thumbnail = models.ImageField(upload_to='posts_videos_thumbnails', null=True, blank=True)
     encoding_done = models.BooleanField(default=False)
+    hls_path = models.CharField(max_length=500, blank=True, null=True)
+    dash_path = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
         db_table = 'videos'
@@ -362,6 +368,16 @@ class Videos(models.Model):
             async_encode_video.delay(self.id)
         else:
             print("save method completed without encoding.")
+            
+            
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.s3_client = boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME
+        )
     
 # 縦長か横長か判別        
     def get_video_dimensions(self, video_path):
@@ -372,6 +388,109 @@ class Videos(models.Model):
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         dimensions = result.stdout.decode().strip().split('x')
         return int(dimensions[0]), int(dimensions[1])
+    
+    
+    def run_ffmpeg_command(self, cmd, format_name):
+        try:
+            subprocess.run(cmd, check=True)
+            print(f"{format_name} conversion successful.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error during {format_name} conversion: {str(e)}")
+            
+
+    def upload_directory_to_s3(self, local_directory_path, bucket_name, s3_directory_path):
+        print(f"Starting to upload files from {local_directory_path} to {bucket_name}/{s3_directory_path}")
+        for root, dirs, files in os.walk(local_directory_path):
+            for file in files:
+                local_file_path = os.path.join(root, file)
+                relative_path = os.path.relpath(local_file_path, local_directory_path)
+                s3_file_path = os.path.join(s3_directory_path, relative_path).replace("\\", "/")
+                print(f"Uploading {local_file_path} to {bucket_name}/{s3_file_path}...")
+                if self.upload_to_s3(local_file_path, bucket_name, s3_file_path):
+                    print(f"Successfully uploaded {local_file_path} to {bucket_name}/{s3_file_path}")
+                else:
+                    print(f"Failed to upload {local_file_path} to {bucket_name}/{s3_file_path}")
+        print("File upload process completed.")
+
+    def upload_to_s3(self, local_file_path, bucket_name, s3_file_path):
+        try:
+            with open(local_file_path, 'rb') as data:
+                self.s3_client.upload_fileobj(data, bucket_name, s3_file_path)
+            print(f"{local_file_path} has been uploaded to {bucket_name}/{s3_file_path}")
+            return True
+        except Exception as e:
+            print(f"Upload failed: {e}")
+            return False
+    
+    
+    def generate_streaming_formats(self, input_path, output_basename):
+        print("Starting streaming format generation.")
+
+        # ここで一旦、FFmpegで変換した動画たちやマニフェストファイルを一時ファイルに保存するようにする
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # HLSとDASH形式での変換設定を追加
+            hls_dir = os.path.join(temp_dir, "hls")
+            dash_dir = os.path.join(temp_dir, "dash")
+            os.makedirs(hls_dir, exist_ok=True)
+            os.makedirs(dash_dir, exist_ok=True)
+
+            # HLS形式での変換コマンド
+            hls_playlist_output = os.path.join(hls_dir, f"{output_basename}.m3u8")
+            hls_cmd = [
+                "ffmpeg",
+                "-i", input_path,
+                "-c", "copy",  # コピーしてエンコードをスキップ
+                "-f", "hls",
+                "-hls_time", "2",  # セグメントの持続時間（秒）
+                "-hls_playlist_type", "vod",
+                hls_playlist_output
+            ]
+
+            # DASH形式での変換コマンド
+            dash_manifest_output = os.path.join(dash_dir, f"{output_basename}.mpd")
+            dash_cmd = [
+                "ffmpeg",
+                "-i", input_path,
+                "-c", "copy",  # コピーしてエンコードをスキップ
+                "-f", "dash",
+                "-seg_duration", "2",  # セグメントの持続時間（秒）
+                "-dash", "1",
+                dash_manifest_output
+            ]
+
+            # HLS形式での変換を実行
+            print("Generating HLS playlist...")
+            self.run_ffmpeg_command(hls_cmd, "HLS")
+            print("HLS playlist generation completed.")
+
+            # DASH形式での変換を実行
+            print("Generating DASH manifest...")
+            self.run_ffmpeg_command(dash_cmd, "DASH")
+            print("DASH manifest generation completed.")
+            
+            # settingsからバケット名を取得。無ければエラーを返す
+            bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+            if not bucket_name:
+                print("Error: S3 bucket name is not configured")
+                return
+            
+            # タイムスタンプを取得
+            timestamp = time.strftime("%Y%m%d%H%M%S")
+
+            # 一意なディレクトリ名を生成
+            unique_dir_name = f"{output_basename}_{timestamp}"
+
+            # HLS チャンクとマニフェストファイルをS3にアップロード
+            hls_manifest_path = f"hls/{unique_dir_name}/{output_basename}.m3u8"
+            self.upload_directory_to_s3(hls_dir, bucket_name, f"hls/{unique_dir_name}/")
+            self.hls_path = hls_manifest_path
+            print("HLS files uploaded to S3.")
+
+            # DASH チャンクとマニフェストファイルをS3にアップロード
+            dash_manifest_path = f"dash/{unique_dir_name}/{output_basename}.mpd"
+            self.upload_directory_to_s3(dash_dir, bucket_name, f"dash/{unique_dir_name}/")
+            self.dash_path = dash_manifest_path
+            print("DASH files uploaded to S3.")
     
 
 # エンコードの処理
@@ -423,6 +542,8 @@ class Videos(models.Model):
                     "-c:v", "libx265",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
+                    "-b:v", "400k", 
+                    "-g", "48",  # キーフレーム間の間隔を48に設定
                     output_path
                 ]
             elif codec == "h264":  # 入力が H.264 の場合
@@ -432,33 +553,43 @@ class Videos(models.Model):
                     "-c:v", "libx264",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
+                    "-b:v", "400k", 
+                    "-g", "48",  # キーフレーム間の間隔を48に設定
+                    "-profile:v", "main",  # プロファイルをmainに設定
+                    "-level", "3.0", 
                     output_path
                 ]
-            else:
+            else:  # 他のコーデックの場合、デフォルトをlibx264に設定
                 cmd = [
                     "ffmpeg",
                     "-i", temp_path,
                     "-c:v", "libx264",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
+                    "-b:v", "400k",  
+                    "-g", "48",  # キーフレーム間の間隔を48に設定
+                    "-profile:v", "main",  # プロファイルをmainに設定
+                    "-level", "3.0", 
                     output_path
                 ]
 
-            # この部分で実際に実行するFFmpegコマンドを出力して確認
+
+            # FFmpegコマンドの実行
             print(f"FFmpeg command: {' '.join(cmd)}")
-
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
             if result.returncode != 0:
                 error_message = f"FFmpeg command failed with error: {result.stderr.decode()}"
                 print(error_message)
                 raise Exception(error_message)
 
+            # エンコードされた動画をFileFieldに保存
             with open(output_path, 'rb') as f:
                 encoded_video_basename = os.path.basename(self.video.name)
-                # この行でタイムスタンプを追加
                 encoded_video_name = f"{os.path.splitext(encoded_video_basename)[0]}_{datetime.now().strftime('%Y%m%d%H%M%S')}_encoded.mp4"
                 self.video.save(encoded_video_name, File(f), save=False)
+
+            # ストリーミング用の形式変換処理を実行
+            self.generate_streaming_formats(self.video.url, encoded_video_basename)
 
         finally:
             # 一時ファイルを確実に削除
@@ -468,7 +599,7 @@ class Videos(models.Model):
                 os.remove(output_path)
 
         print("encode_video method completed.")
-
+        
 
 # コーデックの種類を取得する関数
     def get_video_codec(self, video_path):

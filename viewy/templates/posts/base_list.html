@@ -25,6 +25,12 @@
 <meta property="og:title" content="Viewy[ビューイー]| 動画とマンガがリール形式で楽しめる スマホ向けウェブサービス" />
 <meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
 <meta property="og:image" content="{{ MEDIA_URL }}others/tap-card.png" />
+
+<!-- Dash.js -->
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+
+<!-- HLS.js -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 {% endblock %}
 {% block content %}
 {% block title %}
@@ -66,8 +72,12 @@
 
     <!-- 動画の場合 -->
       {% for video in post.videos.all %}
+      {% if video.hls_path %}
+        <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}"  id="postVideo{{ forloop.counter }}" width="200px" height="400px" loading="lazy" playsinline loop muted {% if forloop.first %}autoplay{% endif %}></video>
+      {% else %}
         <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
           src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+      {% endif %}
         <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
         <br>
       {% endfor %}
@@ -266,6 +276,7 @@
 
         <!-- URLがあればアプリに応じたアイコンを表示する -->
         {% if post.url %}
+        {% if not post.poster.is_advertiser %}
         <span class="url"><a href="{{post.url}}" target="_blank" {% if post.poster.is_advertiser %}class="ad-click"{% endif %}>
             {% if post.get_url_prefix and post.get_url_prefix != "default" %}
             <img class="url-icon" src="{{ MEDIA_URL }}link_logo/{{ post.get_url_prefix }}_white.png" alt="">
@@ -273,6 +284,7 @@
             <i class="fas fa-link"></i>
             {% endif %}
           </a></span>
+        {% endif %}
         {% endif %}
 
 
@@ -288,6 +300,15 @@
 
 
       </div>
+
+      {% if post.poster.is_advertiser %}
+      {% if not post.poster.is_affiliateadvertiser %}
+      <a href="{{ post.url }}" class="ad-detail ad-click">
+        <div class="ad-detail-title">詳しくはこちら</div>
+        <div><i class="fa-solid fa-angle-right"></i></div>
+      </a>
+      {% endif %}
+      {% endif %}
     </div>
 
   </div>
@@ -477,6 +498,7 @@
 <script src="{% static 'js/content_hide.js' %}"></script>
 <script src="{% static 'js/auto_focus.js' %}"></script>
 <script src="{% static 'js/auto_play.js' %}"></script>
+<script src="{% static 'js/streaming.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>
 <script src="{% static 'js/custom_controlbar.js' %}"></script>
 <script src="{% static 'js/lazyload.js' %}"></script>

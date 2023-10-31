@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/stylebe_partner.css' %}">
+{% endblock %}
+{% block content %}
+
+<video id="video-player" width="640" height="360" controls autoplay muted loop></video>
+
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var video = document.getElementById('video-player');
+    var ua = navigator.userAgent.toLowerCase();
+    var isiOS = /iphone|ipad|ipod/.test(ua);
+    var isAndroid = /android/.test(ua);
+
+    if (isiOS || isAndroid) {
+      // Mobile device (iOS or Android)
+      if (Hls.isSupported()) {
+        var hls = new Hls({
+          maxMaxBufferLength: 3  // バッファする範囲を3秒に設定
+        });
+        hls.loadSource('{{ hls_url }}');
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          video.play();
+        });
+      }
+      // HLS.jsがサポートされていない場合でも、ビデオタグは直接HLSストリームを再生できるかもしれません（Safariなど）
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = '{{ hls_url }}';
+        video.addEventListener('loadedmetadata', function() {
+          video.play();
+        });
+      }
+    } else {
+      // Desktop or other device
+      // Dash.jsのMediaPlayerインスタンスを作成
+      var player = dashjs.MediaPlayer().create();
+      player.initialize(video, '{{ dash_url }}', true);
+      // バッファリングの設定を調整
+      player.updateSettings({
+        streaming: {
+          buffer: {
+            bufferTimeAtTopQuality: 3,
+          }
+        }
+      });
+    }
+  });
+</script>
+
+
+<style>
+.screen{
+  background-color: white;
+}
+</style>
+
+{% endblock %}

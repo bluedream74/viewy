@@ -107,7 +107,7 @@ class CampaignFormView(AdvertiserCheckView, View):
     def get(self, request, *args, **kwargs):
         form = AdCampaignForm()
         sex = self.get_andfeature_by_orfeatures_name("男性")
-        dimension = self.get_andfeature_by_orfeatures_name("３次元好き")
+        dimension = self.get_andfeature_by_orfeatures_name("三次元好き")
         return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
 
     def post(self, request, *args, **kwargs):
@@ -118,7 +118,7 @@ class CampaignFormView(AdvertiserCheckView, View):
             adcampaign.save()
             
             sex = self.get_andfeature_by_orfeatures_name("男性")
-            dimension = self.get_andfeature_by_orfeatures_name("３次元好き")
+            dimension = self.get_andfeature_by_orfeatures_name("三次元好き")
 
             selected_orfeatures_sex = request.POST.getlist('sex_orfeatures')
             selected_orfeatures_dimension = request.POST.getlist('dimension_orfeatures')
@@ -156,7 +156,7 @@ class CampaignFormView(AdvertiserCheckView, View):
 
             return redirect(reverse('advertisement:ad_campaigns_list'))
 
-        return render(request, self.template_name, {'form': form, 'sex': self.get_andfeature_by_orfeatures_name("男性"), 'dimension': self.get_andfeature_by_orfeatures_name("３次元好き")})
+        return render(request, self.template_name, {'form': form, 'sex': self.get_andfeature_by_orfeatures_name("男性"), 'dimension': self.get_andfeature_by_orfeatures_name("三次元好き")})
 
 
 class BaseAdCreateView(AdvertiserCheckView, CreateView):

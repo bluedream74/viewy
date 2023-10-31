@@ -1979,6 +1979,40 @@ label {
   border-bottom: 1px solid #f2f2f2;
 }
 
+.ad-detail{
+  background-color: #56e7e9d8;
+  padding: 8px 16px;
+  border-radius: 4px;
+  display: flex;
+  margin-right: 32px;
+  justify-content: space-between;
+  text-shadow: none;
+  align-items: center;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+  color: white;
+}
+
+.ad-detail:hover{
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px); /* ここの値を調整して移動距離を変更 */
+  }
+}
+
+.ad-detail i {
+  animation: float 2.5s infinite; /* 2秒かけてアニメーションを無限に繰り返す */
+  position: relative;
+  top: 2px;
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
