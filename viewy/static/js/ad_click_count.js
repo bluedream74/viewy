@@ -10,6 +10,9 @@ function getCookie(name) {
 let isClickable = true;
 
 $('.screen').on('click', '.ad-click', function (e) {
+  e.preventDefault();
+  const targetUrl = $(this).attr('href');
+
   if (!isClickable) return;
   isClickable = false;
   const postID = $(this).closest('.post').data('post-id');
@@ -26,6 +29,7 @@ $('.screen').on('click', '.ad-click', function (e) {
     success: function (response) {
       if (response.status === 'success') {
         console.log('Click count updated successfully.');
+        window.location.href = targetUrl;
       } else {
         console.error(response.message);
       }

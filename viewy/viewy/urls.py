@@ -8,6 +8,7 @@ from django.contrib.staticfiles.urls import static
 urlpatterns = [
     path('accounts/', include('accounts.urls')), 
     path('posts/', include('posts.urls')),
+    path('support/', include('support.urls')), 
     path('management/', include('management.urls')),
     path('advertisement/', include('advertisement.urls')),
     path('about_viewy/', AboutViewyView.as_view(), name='about_viewy'),

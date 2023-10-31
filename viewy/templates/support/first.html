@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/support/first.css' %}">
+  <!-- iOS向けの指定 -->
+  <!-- <link rel="apple-touch-icon" type="image/png" href="{{ MEDIA_URL }}icon_management/apple-touch-icon.png" sizes="180x180"> -->
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  <title>Viewy-Support</title>
+  {% block head %}
+  {% endblock %}
+</head>
+
+<body>
+  <header>
+    <div class="nav-container">
+      <div class="nav-item logo">
+        <a href="#">
+          <img src="{{ MEDIA_URL }}others/viewy-logo-colored.png" alt="Home">
+        </a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-item"><a href="#">Support</a></div>
+        <div class="nav-item"><a href="#">Contact</a></div>
+      </div>
+    </div>
+  </header>
+  <div class="main">
+    <div class="img-container">
+      <img src="{{ MEDIA_URL }}others/カード白アクア.png" alt="">
+    </div>
+    <div class="popular articles">
+      <div class="section-head">
+        <div class="faq-text">よくある質問</div>
+        <div class="faq-icon"><i class="fa-solid fa-fire"></i></div>
+      </div>
+      <div class="section-cards">
+        <div class="card">
+          <div class="card-text">
+            <a>ユーザー</a>
+            <span>></span>
+            <a>初めての方</a>
+          </div>
+          <div class="card-link"><a href="">アカウント作成</a></div>
+        </div>
+        <div class="card">
+          <div class="card-text">
+            <a>ユーザー</a>
+            <span>></span>
+            <a>利用方法</a>
+          </div>
+          <div class="card-link"><a href="">完全に無料ですか</a></div>
+        </div>
+        <div class="card">
+          <div class="card-text">
+            <a>パートナー</a>
+            <span>></span>
+            <a>一般情報</a>
+          </div>
+          <div class="card-link"><a href="">パートナーの条件</a></div>
+        </div>
+        <div class="card">
+          <div class="card-text">
+            <a>サービス全般</a>
+            <span>></span>
+            <a>一般情報</a>
+          </div>
+          <div class="card-link"><a href="">パスワードを忘れた</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="topic articles">
+      <div class="section-head">
+        <div class="faq-text">トピック</div>
+        <div class="faq-icon"><i></i></div>
+      </div>
+      <div class="topic-cards">
+        <div class="topic-card">
+          <div class="topic-card-header">
+            <div class="topic-card-name">ユーザー</div>
+            <div><i class="fa-solid fa-user"></i></div>
+          </div>
+          <ul class="topic-card-list">
+            <li><a href="">初めての方</a></li>
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+          </ul>
+        </div>
+        <div class="topic-card">
+          <div class="topic-card-header">
+            <div class="topic-card-name">パートナー</div>
+            <div><i class="fa-solid fa-user"></i></div>
+          </div>
+          <ul class="topic-card-list">
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+          </ul>
+        </div>
+        <div class="topic-card">
+          <div class="topic-card-header">
+            <div class="topic-card-name">サービス全般</div>
+            <div><i class="fa-solid fa-user"></i></div>
+          </div>
+          <ul class="topic-card-list">
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+          </ul>
+        </div>
+        <div class="topic-card">
+          <div class="topic-card-header">
+            <div class="topic-card-name">一般情報</div>
+            <div><i class="fa-solid fa-user"></i></div>
+          </div>
+          <ul class="topic-card-list">
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+            <li><a href="">一般情報</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+    <div><a href="">Viewy Support</a></div>
+  </footer>
+</body>
+
+</html>

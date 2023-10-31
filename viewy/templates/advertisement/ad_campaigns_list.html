@@ -6,38 +6,82 @@
 
 
 {% block content %}
-<div class="page-title">レポート</div>
 
+<div class="monthly-costs">
+  <p>今月のCPC: {{ current_cpc }}円</p>
+  <p>今月のCPM: {{ current_cpm }}円</p>
 
+  {% if next_cpc and next_cpm %}
+  <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
+  <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
+  {% else %}
+  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
+  {% endif %}
+</div>
+
+{% block table %}
+<div class="page-title">キャンペーン</div>
 <div class="block">
 
   <table>
     <tr>
       <th>キャンペーンタイトル</th>
       <th>広告数</th>
-      <th>合計表示回数</th>
+      <th>合計表示回数/目標表示回数</th>
+      <th>料金(円)</th>
       <th>予算(円)</th>
       <th>表示期間</th>
       <th>停止／公開</th>
     </tr>
+
     {% for campaign in campaigns %}
-    <tr>
-      <td><a href="{% url 'advertisement:ad_campaign_detail' campaign.id %}" class="campaign-title">{{ campaign.title }}</a></td>
-      <td>{{ campaign.ad_infos.count }}</td>
-      <td>{{ campaign.total_views_count }}</td>
-      <td id="budget-{{ campaign.id }}">{{ campaign.budget }}</td>
-      <td><span class="date">{{ campaign.start_date|date:"Y-m-d" }}</span>～<span class="date">{{ campaign.end_date|date:"Y-m-d" }}</span></td>
+    <tr class="{{ campaign.status }}">
       <td>
-        <form action="{% url 'advertisement:ad_campaign_status' campaign.id %}" method="post">
-          {% csrf_token %}
-          <button type="submit" class="release-button {% if campaign.is_hidden %}stop{% else %}release{% endif %}">
-            {% if campaign.is_hidden %}
-            停止中
-            {% else %}
-            公開中
-            {% endif %}
+        <a href="{% url 'advertisement:ad_campaign_detail' campaign.id %}" class="campaign-title">
+          {{ campaign.title }}
+        </a>
+      </td>
+      <td>{{ campaign.adinfos_count }}</td>
+      <td class="views">
+        {{ campaign.total_views_count }}/{{ campaign.target_views }}</td>
+      <td class="fee">{{ campaign.fee }}</td>
+      <td class="budget">{{ campaign.budget }}</td>
+      <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">
+          {{ campaign.start_date|date:"Y-m-d" }}</span>～<span class="date">
+          {{ campaign.end_date|date:"Y-m-d" }}</span></td>
+      <td>
+        {% if campaign.status == 'pending' %}
+        <form>
+          <button class="release-button pending disabled-button">
+            公開前
           </button>
         </form>
+        {% elif campaign.status == 'achieved' %}
+        <form>
+          <button class="release-button  disabled-button">
+            目標達成
+          </button>
+        </form>
+        {% elif campaign.status == 'expired' %}
+        <form>
+          <button class="release-button  disabled-button">
+            終了期限が来た
+          </button>
+        </form>
+        {% elif campaign.status == 'stopped' %}
+        <form>
+          <button class="release-button stop disabled-button">
+            途中停止
+          </button>
+        </form>
+        {% elif campaign.status == 'running' %}
+        <form action="{% url 'advertisement:ad_campaign_status' campaign.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="release-button release">
+            公開中
+          </button>
+        </form>
+        {% endif %}
         <button class="delete-campaign-button" data-campaign-id="{{ campaign.id }}" data-title="{{ campaign.title }}">
           削除
         </button>
@@ -47,17 +91,56 @@
   </table>
 
 </div>
-
+{% endblock %}
 {% endblock %}
 
 {% block script %}
 <script src="{% static 'js/adcampaign_delete.js' %}"></script>
 <script>
-  document.querySelectorAll('td[id^="budget-"]').forEach(function (elem) {
+  // カンマ関連
+  document.querySelectorAll('.budget').forEach(function (elem) {
     let value = parseInt(elem.textContent, 10);
     if (!isNaN(value)) {
       elem.textContent = value.toLocaleString();
     }
   });
+
+  document.querySelectorAll('.fee').forEach(function (elem) {
+    let value = parseFloat(elem.textContent);
+
+    if (!isNaN(value)) {
+      // 小数点を切り上げる
+      value = Math.ceil(value);
+
+      // カンマで区切り、そしてセルのテキストを更新する
+      elem.textContent = value.toLocaleString();
+    }
+  });
+
+  document.querySelectorAll('.views').forEach(function (elem) {
+    // テキストを "/" で分割して、合計ビューと目標ビューを取得する
+    let [totalViews, targetViews] = elem.textContent.split('/').map(text => parseInt(text, 10));
+
+    if (!isNaN(totalViews) && !isNaN(targetViews)) {
+      // カンマで区切り、そしてセルのテキストを更新する
+      elem.textContent = `${totalViews.toLocaleString()} / ${targetViews.toLocaleString()}`;
+    }
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let buttons = document.querySelectorAll(".release-button.release");
+
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function (event) {
+        let confirmationMessage = "この広告キャンペーンを停止すると、永久に再開することはできません。よろしいですか？";
+        let userConfirmed = confirm(confirmationMessage);
+        if (!userConfirmed) {
+          event.preventDefault();  // ユーザーがキャンセルを選んだ場合、処理を中断
+        }
+      });
+    });
+  });
+
 </script>
 {% endblock %}

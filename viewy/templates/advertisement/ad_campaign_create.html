@@ -8,51 +8,109 @@
 {% block content %}
 <div class="page-title">キャンペーン作成</div>
 
+<div class="monthly-costs">
+  <p class="cpc">今月のCPC: {{ current_cpc }}円</p>
+  <p class="cpm">今月のCPM: {{ current_cpm }}円</p>
+
+  {% if next_cpc and next_cpm %}
+    <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
+    <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
+  {% else %}
+    <p>来月のCPCとCPMのデータはまだ利用できません。</p>
+  {% endif %}
+</div>
 
 <div class="block">
   <form method="post" class="flex">
     {% csrf_token %}
-  <div>
+    <div>
       <div class="info-item">
         <div class="info-name">キャンペーンタイトル</div>
-        <div class="info-input campaign-title">{{ form.title }}</div>
+        <div class="info-input campaign-title">
+          {{ form.title }}
+          {{ form.title.errors }}
+        </div>
       </div>
       <div class="info-item">
         <div class="info-name">開始日</div>
-        <div class="info-input">{{ form.start_date }}</div>
+        <div class="info-input">
+          {{ form.start_date }}
+          {{ form.start_date.errors }}
+        </div>
         <div class="info-name" style="margin-top: 8px;">終了日</div>
-        <div class="info-input">{{ form.end_date }}</div>
+        <div class="info-input">
+          {{ form.end_date }}
+          {{ form.end_date.errors }}
+        </div>
+        <input type="checkbox" id="no_end_date" name="no_end_date"> 期限なし
       </div>
-  
-      <div class="info-item">
-        <div class="info-name">予算</div>
-        <div class="info-input">{{ form.budget }}</div>
-      </div>
-  
-  </div>
 
-  <div style="margin-left: 48px;">
-    <div class="info-item">
-      <div class="info-name">ターゲット</div>
-      <div class="category">
-        <div>性別：</div>
-        {% for orfeature in sex.orfeatures.all %}
-        <input type="checkbox" id="sex{{ orfeature.id }}" name="sex_orfeatures" value="{{ orfeature.id }}">
-        <label for="sex{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
-        {% endfor %}
-        <input type="checkbox" id="sexAll" name="sex_orfeatures" value="all">
-        <label for="sexAll" class="custom-label">全性別</label>
+      <div class="info-item">
+        <div class="info-name">CPCかCPMか</div>
+        <div class="info-input">{{ form.pricing_model }}</div>
       </div>
-      <div class="category">
-        <div>嗜好：</div>
-        {% for orfeature in dimension.orfeatures.all %}
-        <input type="checkbox" id="dimension{{ orfeature.id }}" name="dimension_orfeatures" value="{{ orfeature.id }}">
-        <label for="dimension{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
-        {% endfor %}
-        <input type="checkbox" id="dimensionAll" name="dimension_orfeatures" value="all">
-        <label for="dimensionAll" class="custom-label">どちらとも</label>
+
+      <div class="info-item">
+        <div class="info-name">目標表示回数</div>
+        <div class="info-input" id="target_views">{{ form.target_views }}回</div>
       </div>
-      <!-- <div class="category">
+
+      <div id="cpc-container" style="display:none;">
+        <div class="info-item">
+          <div class="info-name">CPC</div>
+          <div class="info-input" id="calculated_cpc">円</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-name">目安予算</div>
+          <div class="info-input">
+            <input type="number" name="budget" id="budget_input" placeholder="目安予算を入力してください" required min="10000"
+              step="10000" />
+            円
+          </div><!-- CPCはユーザが予算を入力できるように -->
+          <p class="info-description" style="width: 400px;">
+            注意：CPCの場合、この時点でクリック回数は確定していません。そのため、ここでの予算の意味は、請求される料金という意味ではありません。あくまで目安としてご自由に設定できます。
+          </p>
+        </div>
+      </div>
+
+
+      <div id="cpm-container" style="display:none;">
+        <div class="info-item">
+          <div class="info-name">CPM</div>
+          <div class="info-input" id="calculated_cpm">円</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-name">予算</div>
+          <div class="info-input" id="calculated_budget">円</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-left: 48px;">
+      <div class="info-item">
+        <div class="info-name">ターゲット</div>
+        <div class="category">
+          <div>性別：</div>
+          {% for orfeature in sex.orfeatures.all %}
+          <input type="checkbox" id="sex{{ orfeature.id }}" name="sex_orfeatures" value="{{ orfeature.id }}">
+          <label for="sex{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
+          {% endfor %}
+          <input type="checkbox" id="sexAll" name="sex_orfeatures" value="all">
+          <label for="sexAll" class="custom-label">全性別</label>
+        </div>
+        <div class="category">
+          <div>嗜好：</div>
+          {% for orfeature in dimension.orfeatures.all %}
+          <input type="checkbox" id="dimension{{ orfeature.id }}" name="dimension_orfeatures"
+            value="{{ orfeature.id }}">
+          <label for="dimension{{ orfeature.id }}" class="custom-label">{{ orfeature.name_ja }}</label>
+          {% endfor %}
+          <input type="checkbox" id="dimensionAll" name="dimension_orfeatures" value="all">
+          <label for="dimensionAll" class="custom-label">どちらとも</label>
+        </div>
+        <!-- <div class="category">
         <div>年齢：</div>
         {% for orfeature in age.orfeatures.all %}
         <input type="checkbox" id="age{{ orfeature.id }}" name="age_orfeatures" value="{{ orfeature.id }}">
@@ -61,11 +119,12 @@
         <input type="checkbox" id="ageAll" name="age_orfeatures" value="all">
         <label for="ageAll" class="custom-label">全年代</label>
       </div> -->
+      </div>
+
+      {{ form.non_field_errors }}
+      
+      <button type="submit" class="submit-campaign" disabled>作成</button>
     </div>
-
-
-    <button type="submit" class="submit-campaign" disabled>作成</button>
-  </div>
 
   </form>
 </div>
@@ -73,7 +132,18 @@
 
 {% endblock %}
 {% block script %}
+<script src="{% static 'js/cpm_cpc.js' %}"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('no_end_date').addEventListener('change', function () {
+            var endDateInput = document.querySelector('input[name="end_date"]');
+            if (this.checked) {
+                endDateInput.disabled = true;
+            } else {
+                endDateInput.disabled = false;
+            }
+        });
+    });
   document.addEventListener("DOMContentLoaded", function () {
     let submitButton = document.querySelector("button[type='submit']");
     let sexCheckboxes = document.querySelectorAll("input[name='sex_orfeatures']");

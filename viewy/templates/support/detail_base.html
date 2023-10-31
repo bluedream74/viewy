@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/support/support_base.css' %}">
+  <!-- iOS向けの指定 -->
+  <!-- <link rel="apple-touch-icon" type="image/png" href="{{ MEDIA_URL }}icon_management/apple-touch-icon.png" sizes="180x180"> -->
+  <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
+  <title>Viewy-Support</title>
+  {% block head %}
+  {% endblock %}
+</head>
+
+<body>
+  <header>
+    <div class="nav-container">
+      <div class="nav-item logo">
+        <a href="#">
+          <img src="{{ MEDIA_URL }}others/viewy-logo-colored.png" alt="Home">
+        </a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-item"><a href="#">Support</a></div>
+        <div class="nav-item"><a href="#">Contact</a></div>
+      </div>
+    </div>
+  </header>
+  <div class="main">
+    <div class="accordion">
+      <div class="accordion-item">
+        <div class="accordion-header pretitle" data-pretitle="user"><a href="{% url 'support:pretitle_page' pretitle='user' %}">ユーザー</a></div>
+        <div class="accordion-content">
+
+          <div class="n-accordion">
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='user' title='general' %}">一般情報</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='user' title='general' subtitle='viewy' %}">Viewyとは？</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='general' subtitle='how_much' %}">料金はかかりますか</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='general' subtitle='is_app' %}">アプリはありますか</a></div>
+              </div>
+
+            </div>
+            <div class="n-accordion-item">
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='user' title='beginner' %}">初めての方</a>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='beginner' subtitle='beginner1' %}">初めての方1</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='beginner' subtitle='beginner2' %}">初めての方2</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='beginner' subtitle='beginner3' %}">初めての方3</a></div>
+              </div>
+            </div>
+            <div class="n-accordion-item">
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='user' title='use' %}">利用方法</a>
+              </div>
+              <div class="n-accordion-content">
+                <div>ホーム画面</div>
+                <div>検索画面</div>
+                <div>投稿画面</div>
+                <div>スター画面</div>
+                <div>アカウント画面</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header pretitle" data-pretitle="partner">パートナー</div>
+        <div class="accordion-content">
+          <div>一般情報</div>
+          <div>パートナーになるには</div>
+          <div>投稿について</div>
+          <div>紹介特典</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" data-pretitle="service">サービス全般</div>
+        <div class="accordion-content">
+          <div>Web環境</div>
+          <div>アカウントの登録</div>
+          <div>機能紹介</div>
+          <div>不具合</div>
+          <div>その他</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" data-pretitle="general">一般情報</div>
+        <div class="accordion-content">
+          <div>一般情報</div>
+          <div>規約</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic">
+      {% block topic %}
+      {% endblock %}
+    </div>
+
+  </div>
+  <footer class="footer">
+    <div><a href="">Viewy Support</a></div>
+  </footer>
+  <script src="{% static 'js/support/accordion.js' %}"></script>
+</body>
+
+</html>

@@ -8,26 +8,51 @@
 
 {% block content %}
 <div class="page-title">キャンペーン別レポート</div>
+<div class="sub-page-title">{{ campaign.title }}</div>
+<div class="sub-page-title">
+  ステータス：
+  {% if campaign.status == "pending" %}
+      公開前
+  {% elif campaign.status == "running" %}
+      公開中
+  {% elif campaign.status == "achieved" %}
+      目標達成
+  {% elif campaign.status == "expired" %}
+      終了期限に到達
+  {% elif campaign.status == "stopped" %}
+      途中停止
+  {% endif %}
+</div>
 
 <div class="campaign-info">
-  <div class="campaign-big-title">{{ campaign.title }}</div>
-  <div class="tag">予算：<span class="budget">{{ campaign.budget }}</span>円</div>
-  <div class="tag">期限：{{ campaign.start_date|date:"Y-m-d" }}～<span class="date">{{ campaign.end_date|date:"Y-m-d" }}</span></div>
+  <div class="tag">{{ campaign.pricing_model }}：<span class="">{{ campaign.actual_cpc_or_cpm }}</span>円</div>
+  <div class="tag">合計表示回数/目標表示回数：
+    <span class="">
+      {{ campaign.total_views_count }}/{{ campaign.target_views }}
+    </span>回
+  </div>
+  <div class="tag">料金/予算：<span class="budget">
+      {{ campaign.fee }}/{{ campaign.budget }}
+    </span>円
+  </div>
+  <div class="tag">期限：{{ campaign.start_date|date:"Y-m-d" }}～<span class="date">
+      {{ campaign.end_date|date:"Y-m-d" }}</span></div>
   <div class="tag">ターゲット：
     <div>
       {% if andfeatures %}
-        {% for andfeature in andfeatures %}
-          <div class="target">{{ andfeature }}</div>
-          {% if not forloop.last %}
-            かつ
-          {% endif %}
-        {% endfor %}
+      {% for andfeature in andfeatures %}
+      <div class="target">{{ andfeature }}</div>
+      {% if not forloop.last %}
+      かつ
+      {% endif %}
+      {% endfor %}
       {% else %}
-        全員
+      全員
       {% endif %}
     </div>
   </div>
-  <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i class="fa-solid fa-pen"></i> 編集</a>
+  <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
+      class="fa-solid fa-pen"></i> 編集</a>
 </div>
 
 
@@ -37,10 +62,10 @@
       <th>サムネイル</th>
       <th>広告タイトル</th>
       <th>表示回数</th>
-      <th>クリック回数</th>  
+      <th>クリック回数</th>
       <th>クリック率</th>
       <th>滞在時間</th>
-      <th>料金</th>
+      <th>料金(円)</th>
       <th>停止／再開</th>
       <th>プレビュー</th>
     </tr>
@@ -56,7 +81,7 @@
             {% endfor %}
             <i class="fa-solid fa-book-open manga-icon"></i>
           </div>
-  
+
           {% else %}
           {% with ad_info.post.videos.first as video %}
           {% if video.thumbnail %}
@@ -71,18 +96,34 @@
       </td>
       <td>{{ ad_info.post.title }}</td>
       <td>{{ ad_info.post.views_count }}</td>
-      <td>{{ ad_info.clicks_count }}</td>  <!-- 追加 -->
+      <td>{{ ad_info.clicks_count }}</td> <!-- 追加 -->
       <td>{{ ad_info.calculated_click_through_rate|floatformat:2 }}%</td>
       <td>{{ ad_info.post.avg_duration|floatformat:1 }}秒</td>
-      <td>??</td>
+      <td class="fee">{{ ad_info.fee }}</td>
       <td>
-        <button class="toggle-hidden release-button {% if ad_info.post.is_hidden %}stop{% else %}release{% endif %}" data-post-id="{{ ad_info.post.id }}">
+        {% if campaign.status == 'pending' %}
+        公開前
+        {% elif campaign.status == 'achieved' %}
+        目標達成
+        {% elif campaign.status == 'expired' %}
+        終了期限が来た
+        {% elif campaign.status == 'stopped' %}
+        途中停止
+        {% elif campaign.status == 'running' %}
+
+        {% if campaign.is_hidden %}
+        永久停止
+        {% else %}
+        <button class="toggle-hidden release-button {% if ad_info.post.is_hidden %}stop{% else %}release{% endif %}"
+          data-post-id="{{ ad_info.post.id }}">
           {% if ad_info.post.is_hidden %}
           停止中
           {% else %}
           公開中
           {% endif %}
         </button>
+        {% endif %}
+        {% endif %}
       </td>
       <td>
         <button class="view-button" data-post-id="{{ ad_info.post.id }}">
@@ -243,44 +284,44 @@
 
 {% block script %}
 <script type="text/javascript">
-document.addEventListener("DOMContentLoaded", function () {
-  let buttons = document.querySelectorAll(".view-button");
-  let previewDiv = document.querySelector(".preview"); // preview divを取得
-  
-  buttons.forEach(function (button) {
-    button.addEventListener("click", function (event) {
-      event.stopPropagation(); // イベントの伝播を阻止
-    let postId = this.getAttribute("data-post-id");
-    fetch(`/advertisement/ad_view_button/${postId}/`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
+  document.addEventListener("DOMContentLoaded", function () {
+    let buttons = document.querySelectorAll(".view-button");
+    let previewDiv = document.querySelector(".preview"); // preview divを取得
 
-        // mediaHtmlとotherHtmlを分けて考える
-        let adinfoBlock = document.querySelector('.adinfo');
-        let previewDiv = document.querySelector(".preview"); // preview divを取得
-        let mediaHtml = '';
-        let existingBook = adinfoBlock.querySelector('.book');
-        let existingVideos = adinfoBlock.querySelectorAll('.post-video');
-        
-        // 前のコンテンツを削除
-        if (existingBook) {
-          existingBook.remove();
-        }
-        existingVideos.forEach(video => {
-          video.remove();
-        });
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function (event) {
+        event.stopPropagation(); // イベントの伝播を阻止
+        let postId = this.getAttribute("data-post-id");
+        fetch(`/advertisement/ad_view_button/${postId}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
 
-        let post = data.post;
+            // mediaHtmlとotherHtmlを分けて考える
+            let adinfoBlock = document.querySelector('.adinfo');
+            let previewDiv = document.querySelector(".preview"); // preview divを取得
+            let mediaHtml = '';
+            let existingBook = adinfoBlock.querySelector('.book');
+            let existingVideos = adinfoBlock.querySelectorAll('.post-video');
+
+            // 前のコンテンツを削除
+            if (existingBook) {
+              existingBook.remove();
+            }
+            existingVideos.forEach(video => {
+              video.remove();
+            });
+
+            let post = data.post;
 
             if (post.ismanga) {
               mediaHtml = '<div class="book">';
@@ -327,18 +368,29 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // 画面のどこかがクリックされたときにpreview divを非表示にする
-document.addEventListener('click', function(event) {
-  let previewDiv = document.querySelector('.preview');
-  if(!previewDiv.contains(event.target)) { // クリックされた要素がpreview divの中にない場合
-    previewDiv.classList.remove('active'); // preview divを非表示
-  }
-});
+  document.addEventListener('click', function (event) {
+    let previewDiv = document.querySelector('.preview');
+    if (!previewDiv.contains(event.target)) { // クリックされた要素がpreview divの中にない場合
+      previewDiv.classList.remove('active'); // preview divを非表示
+    }
+  });
 
 </script>
 <script>
-  document.querySelectorAll('.budget').forEach(function (elem) {
-    let value = parseInt(elem.textContent, 10);
+  // カンマ
+  // document.querySelectorAll('.budget').forEach(function (elem) {
+  //   let value = parseInt(elem.textContent, 10);
+  //   if (!isNaN(value)) {
+  //     elem.textContent = value.toLocaleString();
+  //   }
+  // });
+  // カンマ
+  document.querySelectorAll('.fee').forEach(function (elem) {
+    let value = parseFloat(elem.textContent);
+
     if (!isNaN(value)) {
+      value = Math.ceil(value);
+
       elem.textContent = value.toLocaleString();
     }
   });

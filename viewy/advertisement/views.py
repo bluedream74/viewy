@@ -1,6 +1,11 @@
 import os, json
+from datetime import date, datetime
+from decimal import Decimal, ROUND_UP
+from django.utils import timezone
+from datetime import timedelta
 from moviepy.editor import VideoFileClip
-from django.db.models import F
+from django.db import transaction
+from django.db.models import F, Sum
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
@@ -20,8 +25,10 @@ from django.db.models.functions import Concat
 from django.db.models import CharField
 
 from posts.models import Posts, Users, Videos, Visuals
-from .models import AdInfos, AndFeatures
+from .models import AdInfos, AndFeatures, MonthlyAdCost
 from accounts.models import Features
+from django.views.generic import TemplateView
+from django.template.loader import select_template
 
 from .forms import AdCampaignForm, AdInfoForm
 from posts.forms import PostForm, VisualForm, VideoForm
@@ -33,37 +40,129 @@ from .models import AdCampaigns
 # is_advertiserかチェック
 class AdvertiserCheckView(GroupOrSuperuserRequired, TemplateView):  pass
 
-class AdCampaignsListView(AdvertiserCheckView, View):
+class AdCampaignsListView(AdvertiserCheckView, TemplateView):
     template_name = 'advertisement/ad_campaigns_list.html'
+
+    def get_queryset(self):
+        # リクエストユーザーが作成したキャンペーンを取得
+        return AdCampaigns.objects.filter(created_by=self.request.user).prefetch_related(
+            Prefetch('ad_infos', queryset=AdInfos.objects.select_related('post'))
+        ).annotate(
+            adinfos_count=Count('ad_infos')
+        ).order_by('-created_at')
 
     def get(self, request, *args, **kwargs):
         # リクエストユーザーが作成したキャンペーンを取得
-        campaigns = AdCampaigns.objects.filter(created_by=request.user)
+        campaigns = AdCampaigns.objects.filter(created_by=request.user).prefetch_related(
+            Prefetch('ad_infos', queryset=AdInfos.objects.select_related('post'))
+        ).annotate(
+            adinfos_count=Count('ad_infos')
+        ).order_by('-created_at')
 
-        # 各キャンペーンの視聴回数の合計を更新
-        for campaign in campaigns:
-            campaign.update_total_views()
+        today = timezone.now()
 
-            # 期限チェック
-            now = timezone.now()
-            if now <= campaign.end_date:
-                # キャンペーンに紐づくAdInfosを確認
-                has_public_post = any(not ad_info.post.is_hidden for ad_info in campaign.ad_infos.all())
+        with transaction.atomic():  
+            campaigns_to_save = []
+            ad_infos_to_save = []
+
+            for campaign in campaigns:
+                total_fee = 0 
+                total_views = 0
                 
-                # 少なくとも1つ以上の公開中のポストがあればキャンペーンも公開状態にする
-                campaign.is_hidden = not has_public_post
-                
-            else:
-                # 期限が切れている場合は必ず非公開にする
-                campaign.is_hidden = True
+                # Updating each AdInfo's fee
+                for ad_info in campaign.ad_infos.all(): 
+                    ad_info.update_fee()
+                    total_fee += ad_info.fee
+                    total_views += ad_info.post.views_count
+                    ad_infos_to_save.append(ad_info)
 
-            campaign.save()
+
+                # Check if the fee or total_views_count has changed
+                if campaign.fee != total_fee or campaign.total_views_count != total_views:
+                    campaign.fee = total_fee
+                    campaign.total_views_count = total_views
+                    campaigns_to_save.append(campaign)
+
+            if campaigns_to_save:
+                AdCampaigns.objects.bulk_update(campaigns_to_save, ['total_views_count', 'fee'])
+            
+            # Bulk update the ad_infos_to_save list if it is not empty
+            if ad_infos_to_save:
+                AdInfos.objects.bulk_update(ad_infos_to_save, ['fee'])
+
+        # 今月の年と月を取得
+        today = date.today()
+        year_month = date(today.year, today.month, 1)
+
+        # 来月の年と月を取得
+        next_month_date = date.today().replace(day=1) + timedelta(days=32)
+        next_month_date = next_month_date.replace(day=1) 
+
+        # 今月のCPCとCPMのデータを取得
+        try:
+            monthly_ad_cost = MonthlyAdCost.objects.get(year_month=year_month)
+            current_cpc = monthly_ad_cost.cpc
+            current_cpm = monthly_ad_cost.cpm
+        except MonthlyAdCost.DoesNotExist:
+            current_cpc = None
+            current_cpm = None
+
+        # 来月のCPCとCPMのデータを取得
+        try:
+            next_monthly_ad_cost = MonthlyAdCost.objects.get(year_month=next_month_date)
+            next_cpc = next_monthly_ad_cost.cpc
+            next_cpm = next_monthly_ad_cost.cpm
+        except MonthlyAdCost.DoesNotExist:
+            next_cpc = None
+            next_cpm = None
 
         context = {
-            'campaigns': campaigns
+            'campaigns': campaigns,
+            'current_cpc': current_cpc,
+            'current_cpm': current_cpm,
+            'next_cpc': next_cpc,
+            'next_cpm': next_cpm,
         }
 
         return render(request, self.template_name, context)
+
+class FilteredAdCampaignsListView(AdCampaignsListView):
+
+    def get_template_names(self):
+        print("get_template_names is called")  
+        status = self.kwargs.get('status', None)
+        templates = {
+            'running': ['advertisement/running.html'],
+            'pending': ['advertisement/pending.html'],
+            'stopped': ['advertisement/stopped.html'],
+            'expired': ['advertisement/expired.html'],
+            'achieved': ['advertisement/achieved.html'],
+            None: ['advertisement/ad_campaign_list.html']  # default
+        }
+        return templates.get(status)
+
+    def get_queryset(self, status=None):  # status引数にデフォルト値を追加
+        # 親クラスのget_querysetメソッドを呼び出して、基本的なクエリセットを取得
+        campaigns = super().get_queryset()
+
+        if status:  # statusが指定されている場合のみフィルタリングを適用
+            # ステータスに基づいてクエリセットをフィルタリング
+            campaigns = campaigns.filter(status=status)
+        
+        return campaigns
+
+    def get(self, request, *args, **kwargs):
+        status = self.kwargs.get('status')  # URLからステータスを取得
+        campaigns = self.get_queryset(status)  # クエリセットを更新し、campaignsに代入
+
+        template_name = self.get_template_names()
+        print(template_name)
+        # contextを生成するためのコード...
+        context = {
+            'campaigns': campaigns,
+            # ... (他のコンテキスト変数)
+        }
+        return render(request, template_name, context)
 
 
 class AdCampaignDetailView(AdvertiserCheckView, View):
@@ -73,11 +172,17 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
         # リクエストユーザーが作成したキャンペーンを取得
         campaign = get_object_or_404(AdCampaigns, id=campaign_id, created_by=request.user)
 
+        # キャンペーンの開始日をチェックし、campaign.statusを設定
+        today = timezone.now()
+        if campaign.start_date > today:
+            campaign.status = 'pending'
+
         # そのキャンペーンに関連するAdInfosを取得
         ad_infos = (campaign.ad_infos.all()
                     .select_related('post')
                     .prefetch_related(Prefetch('post__visuals'))
-                    .prefetch_related('post__videos'))
+                    .prefetch_related('post__videos')
+                    .order_by('-post__posted_at'))
         for ad_info in ad_infos:
             ad_info.calculated_click_through_rate = ad_info.click_through_rate()
             
@@ -108,12 +213,92 @@ class CampaignFormView(AdvertiserCheckView, View):
         form = AdCampaignForm()
         sex = self.get_andfeature_by_orfeatures_name("男性")
         dimension = self.get_andfeature_by_orfeatures_name("三次元好き")
-        return render(request, self.template_name, {'form': form, 'sex': sex, 'dimension': dimension})
+
+        # 今月の年と月を取得
+        today = date.today()
+        year_month = date(today.year, today.month, 1)
+
+        # 来月の年と月を取得
+        next_month_date = date.today().replace(day=1) + timedelta(days=32)
+        next_month_date = next_month_date.replace(day=1) 
+
+        # 今月のCPCとCPMのデータを取得
+        try:
+            monthly_ad_cost = MonthlyAdCost.objects.get(year_month=year_month)
+            current_cpc = monthly_ad_cost.cpc
+            current_cpm = monthly_ad_cost.cpm
+        except MonthlyAdCost.DoesNotExist:
+            current_cpc = None
+            current_cpm = None
+
+        # 来月のCPCとCPMのデータを取得
+        try:
+            next_monthly_ad_cost = MonthlyAdCost.objects.get(year_month=next_month_date)
+            next_cpc = next_monthly_ad_cost.cpc
+            next_cpm = next_monthly_ad_cost.cpm
+        except MonthlyAdCost.DoesNotExist:
+            next_cpc = None
+            next_cpm = None
+
+        return render(request, self.template_name, {
+            'form': form,
+            'sex': sex, 
+            'dimension': dimension,
+            'current_cpc': current_cpc,
+            'current_cpm': current_cpm,
+            'next_cpc': next_cpc,
+            'next_cpm': next_cpm,
+            })
 
     def post(self, request, *args, **kwargs):
         form = AdCampaignForm(request.POST)
         if form.is_valid():
             adcampaign = form.save(commit=False)
+
+            # ここから予算の自動計算
+            target_views = form.cleaned_data['target_views']
+            pricing_model = form.cleaned_data['pricing_model']
+
+            # monthly_ad_cost の設定
+            start_date = form.cleaned_data['start_date']
+            target_month = start_date.date().replace(day=1)
+            try:
+                adcampaign.monthly_ad_cost = MonthlyAdCost.objects.get(year_month=target_month)
+            except MonthlyAdCost.DoesNotExist:
+                adcampaign.monthly_ad_cost = None
+
+            # ステータスをpendingに設定
+            adcampaign.status = 'pending'
+
+            # 開始日が今日よりも前であれば、ステータスをrunningに設定する
+            if start_date and start_date.date() <= date.today():
+                adcampaign.status = 'running'
+
+            adcampaign.pricing_model = pricing_model
+
+            if 'no_end_date' in request.POST:
+                # 'no_end_date' チェックボックスがオンの場合、end_dateは設定されず、データベースにはNULLが保存されます。
+                adcampaign.end_date = None
+            elif 'end_date' in request.POST and request.POST['end_date']:  # end_dateが送信されている場合
+                # end_dateがフォームから送信された場合、それが使用されます。
+                pass  
+
+            if pricing_model == "CPC":
+                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(target_views)
+                # adcampaign.budget はユーザがフォームで入力する
+                adcampaign.budget = request.POST.get('budget')
+
+                # 小数第一位まで保存し、それ以降は切り上げ
+                adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
+                adcampaign.actual_cpc_or_cpm = adjusted_cpc
+            else:  # pricing_model == "CPM"
+                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(target_views)
+                adcampaign.budget = target_views / 1000 * adjusted_cpm  # 調整されたCPMでの計算
+
+                # 小数第一位まで保存し、それ以降は切り上げ
+                adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
+                adcampaign.actual_cpc_or_cpm = adjusted_cpm
+
             adcampaign.created_by = request.user
             adcampaign.save()
             
@@ -163,7 +348,6 @@ class BaseAdCreateView(AdvertiserCheckView, CreateView):
     form_class = AdInfoForm
     post_form_class = PostForm  # 新しく追加
     second_form_class = None  # VisualForm または VideoForm
-    success_url = reverse_lazy('advertisement:ad_campaigns_list')
     success_message = "広告が成功しました。"
 
     def get_context_data(self, **kwargs):
@@ -194,8 +378,14 @@ class BaseAdCreateView(AdvertiserCheckView, CreateView):
             form.instance.post = post # AdInfo の post フィールドに Post インスタンスを関連付け
             
             # 追加：ここではVideoやVisualの処理は行わない。サブクラスでの処理を想定
-            response = super().form_valid(form)
+
             print("基本のform_valid処理完了。")
+
+            # 成功した場合のリダイレクト先を設定する
+            campaign_id = form.cleaned_data.get('ad_campaign').id  # 選択されたキャンペーンのIDを取得
+            self.success_url = reverse('advertisement:ad_campaign_detail', args=[campaign_id]) 
+
+            response = super().form_valid(form)
 
             return response
         else:
@@ -358,18 +548,24 @@ class IsHiddenToggle(AdvertiserCheckView, View):
         # AdInfosからAdCampaignを取得
         ad_info = get_object_or_404(AdInfos, post=post)
         campaign = ad_info.ad_campaign
-        print(campaign.is_hidden)
 
-        # キャンペーンが進行中かどうか確認
-        if campaign.is_ongoing():
-            # キャンペーンが進行中なら、キャンペーンのis_hidden状態に合わせる
-            post.is_hidden = not post.is_hidden
-        else:
-            # キャンペーンが期限切れなら、必ず非公開にする
-            post.is_hidden = True
-        print(campaign.is_hidden)
+        # ポストの表示状態をトグル
+        post.is_hidden = not post.is_hidden
 
         post.save(update_fields=['is_hidden'])
+
+        # キャンペーンの広告がすべて非表示か確認
+        ads_in_campaign = AdInfos.objects.filter(ad_campaign=campaign)
+        if all(ad.post.is_hidden for ad in ads_in_campaign):
+            campaign.is_hidden = True
+            campaign.status = 'stopped'  # ステータスをストップに
+            campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
+            campaign.recalculate_campaign() # 料金を再計算し保存
+        else:
+            campaign.is_hidden = False
+            campaign.status = 'running'  # ステータスを公開中に
+
+        campaign.save(update_fields=['is_hidden', 'status'])
 
         return JsonResponse({'is_hidden': post.is_hidden})
 
@@ -418,14 +614,10 @@ class AdCampaignStatusView(AdvertiserCheckView, View):
         if not campaign:
             raise Http404("Campaign not found")
 
-        # is_ongoing メソッドで現在進行中か確認
-        if campaign.is_ongoing():
-            # 進行中の場合、手動で状態をトグル可能
-            campaign.is_hidden = not campaign.is_hidden
-        else:
-            # 期限切れの場合、必ず非公開（is_hidden=True）にする
-            campaign.is_hidden = True
-
+        campaign.is_hidden = True
+        campaign.status = 'stopped'
+        campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
+        campaign.recalculate_campaign() # 料金を再計算し保存
         campaign.save()
 
         # そのキャンペーンに紐づくすべてのAdInfosとPostsの状態を更新
@@ -434,7 +626,11 @@ class AdCampaignStatusView(AdvertiserCheckView, View):
             post.is_hidden = campaign.is_hidden
             post.save()
         
-        return redirect(reverse_lazy('advertisement:ad_campaigns_list'))
+        # HTTPリファラから前のURLを取得
+        referer_url = request.META.get('HTTP_REFERER')
+
+        # リファラURLが存在する場合はそのURLにリダイレクト、存在しない場合はデフォルトのURLにリダイレクト
+        return HttpResponseRedirect(referer_url if referer_url else reverse_lazy('advertisement:ad_campaigns_list'))
 
 class AdInfoDelete(AdvertiserCheckView, View):
     def post(self, request, ad_info_id):
@@ -452,6 +648,11 @@ class AdInfoDelete(AdvertiserCheckView, View):
 class AdCampaignDelete(AdvertiserCheckView, View):
     def post(self, request, campaign_id):
         campaign = get_object_or_404(AdCampaigns, id=campaign_id)
+
+        # AdInfosに関連するPostsも一緒に削除
+        for ad_info in campaign.ad_infos.all():
+            ad_info.post.delete()
+
         campaign.ad_infos.all().delete()
         campaign.delete()
         redirect_url = reverse('advertisement:ad_campaigns_list')  # 遷移先のURL

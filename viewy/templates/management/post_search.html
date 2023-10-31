@@ -1,0 +1,38 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="flex">
+
+  <form method="get" action="">
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="usernameまたはdisplayname">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if error_message %}
+  <div>{{ error_message }}</div>
+  {% endif %}
+
+  <div>
+    {% for post in posts %}
+    <div>
+      <div>{{ post.title }}</div>
+      <span>
+        is_hidden:
+        <a href="{% url 'management:toggle_post_hidden' post.id %}?q={{ request.GET.q }}">
+          {{ post.is_hidden }}
+        </a>
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+
+{% endblock %}

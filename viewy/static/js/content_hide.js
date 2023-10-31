@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function autoHide(element) {
+
+    if (element.dataset.isAdvertisement === 'True') {
+      return;
+    }
+
     let timeoutId = setTimeout(() => {
       const contentElement = element.querySelector('.content');
       const labelElement = element.querySelector('.hide-label');
@@ -72,6 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleClick(event) {
 
     const element = event.currentTarget;
+
+    // data-is-advertisement attribute
+    if (element.dataset.isAdvertisement === 'True') {
+      return;
+    }
+
     clearTimeout(timeoutIds.get(element)); // Clear the timeout
     const contentElement = element.querySelector('.content');
     const labelElement = element.querySelector('.hide-label');
@@ -93,11 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (element.dataset.isAdvertisement === 'True' || event.target.closest('[data-is-advertisement="True"]')) {
-      return;
-    }
-
-
     const bookElement = element.querySelector('.book');
     if (!bookElement) {
       return;
@@ -108,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', function (e) {
     const clickedPost = e.target.closest('.post');
 
-    if (!e.target.closest('.post') || e.target.closest('.hide-label') || e.target.closest('.content')) {
+    if (!e.target.closest('.post') || e.target.closest('.hide-label') || e.target.closest('.content')|| clickedPost.dataset.isAdvertisement === 'True') {
       return;
     }
 

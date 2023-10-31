@@ -9,6 +9,7 @@ from django.core.cache import cache
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
 from django.core import serializers
+from django.urls import reverse
 from django.db.models import (Avg, Case, CharField, Count, F, FloatField, Q, F, Sum, Value, When, OuterRef, Subquery, Min)
 from django.db.models.functions import Concat, TruncMonth, TruncDate, TruncHour
 from django.utils.decorators import method_decorator
@@ -346,6 +347,44 @@ class Post(SuperUserCheck, View):
             'avg_qp_movie': avg_qp_movie  # ismangaがfalseの投稿のqpの平均値
         }
         return render(request, self.template_name, context)
+
+class PostSearch(SuperUserCheck, ListView):
+    template_name = 'management/post_search.html'
+    context_object_name = 'posts'
+    model = Posts
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')  # 検索クエリを取得
+
+        if query:  # クエリが存在する場合にのみ検索を実行
+            # ユーザーネームまたはdisplaynameで完全一致のユーザーを検索
+            users = Users.objects.filter(Q(username=query) | Q(displayname=query))
+            
+            # 該当するユーザーの投稿をすべて取得
+            return self.model.objects.filter(poster__in=users)
+        
+        return self.model.objects.none()  # クエリが存在しない場合は空のクエリセットを返す
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        query = self.request.GET.get('q')
+        if query and not context['posts']:  # クエリが存在し、投稿がない場合
+            context['error_message'] = 'ユーザーが見つかりません'
+
+        return context
+
+class TogglePostHiddenStatus(SuperUserCheck, View):
+    def get(self, request, post_id):
+        post = get_object_or_404(Posts, id=post_id)
+        post.is_hidden = not post.is_hidden 
+        post.save()
+        query = request.GET.get('q', '')  # 検索クエリを取得
+        url = reverse('management:post_search')  # PostSearchビューへのURLを生成
+        if query:  # クエリがある場合、URLにクエリを追加
+            url += f'?q={query}'
+        
+        return HttpResponseRedirect(url) 
     
 
 class Hashtag(SuperUserCheck, TemplateView):

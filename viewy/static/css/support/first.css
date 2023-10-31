@@ -1,0 +1,200 @@
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+header {
+  background-color: #ffffff;
+  padding: 8px;
+  text-align: left;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  border: 1px solid #e0e0e0;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-item.logo img {
+  width: 48px; 
+  height: auto;
+  margin-top: 8px;
+  background-color: #f8f9fa;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  margin-right: 32px;
+}
+
+.nav-item {
+  margin: 0 20px;
+}
+
+.nav-item a {
+  text-decoration: none;
+  color: #333;
+}
+
+.nav-item a:hover {
+  text-decoration: underline;
+}
+
+.img-container {
+  margin-top: 68px; 
+}
+
+.img-container img {
+  width: 100%;
+  height: auto;
+}
+
+.articles {
+  margin: 60px 10%;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.faq-text {
+  font-size: 48px;
+  margin-right: 12px;
+  font-weight: bold;
+}
+
+.faq-icon {
+  font-size: 32px;
+}
+
+.section-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  justify-content: space-between;
+  width: 100%; 
+}
+
+.card {
+  box-sizing: border-box;
+  width: calc(100% / 2 - 16px);
+  height: 20vh;
+  background-color: white; /* または任意の色 */
+  text-align: center;
+  line-height: 1.5;
+  padding: 32px;
+  position: relative;
+  border-radius: 5px;
+  box-shadow: rgba(34, 90, 89, 0.2) 2px 4px 20px;
+}
+
+.card-text {
+  font-size: 14px;
+  color: rgba(22, 24, 35, 0.34);
+  width: 100%;
+  position: absolute;
+  top: 30px;
+  left: 32px;
+  right: 32px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: left; 
+
+}
+
+.card-link {
+  font-size: 24px;
+  width: 100%;
+  position: absolute;
+  top: 64px;
+  left: 32px;
+  right: 32px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: left; 
+  font-weight: bold;
+}
+
+.topic-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;  /* これでカード間の隙間を制御します */
+  width: 100%;
+  /* align-items: start;  */
+  /* grid-auto-flow: column; */
+}
+
+.topic-card {
+  box-sizing: border-box;
+  width: 100%; 
+  height: auto;
+  /* align-self: flex-start; */
+  /* min-height: 20vh; 最小の高さを設定 */
+  text-align: center;
+  line-height: 1.5;
+  padding: 40px 36px;
+  /* margin: 32px 16px 0; */
+  position: relative;
+  border-radius: 5px;
+  box-shadow: rgba(34, 90, 89, 0.2) 2px 4px 20px;
+}
+
+.topic-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 必要に応じて追加 */
+  height: 60px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.topic-card-list {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  color: rgba(22,24,35,0.5);
+  height: 80%; 
+}
+
+.topic-card-list li {
+  flex: 1; /* 均等にスペースを占めるように設定 */
+  display: flex;
+  align-items: center; /* 中央にテキストを配置 */
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+
+.footer {
+  width: 100%;
+  padding: 20px 0;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  position: relative; /* 必要に応じて追加: ページの一番下に固定したい場合は 'fixed' に変更 */
+  bottom: 0; /* position: fixed と組み合わせて使用 */
+  left: 0;
+}
+
+.footer div {
+  text-align: left;
+  padding: 20px 0 20px 40px;
+}

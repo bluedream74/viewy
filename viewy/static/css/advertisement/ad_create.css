@@ -45,6 +45,10 @@ input[type="checkbox"] {
   display: none;
 }
 
+#no_end_date {
+  display: block;
+}
+
 input[type="checkbox"]:checked + .custom-label {
   background-color: rgb(69, 226, 226);
   color: white;

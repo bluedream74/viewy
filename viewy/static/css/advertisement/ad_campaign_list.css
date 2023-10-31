@@ -1,3 +1,22 @@
+.stopped,
+.achieved,
+.expired {
+  background-color: #ebebeb;
+}
+
+.pending-campaign {
+  background-color: rgb(206, 255, 253); /* または他の色 */
+}
+
+.sub-page-title {
+  font-size: 24px;
+  text-align: left;
+  font-weight: bold;
+  padding: 16px 16px;
+  margin: 0px 32px;
+  color: rgb(69, 69, 69);
+}
+
 .campaign-title{
   font-weight: bold;
   color: rgb(69, 69, 69);
@@ -13,17 +32,22 @@
 }
 
 .date{
-  background-color: rgb(247, 255, 255);
+  /* background-color: rgb(247, 255, 255); */
   border-radius: 4px;
   padding: 4px 8px;
 }
 
 .campaign-big-title{
-  background-color: white;
+  font-weight: bold;
+  /* background-color: white; */
   padding: 4px 8px;
   border-radius: 8px;
   margin: 0px 4px;
-  box-shadow: 0px 1px 4px gainsboro;
+  /* box-shadow: 0px 1px 4px gainsboro; */
+}
+
+.highlight {
+  background-color: rgb(216 216 216);
 }
 
 .release-button{
@@ -49,6 +73,15 @@
 .release:hover{
   background-color: rgb(58, 186, 186);
 }
+
+.disabled-button {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+  background-color: unset;
+  box-shadow: none;
+}
+
 
 .delete-campaign-button{
   display: none;
@@ -92,7 +125,7 @@
 }
 
 .campaign-info{
-  display: flex;
+  /* display: flex; */
   padding: 16px 32px;
   margin: 0px 32px;
 }
@@ -102,10 +135,10 @@
 }
 
 .campaign-big-title, .tag{
-  font-weight: bold;
+  /* font-weight: bold; */
   margin-right: 16px;
-  background-color: white;
-  border-radius: 8px;
+  /* background-color: white; */
+  /* border-radius: 8px; */
   display: flex;
   align-items: center;
 }

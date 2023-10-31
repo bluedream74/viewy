@@ -3,7 +3,8 @@ from datetime import datetime
 import os
 import random
 import math
-from random import sample  
+from random import sample
+from decimal import Decimal, ROUND_UP
 
 # Third-party Django
 from django import forms
@@ -171,14 +172,73 @@ class BasePostListView(ListView):
                     output_field=IntegerField()
                 )
             )
-        ).filter(matched_andfeatures=F('total_andfeatures'))
+        ).filter(matched_andfeatures=F('total_andfeatures')) \
+        .filter(Q(end_date__gte=timezone.now() - timedelta(hours=2)) | Q(end_date__isnull=True)) \
+        .filter(start_date__lte=timezone.now()) \
+        .filter(is_hidden=False)  # 終了日が現在時刻より未来のものまたはend_dateがNULLのものだけ取得(厳密に終了日を設定すると、終了日が過ぎたキャンペーンを取得できずステータスの更新ができないから、２時間前までに終了したキャンペーンを取得しステータスを必ず設定するようにした)
+        # 開始期限が来てないものは除く
+        # is_hidden=trueは除く
+
+        # First, get a list of all campaign IDs
+        campaign_ids = [campaign.id for campaign in matching_adcampaigns]
+
+        # Get aggregate views for all these campaigns at once
+        aggregated_views = AdInfos.objects.filter(ad_campaign_id__in=campaign_ids).values('ad_campaign').annotate(total_views=Sum('post__views_count'))
+
+        views_dict = {item['ad_campaign']: item['total_views'] for item in aggregated_views}
+
+        to_update = []
+        for campaign in matching_adcampaigns:
+            # campaignの合計表示回数を更新
+            total_views = views_dict.get(campaign.id, 0)
+            campaign.total_views_count = total_views
+
+            # 状態がRunningでなければRunningに設定する
+            if campaign.status != 'running':
+                campaign.status = 'running'
+            
+            # campaignの終了日が現在日時を超えている場合
+            if campaign.end_date and campaign.end_date < timezone.now():
+                campaign.status = 'expired'  # 状態をExpiredに設定
+                campaign.is_hidden = True
+                
+                # 実際の表示回数(total_views_count)でactual_cpc_or_cpm と fee の再計算し料金を確定
+                if campaign.pricing_model == 'CPM':
+                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpm(campaign.total_views_count))
+                    campaign.fee = Decimal(campaign.total_views_count / 1000) * campaign.actual_cpc_or_cpm
+                elif campaign.pricing_model == 'CPC':
+                    total_clicks = AdInfos.objects.filter(ad_campaign=campaign).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
+                    total_clicks = total_clicks or 0
+                    campaign.total_clicks_count = total_clicks
+                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpc(campaign.total_views_count))
+                    campaign.fee = Decimal(campaign.total_clicks_count) * campaign.actual_cpc_or_cpm
+
+                # 小数第一位まで保存し、それ以降は切り上げ
+                campaign.actual_cpc_or_cpm = campaign.actual_cpc_or_cpm.quantize(Decimal('0.1'), rounding=ROUND_UP)
+                campaign.fee = campaign.fee.quantize(Decimal('0.1'), rounding=ROUND_UP)
+
+                campaign.save(update_fields=['fee', 'actual_cpc_or_cpm'])
+            
+            # 合計表示回数が目標を超えている場合
+            elif total_views >= campaign.target_views:
+                campaign.status = 'achieved'  # 状態をAchievedに設定
+                campaign.is_hidden = True
+                campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
+            
+            to_update.append(campaign)
+
+        # Save all updated campaigns in a single query
+        if to_update:
+            AdCampaigns.objects.bulk_update(to_update, ['total_views_count', 'total_clicks_count', 'is_hidden', 'status', 'end_date'])
+
 
         
         # 最後に、この条件を満たす AdCampaigns を持つ Posts をフィルタリング
         # Directly filter Posts based on matching AdCampaigns
         ad_posts = (Posts.objects.filter(
             Q(adinfos__ad_campaign__in=matching_adcampaigns) ,
-            poster__in=advertiser_users
+            poster__in=advertiser_users,
+            is_hidden=False
         )
         .select_related('poster', 'adinfos__post', 'adinfos__ad_campaign')
         .prefetch_related(
@@ -399,8 +459,14 @@ class PostListView(BasePostListView):
         advertiser_posts = self.get_random_ad_posts(user)
         
 
-        # 最新の100個の投稿を取得して、dimensionフィルターとexclude_blocked_postersを適用
+        # 最新の100個の投稿を取得して、dimensionフィルターとexclude_blocked_posters, exclude_advertiser_postを適用
         latest_100_posts = Posts.objects.all().order_by('-id')
+        latest_100_posts = self.exclude_advertiser_posts(latest_100_posts)  # 広告主の投稿を除外
+
+        # 予約投稿日時が現在の日時より未来のものを除外
+        now = timezone.now()
+        latest_100_posts = latest_100_posts.exclude(scheduled_post_time__gt=now, scheduled_post_time__isnull=False)
+
         latest_100_posts = self.exclude_blocked_posters(latest_100_posts)
         latest_100_posts = self.filter_by_dimension(latest_100_posts)[:500]
 

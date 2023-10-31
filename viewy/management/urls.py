@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (Account, RecordUserStats, GetUserStats, UserAnalytics, DailyVisitorCountView, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, AffiliateCreateView, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, SearchEmailandAddPoster, ClickCountView, FreezeNotificationApproveView, DeleteFreezeNotificationView)
+from .views import (Account, RecordUserStats, GetUserStats, UserAnalytics, DailyVisitorCountView, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, AffiliateCreateView, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, SearchEmailandAddPoster, ClickCountView, FreezeNotificationApproveView, DeleteFreezeNotificationView, PostSearch, TogglePostHiddenStatus)
 from . import views
 
 app_name = 'management'
@@ -13,6 +13,8 @@ urlpatterns = [
   path('random-recommended-users/', RandomRecommendedUsers.as_view(), name='random_recommended_users'),
   path('update_boost_type/<int:user_id>/', UpdateBoostTypeView.as_view(), name='update_boost_type'),
   path('post/', Post.as_view(), name='post'),
+  path('post_search/', PostSearch.as_view(), name='post_search'),
+  path('toggle_post_hidden/<int:post_id>/', TogglePostHiddenStatus.as_view(), name='toggle_post_hidden'),
   path('hashtag/', Hashtag.as_view(), name='hashtag'),
   path('kanji_regist/', KanjiRegist.as_view(), name='kanji_regist'),
   path('kanji_delete/<int:pk>/', KanjiDelete.as_view(), name='kanji_delete'),

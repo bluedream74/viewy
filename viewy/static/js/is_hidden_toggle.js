@@ -9,6 +9,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
   buttons.forEach(function (button) {
     button.addEventListener("click", function () {
+
+      let isCurrentlyHidden = button.classList.contains("stop");
+      let releaseButtons = document.querySelectorAll(".toggle-hidden.release");
+      let lastVisibleAd = releaseButtons.length === 1 && !isCurrentlyHidden;
+
+      let confirmationMessage;
+      if (lastVisibleAd) {
+        confirmationMessage = "この広告を停止すると、キャンペーン内のすべての広告が停止され、キャンペーンは永久に停止します。よろしいですか？";
+      } else if (isCurrentlyHidden) {
+        confirmationMessage = "広告を公開します。よろしいですか？";
+      } else {
+        confirmationMessage = "広告を停止します。よろしいですか？";
+      }
+
+      let userConfirmed = confirm(confirmationMessage);
+      if (!userConfirmed) {
+        return;  // ユーザーがキャンセルを選んだ場合、処理を中断
+      }
+      
       button.disabled = true;  // 処理中はボタンを無効化
       let postId = this.getAttribute("data-post-id");
 
@@ -22,15 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then(response => response.json())
         .then(data => {
-          if (data.is_hidden) {
-            button.textContent = "停止中";
-            button.classList.add("stop");
-            button.classList.remove("release");
-          } else {
-            button.textContent = "公開中";
-            button.classList.add("release");
-            button.classList.remove("stop");
-          }
+          location.reload(); 
           button.disabled = false;  // 処理完了後、ボタンを再度有効化
         })
         .catch(err => {
