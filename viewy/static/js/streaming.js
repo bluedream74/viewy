@@ -53,24 +53,31 @@ document.addEventListener('DOMContentLoaded', function() {
     observer.observe(video);
   });
 
-  // DOMの変更を監視する
-  var mutationObserver = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'childList') {
-        mutation.addedNodes.forEach(function(node) {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            var newVideos = node.querySelectorAll('.video-player');
-            newVideos.forEach(function(newVideo) {
-              if (!newVideo.classList.contains('initialized')) {
-                observer.observe(newVideo);
-                newVideo.classList.add('initialized');
-              }
-            });
-          }
-        });
-      }
-    });
+// DOMの変更を監視する
+var mutationObserver = new MutationObserver(function(mutations) {
+  console.log('Mutation observed'); // 変更が検出されたか確認
+  mutations.forEach(function(mutation) {
+    if (mutation.type === 'childList') {
+      mutation.addedNodes.forEach(function(node) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          console.log('Element node added:', node); // 追加されたノードが要素ノードか確認
+          var newVideos = node.querySelectorAll('.video-player');
+          newVideos.forEach(function(newVideo) {
+            // ここでinitializedを避けて監視する処理を抜いている。理由はなぜか追加された動画すべてinitializedがついていてうまく監視できないから。
+            console.log('Initializing new video:', newVideo); // 新しい動画要素が見つかったか確認
+            observer.observe(newVideo);
+          });
+        }
+      });
+    }
   });
+});
 
-  mutationObserver.observe(document.body, { childList: true, subtree: true });
+var screenElement = document.querySelector('.screen');
+if (screenElement) {
+  mutationObserver.observe(screenElement, { childList: true, subtree: true });
+  console.log('Mutation observer attached to .screen element'); // MutationObserverが適用されたか確認
+} else {
+  console.error('".screen" element not found!');
+}
 });

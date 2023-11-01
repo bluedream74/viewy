@@ -523,37 +523,28 @@ class Videos(models.Model):
             # 縦長か横長かを判定
             if width > height:  # 横長の場合
                 scale_cmd = "scale=-2:360"
+                bitrate = "300k"  # 横長の場合のビットレート
             else:  # 縦長の場合
                 scale_cmd = "scale=-2:720"
+                bitrate = "500k"  # 縦長の場合のビットレート
 
             # こちらで変更後のスケールコマンドを出力して確認
             print(f"Scaling command: {scale_cmd}")
-            
+
             # 元動画のコーデックを確認
             print(f"Detected codec: {codec}")
 
-            framerate_cmd = ["-r", "24"]  # フレームレートを30fpsに指定
+            framerate_cmd = ["-r", "24"]  # フレームレートを24fpsに指定
 
             # 圧縮の種類（コーデック）によってエンコードの処理を分ける
-            if codec == "hevc":
-                cmd = [
-                    "ffmpeg",
-                    "-i", temp_path,
-                    "-c:v", "libx265",
-                    "-vf", scale_cmd,
-                    *framerate_cmd,  # リストを展開
-                    "-b:v", "400k", 
-                    "-g", "48",  # キーフレーム間の間隔を48に設定
-                    output_path
-                ]
-            elif codec == "h264":  # 入力が H.264 の場合
+            if codec in ["hevc", "h264"]:
                 cmd = [
                     "ffmpeg",
                     "-i", temp_path,
                     "-c:v", "libx264",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
-                    "-b:v", "400k", 
+                    "-b:v", bitrate,  # ビットレートの設定
                     "-g", "48",  # キーフレーム間の間隔を48に設定
                     "-profile:v", "main",  # プロファイルをmainに設定
                     "-level", "3.0", 
@@ -566,7 +557,7 @@ class Videos(models.Model):
                     "-c:v", "libx264",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
-                    "-b:v", "400k",  
+                    "-b:v", bitrate,  # ビットレートの設定
                     "-g", "48",  # キーフレーム間の間隔を48に設定
                     "-profile:v", "main",  # プロファイルをmainに設定
                     "-level", "3.0", 
