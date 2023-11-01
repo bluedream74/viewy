@@ -509,18 +509,50 @@ class PostListView(BasePostListView):
     def apply_manga_rate_to_rp(self, post):
         if hasattr(post.poster, 'is_real') and not post.poster.is_real and self.manga_rate:
             post.rp *= self.manga_rate
+            
+    def get_followed_users_posts(self, user):
+        two_weeks_ago = timezone.now() - timedelta(weeks=1)
+        # userがフォローしているユーザーのIDのリストを取得
+        followed_user_ids = Follows.objects.filter(user=user).values_list('poster', flat=True)
+        
+        # フォローしているユーザーのIDをprint
+        # print("フォローしているユーザーのID:", followed_user_ids)
+
+        # フォローしているユーザーの投稿を取得
+        followed_users_posts = Posts.objects.filter(poster__id__in=followed_user_ids, posted_at__gte=two_weeks_ago)
+        return followed_users_posts
+
+    def get_followed_users_recommended_posts(self, user):
+        two_weeks_ago = timezone.now() - timedelta(weeks=1)
+        # userがフォローしているユーザーのIDのリストを取得
+        followed_user_ids = Follows.objects.filter(user=user).values_list('poster', flat=True)
+
+        # フォローしているユーザーが投稿した投稿のIDのリストを取得
+        followed_users_post_ids = Posts.objects.filter(poster__id__in=followed_user_ids).values_list('id', flat=True)
+
+        # フォローしているユーザーがリコメンドした投稿を取得
+        # ただし、そのユーザーが投稿した投稿は除外
+        recommended_posts = Recommends.objects.filter(
+            user__id__in=followed_user_ids, 
+            created_at__gte=two_weeks_ago
+        ).exclude(post__id__in=followed_users_post_ids).select_related('post')
+
+        # 取得したリコメンドから投稿オブジェクトをリストとして取得
+        recommended_posts_list = [recommend.post for recommend in recommended_posts]
+        
+        # フォローしているユーザーによってリコメンドされた投稿のIDをprint
+        # print("フォローしているユーザーによってリコメンドされ、かつフォローしているユーザーが投稿した投稿を除いた投稿のID:", [post.id for post in recommended_posts_list])
+
+        return recommended_posts_list
 
     def get_combined_posts(self, posts, user):
         start_time = time.time()
 
         # 1. 視聴回数の辞書を取得
-        time_checkpoint = time.time()
         post_ids = list(posts.values_list('id', flat=True))
         viewed_counts = self.get_viewed_count_dict(user, post_ids)
-        get_viewed_counts_time = time.time() - time_checkpoint
 
         # 2. 視聴回数が最も少ない投稿を絞り込む
-        time_checkpoint = time.time()
         sorted_viewed_counts = sorted(viewed_counts.items(), key=lambda x: x[1])
         least_viewed_posts = set()
         i = 0
@@ -531,34 +563,48 @@ class PostListView(BasePostListView):
                 least_viewed_posts.add(sorted_viewed_counts[i][0])
                 post_ids_at_current_viewed_count.append(sorted_viewed_counts[i][0])
                 i += 1
-            print(f"視聴回数: {current_viewed_count}, 投稿ID: {post_ids_at_current_viewed_count}")
 
-        # デバッグ情報として取得した投稿の総数も表示する
-        print(f"取得した投稿の総数: {len(least_viewed_posts)}")
-        get_least_viewed_posts_time = time.time() - time_checkpoint
+        # QP順上位8位を取得
+        posts_with_least_views = posts.filter(id__in=least_viewed_posts).order_by('-qp')[:8]
 
-        # 3. QP順でソートし上位100個を取得
-        time_checkpoint = time.time()
-        posts_with_least_views = posts.filter(id__in=least_viewed_posts).order_by('-qp')[:100]
-        get_least_viewed_100posts_time = time.time() - time_checkpoint
+        # フォローしているユーザーの投稿を取得
+        followed_users_posts = self.get_followed_users_posts(user)
 
-        # 4. RPを計算
-        time_checkpoint = time.time()
-        followed_posters_set = set(user.follow.all().values_list('id', flat=True))
-        followed_recommends_set = self.get_followed_recommends_set(user, list(posts_with_least_views.values_list('id', flat=True)))
+        # フォローしているユーザーがリコメンドした投稿を取得
+        followed_users_recommended_posts = self.get_followed_users_recommended_posts(user)
 
-        for post in posts_with_least_views:
+        # 投稿を統合
+        all_posts = list(posts_with_least_views) + list(followed_users_posts) + followed_users_recommended_posts
+
+        # IDがユニークな投稿のリストを作成
+        unique_posts = []
+        seen_ids = set()
+        for post in all_posts:
+            if post.id not in seen_ids:
+                unique_posts.append(post)
+                seen_ids.add(post.id)
+
+        # ユニークな投稿のリストをall_postsに再代入
+        posts_to_sort_by_rp = unique_posts
+
+        # フォローしているユーザーの投稿のIDのセットを取得
+        followed_users_posts_ids = set(followed_users_posts.values_list('id', flat=True))
+
+        # フォローしているユーザーがリコメンドした投稿のIDのセットを取得
+        followed_users_recommended_posts_ids = set(post.id for post in followed_users_recommended_posts)
+
+        # RPを計算
+        for post in posts_to_sort_by_rp:
             viewed_count = viewed_counts.get(post.id, 0)
-            post.rp = post.calculate_rp_for_user(user, followed_posters_set, viewed_count, followed_recommends_set)
+            post.rp = post.calculate_rp_for_user(user, followed_users_posts_ids, viewed_count, followed_users_recommended_posts_ids)
             self.apply_manga_rate_to_rp(post)
-        calculate_rp_time = time.time() - time_checkpoint
 
-        # 5. RP順でソート
-        time_checkpoint = time.time()
-        sorted_posts_by_rp = sorted(posts_with_least_views, key=lambda post: post.rp, reverse=True)
+        # RP順でソート
+        sorted_posts_by_rp = sorted(posts_to_sort_by_rp, key=lambda post: post.rp, reverse=True)
+
+        # 最終結果を取得
         first_4_by_rp = sorted_posts_by_rp[:4]
         next_2_by_rp = sorted_posts_by_rp[4:6]
-        sort_rp_time = time.time() - time_checkpoint
 
 
         # 全ての広告からランダムに2つを選びます。
@@ -605,16 +651,16 @@ class PostListView(BasePostListView):
 
         end_time = time.time()
         total_time = end_time - start_time
-        print("get_combined_posts: {:.2f}s".format(total_time))
-        print("Get viewed count Time: {:.2f}s".format(get_viewed_counts_time))
-        print("Get Post IDs Time: {:.2f}s".format(get_least_viewed_posts_time))
-        print("Get least viewed 8 posts Time: {:.2f}s".format(get_least_viewed_100posts_time))
-        print("Calculate RP Time: {:.2f}s".format(calculate_rp_time))
-        print("Sort RP Time: {:.2f}s".format(sort_rp_time))
-        print("Get Ad Posts Time: {:.2f}s".format(get_ad_posts_time))
-        print("Filter Latest Posts Time: {:.2f}s".format(filter_latest_posts_time))
-        print("Get Random Posts Time: {:.2f}s".format(get_random_posts_time))
-        print("Apply Final Filters Time: {:.2f}s".format(apply_final_filters_time))
+        # print("get_combined_posts: {:.2f}s".format(total_time))
+        # print("Get viewed count Time: {:.2f}s".format(get_viewed_counts_time))
+        # print("Get Post IDs Time: {:.2f}s".format(get_least_viewed_posts_time))
+        # # print("Get least viewed 8 posts Time: {:.2f}s".format(get_least_viewed_8posts_time))
+        # # print("Calculate RP Time: {:.2f}s".format(calculate_rp_time))
+        # # print("Sort RP Time: {:.2f}s".format(sort_rp_time))
+        # print("Get Ad Posts Time: {:.2f}s".format(get_ad_posts_time))
+        # print("Filter Latest Posts Time: {:.2f}s".format(filter_latest_posts_time))
+        # print("Get Random Posts Time: {:.2f}s".format(get_random_posts_time))
+        # print("Apply Final Filters Time: {:.2f}s".format(apply_final_filters_time))
 
         return combined
     
