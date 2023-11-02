@@ -1,0 +1,70 @@
+{% extends 'advertisement/ad_campaigns_list.html' %}
+
+{% block table %}
+<div class="sub-page-title">非公開のキャンペーン</div>
+
+<a href="{% url 'advertisement:filtered_ad_campaign_list' status='achieved' %}" class="status-button">目標達成したキャンペーン</a>
+<a href="{% url 'advertisement:filtered_ad_campaign_list' status='stopped' %}" class="status-button">途中停止したキャンペーン</a>
+<a href="{% url 'advertisement:filtered_ad_campaign_list' status='expired' %}" class="status-button">終了期限に到達にしたキャンペーン</a>
+
+<div class="block">
+
+  <table>
+    <tr>
+      <th>キャンペーンタイトル</th>
+      <th>広告数</th>
+      <th>合計表示回数/目標表示回数</th>
+      <th>料金(円)</th>
+      <th>予算(円)</th>
+      <th>表示期間</th>
+      <th>停止／公開</th>
+    </tr>
+    {% for campaign in campaigns %}
+    <tr class="release-campaign">
+      <td>
+        <a href="{% url 'advertisement:ad_campaign_detail' campaign.id %}" class="campaign-title">
+          {{ campaign.title }}
+        </a>
+      </td>
+      <td>{{ campaign.adinfos_count }}</td>
+      <td class="views">{{ campaign.total_views_count }}/{{ campaign.target_views }}</td>
+      <td class="fee">{{ campaign.fee }}</td>
+      <td class="budget">{{ campaign.budget }}</td>
+      <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell">
+        <span class="date">
+          {{ campaign.start_date|date:"Y-m-d" }}
+        </span>
+        ～
+        <span class="date">
+          {{ campaign.end_date|date:"Y-m-d" }}</span>
+      </td>
+      <td>
+        {% if campaign.status == 'achieved' %}
+        <form>
+          <button class="release-button  disabled-button">
+            目標達成
+          </button>
+        </form>
+        {% elif campaign.status == 'expired' %}
+        <form>
+          <button class="release-button  disabled-button">
+            終了期限に到達
+          </button>
+        </form>
+        {% elif campaign.status == 'stopped' %}
+        <form>
+          <button class="release-button stop disabled-button">
+            途中停止
+          </button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7">データはありません。</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
