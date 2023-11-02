@@ -251,6 +251,17 @@
 
 
       </div>
+
+      {% if post.poster.is_advertiser %}
+      {% if not post.poster.is_affiliateadvertiser %}
+      <a href="{{ post.url }}" class="ad-detail ad-click">
+        <div class="ad-detail-title">詳しくはこちら</div>
+        <div><i class="fa-solid fa-angle-right"></i></div>
+      </a>
+      {% endif %}
+      {% endif %}
+
+
     </div>
 
 

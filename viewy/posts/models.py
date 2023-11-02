@@ -192,12 +192,12 @@ class Posts(models.Model):
             # print(f"Updating QP for view count: {self.views_count}")
             self.calculate_qp()
     
-    def calculate_rp_for_user(self, user, followed_posters_set, viewed_count, followed_recommends_set):
+    def calculate_rp_for_user(self, followed_posters_set, viewed_count, followed_recommends_set):
         rp = self.qp
         rp = rp / (3 ** viewed_count)
 
         # ユーザーがフォローしているポスターによるポストの場合
-        if self.poster.id in followed_posters_set:
+        if self.id in followed_posters_set:
             rp = rp * 2
         
         # ユーザーがフォローしているユーザーによるリコメンドの場合
@@ -370,21 +370,24 @@ class Videos(models.Model):
             print("save method completed without encoding.")
             
             
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME
-        )
+    def get_s3_client(self):  # __init__として呼び出していたのから変更。動画の投稿時（upload_to_s3）だけに呼び出すように。
+        # hasattr 関数は、第一引数にオブジェクト、第二引数に属性名の文字列を取り、その属性がオブジェクトに存在するかどうかをブール値（True または False）で返します。
+        # このコードの目的は、「もし _s3_client という属性がまだ self オブジェクトに設定されていなければ、新しい boto3 S3 クライアントを作成して _s3_client 属性にセットする」というものです。
+        if not hasattr(self, '_s3_client'):
+            self._s3_client = boto3.client(
+                's3',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=settings.AWS_S3_REGION_NAME
+            )
+            print("get_s3_clientによるboto3クライアントの設定が行われました")
+        return self._s3_client
     
 # 縦長か横長か判別        
     def get_video_dimensions(self, video_path):
         cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", 
                "-show_entries", "stream=width,height", 
                "-of", "csv=s=x:p=0", video_path]
-
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         dimensions = result.stdout.decode().strip().split('x')
         return int(dimensions[0]), int(dimensions[1])
@@ -397,7 +400,6 @@ class Videos(models.Model):
         except subprocess.CalledProcessError as e:
             print(f"Error during {format_name} conversion: {str(e)}")
             
-
     def upload_directory_to_s3(self, local_directory_path, bucket_name, s3_directory_path):
         print(f"Starting to upload files from {local_directory_path} to {bucket_name}/{s3_directory_path}")
         for root, dirs, files in os.walk(local_directory_path):
@@ -411,11 +413,12 @@ class Videos(models.Model):
                 else:
                     print(f"Failed to upload {local_file_path} to {bucket_name}/{s3_file_path}")
         print("File upload process completed.")
-
+        
     def upload_to_s3(self, local_file_path, bucket_name, s3_file_path):
+        s3_client = self.get_s3_client()   # ここでboto3クライアントを生成させる
         try:
             with open(local_file_path, 'rb') as data:
-                self.s3_client.upload_fileobj(data, bucket_name, s3_file_path)
+                s3_client.upload_fileobj(data, bucket_name, s3_file_path)
             print(f"{local_file_path} has been uploaded to {bucket_name}/{s3_file_path}")
             return True
         except Exception as e:
@@ -523,10 +526,8 @@ class Videos(models.Model):
             # 縦長か横長かを判定
             if width > height:  # 横長の場合
                 scale_cmd = "scale=-2:360"
-                bitrate = "300k"  # 横長の場合のビットレート
             else:  # 縦長の場合
                 scale_cmd = "scale=-2:720"
-                bitrate = "500k"  # 縦長の場合のビットレート
 
             # こちらで変更後のスケールコマンドを出力して確認
             print(f"Scaling command: {scale_cmd}")
@@ -544,10 +545,9 @@ class Videos(models.Model):
                     "-c:v", "libx264",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
-                    "-b:v", bitrate,  # ビットレートの設定
                     "-g", "48",  # キーフレーム間の間隔を48に設定
                     "-profile:v", "main",  # プロファイルをmainに設定
-                    "-level", "3.0", 
+                    "-level", "3.0",
                     output_path
                 ]
             else:  # 他のコーデックの場合、デフォルトをlibx264に設定
@@ -557,10 +557,9 @@ class Videos(models.Model):
                     "-c:v", "libx264",
                     "-vf", scale_cmd,
                     *framerate_cmd,  # リストを展開
-                    "-b:v", bitrate,  # ビットレートの設定
                     "-g", "48",  # キーフレーム間の間隔を48に設定
                     "-profile:v", "main",  # プロファイルをmainに設定
-                    "-level", "3.0", 
+                    "-level", "3.0",
                     output_path
                 ]
 

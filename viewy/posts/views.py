@@ -68,7 +68,6 @@ class BasePostListView(ListView):
 
 
     def get_user_filter_condition(self):
-        start_time = time.time()
         if self.request.user.is_authenticated:  # ログインユーザーの場合のみdimensionを取得
             user_dimension = self.request.user.dimension
         else:
@@ -79,48 +78,33 @@ class BasePostListView(ListView):
             filter_condition = {'poster__is_real': False}
         elif user_dimension == 3.0:
             filter_condition = {'poster__is_real': True}
-        end_time = time.time()
-        print("get_user_filter_condition: {:.2f}s".format(end_time - start_time))
         return filter_condition
 
     def filter_by_dimension(self, queryset):
-        start_time = time.time()
         if self.request.user.is_authenticated:
             filter_condition = self.get_user_filter_condition()
             return queryset.filter(**filter_condition)
-        end_time = time.time()
-        print("filter_by_dimension: {:.2f}s".format(end_time - start_time))
         return queryset
     
 
     def get_viewed_count_dict(self, user, post_ids):
-        start_time = time.time()
         viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
-        end_time = time.time()
-        print("get_viewed_count_dict: {:.2f}s".format(end_time - start_time))
         return {item[0]: item[1] for item in viewed_counts}
 
     def get_followed_posters_set(self, user, poster_ids):
-        start_time = time.time()
         followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
-        end_time = time.time()
-        print("get_followed_posters_set: {:.2f}s".format(end_time - start_time))
         return set(followed_poster_ids)
     
     # フォローしているパートナーがリコメンドしている投稿を取得する
     def get_followed_recommends_set(self, user, post_ids):
-        start_time = time.time()
         # ユーザーがフォローしているポスターのIDを取得
         followed_poster_ids = Follows.objects.filter(user_id=user.id).values_list('poster_id', flat=True)
 
         # 自分がフォローしているポスターがリコメンドした投稿のIDを取得
         followed_recommends = Recommends.objects.filter(user_id__in=followed_poster_ids, post_id__in=post_ids).exclude(post__poster_id__in=followed_poster_ids).values_list('post_id', flat=True)
-        end_time = time.time()
-        print("get_followed_recommends_set: {:.2f}s".format(end_time - start_time))
         return set(followed_recommends)
     
     def get_followed_recommends(self, user):
-        start_time = time.time()
         # ユーザーがフォローしているポスターのIDを取得
         followed_poster_ids = Follows.objects.filter(user_id=user.id).values_list('poster_id', flat=True)
 
@@ -134,12 +118,9 @@ class BasePostListView(ListView):
                 result[item['post_id']] = []
             result[item['post_id']].append(display_name_or_username)
 
-        end_time = time.time()
-        print("get_followed_recommends: {:.2f}s".format(end_time - start_time))
         return result
 
     def get_advertiser_users(self):
-        start_time = time.time()
         # キャッシュキーを設定
         cache_key = "advertiser_users"
         
@@ -153,13 +134,10 @@ class BasePostListView(ListView):
             # データをキャッシュに保存。
             cache.set(cache_key, advertiser_users, 3600)
         
-        end_time = time.time()
-        print("get_advertiser_users: {:.2f}s".format(end_time - start_time))
         return advertiser_users
 
 
     def get_advertiser_posts(self, user, count=1):
-        start_time = time.time()
         cache_key = f"advertiser_posts_for_user_{user.id}"
         cached_post_ids = cache.get(cache_key)
 
@@ -289,21 +267,16 @@ class BasePostListView(ListView):
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
         print(posts)
         
-        end_time = time.time()
-        print("get_advertiser_posts: {:.2f}s".format(end_time - start_time))
         return posts
     
     def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
-        start_time = time.time()
+
         # キャッシュから全ての広告を取得
         all_advertiser_posts = list(self.get_advertiser_posts(user)) 
 
-        end_time = time.time()
-        print("get_random_ad_posts: {:.2f}s".format(end_time - start_time))
         return sample(all_advertiser_posts, min(2, len(all_advertiser_posts)))
     
     def integrate_ads(self, queryset, ad_posts_iterator):
-        start_time = time.time()
         final_posts = []
         post_count = len(queryset)
 
@@ -324,12 +297,9 @@ class BasePostListView(ListView):
         for ad_post in ad_posts_iterator:
             final_posts.append(ad_post)
 
-        end_time = time.time()
-        print("integrate_ads: {:.2f}s".format(end_time - start_time))
         return final_posts
 
     def annotate_user_related_info(self, queryset):
-        start_time = time.time()
         if not self.request.user.is_authenticated:
             return queryset
 
@@ -349,22 +319,16 @@ class BasePostListView(ListView):
         recommends = Recommends.objects.filter(user=self.request.user, post=OuterRef('pk'))
         queryset = queryset.annotate(recommended_by_user=Exists(recommends))
 
-        end_time = time.time()
-        print("annotate_user_related_info: {:.2f}s".format(end_time - start_time))
         return queryset 
     
     def exclude_advertiser_posts(self, queryset):
-        start_time = time.time()
         # is_advertiser フィールドが True であるユーザーのIDを取得します
         advertiser_user_ids = Users.objects.filter(is_advertiser=True).values_list('id', flat=True)
         # これらのユーザーによって作成された投稿を除外します
         
-        end_time = time.time()
-        print("exclude_advertiser_posts: {:.2f}s".format(end_time - start_time))
         return queryset.exclude(poster_id__in=advertiser_user_ids)
 
     def exclude_blocked_posters(self, queryset):
-        start_time = time.time()
         """ログインユーザーがブロックしたポスターの投稿を除外する"""
         user = self.request.user
         if user.is_authenticated:
@@ -372,12 +336,9 @@ class BasePostListView(ListView):
             blocked_posters_ids = Blocks.objects.filter(user=user).values_list('poster_id', flat=True)
             # それらのポスターによる投稿を除外
             queryset = queryset.exclude(poster_id__in=blocked_posters_ids)
-        end_time = time.time()
-        print("exclude_blocked_posters: {:.2f}s".format(end_time - start_time))
         return queryset
 
     def get_queryset(self):
-        start_time = time.time()
         queryset = super().get_queryset()
         queryset = queryset.filter(is_hidden=False)
 
@@ -395,79 +356,55 @@ class BasePostListView(ListView):
         now = timezone.now()
         queryset = queryset.exclude(scheduled_post_time__gt=now, scheduled_post_time__isnull=False)
 
-        end_time = time.time()
-        print("get_queryset: {:.2f}s".format(end_time - start_time))
         return queryset
 
 
     def get_context_data(self, **kwargs):
-        total_start_time = time.time()
-        
-        start_time = time.time()
         context = super().get_context_data(**kwargs)
-        print("Super get_context_data: {:.6f}s".format(time.time() - start_time))
         
         # ユーザー情報の取得
-        start_time = time.time()
         user = self.request.user
-        print("Get user: {:.6f}s".format(time.time() - start_time))
         
         # ユーザー認証チェック
         if user.is_authenticated:
             # ユーザーが作成したコレクションの取得
-            start_time = time.time()
             user_collections = Collection.objects.filter(user=user).order_by('-created_at')
             context['user_collections'] = user_collections
-            print("Get user collections: {:.6f}s".format(time.time() - start_time))
             
             # 新規コレクション作成の選択肢の追加
-            start_time = time.time()
             collection_choices_with_ids = [('新規コレクション作成', None)] + list(user_collections.values_list('name', 'id'))
             context['collection_choices_with_ids'] = collection_choices_with_ids
-            print("Create collection choices: {:.6f}s".format(time.time() - start_time))
         
         # ポスト情報の取得
-        start_time = time.time()
         posts = context.get('object_list', [])
         context['posts'] = posts
-        print("Get posts: {:.6f}s".format(time.time() - start_time))
         
         # 全てのpost_idを取得
-        start_time = time.time()
         if isinstance(posts, QuerySet):
             # posts はクエリセットの場合
             post_ids = list(posts.values_list('id', flat=True))
         else:
             # posts はリスト（またはクエリセットでない何か）の場合
             post_ids = [post.id for post in posts]
-        print("Get post ids: {:.6f}s".format(time.time() - start_time))
         
         # collected_inの情報を取得
-        start_time = time.time()
+
         collections_for_posts = Collect.objects.filter(post__id__in=post_ids).values_list('post_id', 'collection_id')
-        print("Get collections for posts: {:.6f}s".format(time.time() - start_time))
         
         # post_idをキーにしたcollection_idのリストを生成
-        start_time = time.time()
         collections_map = {}
         for post_id, collection_id in collections_for_posts:
             collections_map.setdefault(post_id, []).append(collection_id)
-        print("Create collections map: {:.6f}s".format(time.time() - start_time))
         
         # already_added_collectionsの生成
-        start_time = time.time()
         already_added_collections = set()
         for post_id, collection_ids in collections_map.items():
             already_added_collections.update(collection_ids)
         context['already_added_collections'] = list(already_added_collections)
-        print("Create already added collections: {:.6f}s".format(time.time() - start_time))
-        
-        # 全体の時間の計測
-        print("Total get_context_data: {:.6f}s".format(time.time() - total_start_time))
+
         return context
     
     def post(self, request, *args, **kwargs):
-        start_time = time.time()
         queryset = self.get_queryset()
         more_posts = list(queryset)
 
@@ -480,8 +417,6 @@ class BasePostListView(ListView):
         else:
             html = ""
 
-        end_time = time.time()
-        print("post: {:.2f}s".format(end_time - start_time))
         return JsonResponse({'html': html})
 
 
@@ -489,7 +424,6 @@ class BasePostListView(ListView):
 class PostListView(BasePostListView):
 
     def dispatch(self, request, *args, **kwargs):
-        start_time = time.time()
         # ユーザーがログインしていない場合、ログイン画面にリダイレクト
         if not request.user.is_authenticated:
             return redirect('accounts:user_login')
@@ -502,51 +436,41 @@ class PostListView(BasePostListView):
             except ObjectDoesNotExist:
                 pass
         
-        end_time = time.time()
-        print("dispatch: {:.2f}s".format(end_time - start_time))
         return super().dispatch(request, *args, **kwargs)
 
-    def apply_manga_rate_to_rp(self, post):
-        if hasattr(post.poster, 'is_real') and not post.poster.is_real and self.manga_rate:
-            post.rp *= self.manga_rate
+    # def apply_manga_rate_to_rp(self, post):
+    #     if hasattr(post.poster, 'is_real') and not post.poster.is_real and self.manga_rate:
+    #         post.rp *= self.manga_rate
             
-    def get_followed_users_posts(self, user):
-        two_weeks_ago = timezone.now() - timedelta(weeks=1)
+    def get_followed_users_posts(self, user, posts):
+        two_weeks_ago = timezone.now() - timedelta(weeks=2)
         # userがフォローしているユーザーのIDのリストを取得
         followed_user_ids = Follows.objects.filter(user=user).values_list('poster', flat=True)
-        
-        # フォローしているユーザーのIDをprint
-        # print("フォローしているユーザーのID:", followed_user_ids)
 
         # フォローしているユーザーの投稿を取得
-        followed_users_posts = Posts.objects.filter(poster__id__in=followed_user_ids, posted_at__gte=two_weeks_ago)
+        followed_users_posts = posts.filter(poster__id__in=followed_user_ids, posted_at__gte=two_weeks_ago)
         return followed_users_posts
 
-    def get_followed_users_recommended_posts(self, user):
-        two_weeks_ago = timezone.now() - timedelta(weeks=1)
+    def get_followed_users_recommended_posts(self, user, posts):
+        two_weeks_ago = timezone.now() - timedelta(weeks=2)
         # userがフォローしているユーザーのIDのリストを取得
         followed_user_ids = Follows.objects.filter(user=user).values_list('poster', flat=True)
-
-        # フォローしているユーザーが投稿した投稿のIDのリストを取得
-        followed_users_post_ids = Posts.objects.filter(poster__id__in=followed_user_ids).values_list('id', flat=True)
 
         # フォローしているユーザーがリコメンドした投稿を取得
         # ただし、そのユーザーが投稿した投稿は除外
+        followed_users_post_ids = posts.filter(poster__id__in=followed_user_ids).values_list('id', flat=True)
         recommended_posts = Recommends.objects.filter(
-            user__id__in=followed_user_ids, 
-            created_at__gte=two_weeks_ago
+            user__id__in=followed_user_ids,
+            created_at__gte=two_weeks_ago,
+            post__in=posts
         ).exclude(post__id__in=followed_users_post_ids).select_related('post')
 
         # 取得したリコメンドから投稿オブジェクトをリストとして取得
         recommended_posts_list = [recommend.post for recommend in recommended_posts]
-        
-        # フォローしているユーザーによってリコメンドされた投稿のIDをprint
-        # print("フォローしているユーザーによってリコメンドされ、かつフォローしているユーザーが投稿した投稿を除いた投稿のID:", [post.id for post in recommended_posts_list])
 
         return recommended_posts_list
 
     def get_combined_posts(self, posts, user):
-        start_time = time.time()
 
         # 1. 視聴回数の辞書を取得
         post_ids = list(posts.values_list('id', flat=True))
@@ -568,10 +492,10 @@ class PostListView(BasePostListView):
         posts_with_least_views = posts.filter(id__in=least_viewed_posts).order_by('-qp')[:8]
 
         # フォローしているユーザーの投稿を取得
-        followed_users_posts = self.get_followed_users_posts(user)
+        followed_users_posts = self.get_followed_users_posts(user, posts)
 
         # フォローしているユーザーがリコメンドした投稿を取得
-        followed_users_recommended_posts = self.get_followed_users_recommended_posts(user)
+        followed_users_recommended_posts = self.get_followed_users_recommended_posts(user, posts)
 
         # 投稿を統合
         all_posts = list(posts_with_least_views) + list(followed_users_posts) + followed_users_recommended_posts
@@ -596,11 +520,12 @@ class PostListView(BasePostListView):
         # RPを計算
         for post in posts_to_sort_by_rp:
             viewed_count = viewed_counts.get(post.id, 0)
-            post.rp = post.calculate_rp_for_user(user, followed_users_posts_ids, viewed_count, followed_users_recommended_posts_ids)
-            self.apply_manga_rate_to_rp(post)
+            post.rp = post.calculate_rp_for_user(followed_users_posts_ids, viewed_count, followed_users_recommended_posts_ids)
+            # self.apply_manga_rate_to_rp(post)
 
         # RP順でソート
         sorted_posts_by_rp = sorted(posts_to_sort_by_rp, key=lambda post: post.rp, reverse=True)
+
 
         # 最終結果を取得
         first_4_by_rp = sorted_posts_by_rp[:4]
@@ -608,12 +533,9 @@ class PostListView(BasePostListView):
 
 
         # 全ての広告からランダムに2つを選びます。
-        time_checkpoint = time.time()
         advertiser_posts = self.get_random_ad_posts(user)
-        get_ad_posts_time = time.time() - time_checkpoint
 
         # 最新の100個の投稿を取得して、dimensionフィルターとexclude_blocked_posters, exclude_advertiser_postを適用
-        time_checkpoint = time.time()
         latest_100_posts = Posts.objects.all().order_by('-id')
         latest_100_posts = self.exclude_advertiser_posts(latest_100_posts)  # 広告主の投稿を除外
 
@@ -623,10 +545,8 @@ class PostListView(BasePostListView):
 
         latest_100_posts = self.exclude_blocked_posters(latest_100_posts)
         latest_100_posts = self.filter_by_dimension(latest_100_posts)[:500]
-        filter_latest_posts_time = time.time() - time_checkpoint
 
         # 最新の100件のIDを取得
-        time_checkpoint = time.time()
         post_ids = list(latest_100_posts.values_list('id', flat=True))
 
         # 100件未満の場合、可能な限りの投稿を選択します。
@@ -638,44 +558,24 @@ class PostListView(BasePostListView):
                     .select_related('poster')
                     .prefetch_related('visuals', 'collected_in__collection')  # 'collected_in'とその'collection'を追加
                     .all())
-        get_random_posts_time = time.time() - time_checkpoint
 
         # 残りのフィルターとアノテーションを適用
-        time_checkpoint = time.time()
         random_two_posts = self.filter_by_dimension(random_two_posts)
         random_two_posts = self.annotate_user_related_info(random_two_posts)
         random_two_posts = list(random_two_posts)
-        apply_final_filters_time = time.time() - time_checkpoint
 
         combined = list(first_4_by_rp) + advertiser_posts[:1] + list(next_2_by_rp) + list(random_two_posts) + advertiser_posts[1:]
-
-        end_time = time.time()
-        total_time = end_time - start_time
-        # print("get_combined_posts: {:.2f}s".format(total_time))
-        # print("Get viewed count Time: {:.2f}s".format(get_viewed_counts_time))
-        # print("Get Post IDs Time: {:.2f}s".format(get_least_viewed_posts_time))
-        # # print("Get least viewed 8 posts Time: {:.2f}s".format(get_least_viewed_8posts_time))
-        # # print("Calculate RP Time: {:.2f}s".format(calculate_rp_time))
-        # # print("Sort RP Time: {:.2f}s".format(sort_rp_time))
-        # print("Get Ad Posts Time: {:.2f}s".format(get_ad_posts_time))
-        # print("Filter Latest Posts Time: {:.2f}s".format(filter_latest_posts_time))
-        # print("Get Random Posts Time: {:.2f}s".format(get_random_posts_time))
-        # print("Apply Final Filters Time: {:.2f}s".format(apply_final_filters_time))
 
         return combined
     
     def get_queryset(self):
-        start_time = time.time()
         queryset = super().get_queryset()
         # 次元のフィルターはここで適応（いいねやフォローには適応したくないから）
         queryset = self.filter_by_dimension(queryset)
         
-        end_time = time.time()
-        print("get_queryset: {:.2f}s".format(end_time - start_time))
         return queryset
     
     def check_unanswered_surveys(self, user):
-        start_time = time.time()
         # ユーザーがすでに選択した特性を取得
         selected_features = user.features.all()
         
@@ -685,68 +585,47 @@ class PostListView(BasePostListView):
         # 未回答のアンケートを取得
         unanswered_surveys = Surveys.objects.exclude(id__in=answered_surveys.values_list('id'))
 
-        end_time = time.time()
-        print("check_unanswered_surveys: {:.2f}s".format(end_time - start_time))
         return unanswered_surveys.first() 
 
     def get_context_data(self, **kwargs):
-        total_start_time = time.time()
         
         # 親クラスのget_context_dataを実行
-        start_time = time.time()
         context = super().get_context_data(**kwargs)
-        print("Inherited - Super get_context_data: {:.6f}s".format(time.time() - start_time))
         
         # ユーザー情報の取得
-        start_time = time.time()
         user = self.request.user
-        print("Inherited - Get user: {:.6f}s".format(time.time() - start_time))
         
         if user.is_authenticated:
             # ポスト情報の取得と結合
-            start_time = time.time()
             posts = context['posts']
             context['posts'] = self.get_combined_posts(posts, user)
-            print("Inherited - Get combined posts: {:.6f}s".format(time.time() - start_time))
             
             # フォローしているユーザーがリコメンドしている投稿の取得
-            start_time = time.time()
             context['followed_recommends_details'] = self.get_followed_recommends(user)
-            print("Inherited - Get followed recommends: {:.6f}s".format(time.time() - start_time))
-            
+   
             # 未回答のアンケートのチェック
-            start_time = time.time()
             unanswered_survey = self.check_unanswered_surveys(user)
             if random.random() < 0.1:
                 context['unanswered_survey'] = unanswered_survey
             else:
                 context['unanswered_survey'] = None
-            print("Inherited - Check unanswered surveys: {:.6f}s".format(time.time() - start_time))
             
             # 未読の通知の取得
-            start_time = time.time()
             read_notifications = NotificationView.objects.filter(user=user).values_list('notification_id', flat=True)
             if user.groups.filter(name='Poster').exists():
                 unread_notifications = Notification.objects.exclude(id__in=read_notifications)
             else:
                 unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
             context['unread_notifications'] = unread_notifications
-            print("Inherited - Get unread notifications: {:.6f}s".format(time.time() - start_time))
             
             # ユーザーがフォローしているposterのIDリストの取得
-            start_time = time.time()
             followed_posters_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
-            print("Inherited - Get followed posters ids: {:.6f}s".format(time.time() - start_time))
             
             # 未読の凍結通知の取得
-            start_time = time.time()
             read_freeze_notifications = FreezeNotificationView.objects.filter(user=user).values_list('freeze_notification_id', flat=True)
             unread_freeze_notifications = FreezeNotification.objects.exclude(id__in=read_freeze_notifications).filter(approve=True, poster_id__in=followed_posters_ids)
             context['unread_freeze_notifications'] = unread_freeze_notifications
-            print("Inherited - Get unread freeze notifications: {:.6f}s".format(time.time() - start_time))
 
-        # 全体の時間の計測
-        print("Inherited - Total get_context_data: {:.6f}s".format(time.time() - total_start_time))
         return context
        
 
@@ -755,7 +634,6 @@ class PostListView(BasePostListView):
 class GetMorePostsView(PostListView):
 
     def get(self, request, *args, **kwargs):
-        start_time = time.time()
         # object_listの設定
         self.object_list = self.get_queryset()
         
@@ -772,8 +650,6 @@ class GetMorePostsView(PostListView):
         }
         html = render_to_string('posts/get_more_posts.html', data_to_pass, request=request)
         
-        end_time = time.time()
-        print("get: {:.2f}s".format(end_time - start_time))
         # HTMLフラグメントをJSONとして返す
         return JsonResponse({'html': html}, content_type='application/json')
 
