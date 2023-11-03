@@ -13,10 +13,13 @@
   <p class="cpm">今月のCPM: {{ current_cpm }}円</p>
 
   {% if next_cpc and next_cpm %}
-    <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
-    <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
+  <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
+  <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
   {% else %}
-    <p>来月のCPCとCPMのデータはまだ利用できません。</p>
+  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
+  {% endif %}
+  {% if ad_cost_message %}
+  <div class="alert alert-warning" style="color: red;">{{ ad_cost_message }}</div>
   {% endif %}
 </div>
 
@@ -50,32 +53,33 @@
         <div class="info-input">{{ form.pricing_model }}</div>
       </div>
 
-      <div class="info-item">
-        <div class="info-name">目標表示回数</div>
-        <div class="info-input" id="target_views">{{ form.target_views }}回</div>
-      </div>
-
       <div id="cpc-container" style="display:none;">
+
+        <div class="info-item">
+          <div class="info-name">クリック目標数</div>
+          <div class="info-input">{{ form.target_clicks }}回</div>
+        </div>
+
         <div class="info-item">
           <div class="info-name">CPC</div>
           <div class="info-input" id="calculated_cpc">円</div>
         </div>
 
         <div class="info-item">
-          <div class="info-name">目安予算</div>
-          <div class="info-input">
-            <input type="number" name="budget" id="budget_input" placeholder="目安予算を入力してください" required min="10000"
-              step="10000" />
-            円
-          </div><!-- CPCはユーザが予算を入力できるように -->
-          <p class="info-description" style="width: 400px;">
-            注意：CPCの場合、この時点でクリック回数は確定していません。そのため、ここでの予算の意味は、請求される料金という意味ではありません。あくまで目安としてご自由に設定できます。
-          </p>
+          <div class="info-name">予算</div>
+          <div class="info-input" id="calculated_budget_cpc">円</div>
         </div>
+
       </div>
 
 
       <div id="cpm-container" style="display:none;">
+
+        <div class="info-item">
+          <div class="info-name">目標表示回数</div>
+          <div class="info-input" id="target_views">{{ form.target_views }}回</div>
+        </div>
+
         <div class="info-item">
           <div class="info-name">CPM</div>
           <div class="info-input" id="calculated_cpm">円</div>
@@ -83,7 +87,9 @@
 
         <div class="info-item">
           <div class="info-name">予算</div>
-          <div class="info-input" id="calculated_budget">円</div>
+          <div class="info-input" id="calculated_budget_cpm">円</div>
+          <p class="info-description" style="width: 400px;">
+            注意：CPMの場合、目標表示回数に応じて予算が自動計算されます。そのためここでの予算とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達しなかった場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。
         </div>
       </div>
     </div>
@@ -122,7 +128,7 @@
       </div>
 
       {{ form.non_field_errors }}
-      
+
       <button type="submit" class="submit-campaign" disabled>作成</button>
     </div>
 
@@ -134,16 +140,16 @@
 {% block script %}
 <script src="{% static 'js/cpm_cpc.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        document.getElementById('no_end_date').addEventListener('change', function () {
-            var endDateInput = document.querySelector('input[name="end_date"]');
-            if (this.checked) {
-                endDateInput.disabled = true;
-            } else {
-                endDateInput.disabled = false;
-            }
-        });
+  document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('no_end_date').addEventListener('change', function () {
+      var endDateInput = document.querySelector('input[name="end_date"]');
+      if (this.checked) {
+        endDateInput.disabled = true;
+      } else {
+        endDateInput.disabled = false;
+      }
     });
+  });
   document.addEventListener("DOMContentLoaded", function () {
     let submitButton = document.querySelector("button[type='submit']");
     let sexCheckboxes = document.querySelectorAll("input[name='sex_orfeatures']");

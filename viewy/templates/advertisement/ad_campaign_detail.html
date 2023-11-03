@@ -12,15 +12,15 @@
 <div class="sub-page-title">
   ステータス：
   {% if campaign.status == "pending" %}
-      公開前
+  公開前
   {% elif campaign.status == "running" %}
-      公開中
+  公開中
   {% elif campaign.status == "achieved" %}
-      目標達成
+  目標達成
   {% elif campaign.status == "expired" %}
-      終了期限に到達
+  終了期限に到達
   {% elif campaign.status == "stopped" %}
-      途中停止
+  途中停止
   {% endif %}
 </div>
 
@@ -29,6 +29,11 @@
   <div class="tag">合計表示回数/目標表示回数：
     <span class="">
       {{ campaign.total_views_count }}/{{ campaign.target_views }}
+    </span>回
+  </div>
+  <div class="tag">合計クリック回数/目標クリック回数：
+    <span class="">
+      {{ campaign.total_clicks_count }}/{{ campaign.target_clicks }}
     </span>回
   </div>
   <div class="tag">料金/予算：<span class="budget">
@@ -53,10 +58,47 @@
   </div>
   <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
       class="fa-solid fa-pen"></i> 編集</a>
+  {% if campaign.status == "pending" %}
+  <form method="POST" action="{% url 'advertisement:delete_ad_campaign' campaign_id=campaign.id %}"
+    onsubmit="return confirm('このキャンペーンを本当に削除しますか?キャンペーンに紐付く全広告も削除されます。');">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">
+      <i class="fa-solid fa-trash"></i> 削除
+    </button>
+  </form>
+  {% endif %}
 </div>
 
+<div class="monthly-billing-info">
+  <h3>月末請求履歴</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>年-月</th>
+        <th>月の表示回数</th>
+        <th>月のクリック回数</th>
+        <th>請求料金</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for billing in monthly_billings %}
+      <tr>
+        <td>{{ billing.month_year|date:"Y-m" }}</td>
+        <td>{{ billing.monthly_views }}回</td>
+        <td>{{ billing.monthly_clicks }}回</td>
+        <td>{{ billing.monthly_fee }}円</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4">月末請求履歴はまだありません。</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 <div class="block campaign">
+  <div>広告</div>
   <table>
     <tr>
       <th>サムネイル</th>

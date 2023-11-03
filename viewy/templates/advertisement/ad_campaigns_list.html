@@ -20,7 +20,7 @@
 </div>
 
 {% block table %}
-<div class="page-title">キャンペーン</div>
+<div class="page-title">全てのキャンペーン</div>
 <div class="block">
 
   <table>
@@ -65,7 +65,7 @@
         {% elif campaign.status == 'expired' %}
         <form>
           <button class="release-button  disabled-button">
-            終了期限が来た
+            終了期限に到達
           </button>
         </form>
         {% elif campaign.status == 'stopped' %}

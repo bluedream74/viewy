@@ -38,18 +38,19 @@ class MonthlyAdCost(models.Model):
             return base_cpm - 100
 
 
-    def calculate_cpc(self, views):
+    def calculate_cpc(self, clicks):
         base_cpc = float(self.cpc)
 
-        if views <= 50000:  # 5万まで
+        if clicks <= 500:  # 500クリックまで
             return base_cpc
-        elif views <= 100000:  # 10万まで
-            # 5万と10万の間での線形補間
-            return base_cpc - 5 * (views - 50000) / 50000
-        elif views <= 200000:  # 20万まで
-            # 10万と20万の間での線形補間
-            return (base_cpc - 5) - 5 * (views - 100000) / 100000
+        elif clicks <= 1000:  # 500～1000クリックまで
+            # 500と1000クリックの間で線形補間
+            return base_cpc - 5 * (clicks - 500) / 500
+        elif clicks <= 2000:  # 1000～2000クリックまで
+            # 1000と2000クリックの間で線形補間
+            return (base_cpc - 5) - 5 * (clicks - 1000) / 1000
         else:
+            # 2000クリックを超える場合は、CPCから一律で10を引く
             return base_cpc - 10
 
 
@@ -63,7 +64,8 @@ class AdCampaigns(models.Model):
     total_clicks_count = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False)  # キャンペーンの停止/再開を判断するカラム
     andfeatures = models.ManyToManyField(AndFeatures, blank=True)
-    target_views = models.PositiveIntegerField(default=0)
+    target_views = models.PositiveIntegerField(default=0, null=True, blank=True)
+    target_clicks = models.PositiveIntegerField(default=0, null=True, blank=True) 
     fee = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     monthly_ad_cost = models.ForeignKey(MonthlyAdCost, on_delete=models.SET_NULL, null=True, blank=True)
@@ -131,7 +133,7 @@ class AdCampaigns(models.Model):
             total_clicks = AdInfos.objects.filter(ad_campaign=self).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
             total_clicks = total_clicks or 0
             self.total_clicks_count = total_clicks
-            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpc(self.total_views_count))
+            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpc(self.total_clicks_count))
             self.fee = Decimal(self.total_clicks_count) * self.actual_cpc_or_cpm
         
         # 小数第一位まで保存し、それ以降は切り上げ
@@ -210,8 +212,10 @@ class MonthlyBilling(models.Model):
         return f"{self.ad_campaign.title} - {self.month_year.strftime('%Y-%m')}"
 
     @staticmethod
-    def calculate_monthly_billing():
-        now = datetime.now()
+    def calculate_monthly_billing(now=None):
+
+        now = now or datetime.now()
+        # now = datetime.now()# 本番はこれ
         month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         # 月の途中で終了したキャンペーンまたは実行中のキャンペーンを検索する

@@ -4,6 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let postStartTimes = new Map();
     let processedPosts = new Set();
 
+
+    window.addEventListener('beforeunload', () => {
+        postStartTimes.forEach((startTime, postElement) => {
+            const currentPostId = postElement.getAttribute('data-post-id');
+            let duration = Math.round((Date.now() - startTime) / 1000);
+            duration = Math.min(duration, 300);
+            sendDataToServer(currentPostId, duration);
+        });
+    });
+
     function sendDataToServer(postId, duration = null) {
         let formData = new FormData();
         formData.append("post_id", postId);

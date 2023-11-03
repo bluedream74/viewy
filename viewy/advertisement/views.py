@@ -25,7 +25,7 @@ from django.db.models.functions import Concat
 from django.db.models import CharField
 
 from posts.models import Posts, Users, Videos, Visuals
-from .models import AdInfos, AndFeatures, MonthlyAdCost
+from .models import AdInfos, AndFeatures, MonthlyAdCost, MonthlyBilling
 from accounts.models import Features
 from django.views.generic import TemplateView
 from django.template.loader import select_template
@@ -129,7 +129,6 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
 class FilteredAdCampaignsListView(AdCampaignsListView):
 
     def get_template_names(self):
-        print("get_template_names is called")  
         status = self.kwargs.get('status', None)
         templates = {
             'running': ['advertisement/running.html'],
@@ -141,7 +140,7 @@ class FilteredAdCampaignsListView(AdCampaignsListView):
         }
         return templates.get(status)
 
-    def get_queryset(self, status=None):  # status引数にデフォルト値を追加
+    def get_queryset(self, status=None):
         # 親クラスのget_querysetメソッドを呼び出して、基本的なクエリセットを取得
         campaigns = super().get_queryset()
 
@@ -163,6 +162,23 @@ class FilteredAdCampaignsListView(AdCampaignsListView):
             # ... (他のコンテキスト変数)
         }
         return render(request, template_name, context)
+
+class CloseAdCampaignsListView(AdvertiserCheckView, View):
+    template_name = 'advertisement/close.html' 
+
+    def get_queryset(self):
+        # ステータスがachieved、expired、またはstoppedのキャンペーンのみを取得
+        return AdCampaigns.objects.filter(status__in=['achieved', 'expired', 'stopped']).order_by('-created_at')
+
+    def get(self, request, *args, **kwargs):
+        campaigns = self.get_queryset()  # 更新されたクエリセットを取得
+
+        context = {
+            'campaigns': campaigns,
+            # ... (他のコンテキスト変数をここに追加)
+        }
+
+        return render(request, self.template_name, context)
 
 
 class AdCampaignDetailView(AdvertiserCheckView, View):
@@ -194,9 +210,13 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
         # キャンペーンに関連するAndFeaturesを取得（is_allがTrueのものは除外）
         andfeatures = campaign.andfeatures.filter(is_all=False)
 
+        # MonthlyBillingオブジェクトを取得する
+        monthly_billings = MonthlyBilling.objects.filter(ad_campaign_id=campaign_id).order_by('-month_year')
+
         context = {
             'ad_infos': ad_infos,
             'campaign': campaign,
+            'monthly_billings': monthly_billings,
             'no_ad_message': no_ad_message,
             'andfeatures': andfeatures,
         }
@@ -256,7 +276,6 @@ class CampaignFormView(AdvertiserCheckView, View):
             adcampaign = form.save(commit=False)
 
             # ここから予算の自動計算
-            target_views = form.cleaned_data['target_views']
             pricing_model = form.cleaned_data['pricing_model']
 
             # monthly_ad_cost の設定
@@ -264,8 +283,21 @@ class CampaignFormView(AdvertiserCheckView, View):
             target_month = start_date.date().replace(day=1)
             try:
                 adcampaign.monthly_ad_cost = MonthlyAdCost.objects.get(year_month=target_month)
+                ad_cost_message = None
             except MonthlyAdCost.DoesNotExist:
                 adcampaign.monthly_ad_cost = None
+                # 日付をフォーマットしてメッセージを作成します。
+                ad_cost_message = f"{target_month.strftime('%Y年%m月')} のCPC、CPMはまだ設定されていません"
+            
+            # adcampaign.monthly_ad_costがNoneの場合、エラーメッセージを表示してリターン
+            if adcampaign.monthly_ad_cost is None:
+                context = {
+                    'form': form,
+                    'sex': self.get_andfeature_by_orfeatures_name("男性"),
+                    'dimension': self.get_andfeature_by_orfeatures_name("三次元好き"),
+                    'ad_cost_message': ad_cost_message,
+                }
+                return render(request, self.template_name, context)
 
             # ステータスをpendingに設定
             adcampaign.status = 'pending'
@@ -284,16 +316,18 @@ class CampaignFormView(AdvertiserCheckView, View):
                 pass  
 
             if pricing_model == "CPC":
-                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(target_views)
+                adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
+                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks)
                 # adcampaign.budget はユーザがフォームで入力する
-                adcampaign.budget = request.POST.get('budget')
-
+                # adcampaign.budget = request.POST.get('budget')
+                adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
                 # 小数第一位まで保存し、それ以降は切り上げ
                 adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
                 adcampaign.actual_cpc_or_cpm = adjusted_cpc
             else:  # pricing_model == "CPM"
-                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(target_views)
-                adcampaign.budget = target_views / 1000 * adjusted_cpm  # 調整されたCPMでの計算
+                adcampaign.target_views = form.cleaned_data.get('target_views')
+                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views)
+                adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm  # 調整されたCPMでの計算
 
                 # 小数第一位まで保存し、それ以降は切り上げ
                 adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
@@ -340,8 +374,15 @@ class CampaignFormView(AdvertiserCheckView, View):
                 adcampaign.andfeatures.add(dimension_andfeature)
 
             return redirect(reverse('advertisement:ad_campaigns_list'))
+    
+        context = {
+            'form': form,
+            'sex': self.get_andfeature_by_orfeatures_name("男性"),
+            'dimension': self.get_andfeature_by_orfeatures_name("三次元好き"),
+            'ad_cost_message': ad_cost_message,
+        }
 
-        return render(request, self.template_name, {'form': form, 'sex': self.get_andfeature_by_orfeatures_name("男性"), 'dimension': self.get_andfeature_by_orfeatures_name("三次元好き")})
+        return render(request, self.template_name, context)
 
 
 class BaseAdCreateView(AdvertiserCheckView, CreateView):
@@ -655,8 +696,9 @@ class AdCampaignDelete(AdvertiserCheckView, View):
 
         campaign.ad_infos.all().delete()
         campaign.delete()
-        redirect_url = reverse('advertisement:ad_campaigns_list')  # 遷移先のURL
-        return JsonResponse({'success': True, 'redirect_url': redirect_url})
+        # 遷移先のURL
+        redirect_url = reverse('advertisement:ad_campaigns_list')  
+        return HttpResponseRedirect(redirect_url)
 
 
 class AdClickCountView(View):
