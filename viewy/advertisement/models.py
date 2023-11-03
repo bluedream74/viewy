@@ -3,7 +3,7 @@ from posts.models import Posts
 from accounts.models import Features, Users
 from datetime import datetime, timedelta
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from decimal import Decimal, ROUND_UP
 
 class AndFeatures(models.Model):
