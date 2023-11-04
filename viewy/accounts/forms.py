@@ -1,5 +1,6 @@
 import re, uuid
 from django import forms
+from django.utils import timezone
 from .models import Users, DeleteRequest
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -22,6 +23,9 @@ class RegistForm(forms.ModelForm):
     email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'メールアドレス'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード'}))
     password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'パスワード（確認）'}))  # 新しいフィールド
+    # 生年月のフィールドを追加
+    birth_year = forms.TypedChoiceField(coerce=int, choices=[])
+    birth_month = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 13)])
 
     class Meta:
         model = Users
@@ -31,6 +35,15 @@ class RegistForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['email'].error_messages = {'invalid': '有効なメールアドレスを入力してください。'}
         self.fields['username'].error_messages = {'unique': 'このユーザーネームは既に使用されています。別のユーザーネームを入力してください。'}
+        # 現在の年と月を取得
+        current_year = timezone.now().year
+        # 初期選択肢として「年を入力」を追加
+        birth_year_choices = [('','------')] + [(year, year) for year in range(current_year - 17, 1919, -1)]
+        self.fields['birth_year'].choices = birth_year_choices
+        
+        # 初期選択肢として「月を入力」を追加
+        birth_month_choices = [('','----')] + [(month, month) for month in range(1, 13)]
+        self.fields['birth_month'].choices = birth_month_choices
 
     def clean(self):
         cleaned_data = super().clean()
@@ -39,6 +52,18 @@ class RegistForm(forms.ModelForm):
 
         if password != password_confirm:  # パスワードと確認用パスワードが一致するかチェック
             self.add_error('password_confirm', 'パスワードが一致しません。')  # 一致しない場合はエラーメッセージを表示
+            
+        # 生年月のデータを取得
+        birth_year = cleaned_data.get('birth_year')
+        birth_month = cleaned_data.get('birth_month')
+        
+        # 現在の日付を取得
+        today = timezone.now().date()
+        
+        # ユーザが18歳以上かどうかを確認する
+        if birth_year and birth_month:
+            if birth_year > today.year - 18 or (birth_year == today.year - 18 and birth_month > today.month):
+                self.add_error('birth_year', 'You must be at least 18 years old.')
 
         return cleaned_data
   
@@ -77,6 +102,18 @@ class RegistForm(forms.ModelForm):
             if errors:
                 raise forms.ValidationError(errors)
         return password
+    
+    def clean_birth_year(self):
+        birth_year = self.cleaned_data.get('birth_year')
+        if birth_year == '':
+            raise forms.ValidationError("生年月の年を入力してください。")
+        return birth_year
+
+    def clean_birth_month(self):
+        birth_month = self.cleaned_data.get('birth_month')
+        if birth_month == '':
+            raise forms.ValidationError("生年月の月を入力してください。")
+        return birth_month
   
     def save(self, commit=True):  # commit=Trueをデフォルトにする
         # もともと備わっているセーブ機能を一回止めるたのち、ハッシュ化する処理
@@ -84,6 +121,9 @@ class RegistForm(forms.ModelForm):
         validate_password(self.cleaned_data['password'], user) # パスワードのバリデーションをより詳しく行う
         user.set_password(self.cleaned_data['password']) # パスワードのハッシュ化
         user.verification_code = generate_verification_code()   # 認証コードを生成
+        # 生年月を保存
+        user.birth_year = self.cleaned_data.get('birth_year')
+        user.birth_month = self.cleaned_data.get('birth_month')
         if not user.username:
             user.username = self.generate_unique_username()
 

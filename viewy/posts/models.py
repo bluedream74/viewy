@@ -526,8 +526,10 @@ class Videos(models.Model):
             # 縦長か横長かを判定
             if width > height:  # 横長の場合
                 scale_cmd = "scale=-2:360"
+                bitrate = "300k"  # 横長の場合のビットレート
             else:  # 縦長の場合
                 scale_cmd = "scale=-2:720"
+                bitrate = "500k"  # 縦長の場合のビットレート
 
             # こちらで変更後のスケールコマンドを出力して確認
             print(f"Scaling command: {scale_cmd}")
@@ -547,7 +549,7 @@ class Videos(models.Model):
                     *framerate_cmd,  # リストを展開
                     "-g", "48",  # キーフレーム間の間隔を48に設定
                     "-profile:v", "main",  # プロファイルをmainに設定
-                    "-level", "3.0",
+                    "-level", "3.0", 
                     output_path
                 ]
             else:  # 他のコーデックの場合、デフォルトをlibx264に設定
@@ -559,7 +561,7 @@ class Videos(models.Model):
                     *framerate_cmd,  # リストを展開
                     "-g", "48",  # キーフレーム間の間隔を48に設定
                     "-profile:v", "main",  # プロファイルをmainに設定
-                    "-level", "3.0",
+                    "-level", "3.0", 
                     output_path
                 ]
 

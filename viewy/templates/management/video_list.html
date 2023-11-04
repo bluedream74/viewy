@@ -1,0 +1,89 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/management/kanji.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<table>
+  <thead>
+    <tr>
+      <th>Post Title</th>
+      <th>Encoding Done</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for video in videos %}
+    <tr>
+      <td>{{ video.post.title }}</td>
+      <td>
+        <input type="checkbox" class="encoding-done-checkbox" data-video-id="{{ video.id }}" {% if video.encoding_done %} checked {% endif %}>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">No videos found</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<script>
+  // CSRFトークンを取得する関数
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// イベントリスナーを設定する関数
+function setupToggleEncodingCheckbox() {
+    const checkboxes = document.querySelectorAll('.encoding-done-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function(event) {
+            const videoId = this.dataset.videoId;
+            const status = this.checked;
+            toggleEncodingStatus(videoId, status);
+        });
+    });
+}
+
+// エンコーディング状態を切り替える関数
+function toggleEncodingStatus(videoId, status) {
+    const csrftoken = getCookie('csrftoken'); // CSRFトークンを取得
+    const url = '/management/toggle-encoding-status/'; // DjangoのURLパターンに合わせて変更してください
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken
+        },
+        body: `video_id=${videoId}&status=${status}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        // ここで成功したときの処理を行う
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        // エラー処理をここで行う
+    });
+}
+
+// ドキュメントが読み込まれたらイベントリスナーを設定
+document.addEventListener('DOMContentLoaded', setupToggleEncodingCheckbox);
+</script>
+{% endblock %}
