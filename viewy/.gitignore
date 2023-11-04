@@ -7,4 +7,5 @@ __pycache__
 settings.py
 settings
 viewyenv/
+viewenv/
 .env

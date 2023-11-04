@@ -3,8 +3,8 @@ from .models import AdCampaigns, AdInfos, RequestDocument, SetMeeting
 from posts.models import Posts
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
-
-from datetime import date
+from django.utils import timezone
+from datetime import datetime, date
 
 class AdCampaignForm(forms.ModelForm):
     PRICING_MODEL_CHOICES = [('CPC', 'CPC'), ('CPM', 'CPM')]
@@ -15,6 +15,9 @@ class AdCampaignForm(forms.ModelForm):
         label='Pricing Model'
     )
 
+    target_views = forms.IntegerField(required=False)
+    target_clicks = forms.IntegerField(required=False)
+
 
     end_date = forms.DateField(
         required=False,  # 必須ではなくする
@@ -23,22 +26,21 @@ class AdCampaignForm(forms.ModelForm):
             'id': 'end-date-input'
         })
     )
-    budget = forms.DecimalField(
-    required=False,  # 初めては必須ではないと設定
-    widget=forms.NumberInput(attrs={
-        'id': 'budget_input',
-        'placeholder': '予算を入力してください',
-        'min': '10000',
-        'step': '10000',
-    })
-    )
+    # budget = forms.DecimalField(
+    # required=False,  # 初めては必須ではないと設定
+    # widget=forms.NumberInput(attrs={
+    #     'id': 'budget_input',
+    #     'placeholder': '予算を入力してください',
+    #     'min': '10000',
+    #     'step': '10000',
+    # })
+    # )
     class Meta:
         model = AdCampaigns
         fields = ['title', 
         'start_date', 
         'end_date', 
         'andfeatures', 
-        'target_views', 
         'pricing_model']
         widgets = {
             'start_date': forms.DateInput(attrs={
@@ -59,24 +61,33 @@ class AdCampaignForm(forms.ModelForm):
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
         pricing_model = cleaned_data.get('pricing_model')
-        budget = cleaned_data.get('budget')
         target_views = cleaned_data.get('target_views')
+        target_clicks = cleaned_data.get('target_clicks')
+
+
+        if pricing_model == 'CPC':
+            if not target_clicks:
+                self.add_error('target_clicks', ValidationError('CPCモデルの場合、クリック目標数は必須です'))
+        elif pricing_model == 'CPM':
+            if not target_views:
+                self.add_error('target_views', ValidationError('CPMモデルの場合、表示目標数は必須です'))
 
         # Title validation
         if not title:
             self.add_error('title', ValidationError('キャンペーン名は必須です'))
 
-        # Start date validation
-        if start_date and start_date.date() < date.today(): 
-            self.add_error('start_date', ValidationError('正しく開始日時を設定してください'))
+        if start_date:
+            # Ensure start_date is a date object for comparison
+            start_date_as_date = start_date.date() if hasattr(start_date, 'date') else start_date
+            if start_date_as_date < date.today(): 
+                self.add_error('start_date', ValidationError('正しく開始日時を設定してください'))
 
-        # End date validation
-        if end_date and start_date.date() and end_date.date() <= start_date.date():
-            self.add_error('end_date', ValidationError('正しく終了日時を設定してください'))
-
-        # Pricing model and budget validation
-        if pricing_model == "CPC" and budget is None:
-            self.add_error('budget', ValidationError('CPCの場合、予算は必須です。'))
+        if end_date and start_date:
+            # Ensure both dates are date objects for comparison
+            end_date_as_date = end_date.date() if hasattr(end_date, 'date') else end_date
+            start_date_as_date = start_date.date() if hasattr(start_date, 'date') else start_date
+            if end_date_as_date <= start_date_as_date:
+                self.add_error('end_date', ValidationError('正しく終了日時を設定してください'))
 
         # Target views validation
         if target_views and target_views <= 0:

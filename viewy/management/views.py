@@ -16,6 +16,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView, CreateView
+from django.http import HttpResponse
 
 
 from django.http import HttpResponseRedirect, JsonResponse
@@ -31,6 +32,7 @@ from accounts.models import Users, SearchHistorys, FreezeNotification
 from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations, Videos
 from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm, AffiliateForm, AffiliateInfoForm, AnalyzeDateForm
 from .models import UserStats, ClickCount, DailyVisitorCount
+from advertisement.models import MonthlyBilling, AdInfos, AdCampaigns
 
 from django.contrib.auth.models import Group
 
@@ -716,3 +718,18 @@ class ToggleEncodingStatusView(View):
         video.encoding_done = status
         video.save()
         return JsonResponse({'status': 'success'})
+
+class CalculateMonthlyBilling(SuperUserCheck, View):
+
+    template_name = 'management/monthly_billing.html'
+    
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+    
+    def post(self, request, *args, **kwargs):
+        print('月末広告計算開始')
+        billing_date_str = request.POST.get('billing_date')
+        billing_date = datetime.strptime(billing_date_str, "%Y-%m-%dT%H:%M") if billing_date_str else None
+        MonthlyBilling.calculate_monthly_billing(now=billing_date)
+        messages.success(request, '計算は正常に実行されました')
+        return redirect('management:calculate_monthly_billing') 

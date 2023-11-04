@@ -52,6 +52,11 @@ body{
   margin-right: 16px;
 }
 
+.sub-status {
+  margin-left: 36px;
+  font-size: 15px;
+}
+
 .contents{
   text-align: center;
   max-height: 100vh;
@@ -250,8 +255,8 @@ p > input{
 }
 
 
-@media only screen and (max-width: 1200px) {
+/* @media only screen and (max-width: 1200px) {
   .wall{
     display: block;
   }
-}
+} */

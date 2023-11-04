@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import (Account, RecordUserStats, GetUserStats, UserAnalytics, DailyVisitorCountView, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, AffiliateCreateView, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, SearchEmailandAddPoster, ClickCountView, FreezeNotificationApproveView, DeleteFreezeNotificationView, PostSearch, TogglePostHiddenStatus, VideoListView, ToggleEncodingStatusView)
-from . import views
+from .views import (Account, RecordUserStats, GetUserStats, UserAnalytics, DailyVisitorCountView, Partner, RandomRecommendedUsers, UpdateBoostTypeView, Post, Hashtag, Ad, AffiliateCreateView, KanjiRegist, KanjiDelete, PosterWaiterList, AddToPosterGroup, RemoveFromWaitList, SearchEmailandAddPoster, ClickCountView, FreezeNotificationApproveView, DeleteFreezeNotificationView, PostSearch, TogglePostHiddenStatus, VideoListView, ToggleEncodingStatusView, CalculateMonthlyBilling)
+
 
 app_name = 'management'
 urlpatterns = [
@@ -29,4 +29,5 @@ urlpatterns = [
   path('delete_freeze_notification/', DeleteFreezeNotificationView.as_view(), name='delete_freeze_notification'),
   path('video_list/', VideoListView.as_view(), name='video_list'),
    path('toggle-encoding-status/', ToggleEncodingStatusView.as_view(), name='toggle-encoding-status'),
+  path('calculate_monthly_billing/', CalculateMonthlyBilling.as_view(), name='calculate_monthly_billing'),
 ]

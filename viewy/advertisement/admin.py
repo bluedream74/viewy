@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-  AndFeatures, AdCampaigns, AdInfos, RequestDocument, SetMeeting, MonthlyAdCost
+  AndFeatures, AdCampaigns, AdInfos, RequestDocument, SetMeeting, MonthlyAdCost, MonthlyBilling
 )
 
 class AdCampaignsAdmin(admin.ModelAdmin):
@@ -9,5 +9,5 @@ class AdCampaignsAdmin(admin.ModelAdmin):
 admin.site.register(AdCampaigns, AdCampaignsAdmin)
 
 admin.site.register(
-  [AndFeatures, AdInfos, RequestDocument, SetMeeting,MonthlyAdCost]
+  [AndFeatures, AdInfos, RequestDocument, SetMeeting,MonthlyAdCost, MonthlyBilling]
 )

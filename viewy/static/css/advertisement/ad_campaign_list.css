@@ -150,13 +150,19 @@
   box-shadow: 0px 1px 2px rgb(197, 197, 197);
   text-decoration: none;
   margin-left: auto;
-  display: flex;
+  /* display: flex; */
   align-items: center;
 }
 
 .edit:hover{
   background-color: rgb(80, 80, 80);
   box-shadow: none;
+}
+
+.monthly-billing-info {
+  margin: 0px 32px;
+  margin-bottom: 32px;
+  padding: 8px 32px;
 }
 
 .view-button{

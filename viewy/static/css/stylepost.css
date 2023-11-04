@@ -1,7 +1,8 @@
 html,
 body {
   touch-action: manipulation;
-
+  user-select: none; /* テキスト選択を防ぐ */
+  -webkit-user-select: none;/* テキスト選択を防ぐ */
 }
 
 .screen {

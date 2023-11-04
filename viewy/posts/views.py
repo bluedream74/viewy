@@ -179,19 +179,23 @@ class BasePostListView(ListView):
         # 開始期限が来てないものは除く
         # is_hidden=trueは除く
 
-        # First, get a list of all campaign IDs
-        campaign_ids = [campaign.id for campaign in matching_adcampaigns]
 
-        # Get aggregate views for all these campaigns at once
+        # 全キャンペーンのIDリストを取得
+        campaign_ids = matching_adcampaigns.values_list('id', flat=True)
+
+        # 各キャンペーンに関連する広告情報から、表示回数の合計を集計
         aggregated_views = AdInfos.objects.filter(ad_campaign_id__in=campaign_ids).values('ad_campaign').annotate(total_views=Sum('post__views_count'))
-
         views_dict = {item['ad_campaign']: item['total_views'] for item in aggregated_views}
+
+        # 各キャンペーンに関連する広告情報から、クリック数の合計を集計
+        aggregated_clicks = AdInfos.objects.filter(ad_campaign_id__in=campaign_ids).values('ad_campaign_id').annotate(total_clicks=Sum('clicks_count'))
+        clicks_dict = {item['ad_campaign_id']: item['total_clicks'] for item in aggregated_clicks}
 
         to_update = []
         for campaign in matching_adcampaigns:
-            # campaignの合計表示回数を更新
-            total_views = views_dict.get(campaign.id, 0)
-            campaign.total_views_count = total_views
+            # 合計表示回数と合計クリック回数を更新
+            campaign.total_views_count = views_dict.get(campaign.id, 0)
+            campaign.total_clicks_count = clicks_dict.get(campaign.id, 0)
 
             # 状態がRunningでなければRunningに設定する
             if campaign.status != 'running':
@@ -207,10 +211,7 @@ class BasePostListView(ListView):
                     campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpm(campaign.total_views_count))
                     campaign.fee = Decimal(campaign.total_views_count / 1000) * campaign.actual_cpc_or_cpm
                 elif campaign.pricing_model == 'CPC':
-                    total_clicks = AdInfos.objects.filter(ad_campaign=campaign).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
-                    total_clicks = total_clicks or 0
-                    campaign.total_clicks_count = total_clicks
-                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpc(campaign.total_views_count))
+                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpc(campaign.total_clicks_count))
                     campaign.fee = Decimal(campaign.total_clicks_count) * campaign.actual_cpc_or_cpm
 
                 # 小数第一位まで保存し、それ以降は切り上げ
@@ -219,11 +220,12 @@ class BasePostListView(ListView):
 
                 campaign.save(update_fields=['fee', 'actual_cpc_or_cpm'])
             
-            # 合計表示回数が目標を超えている場合
-            elif total_views >= campaign.target_views:
-                campaign.status = 'achieved'  # 状態をAchievedに設定
+            # 目標の表示回数やクリック数を超えていたら状態をachievedに設定
+            if (campaign.pricing_model == 'CPC' and campaign.total_clicks_count >= campaign.target_clicks) or \
+            (campaign.pricing_model == 'CPM' and campaign.total_views_count >= campaign.target_views):
+                campaign.status = 'achieved'
                 campaign.is_hidden = True
-                campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
+                campaign.end_date = timezone.now()
             
             to_update.append(campaign)
 

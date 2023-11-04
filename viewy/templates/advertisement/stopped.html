@@ -16,8 +16,8 @@
       <th>表示期間</th>
       <th>停止／公開</th>
     </tr>
-{% for campaign in campaigns %}
-  {% if campaign.status == 'stopped' %}
+    {% for campaign in campaigns %}
+    {% if campaign.status == 'stopped' %}
     <tr class="release-campaign">
       <td>
         <a href="{% url 'advertisement:ad_campaign_detail' campaign.id %}" class="campaign-title">
@@ -28,7 +28,8 @@
       <td class="views">{{ campaign.total_views_count }}/{{ campaign.target_views }}</td>
       <td class="fee">{{ campaign.fee }}</td>
       <td class="budget">{{ campaign.budget }}</td>
-      <td data-end-date="{{ campaign.end_date|date:"Y-m-d" }}" class="date-cell"><span class="date" >{{ campaign.start_date|date:"Y-m-d" }}</span>～<span class="date">
+      <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">{{
+          campaign.start_date|date:"Y-m-d" }}</span>～<span class="date">
           {{ campaign.end_date|date:"Y-m-d" }}</span></td>
       <td>
         <form>
@@ -38,8 +39,12 @@
         </form>
       </td>
     </tr>
-  {% endif %}
-{% endfor %}
-</table>
+    {% endif %}
+    {% empty %}
+    <tr>
+      <td colspan="7">データはありません。</td>
+    </tr>
+    {% endfor %}
+  </table>
 </div>
 {% endblock %}
