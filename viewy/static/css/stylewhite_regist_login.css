@@ -451,6 +451,30 @@ a{
   text-decoration-color: rgb(79, 228, 228);
 }
 
+.birth-info{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.year{
+  margin-right: 16px;
+}
+
+.birth-info label{
+  font-size: 15px;
+  color: rgb(117, 117, 117);
+}
+
+.birth-info select{
+  height: 24px;
+  padding: 0px 16px;
+  border-radius: 50px;
+  background-color: rgb(240, 240, 240);
+  color: rgb(69, 69, 69);
+}
+
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
@@ -508,6 +532,30 @@ a{
 
   .close {
     top: 64px;
+  }
+
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-left: 10px; /* お望みのパディングを設定 */
+    /* その他のスタイリング */
+  }
+
+  .birth-info select{
+    height: 40px;
+    width: 100px;
+    padding-left: 24px;
+    font-size: 15px;
+    border: 1px gray solid;
+  }
+
+  .month select{
+    width: 80px;
+  }
+
+  .year{
+    margin-right: 32px;
   }
  }
 

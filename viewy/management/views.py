@@ -29,7 +29,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from accounts.models import Users, SearchHistorys, FreezeNotification
-from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations
+from posts.models import Ads, WideAds, Favorites, HotHashtags, Posts, KanjiHiraganaSet, RecommendedUser, ViewDurations, Videos
 from .forms import HashTagSearchForm, RecommendedUserForm, BoostTypeForm, AffiliateForm, AffiliateInfoForm, AnalyzeDateForm
 from .models import UserStats, ClickCount, DailyVisitorCount
 from advertisement.models import MonthlyBilling, AdInfos, AdCampaigns
@@ -695,6 +695,29 @@ class DeleteFreezeNotificationView(View):
         except FreezeNotification.DoesNotExist:
             messages.error(request, "該当する通知が見つかりません。")
         return redirect('management:freeze_notification_approve') 
+    
+    
+class VideoListView(ListView):
+    model = Videos
+    context_object_name = 'videos'
+    template_name = 'management/video_list.html'
+
+    def get_queryset(self):
+        only_fields = ['id', 'encoding_done', 'post__title']
+        # hls_pathが空文字列もしくはNULLであるレコードをフィルタリング
+        return Videos.objects.filter(Q(hls_path='') | Q(hls_path__isnull=True)).select_related('post').only(*only_fields)
+    
+
+from django.views.decorators.csrf import csrf_protect    
+class ToggleEncodingStatusView(View):
+    @method_decorator(csrf_protect)
+    def post(self, request, *args, **kwargs):
+        video_id = request.POST.get('video_id')
+        status = request.POST.get('status') == 'true'
+        video = Videos.objects.get(id=video_id)
+        video.encoding_done = status
+        video.save()
+        return JsonResponse({'status': 'success'})
 
 class CalculateMonthlyBilling(SuperUserCheck, View):
 

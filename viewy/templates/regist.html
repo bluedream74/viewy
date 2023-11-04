@@ -45,9 +45,32 @@
       {{ form.password_confirm }}
     </div>
 
+
+
+    <div class="birth-info">
+      <!-- 生年のフィールド -->
+      <div class="form-group year">
+        <label for="id_birth_year">生年</label>
+        {{ form.birth_year }}
+        <div class="message alert-error">
+          {{ form.birth_year.errors }}
+        </div>
+      </div>
+
+      <!-- 生月のフィールド -->
+      <div class="form-group month">
+        <label for="id_birth_month">月</label>
+        {{ form.birth_month }}
+        <div class="message alert-error">
+          {{ form.birth_month.errors }}
+        </div>
+      </div>
+    </div>
+
+
     <div class="regist-consent consent">
       <span>このサイトを利用することにより、<br>あなたは当サイトの<a href="#" id="showTerms">利用規約</a>および<a href="#" id="showPolicy">プライバシーポリシー</a>に<br>同意したことになります。</span>
-  </div>
+    </div>
 
     <div class="consent-check">
       <label>
@@ -557,4 +580,37 @@
   }
 </script>
 
+<script>
+  // 生年のセレクトボックスが変更されたときに呼ばれる関数
+  function updateBirthMonthOptions() {
+    var birthYearSelect = document.getElementById('id_birth_year');
+    var birthMonthSelect = document.getElementById('id_birth_month');
+    var selectedYear = birthYearSelect.value;
+    var currentYear = new Date().getFullYear();
+  
+    // 生年で18年前を選んだ場合、生月の選択肢を現在の月までに制限する
+    if (parseInt(selectedYear) === currentYear - 18) {
+      var currentMonth = new Date().getMonth() + 1; // JavaScriptの月は0から始まるため、1を足す
+      for (var i = birthMonthSelect.options.length - 1; i >= currentMonth; i--) {
+        birthMonthSelect.remove(i);
+      }
+    } else {
+      // 生年が18年前以外の場合は、1月から12月まで利用可能にする
+      if (birthMonthSelect.options.length < 12) {
+        for (var i = birthMonthSelect.options.length; i < 12; i++) {
+          var option = document.createElement("option");
+          option.value = i + 1;
+          option.text = i + 1;
+          birthMonthSelect.add(option);
+        }
+      }
+    }
+  }
+  
+  // 生年のセレクトボックスにイベントリスナーを追加
+  document.getElementById('id_birth_year').addEventListener('change', updateBirthMonthOptions);
+  
+  // ページが読み込まれたときに一度生月のオプションを更新する
+  document.addEventListener('DOMContentLoaded', updateBirthMonthOptions);
+  </script>
 {%endblock%}
