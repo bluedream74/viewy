@@ -44,14 +44,15 @@
 
 {% for post in posts %}
 
-<div class="post not-ad ad-click" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
+<div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
   <div class="spinner"></div>
 
   {% if not post.poster.is_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
 
     {% if post.poster.is_advertiser %}
-    <a href="{{ post.url }}">
+    <div class="ad-click">
+      <a href="{{ post.url }}">
     {% endif %}
 
     {% if post.ismanga %}
@@ -91,7 +92,8 @@
     {% endif %}
 
     {% if post.poster.is_advertiser %}
-    </a>
+      </a>
+    </div>
     {% endif %}
 
   {% else %}
