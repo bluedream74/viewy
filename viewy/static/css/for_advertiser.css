@@ -743,6 +743,68 @@ hr{
   padding: 16px 64px;
 }
 
+.plan{
+  margin: 40px 24px 16px;
+  padding: 40px 32px 24px;
+  border-radius: 8px;
+  background-color: rgb(255, 255, 244);
+  position: relative;
+  border: 1px solid rgb(193, 205, 203);
+}
+
+.plan .plan-title{
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: rgb(239, 239, 239);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.fees{
+  display: flex;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cpm{
+  margin-right: 32px;
+}
+
+.try-plan .cpm, .try-plan .cpc{
+  text-decoration: underline;
+  text-decoration-color: aqua;
+}
+
+
+.price{
+  font-size: 36px;
+}
+
+.main-plan .plan-title{
+  font-size: 18px;
+}
+
+.try-plan .plan-title{
+  background-color: rgb(72, 226, 226);
+  color: white;
+  font-size: 18px;
+}
+
+.result-list{
+  background-color: rgb(241, 241, 241);
+  padding: 8px 24px;
+  margin: 0px 160px;
+}
+
+.result-list li{
+  list-style: none;
+  font-size: 18px;
+  margin: 8px;
+}
 
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 1000px) {
