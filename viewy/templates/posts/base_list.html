@@ -51,8 +51,7 @@
   <!-- アフィリエイターの広告じゃない場合 -->
 
     {% if post.poster.is_advertiser %}
-    <div class="ad-click">
-      <a href="{{ post.url }}">
+      <a href="{{ post.url }}" class="ad-click">
     {% endif %}
 
     {% if post.ismanga %}
@@ -93,7 +92,6 @@
 
     {% if post.poster.is_advertiser %}
       </a>
-    </div>
     {% endif %}
 
   {% else %}
@@ -117,11 +115,9 @@
             <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
           </span>
           {% else %}
-          <div class="ad-click">
-            <a href="{{ post.url }}" class="poster_username">
+            <a href="{{ post.url }}" class="poster_username ad-click">
               <img class="poster-img" src="{{post.poster.prf_img.url}}" alt="{{post.poster.prf_img}}">
             </a>
-          </div>
           {% endif %}
           {% else %}
           <a href="{% url 'posts:poster_page' username=post.poster.username %}" class="poster_username">
@@ -241,16 +237,13 @@
           {% else %}
 
             {% if post.poster.displayname %}
-            <div class="ad-click">
-              <a href="{{ post.url }}" class="poster-name">
+              <a href="{{ post.url }}" class="poster-name ad-click">
                 ＠{{post.poster.displayname}}
               </a>
-            </div>
             {% else %}
-            <div class="ad-click">
-              <a href="{{ post.url }}"
-              class="poster-name">＠{{post.poster.username}}</a>
-            </div>
+              <a href="{{ post.url }}" class="poster-name ad-click">
+                ＠{{post.poster.username}}
+              </a>
             {% endif %}
 
           {% endif %}
@@ -311,12 +304,10 @@
 
       {% if post.poster.is_advertiser %}
       {% if not post.poster.is_affiliateadvertiser %}
-      <div class="ad-click">
-        <a href="{{ post.url }}" class="ad-detail">
+        <a href="{{ post.url }}" class="ad-detail ad-click">
           <div class="ad-detail-title">詳しくはこちら</div>
           <div><i class="fa-solid fa-angle-right"></i></div>
         </a>
-      </div>
       {% endif %}
       {% endif %}
     </div>

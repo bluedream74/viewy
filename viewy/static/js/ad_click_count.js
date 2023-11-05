@@ -11,7 +11,14 @@ let isClickable = true;
 
 $('.screen').on('click', '.ad-click', function (e) {
   e.preventDefault();
-  const targetUrl = $(this).find('a').attr('href');
+  // クリックされた要素自体がaタグか、子要素にaタグを持っているかをチェック
+  var $target = $(this).closest('.ad-click').find('a').first();
+  var targetUrl = $target.attr('href');
+
+  // targetUrlがundefinedの場合は、クリックされた要素自体のhrefをチェック
+  if (typeof targetUrl === 'undefined') {
+    targetUrl = $(this).attr('href');
+  }
   if (!isClickable) return;
   isClickable = false;
   const postID = $(this).closest('.post').data('post-id');
