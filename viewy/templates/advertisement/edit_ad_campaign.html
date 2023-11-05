@@ -15,21 +15,130 @@
     {% csrf_token %}
 
     <div>
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+        {{ error }}
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <div class="info-item">
         <div class="info-name">キャンペーンタイトル</div>
         <div class="info-input campaign-title">{{ form.title }}</div>
       </div>
       <div class="info-item">
         <div class="info-name">開始日</div>
-        <div class="info-input disabled">{{ form.start_date }}</div>
+        <div class="info-input">
+          {{ form.start_date }}
+          {% if form.start_date.errors %}
+          <div class="error-messages">
+            {% for error in form.start_date.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
         <div class="info-name" style="margin-top: 8px;">終了日</div>
-        <div class="info-input">{{ form.end_date }}</div>
+        <div class="info-input">
+          {{ form.end_date }}
+          {% if form.end_date.errors %}
+          <div class="error-messages">
+            {% for error in form.end_date.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        <input type="checkbox" id="no_end_date" name="no_end_date" {% if no_end_date_checked %}checked{% endif %}> 期限なし
       </div>
-  
+
+      <div class="info-item">
+        <div class="info-name">課金モデル</div>
+        <div class="info-input" id="pricing_model">{{ form.pricing_model.value }}</div>
+      </div>
+
+      {% if year_month %}
+      <div class="info-item">
+        <div class="info-input">
+          {{ year_month|date:"Y-m" }}
+          の基準
+          {% if pricing_model == 'CPM' %}
+          CPM
+          {% elif pricing_model == 'CPC' %}
+          CPC
+          {% endif %}
+          ：<span id="monthly_ad_cost">{{ monthly_ad_cost }}</span>円
+        </div>
+      </div>
+      {% endif %}
+
+      {% if pricing_model == 'CPM' %}
+      <div class="info-item">
+        <div class="info-name">現在の合計表示回数</div>
+        <div class="info-input">
+          {{ total_views_count }}回</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-name">目標表示回数</div>
+        <div class="info-input">
+          {{ form.target_views }}
+          {% if form.target_views.errors %}
+          <div class="error-messages">
+            {% for error in form.target_views.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-name">CPM</div>
+        <div class="info-input" id="calculated_cpm">
+          {{ actual_cpc_or_cpm }}円</div>
+      </div>
+
       <div class="info-item">
         <div class="info-name">予算</div>
-        <div class="info-input">{{ form.budget }}</div>
+        <div class="info-input" id="calculated_budget_cpm">円</div>
+        <p class="info-description" style="width: 400px;">
+          注意：CPMの場合、目標表示回数に応じて予算が自動計算されます。そのためここでの予算とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達しなかった場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。
       </div>
+      {% elif pricing_model == 'CPC' %}
+      <div class="info-item">
+        <div class="info-name">現在の合計クリック回数</div>
+        <div class="info-input">
+          {{ total_clicks_count }}回</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-name">クリック目標数</div>
+        <div class="info-input">
+          {{ form.target_clicks }}
+          {% if form.target_clicks.errors %}
+          <div class="error-messages">
+            {% for error in form.target_clicks.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-name">CPC</div>
+        <div class="info-input" id="calculated_cpc">
+          {{ actual_cpc_or_cpm }}円</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-name">予算</div>
+        <div class="info-input" id="calculated_budget_cpc">円</div>
+      </div>
+      {% endif %}
+
     </div>
 
     <div style="margin-left: 48px;">
@@ -38,21 +147,21 @@
 
         <div>
           {% if andfeatures %}
-            {% for andfeature in andfeatures %}
-              <div class="target">{{ andfeature }}</div>
-              {% if not forloop.last %}
-                かつ
-              {% endif %}
-            {% endfor %}
+          {% for andfeature in andfeatures %}
+          <div class="target">{{ andfeature }}</div>
+          {% if not forloop.last %}
+          かつ
+          {% endif %}
+          {% endfor %}
           {% else %}
-            全員
+          全員
           {% endif %}
         </div>
       </div>
 
 
 
-      <button type="submit" class="submit-campaign">変更</button>  
+      <button type="submit" class="submit-campaign">変更</button>
     </div>
 
   </form>
@@ -61,18 +170,13 @@
 
 {% endblock %}
 {% block script %}
+<script src="{% static 'js/edit_cpm_cpc.js' %}"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  let startDateInput = document.querySelector('#start-date-input');
-  let endDateInput = document.querySelector('#end-date-input');
-
-  // Set the minimum end date to the current start date
-  endDateInput.setAttribute('min', startDateInput.value);
-
-  // Update the minimum end date when the start date changes
-  startDateInput.addEventListener('change', function() {
-    endDateInput.setAttribute('min', this.value);
-  });
+document.addEventListener('DOMContentLoaded', function() {
+  // 現在の日付を YYYY-MM-DD 形式で取得
+  var today = new Date().toISOString().split('T')[0];
+  // end_date 入力フィールドに最小値として今日の日付を設定
+  document.getElementById('end-date-input').setAttribute('min', today);
 });
 </script>
 {% endblock %}

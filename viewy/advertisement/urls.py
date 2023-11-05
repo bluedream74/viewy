@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  AdCampaignsListView, AdCampaignDetailView, CampaignFormView, AdMangaCreateView, AdVideoCreateView, IsHiddenToggle, AdViewButton, EditAdCampaignView, AdCampaignStatusView, AdInfoDelete, AdCampaignDelete, AdClickCountView, FilteredAdCampaignsListView, CloseAdCampaignsListView
+  AdCampaignsListView, AdCampaignDetailView, CampaignFormView, AdMangaCreateView, AdVideoCreateView, IsHiddenToggle, AdViewButton, EditAdCampaignView, AdCampaignStatusView, AdInfoDelete, AdCampaignDelete, AdClickCountView, FilteredAdCampaignsListView, CloseAdCampaignsListView, BillingView
 )
 from . import views
 
@@ -21,4 +21,5 @@ urlpatterns = [
   path('delete_ad_info/<int:ad_info_id>/', AdInfoDelete.as_view(), name='delete_ad_info'),
   path('delete_ad_campaign/<int:campaign_id>/', AdCampaignDelete.as_view(), name='delete_ad_campaign'),
   path('ad_click_count/<int:post_id>/', AdClickCountView.as_view(), name='ad_click_count'),
+  path('billings/', BillingView.as_view(), name='billings'),
 ]

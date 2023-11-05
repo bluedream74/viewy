@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import datetime, date
+import datetime
+
 
 class AdCampaignForm(forms.ModelForm):
     PRICING_MODEL_CHOICES = [('CPC', 'CPC'), ('CPM', 'CPM')]
@@ -15,9 +17,22 @@ class AdCampaignForm(forms.ModelForm):
         label='Pricing Model'
     )
 
-    target_views = forms.IntegerField(required=False)
-    target_clicks = forms.IntegerField(required=False)
-
+    target_views = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'min': 10000,
+            'step': 10000,
+            'placeholder': '目標表示回数を入力'
+        })
+    )
+    target_clicks = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'min': 100,
+            'step': 100,
+            'placeholder': 'クリック目標数を入力'
+        })
+    )
 
     end_date = forms.DateField(
         required=False,  # 必須ではなくする
@@ -26,44 +41,48 @@ class AdCampaignForm(forms.ModelForm):
             'id': 'end-date-input'
         })
     )
-    # budget = forms.DecimalField(
-    # required=False,  # 初めては必須ではないと設定
-    # widget=forms.NumberInput(attrs={
-    #     'id': 'budget_input',
-    #     'placeholder': '予算を入力してください',
-    #     'min': '10000',
-    #     'step': '10000',
-    # })
-    # )
+
     class Meta:
         model = AdCampaigns
         fields = ['title', 
         'start_date', 
-        'end_date', 
-        'andfeatures', 
-        'pricing_model']
+        'andfeatures',]
         widgets = {
             'start_date': forms.DateInput(attrs={
                 'type': 'date', 
                 'id': 'start-date-input',
                 'min': date.today()  # 今日の日付をmin属性として設定
             }),
-            'target_views': forms.NumberInput(attrs={
-                'min': '10000',
-                'step': '10000',
-                'placeholder': '目標表示回数を入力'
-            }),
         }
+
+
+    def clean_start_date(self):
+        start_date = self.cleaned_data.get('start_date')
+        # 新規作成時のみ今日以降の日付を要求する
+        # start_dateがdatetimeオブジェクトの場合、dateオブジェクトに変換
+        if isinstance(start_date, datetime.datetime):
+            start_date = start_date.date()
+        
+        # instanceがあるかどうかをチェックし、pkが設定されている場合は編集とみなす
+        if not self.instance or not self.instance.pk:
+            # start_dateが現在の日付より前かどうかをチェック
+            if start_date < date.today():
+                raise forms.ValidationError('開始日は今日以降の日付を選択してください。')
+        return start_date
 
     def clean(self):
         cleaned_data = super().clean()
         title = cleaned_data.get('title')
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
-        pricing_model = cleaned_data.get('pricing_model')
         target_views = cleaned_data.get('target_views')
         target_clicks = cleaned_data.get('target_clicks')
 
+        # 既存インスタンスの場合は、pricing_model をインスタンスから取得
+        if self.instance and self.instance.pk:
+            pricing_model = self.instance.pricing_model
+        else:
+            pricing_model = cleaned_data.get('pricing_model')
 
         if pricing_model == 'CPC':
             if not target_clicks:
@@ -76,12 +95,6 @@ class AdCampaignForm(forms.ModelForm):
         if not title:
             self.add_error('title', ValidationError('キャンペーン名は必須です'))
 
-        if start_date:
-            # Ensure start_date is a date object for comparison
-            start_date_as_date = start_date.date() if hasattr(start_date, 'date') else start_date
-            if start_date_as_date < date.today(): 
-                self.add_error('start_date', ValidationError('正しく開始日時を設定してください'))
-
         if end_date and start_date:
             # Ensure both dates are date objects for comparison
             end_date_as_date = end_date.date() if hasattr(end_date, 'date') else end_date
@@ -89,12 +102,34 @@ class AdCampaignForm(forms.ModelForm):
             if end_date_as_date <= start_date_as_date:
                 self.add_error('end_date', ValidationError('正しく終了日時を設定してください'))
 
-        # Target views validation
-        if target_views and target_views <= 0:
-            self.add_error('target_views', ValidationError('目標表示回数は正の値です'))
+        target_views = cleaned_data.get('target_views')
+        if target_views is not None:
+            if target_views % 10000 != 0:
+                self.add_error('target_views', ValidationError('目標表示回数は10000の単位で入力してください'))
+
+        # Target clicks validation
+        target_clicks = cleaned_data.get('target_clicks')
+        if target_clicks is not None:
+            if target_clicks % 100 != 0:
+                self.add_error('target_clicks', ValidationError('クリック目標数は100の単位で入力してください'))
 
         return cleaned_data
 
+    def __init__(self, *args, **kwargs):
+        # kwargsからinstanceを取得する
+        instance = kwargs.get('instance', None)
+        super(AdCampaignForm, self).__init__(*args, **kwargs)
+
+        # instanceが存在し、pkが設定されている場合は編集画面とみなす
+        if instance and instance.pk:
+            self.fields['end_date'].initial = timezone.localtime(instance.end_date) if instance.end_date else instance.end_date
+            self.fields['start_date'].widget.attrs['readonly'] = 'readonly'
+            self.fields['target_views'].initial = instance.target_views
+            self.fields['target_clicks'].initial = instance.target_clicks
+            # pricing_model を変更不可にし、バリデーションを必須ではないように設定
+            self.fields['pricing_model'].disabled = True
+            self.fields['pricing_model'].required = False
+            self.fields['pricing_model'].initial = instance.pricing_model
 
 
 class AdInfoForm(forms.ModelForm):
@@ -109,7 +144,7 @@ class AdInfoForm(forms.ModelForm):
         self.ismanga = kwargs.pop('ismanga', None)
         super(AdInfoForm, self).__init__(*args, **kwargs)
         if self.user:
-            self.fields['ad_campaign'].queryset = AdCampaigns.objects.filter(created_by=self.user, is_hidden=False)
+            self.fields['ad_campaign'].queryset = AdCampaigns.objects.filter(created_by=self.user, is_hidden=False).order_by('-created_at')
 
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
@@ -190,4 +225,27 @@ class SetMeetingForm(forms.ModelForm):
             if not x_account:
                 self.add_error('x_account', 'IDを入力してください。')
                 
-                
+class MonthSelectorForm(forms.Form):
+    month_year = forms.DateField(
+        label='年月を選択',
+        widget=forms.SelectDateWidget(
+            years=range(timezone.now().year - 5, timezone.now().year + 1),
+            empty_label=("年を選択", "月を選択", None),
+        )
+    )
+    
+    def __init__(self, *args, **kwargs):
+        super(MonthSelectorForm, self).__init__(*args, **kwargs)
+        # 現在の日付を取得し、1日に設定
+        initial_date = timezone.now().date().replace(day=1)
+        # 先月に設定するために1日引く
+        initial_date -= timezone.timedelta(days=1)
+        # その後、再び1日に設定して先月の初日にする
+        initial_date = initial_date.replace(day=1)
+        
+        # フォームの初期値を設定
+        self.initial['month_year'] = initial_date
+        self.fields['month_year'].widget = forms.SelectDateWidget(
+            years=range(timezone.now().year - 1, timezone.now().year + 1),
+            empty_label=("年を選択", "月を選択", None),
+        )

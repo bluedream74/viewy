@@ -58,6 +58,11 @@ document.addEventListener('DOMContentLoaded', function () {
       let adjustedCPM = calculateCPM(targetViews, baseCPMToUse);
       let budget = (targetViews / 1000) * adjustedCPM;
 
+      if (targetViewsInput.value === '' || isNaN(targetViewsInput.value)) {
+        document.querySelector('#calculated_cpm').textContent = '---';
+        document.querySelector('#calculated_budget_cpm').textContent = '---';
+        return; // 以降の処理を中断する
+      }
       // CPMと予算を表示する場所を指定してください
       document.querySelector('#calculated_cpm').textContent = adjustedCPM.toLocaleString() + '円';
       document.querySelector('#calculated_budget_cpm').textContent = budget.toLocaleString() + '円';
@@ -68,6 +73,11 @@ document.addEventListener('DOMContentLoaded', function () {
       let adjustedCPC = calculateCPC(targetClicks, baseCPCToUse);
       let budget = targetClicks * adjustedCPC;
 
+      if (targetClicksInput.value === '' || isNaN(targetClicksInput.value)) {
+        document.querySelector('#calculated_cpc').textContent = '---';
+        document.querySelector('#calculated_budget_cpc').textContent = '---';
+        return; // 以降の処理を中断する
+      }
       // CPCを表示する場所を指定してください
       document.querySelector('#calculated_cpc').textContent = adjustedCPC.toLocaleString() + '円';
       document.querySelector('#calculated_budget_cpc').textContent = budget.toLocaleString() + '円';

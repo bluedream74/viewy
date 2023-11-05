@@ -4,6 +4,7 @@ from decimal import Decimal, ROUND_UP
 from django.utils import timezone
 from datetime import timedelta
 from moviepy.editor import VideoFileClip
+from operator import itemgetter
 from django.db import transaction
 from django.db.models import F, Sum
 from django.views import View
@@ -25,12 +26,12 @@ from django.db.models.functions import Concat
 from django.db.models import CharField
 
 from posts.models import Posts, Users, Videos, Visuals
-from .models import AdInfos, AndFeatures, MonthlyAdCost, MonthlyBilling
+from .models import AdInfos, AndFeatures, MonthlyAdCost, MonthlyBilling, UserMonthlyBillingSummary
 from accounts.models import Features
 from django.views.generic import TemplateView
 from django.template.loader import select_template
 
-from .forms import AdCampaignForm, AdInfoForm
+from .forms import AdCampaignForm, AdInfoForm, MonthSelectorForm
 from posts.forms import PostForm, VisualForm, VideoForm
 from django.forms import formset_factory
 
@@ -68,23 +69,26 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
             for campaign in campaigns:
                 total_fee = 0 
                 total_views = 0
+                total_clicks = 0
                 
                 # Updating each AdInfo's fee
                 for ad_info in campaign.ad_infos.all(): 
                     ad_info.update_fee()
                     total_fee += ad_info.fee
-                    total_views += ad_info.post.views_count
+                    total_views += ad_info.post.views_count   
+                    total_clicks += ad_info.clicks_count
                     ad_infos_to_save.append(ad_info)
 
 
                 # Check if the fee or total_views_count has changed
-                if campaign.fee != total_fee or campaign.total_views_count != total_views:
+                if campaign.fee != total_fee or campaign.total_views_count != total_views or campaign.total_clicks_count != total_clicks:
                     campaign.fee = total_fee
                     campaign.total_views_count = total_views
+                    campaign.total_clicks_count = total_clicks
                     campaigns_to_save.append(campaign)
 
             if campaigns_to_save:
-                AdCampaigns.objects.bulk_update(campaigns_to_save, ['total_views_count', 'fee'])
+                AdCampaigns.objects.bulk_update(campaigns_to_save, ['total_views_count', 'fee', 'total_clicks_count'])
             
             # Bulk update the ad_infos_to_save list if it is not empty
             if ad_infos_to_save:
@@ -168,7 +172,13 @@ class CloseAdCampaignsListView(AdvertiserCheckView, View):
 
     def get_queryset(self):
         # ステータスがachieved、expired、またはstoppedのキャンペーンのみを取得
-        return AdCampaigns.objects.filter(status__in=['achieved', 'expired', 'stopped']).order_by('-created_at')
+        return AdCampaigns.objects.filter(
+            status__in=['achieved', 'expired', 'stopped']
+        ).prefetch_related(
+            Prefetch('ad_infos', queryset=AdInfos.objects.select_related('post'))
+        ).annotate(
+            adinfos_count=Count('ad_infos')  # ad_infosの数を注釈する
+        ).order_by('-created_at')
 
     def get(self, request, *args, **kwargs):
         campaigns = self.get_queryset()  # 更新されたクエリセットを取得
@@ -221,6 +231,59 @@ class AdCampaignDetailView(AdvertiserCheckView, View):
             'andfeatures': andfeatures,
         }
         return render(request, self.template_name, context)
+
+class BillingView(AdvertiserCheckView, TemplateView):
+    template_name = 'advertisement/billings.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = MonthSelectorForm(self.request.GET or None)
+
+        now = timezone.now()
+        if form.is_valid():
+            month_year = form.cleaned_data['month_year']
+            month_year = month_year.replace(day=1)
+        else:
+            # フォームが無効であれば、デフォルトで前月を表示
+            first_day_of_last_month = now.replace(day=1) - timezone.timedelta(days=1)
+            month_year = first_day_of_last_month.replace(day=1)
+        
+        campaigns = AdCampaigns.objects.filter(created_by=self.request.user)
+        
+        # 前月のデータのみをフィルタリング
+        campaign_billings = [
+            {
+                'campaign_id': campaign.id,
+                'campaign_title': campaign.title,
+                'month_year': billing.month_year,
+                'monthly_fee': billing.monthly_fee
+            }
+            for campaign in campaigns
+            for billing in campaign.monthly_billings.filter(
+                month_year=month_year
+            )
+        ]
+        
+        # 新しい順（降順）にソート
+        campaign_billings_sorted = sorted(campaign_billings, key=itemgetter('month_year'), reverse=True)
+
+        # ユーザーの月別の合計料金を取得
+        user_monthly_billing_summary = UserMonthlyBillingSummary.objects.filter(
+            user=self.request.user, 
+            month_year=month_year
+        ).first()
+        
+        # 合計料金と税込み合計料金をコンテキストに追加
+        if user_monthly_billing_summary:
+            context['total_fee'] = user_monthly_billing_summary.total_fee
+            context['total_fee_with_tax'] = user_monthly_billing_summary.total_fee_with_tax
+        else:
+            context['total_fee'] = 0
+            context['total_fee_with_tax'] = 0
+            
+        context['campaign_billings'] = campaign_billings_sorted
+        context['form'] = form
+        return context
 
 
 class CampaignFormView(AdvertiserCheckView, View):
@@ -280,7 +343,7 @@ class CampaignFormView(AdvertiserCheckView, View):
 
             # monthly_ad_cost の設定
             start_date = form.cleaned_data['start_date']
-            target_month = start_date.date().replace(day=1)
+            target_month = start_date.replace(day=1)
             try:
                 adcampaign.monthly_ad_cost = MonthlyAdCost.objects.get(year_month=target_month)
                 ad_cost_message = None
@@ -303,7 +366,7 @@ class CampaignFormView(AdvertiserCheckView, View):
             adcampaign.status = 'pending'
 
             # 開始日が今日よりも前であれば、ステータスをrunningに設定する
-            if start_date and start_date.date() <= date.today():
+            if start_date and start_date <= date.today():
                 adcampaign.status = 'running'
 
             adcampaign.pricing_model = pricing_model
@@ -311,15 +374,15 @@ class CampaignFormView(AdvertiserCheckView, View):
             if 'no_end_date' in request.POST:
                 # 'no_end_date' チェックボックスがオンの場合、end_dateは設定されず、データベースにはNULLが保存されます。
                 adcampaign.end_date = None
-            elif 'end_date' in request.POST and request.POST['end_date']:  # end_dateが送信されている場合
+            else:
                 # end_dateがフォームから送信された場合、それが使用されます。
-                pass  
+                end_date = form.cleaned_data.get('end_date')
+                if end_date:  # end_dateが送信されており、かつ有効な日付が入力されている場合
+                    adcampaign.end_date = end_date
 
             if pricing_model == "CPC":
                 adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
                 adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks)
-                # adcampaign.budget はユーザがフォームで入力する
-                # adcampaign.budget = request.POST.get('budget')
                 adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
                 # 小数第一位まで保存し、それ以降は切り上げ
                 adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
@@ -632,20 +695,81 @@ class EditAdCampaignView(AdvertiserCheckView, View):
         form = AdCampaignForm(instance=campaign)
         # キャンペーンに関連するAndFeaturesを取得（is_allがTrueのものは除外）
         andfeatures = campaign.andfeatures.filter(is_all=False)
-        start_date = campaign.start_date
-        return render(request, self.template_name, {'form': form, 'andfeatures': andfeatures})
+        pricing_model = campaign.pricing_model
+        # 'no_end_date' チェックボックスの状態を判定
+        no_end_date_checked = 'checked' if campaign.end_date is None else ''
+        if campaign.monthly_ad_cost:
+            year_month_value = campaign.monthly_ad_cost.year_month
+            if pricing_model == 'CPM':
+                monthly_ad_cost_value = campaign.monthly_ad_cost.cpm
+            elif pricing_model == 'CPC':
+                monthly_ad_cost_value = campaign.monthly_ad_cost.cpc
+        else:
+            monthly_ad_cost_value = 0
+            year_month_value = None
+
+        actual_cpc_or_cpm_value = campaign.actual_cpc_or_cpm or 0
+        total_views_count = campaign.total_views_count
+        total_clicks_count = campaign.total_clicks_count
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'andfeatures': andfeatures,
+            'pricing_model': pricing_model,
+            'no_end_date_checked': no_end_date_checked,
+            'monthly_ad_cost': monthly_ad_cost_value,
+            'actual_cpc_or_cpm': actual_cpc_or_cpm_value,
+            'year_month': year_month_value, 
+            'total_views_count': total_views_count,
+            'total_clicks_count': total_clicks_count,
+        })
 
     def post(self, request, campaign_id):
         campaign = get_object_or_404(AdCampaigns, id=campaign_id)
         original_andfeatures = list(campaign.andfeatures.values_list('id', flat=True))
         form = AdCampaignForm(request.POST, instance=campaign)
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.andfeatures.set(original_andfeatures)
-            instance.save()
+            adcampaign = form.save(commit=False)
+            adcampaign.andfeatures.set(original_andfeatures)
+
+            # 'no_end_date' チェックボックスの処理
+            if 'no_end_date' in request.POST:
+                adcampaign.end_date = None
+
+            # 'end_date' の処理
+            elif 'end_date' in request.POST and request.POST['end_date']:
+                adcampaign.end_date = form.cleaned_data['end_date']
+
+            # CPC または CPM の計算と保存
+            if adcampaign.pricing_model == "CPC":
+                adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
+                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks)
+                adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
+                adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
+                adcampaign.actual_cpc_or_cpm = adjusted_cpc
+            else:
+                adcampaign.target_views = form.cleaned_data.get('target_views')
+                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views)
+                adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm
+                adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
+                adcampaign.actual_cpc_or_cpm = adjusted_cpm
+
+            adcampaign.save()
             # 成功した場合のリダイレクト（例）
             return redirect(reverse('advertisement:ad_campaign_detail', kwargs={'campaign_id': campaign_id}))
-        return render(request, self.template_name, {'form': form})
+        else:
+            # フォームにエラーがある場合、エラー情報をテンプレートに渡す
+            print("Form errors:", form.errors)
+            andfeatures = campaign.andfeatures.filter(is_all=False)
+            pricing_model = campaign.pricing_model
+            # 'no_end_date' チェックボックスの状態を判定
+            no_end_date_checked = 'checked' if campaign.end_date is None else ''
+            return render(request, self.template_name, {
+                'form': form,
+                'andfeatures': andfeatures,
+                'pricing_model': pricing_model,
+                'no_end_date_checked': no_end_date_checked 
+            })
 
 class AdCampaignStatusView(AdvertiserCheckView, View):
     

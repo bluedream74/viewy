@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Sum, Q
 from decimal import Decimal, ROUND_UP
+from django.db import transaction
 
 class AndFeatures(models.Model):
     orfeatures = models.ManyToManyField(Features)
@@ -212,11 +213,14 @@ class MonthlyBilling(models.Model):
         return f"{self.ad_campaign.title} - {self.month_year.strftime('%Y-%m')}"
 
     @staticmethod
+    @transaction.atomic
     def calculate_monthly_billing(now=None):
 
         now = now or datetime.now()
+        print(f"現在の日時: {now}")  
         # now = datetime.now()# 本番はこれ
         month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        print(f"月初めの日時: {month_start}")  # 月初めの日時を表示
 
         # 月の途中で終了したキャンペーンまたは実行中のキャンペーンを検索する
         campaigns = AdCampaigns.objects.filter(
@@ -227,6 +231,9 @@ class MonthlyBilling(models.Model):
                 Q(status='stopped')
             ) & Q(end_date__range=(month_start, now))
         )
+        print(f"該当するキャンペーン数: {campaigns.count()}")
+
+        user_totals = {}
 
         # 各キャンペーンに対して月末の料金を計算し、MonthlyBillingオブジェクトを作成する
         for campaign in campaigns:
@@ -244,6 +251,8 @@ class MonthlyBilling(models.Model):
             monthly_clicks = campaign.total_clicks_count - (aggregate_data['total_clicks'] or 0)
             monthly_fee = campaign.fee - (aggregate_data['total_fee'] or 0)
 
+            print(f"キャンペーンID {campaign.id}: 表示回数 {monthly_views}, クリック回数 {monthly_clicks}, 料金 {monthly_fee}")
+
             # MonthlyBillingオブジェクトを作成する
             MonthlyBilling.objects.create(
                 ad_campaign=campaign,
@@ -253,3 +262,34 @@ class MonthlyBilling(models.Model):
                 monthly_fee=monthly_fee
             )
 
+            # ユーザーの合計を更新
+            user_id = campaign.created_by_id
+            user_totals[user_id] = user_totals.get(user_id, 0) + monthly_fee
+
+        # UserMonthlyBillingSummary を保存
+        for user_id, total_fee in user_totals.items():
+            print(f"ユーザーID {user_id}: 合計料金 {total_fee}")
+            user = Users.objects.get(id=user_id)
+            billing_summary = UserMonthlyBillingSummary(
+                user=user,
+                month_year=month_start,
+                total_fee=total_fee
+            )
+            billing_summary.save()
+
+class UserMonthlyBillingSummary(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='monthly_billing_summaries')
+    month_year = models.DateField()  # 集計する月の年と月
+    total_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # 合計料金
+    total_fee_with_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # 税込み合計料金
+
+    class Meta:
+        unique_together = (('user', 'month_year'),)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.month_year.strftime('%Y-%m')} - Total Fee: {self.total_fee} - Total Fee with Tax: {self.total_fee_with_tax}"
+
+    def save(self, *args, **kwargs):
+        # 税込み料金を計算する
+        self.total_fee_with_tax = self.total_fee * Decimal('1.10')
+        super(UserMonthlyBillingSummary, self).save(*args, **kwargs)

@@ -1,0 +1,57 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/billings.css' %}">
+{% endblock %}
+
+{% block content %}
+{% block table %}
+<div class="page-title">月末請求履歴</div>
+<div class="block">
+  <form method="get" action="{% url 'advertisement:billings' %}">
+    {{ form.as_p }}
+    <button type="submit">表示</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>年/月</th>
+        <th>キャンペーン名</th>
+        <th>請求料金</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for billing in campaign_billings %}
+      <tr>
+        <td>{{ billing.month_year|date:"Y/m" }}</td>
+        <td>
+          <a href="{% url 'advertisement:ad_campaign_detail' billing.campaign_id %}" class="campaign-title">
+            {{ billing.campaign_title }}</a>
+        </td>
+        <td>{{ billing.monthly_fee }}円</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">キャンペーンの月末請求履歴はありません。</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">合計</td>
+        <td>{{ total_fee }}円</td>
+      </tr>
+      <tr>
+        <td colspan="2">税込</td>
+        <td>{{ total_fee_with_tax }}円</td>
+      </tr>
+    </tfoot>
+  </table>
+
+</div>
+{% endblock %}
+{% endblock %}
+{% block script %}
+
+{% endblock %}

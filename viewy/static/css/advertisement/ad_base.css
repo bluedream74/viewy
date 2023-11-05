@@ -67,12 +67,12 @@ body{
 
 .back{
   position: relative;
-  top: 160px;
+  top: 56px;
 }
 
 
 .block{
-  margin: 0px 32px;
+  margin: 0px auto;
   margin-bottom: 32px;
   padding: 8px 32px;
   color: rgb(69, 69, 69);
