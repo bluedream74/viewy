@@ -622,15 +622,16 @@ label {
 }
 
 .ss{
-  font-size: 13px;
-  padding: 2px 4px;
+  font-size: 15px;
+  padding: 2px 8px;
   border-radius: 4px;
   margin-left: 4px;
   background-color: rgb(43, 212, 212);
   text-shadow: none;
-  box-shadow: gray 0px 1px 3px;
+  box-shadow: gray 0px 1px 2px;
   white-space: nowrap; /* 追加 */
   overflow-wrap: break-word; /* 追加 */  
+  font-style: italic;
 }
 
 .clear{

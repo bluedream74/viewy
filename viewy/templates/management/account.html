@@ -57,11 +57,16 @@
     <canvas id="genderPieChart"></canvas>
   </div>
 
+  <div style="margin-top: 120px;" class="chart">
+    <canvas id="ageChart" width="400" height="400"></canvas>
+  </div>
 </div>
 
 {{ male_users|json_script:"maleUsers" }}
 {{ female_users|json_script:"femaleUsers" }}
 {{ other_gender_users|json_script:"otherGenderUsers" }}
+{{ age_groups|json_script:"ageGroups" }}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   fetch('/management/get_user_stats/')
@@ -103,5 +108,34 @@
       }
   });
 </script>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('ageChart').getContext('2d');
+    // 'age_groups'をテンプレートから安全にパースするためには、'json_script' フィルターを使うべきです。
+    var ageGroupsData = JSON.parse(document.getElementById('ageGroups').textContent);
+    var labels = Object.keys(ageGroupsData);
+    var data = Object.values(ageGroupsData);
+    
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '年代別分布',
+                data: data,
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {  // 'yAxes' should be updated to 'y' as per Chart.js 3.x syntax
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+  </script>
 {% endblock %}

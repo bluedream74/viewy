@@ -107,15 +107,50 @@
     {{ random_ad2.ad_tag|safe }}
   </div>
   {% elif forloop.counter == 4 %}
-  <div class="ad-space wide-ad" data-ad-id="{{ random_ad4.id }}">
+  <!-- <div class="ad-space wide-ad" data-ad-id="{{ random_ad4.id }}">
     {{ random_ad4.ad_tag|safe }}
-  </div>
+  </div> -->
   {% endif %}
 
   {% endfor %}
   {% else %}
   <div class="no-content">結果はありません</div>
   {% endif %}
+</div>
+
+<div class="recommended-section">
+  <div class="recommended-main">
+    <i class="fa-solid fa-handshake" style="color: aqua; margin-right: 4px;"></i>
+    <span class="recommended-title">スペシャルサポーター</span>
+  </div>
+  <div class="recommended-users">
+    <div class="recommended-user-list">
+      <div class="recommended-user">
+          <img src="{{ MEDIA_URL }}others/ロゴサンプル.png" alt="">
+          <div class="poster-name">
+            <div class="poster-name" style="color: white;">企業名</div>
+          </div>
+      </div>
+      <div class="recommended-user">
+        <img src="{{ MEDIA_URL }}others/ロゴサンプル.png" alt="">
+        <div class="poster-name">
+          <div class="poster-name" style="color: white;">企業名</div>
+        </div>
+    </div>
+    <div class="recommended-user">
+      <img src="{{ MEDIA_URL }}others/ロゴサンプル.png" alt="">
+      <div class="poster-name">
+        <div class="poster-name" style="color: white;">企業名</div>
+      </div>
+  </div>
+      <div class="recommended-user">
+        <img src="{{ MEDIA_URL }}others/ロゴサンプル.png" alt="">
+        <div class="poster-name" style="color: white;">
+          <div class="poster-name">企業名</div>
+        </div>
+    </div>
+    </div>
+  </div>
 </div>
 
 <div id="loginModal" class="login-modal">
