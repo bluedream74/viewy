@@ -2,7 +2,14 @@
 
 {% block table %}
 <div class="sub-page-title">途中停止したキャンペーン</div>
-<div>途中停止した時点での表示回数に基づいて、CPM,CPCが計算されます
+
+<div class="filter">
+  絞り込み：
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='achieved' %}" class="status-button">目標達成</a>
+  <a href="{% url 'advertisement:close_ad_campaigns_list' %}" class="status-button" style="background-color: rgba(193, 193, 193, 0.76);">途中停止</a>
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='expired' %}" class="status-button">期限到達</a>
+</div>
+<div class="warning">※途中停止した時点での表示回数に基づいて、CPM,CPCが計算されます
 </div>
 <div class="block">
 
@@ -38,8 +45,8 @@
       </td>
       <td class="fee">{{ campaign.fee }}</td>
       <td class="budget">{{ campaign.budget }}</td>
-      <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">{{
-          campaign.start_date|date:"Y-m-d" }}</span>～<span class="date">
+      <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">
+        {{ campaign.start_date|date:"Y-m-d" }}</span>～<br><span class="date">
           {{ campaign.end_date|date:"Y-m-d" }}</span></td>
       <td>
         <form>

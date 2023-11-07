@@ -3,9 +3,13 @@
 {% block table %}
 <div class="sub-page-title">非公開のキャンペーン</div>
 
-<a href="{% url 'advertisement:filtered_ad_campaign_list' status='achieved' %}" class="status-button">目標達成したキャンペーン</a>
-<a href="{% url 'advertisement:filtered_ad_campaign_list' status='stopped' %}" class="status-button">途中停止したキャンペーン</a>
-<a href="{% url 'advertisement:filtered_ad_campaign_list' status='expired' %}" class="status-button">終了期限に到達にしたキャンペーン</a>
+<div class="filter">
+  絞り込み：
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='achieved' %}" class="status-button">目標達成</a>
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='stopped' %}" class="status-button">途中停止</a>
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='expired' %}" class="status-button">期限到達</a>
+</div>
+
 
 <div class="block">
 

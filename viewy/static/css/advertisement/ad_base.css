@@ -14,7 +14,7 @@ body{
   min-width: 180px;
   min-height: 400px;
   background-color: rgb(32, 41, 43);
-  padding-top: 180px;
+  padding-top: 164px;
   color: white;
   box-shadow: 1px 2px 3px gray;
   position: relative;
@@ -52,9 +52,23 @@ body{
   margin-right: 16px;
 }
 
+.campaign-status a{
+  display: block;
+  font-weight: bold ;
+  color: white;
+  padding: 4px;
+  padding-left: 24px;
+  text-decoration: none;
+}
+
+.campaign-status a:hover{
+  cursor: pointer;
+  background-color: rgb(118, 118, 118) ;
+}
+
 .sub-status {
   margin-left: 36px;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .contents{
@@ -67,7 +81,7 @@ body{
 
 .back{
   position: relative;
-  top: 56px;
+  top: 32px;
 }
 
 
@@ -88,7 +102,7 @@ body{
   font-size: 24px;
   text-align: left;
   font-weight: bold;
-  padding: 16px 16px;
+  padding: 32px 16px 16px;
   margin: 0px 32px;
   color: rgb(69, 69, 69);
 }

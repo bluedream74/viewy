@@ -26,15 +26,17 @@
         </div>
         <div>広告管理ページ</div>
       </div>
+      <a href="{% url 'advertisement:ad_edit_prf'%}"><i class="fa-solid fa-user menu-icon"></i></i><span class="menu-title">プロフィール編集</span></a>
       <a href="{% url 'advertisement:ad_campaigns_list'%}"><i class="fa-solid fa-receipt menu-icon"></i><span class="menu-title">キャンペーン</span></a>
-      <a href="{% url 'advertisement:filtered_ad_campaign_list' status='pending' %}" class="status-button sub-status">公開前</a>
-      <a href="{% url 'advertisement:filtered_ad_campaign_list' status='running' %}" class="status-button sub-status">公開中</a>
-      <a href="{% url 'advertisement:close_ad_campaigns_list' %}" class="status-button sub-status">非公開</a>
+      <div class="campaign-status">
+        <a href="{% url 'advertisement:filtered_ad_campaign_list' status='pending' %}" class="status-button sub-status">公開前</a>
+        <a href="{% url 'advertisement:filtered_ad_campaign_list' status='running' %}" class="status-button sub-status">公開中</a>
+        <a href="{% url 'advertisement:close_ad_campaigns_list' %}" class="status-button sub-status">非公開</a>
+      </div>
       <a href="{% url 'advertisement:campaign_form'%}"><i class="fa-solid fa-rectangle-ad menu-icon"></i><span class="menu-title">キャンペーン作成</span></a>
       <a href="{% url 'advertisement:ad_manga_create'%}"><i class="fa-solid fa-images menu-icon"></i><span class="menu-title">画像広告作成</span></a>
       <a href="{% url 'advertisement:ad_video_create'%}"><i class="fa-solid fa-film menu-icon"></i><span class="menu-title">動画広告作成</span></a>
-      <a href="{% url 'advertisement:ad_edit_prf'%}"><i class="fa-solid fa-film menu-icon"></i><span class="menu-title">プロフィール編集</span></a>
-      <a href="{% url 'advertisement:billings'%}"><i class="fa-solid fa-film menu-icon"></i><span class="menu-title">料金</span></a>
+      <a href="{% url 'advertisement:billings'%}"><i class="fa-solid fa-yen-sign menu-icon"></i><span class="menu-title">料金</span></a>
       <a href="{% url 'posts:my_account'%}" class="back"><i class="fa-solid fa-arrow-right-from-bracket menu-icon"></i><span class="menu-title">Viewyに戻る</span></a>
     </div>
 
