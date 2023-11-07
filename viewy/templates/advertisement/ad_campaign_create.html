@@ -10,8 +10,8 @@
 
 <div class="monthly-costs">
   <div class="costs-title">今月の料金</div>
-  <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value">{{ current_cpm }}</span>円</div>
-  <div class="fee">CPC <span class="fee-value">{{ current_cpc }}</span>円</div>
+  <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value cpm">{{ current_cpm }}</span>円</div>
+  <div class="fee">CPC <span class="fee-value cpc">{{ current_cpc }}</span>円</div>
 
   <!-- {% if next_cpc and next_cpm %}
   <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
@@ -54,13 +54,12 @@
           {{ form.start_date.errors }}
         </div>
         <div class="info-name" style="margin-top: 8px;">終了日</div>
-        <div class="info-input">
+        <div class="end_date_option">
+          {{ form.end_date_option }}
+        </div>
+        <div class="info-input" id="end-date-container">
           {{ form.end_date }}
           {{ form.end_date.errors }}
-        </div>
-        <div class="no_end_date">
-        <input type="checkbox" id="no_end_date" name="no_end_date">
-        <label for="no_end_date">期限なし</label>
         </div>
       </div>
 
@@ -145,7 +144,7 @@
 
       {{ form.non_field_errors }}
 
-      <button type="submit" class="submit-campaign" disabled>作成</button>
+      <button type="submit" class="submit-campaign">作成</button>
     </div>
 
   </form>
@@ -155,49 +154,41 @@
 {% endblock %}
 {% block script %}
 <script src="{% static 'js/cpm_cpc.js' %}"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', (event) => {
-    document.getElementById('no_end_date').addEventListener('change', function () {
-      var endDateInput = document.querySelector('input[name="end_date"]');
-      if (this.checked) {
-        endDateInput.disabled = true;
-      } else {
-        endDateInput.disabled = false;
-      }
-    });
-  });
-  document.addEventListener("DOMContentLoaded", function () {
-    let submitButton = document.querySelector("button[type='submit']");
-    let sexCheckboxes = document.querySelectorAll("input[name='sex_orfeatures']");
-    let dimensionCheckboxes = document.querySelectorAll("input[name='dimension_orfeatures']");
-    let startDateInput = document.querySelector('#start-date-input');
-    let endDateInput = document.querySelector('#end-date-input');
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    var endDateContainer = document.getElementById('end-date-container');
+    var noEndDateInput = document.getElementById('id_end_date_option_0'); // '終了期限なし'のinput
+    var setEndDateInput = document.getElementById('id_end_date_option_1'); // '期限を設定する'のinput
 
-    // Set the minimum end date to the current start date
-    endDateInput.setAttribute('min', startDateInput.value);
-
-    function checkSelection() {
-      let sexSelected = Array.from(sexCheckboxes).some(checkbox => checkbox.checked);
-      let dimensionSelected = Array.from(dimensionCheckboxes).some(checkbox => checkbox.checked);
-
-      if (sexSelected && dimensionSelected) {
-        submitButton.removeAttribute("disabled");
-      } else {
-        submitButton.setAttribute("disabled", "disabled");
-      }
+    // ラジオボタンの選択に応じて終了日フィールドを表示または非表示
+    function toggleEndDate() {
+      endDateContainer.style.display = noEndDateInput.checked ? 'none' : 'block';
     }
 
-    // Initialize
-    checkSelection();
+    noEndDateInput.addEventListener('change', toggleEndDate);
+    setEndDateInput.addEventListener('change', toggleEndDate);
 
-    // Listen for changes
-    sexCheckboxes.forEach(checkbox => checkbox.addEventListener("change", checkSelection));
-    dimensionCheckboxes.forEach(checkbox => checkbox.addEventListener("change", checkSelection));
+    // 初期状態の設定
+    toggleEndDate();
+  });
 
-    // Update the minimum end date when the start date changes
-    startDateInput.addEventListener('change', function () {
-      endDateInput.setAttribute('min', this.value);
+  document.addEventListener('DOMContentLoaded', function () {
+    // 開始日の入力フィールドを選択
+    var startDateField = document.querySelector('input[name="start_date"]');
+
+    // 終了日の入力フィールドを選択
+    var endDateField = document.querySelector('input[name="end_date"]');
+
+    // 開始日の入力フィールドにイベントリスナーを設定
+    startDateField.addEventListener('change', function () {
+      // 開始日の値を取得して終了日のmin属性に設定
+      endDateField.setAttribute('min', this.value);
     });
+
+    // 初期状態で終了日のminを設定するためのイベントを発火
+    if (startDateField.value) {
+      startDateField.dispatchEvent(new Event('change'));
+    }
   });
 </script>
 {% endblock %}

@@ -96,41 +96,42 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
             if ad_infos_to_save:
                 AdInfos.objects.bulk_update(ad_infos_to_save, ['fee'])
 
-        # 今月の年と月を取得
-        today = date.today()
-        year_month = date(today.year, today.month, 1)
-
-        # 来月の年と月を取得
-        next_month_date = date.today().replace(day=1) + timedelta(days=32)
-        next_month_date = next_month_date.replace(day=1) 
-
-        # 今月のCPCとCPMのデータを取得
-        try:
-            monthly_ad_cost = MonthlyAdCost.objects.get(year_month=year_month)
-            current_cpc = monthly_ad_cost.cpc
-            current_cpm = monthly_ad_cost.cpm
-        except MonthlyAdCost.DoesNotExist:
-            current_cpc = None
-            current_cpm = None
-
-        # 来月のCPCとCPMのデータを取得
-        try:
-            next_monthly_ad_cost = MonthlyAdCost.objects.get(year_month=next_month_date)
-            next_cpc = next_monthly_ad_cost.cpc
-            next_cpm = next_monthly_ad_cost.cpm
-        except MonthlyAdCost.DoesNotExist:
-            next_cpc = None
-            next_cpm = None
-
+        ad_costs = self.get_ad_costs()
         context = {
             'campaigns': campaigns,
-            'current_cpc': current_cpc,
-            'current_cpm': current_cpm,
-            'next_cpc': next_cpc,
-            'next_cpm': next_cpm,
+            **ad_costs,
         }
 
         return render(request, self.template_name, context)
+
+    def get_ad_costs(self):
+        today = timezone.now()
+        year_month = date(today.year, today.month, 1)
+        next_month_date = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
+
+        ad_costs = {
+            'current_cpc': None,
+            'current_cpm': None,
+            'next_cpc': None,
+            'next_cpm': None,
+        }
+
+        try:
+            monthly_ad_cost = MonthlyAdCost.objects.get(year_month=year_month)
+            ad_costs['current_cpc'] = monthly_ad_cost.cpc
+            ad_costs['current_cpm'] = monthly_ad_cost.cpm
+        except MonthlyAdCost.DoesNotExist:
+            pass  # Values remain None
+
+        try:
+            next_monthly_ad_cost = MonthlyAdCost.objects.get(year_month=next_month_date)
+            ad_costs['next_cpc'] = next_monthly_ad_cost.cpc
+            ad_costs['next_cpm'] = next_monthly_ad_cost.cpm
+        except MonthlyAdCost.DoesNotExist:
+            pass  # Values remain None
+
+        return ad_costs
+
 
 class FilteredAdCampaignsListView(AdCampaignsListView):
 
@@ -161,11 +162,11 @@ class FilteredAdCampaignsListView(AdCampaignsListView):
         campaigns = self.get_queryset(status)  # クエリセットを更新し、campaignsに代入
 
         template_name = self.get_template_names()
-        print(template_name)
-        # contextを生成するためのコード...
+
+        ad_costs = self.get_ad_costs()
         context = {
             'campaigns': campaigns,
-            # ... (他のコンテキスト変数)
+            **ad_costs,
         }
         return render(request, template_name, context)
 
@@ -338,6 +339,9 @@ class CampaignFormView(AdvertiserCheckView, View):
 
     def post(self, request, *args, **kwargs):
         form = AdCampaignForm(request.POST)
+        # ad_cost_message の初期値を設定
+        ad_cost_message = ""
+
         if form.is_valid():
             adcampaign = form.save(commit=False)
 
@@ -349,7 +353,6 @@ class CampaignFormView(AdvertiserCheckView, View):
             target_month = start_date.replace(day=1)
             try:
                 adcampaign.monthly_ad_cost = MonthlyAdCost.objects.get(year_month=target_month)
-                ad_cost_message = None
             except MonthlyAdCost.DoesNotExist:
                 adcampaign.monthly_ad_cost = None
                 # 日付をフォーマットしてメッセージを作成します。
@@ -374,28 +377,23 @@ class CampaignFormView(AdvertiserCheckView, View):
 
             adcampaign.pricing_model = pricing_model
 
-            if 'no_end_date' in request.POST:
-                # 'no_end_date' チェックボックスがオンの場合、end_dateは設定されず、データベースにはNULLが保存されます。
+            # フォームから'end_date_option'の値を取得して適用
+            end_date_option = form.cleaned_data.get('end_date_option')
+            if end_date_option == 'none':
                 adcampaign.end_date = None
             else:
-                # end_dateがフォームから送信された場合、それが使用されます。
-                end_date = form.cleaned_data.get('end_date')
-                if end_date:  # end_dateが送信されており、かつ有効な日付が入力されている場合
-                    adcampaign.end_date = end_date
+                adcampaign.end_date = form.cleaned_data.get('end_date')
 
             if pricing_model == "CPC":
                 adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
                 adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks)
                 adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
-                # 小数第一位まで保存し、それ以降は切り上げ
                 adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
                 adcampaign.actual_cpc_or_cpm = adjusted_cpc
             else:  # pricing_model == "CPM"
                 adcampaign.target_views = form.cleaned_data.get('target_views')
                 adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views)
-                adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm  # 調整されたCPMでの計算
-
-                # 小数第一位まで保存し、それ以降は切り上げ
+                adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm
                 adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
                 adcampaign.actual_cpc_or_cpm = adjusted_cpm
 
@@ -766,11 +764,21 @@ class EditAdCampaignView(AdvertiserCheckView, View):
             pricing_model = campaign.pricing_model
             # 'no_end_date' チェックボックスの状態を判定
             no_end_date_checked = 'checked' if campaign.end_date is None else ''
+
+            actual_cpc_or_cpm_value = campaign.actual_cpc_or_cpm or 0
+            total_views_count = campaign.total_views_count
+            total_clicks_count = campaign.total_clicks_count
+            budget = campaign.budget
+
             return render(request, self.template_name, {
                 'form': form,
                 'andfeatures': andfeatures,
                 'pricing_model': pricing_model,
-                'no_end_date_checked': no_end_date_checked 
+                'no_end_date_checked': no_end_date_checked,
+                'actual_cpc_or_cpm': actual_cpc_or_cpm_value,
+                'total_views_count': total_views_count,
+                'total_clicks_count': total_clicks_count,
+                'budget': budget,
             })
 
 class AdCampaignStatusView(AdvertiserCheckView, View):

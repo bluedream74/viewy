@@ -1,23 +1,15 @@
 function calculateCPM(targetViews, baseCPM) {
-  if (targetViews <= 50000) {
+  if (targetViews < 200000) { // 10万回以上20万回未満の場合もそのままの値を返す
     return baseCPM;
-  } else if (targetViews <= 100000) {
-    return baseCPM - 50 * (targetViews - 50000) / 50000;
-  } else if (targetViews <= 200000) {
-    return (baseCPM - 50) - 50 * (targetViews - 100000) / 100000;
-  } else {
+  } else { // 20万回以上の場合は基本のCPMから100を引いた値を返す
     return baseCPM - 100;
   }
 }
 
 function calculateCPC(targetClicks, baseCPC) {
-  if (targetClicks <= 500) {
+  if (targetClicks <= 2000) { // 2000以下の場合は基本のCPCをそのまま返す
     return baseCPC;
-  } else if (targetClicks <= 1000) {
-    return baseCPC - 5 * (targetClicks - 500) / 500;
-  } else if (targetClicks <= 2000) {
-    return (baseCPC - 5) - 5 * (targetClicks - 1000) / 1000;
-  } else {
+  } else { // 2000を超える場合は基本のCPCから10を引いた値を返す
     return baseCPC - 10;
   }
 }

@@ -1,23 +1,15 @@
 function calculateCPM(targetViews, baseCPM) {
-  if (targetViews <= 50000) {
+  if (targetViews < 200000) { // 10万回以上20万回未満の場合もそのままの値を返す
     return baseCPM;
-  } else if (targetViews <= 100000) {
-    return baseCPM - 50 * (targetViews - 50000) / 50000;
-  } else if (targetViews <= 200000) {
-    return (baseCPM - 50) - 50 * (targetViews - 100000) / 100000;
-  } else {
+  } else { // 20万回以上の場合は基本のCPMから100を引いた値を返す
     return baseCPM - 100;
   }
 }
 
 function calculateCPC(targetClicks, baseCPC) {
-  if (targetClicks <= 500) {
+  if (targetClicks <= 2000) { // 2000以下の場合は基本のCPCをそのまま返す
     return baseCPC;
-  } else if (targetClicks <= 1000) {
-    return baseCPC - 5 * (targetClicks - 500) / 500;
-  } else if (targetClicks <= 2000) {
-    return (baseCPC - 5) - 5 * (targetClicks - 1000) / 1000;
-  } else {
+  } else { // 2000を超える場合は基本のCPCから10を引いた値を返す
     return baseCPC - 10;
   }
 }
@@ -30,24 +22,26 @@ document.addEventListener('DOMContentLoaded', function () {
   let cpcContainer = document.getElementById('cpc-container');
 
   // 今月のCPMをページから直接取得します
-  let baseCPM = parseFloat(document.querySelector('.cpm').textContent.replace('今月のCPM: ', '').replace('円', ''));
-  let baseCPC = parseFloat(document.querySelector('.cpc').textContent.replace('今月のCPC: ', '').replace('円', ''));
+  let baseCPMElement = document.querySelector('.cpm');
+  let baseCPM = parseFloat(baseCPMElement.textContent.replace('円', ''));
+  let baseCPCElement = document.querySelector('.cpc');
+  let baseCPC = parseFloat(baseCPCElement.textContent.replace('円', ''));
 
   // Get next month's CPC and CPM from the page, similar to current values
-  let nextBaseCPM = parseFloat(document.querySelector('.next-cpm').textContent.replace('来月のCPM: ', '').replace('円', ''));
-  let nextBaseCPC = parseFloat(document.querySelector('.next-cpc').textContent.replace('来月のCPC: ', '').replace('円', ''));
+  // let nextBaseCPM = parseFloat(document.querySelector('.next-cpm').textContent.replace('来月のCPM: ', '').replace('円', ''));
+  // let nextBaseCPC = parseFloat(document.querySelector('.next-cpc').textContent.replace('来月のCPC: ', '').replace('円', ''));
 
   function updateDisplay() {
 
-    let startDateInput = document.querySelector('#start-date-input');
-    let startDate = new Date(startDateInput.value);
-    let currentDate = new Date();
-    let isNextMonth = startDate.getMonth() === currentDate.getMonth() + 1 && startDate.getFullYear() === currentDate.getFullYear() ||
-                      startDate.getMonth() === 0 && currentDate.getMonth() === 11 && startDate.getFullYear() === currentDate.getFullYear() + 1;
+    // let startDateInput = document.querySelector('#start-date-input');
+    // let startDate = new Date(startDateInput.value);
+    // let currentDate = new Date();
+    // let isNextMonth = startDate.getMonth() === currentDate.getMonth() + 1 && startDate.getFullYear() === currentDate.getFullYear() ||
+    //   startDate.getMonth() === 0 && currentDate.getMonth() === 11 && startDate.getFullYear() === currentDate.getFullYear() + 1;
 
     // Choose the base CPC and CPM depending on the campaign's start date
-    let baseCPMToUse = isNextMonth ? nextBaseCPM : baseCPM;
-    let baseCPCToUse = isNextMonth ? nextBaseCPC : baseCPC;
+    // let baseCPMToUse = isNextMonth ? nextBaseCPM : baseCPM;
+    // let baseCPCToUse = isNextMonth ? nextBaseCPC : baseCPC;
 
     let selectedPricingModel = document.querySelector('[name="pricing_model"]:checked').value;
 
@@ -55,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
       let targetViews = parseInt(targetViewsInput.value);
       cpmContainer.style.display = 'block';
       cpcContainer.style.display = 'none';
-      let adjustedCPM = calculateCPM(targetViews, baseCPMToUse);
+      let adjustedCPM = calculateCPM(targetViews, baseCPM);
       let budget = (targetViews / 1000) * adjustedCPM;
 
       if (targetViewsInput.value === '' || isNaN(targetViewsInput.value)) {
@@ -70,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
       let targetClicks = parseInt(targetClicksInput.value);
       cpmContainer.style.display = 'none';
       cpcContainer.style.display = 'block';
-      let adjustedCPC = calculateCPC(targetClicks, baseCPCToUse);
+      let adjustedCPC = calculateCPC(targetClicks, baseCPC);
       let budget = targetClicks * adjustedCPC;
 
       if (targetClicksInput.value === '' || isNaN(targetClicksInput.value)) {

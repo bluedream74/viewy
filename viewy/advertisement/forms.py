@@ -9,18 +9,19 @@ import datetime
 
 
 class AdCampaignForm(forms.ModelForm):
-    PRICING_MODEL_CHOICES = [('CPC', 'CPC'), ('CPM', 'CPM')]
+    PRICING_MODEL_CHOICES = [ ('CPM', 'CPM'), ('CPC', 'CPC')]
 
     pricing_model = forms.ChoiceField(
         choices=PRICING_MODEL_CHOICES,
         widget=forms.RadioSelect,  # ラジオボタンを使用
-        label='Pricing Model'
+        label='Pricing Model',
+        initial='CPM' 
     )
 
     target_views = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={
-            'min': 10000,
+            'min': 100000,
             'step': 10000,
             'placeholder': '目標表示回数を入力'
         })
@@ -28,10 +29,17 @@ class AdCampaignForm(forms.ModelForm):
     target_clicks = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={
-            'min': 100,
+            'min': 1000,
             'step': 100,
             'placeholder': 'クリック目標数を入力'
         })
+    )
+
+    end_date_option = forms.ChoiceField(
+        choices=[('none', '期限なし'), ('set', '期限を設定')],
+        widget=forms.RadioSelect,
+        label='終了期限オプション',
+        initial='none'
     )
 
     end_date = forms.DateField(
@@ -74,6 +82,7 @@ class AdCampaignForm(forms.ModelForm):
         cleaned_data = super().clean()
         title = cleaned_data.get('title')
         start_date = cleaned_data.get('start_date')
+        end_date_option = cleaned_data.get('end_date_option')
         end_date = cleaned_data.get('end_date')
         target_views = cleaned_data.get('target_views')
         target_clicks = cleaned_data.get('target_clicks')
@@ -95,6 +104,13 @@ class AdCampaignForm(forms.ModelForm):
         if not title:
             self.add_error('title', ValidationError('キャンペーン名は必須です'))
 
+        # 'none'が選択された場合、end_dateをクリアする
+        if end_date_option == 'none':
+            cleaned_data['end_date'] = None
+        # 'set'が選択された場合、end_dateを検証する
+        elif end_date_option == 'set' and not cleaned_data.get('end_date'):
+            self.add_error('end_date', forms.ValidationError('終了日を選択してください。'))
+
         if end_date and start_date:
             # Ensure both dates are date objects for comparison
             end_date_as_date = end_date.date() if hasattr(end_date, 'date') else end_date
@@ -113,6 +129,23 @@ class AdCampaignForm(forms.ModelForm):
             if target_clicks % 100 != 0:
                 self.add_error('target_clicks', ValidationError('クリック目標数は100の単位で入力してください'))
 
+        # インスタンスが編集の場合にのみ特定のフィールドのチェックを行う
+        if self.instance and self.instance.pk:
+            original_target_views = self.instance.target_views
+            original_target_clicks = self.instance.target_clicks
+
+            # target_viewsのバリデーション
+            if 'target_views' in cleaned_data:
+                if cleaned_data['target_views'] is not None:
+                    if cleaned_data['target_views'] < 200000 and original_target_views >= 200000:
+                        self.add_error('target_views', ValidationError('目標表示回数は20万回未満に設定できません。'))
+
+            # target_clicksのバリデーション
+            if 'target_clicks' in cleaned_data:
+                if cleaned_data['target_clicks'] is not None:
+                    if cleaned_data['target_clicks'] < 2000 and original_target_clicks > 2000:
+                        self.add_error('target_clicks', ValidationError('クリック目標数は2000回以下に設定できません。'))
+
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
@@ -122,10 +155,27 @@ class AdCampaignForm(forms.ModelForm):
 
         # instanceが存在し、pkが設定されている場合は編集画面とみなす
         if instance and instance.pk:
-            self.fields['end_date'].initial = timezone.localtime(instance.end_date) if instance.end_date else instance.end_date
+            self.fields['end_date'].initial = timezone.localtime(instance.end_date) if instance.end_date else None
             self.fields['start_date'].widget.attrs['readonly'] = 'readonly'
             self.fields['target_views'].initial = instance.target_views
             self.fields['target_clicks'].initial = instance.target_clicks
+
+            # Disable target_views if the current value is less than 200,000
+            if instance.target_views < 200000:
+                self.fields['target_views'].widget.attrs['readonly'] = 'readonly'
+                self.fields['target_views'].disabled = True
+
+            else:
+                self.fields['target_views'].widget.attrs.update({'min': 200000})
+            
+            # Disable target_clicks if the current value is less than or equal to 2000
+            if instance.target_clicks <= 2000:
+                self.fields['target_clicks'].widget.attrs['readonly'] = 'readonly'
+                self.fields['target_clicks'].disabled = True
+            
+            else:
+                 self.fields['target_clicks'].widget.attrs.update({'min': 2001})
+
             # pricing_model を変更不可にし、バリデーションを必須ではないように設定
             self.fields['pricing_model'].disabled = True
             self.fields['pricing_model'].required = False

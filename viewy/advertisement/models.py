@@ -27,31 +27,18 @@ class MonthlyAdCost(models.Model):
     def calculate_cpm(self, views):
         base_cpm = float(self.cpm)
 
-        if views <= 50000:  # 5万まで
+        if views < 200000:  # 20万未満の場合は基本のCPMをそのまま返す
             return base_cpm
-        elif views <= 100000:  # 10万まで
-            # 5万と10万の間での線形補間
-            return base_cpm - 50 * (views - 50000) / 50000
-        elif views <= 200000:  # 20万まで
-            # 10万と20万の間での線形補間
-            return (base_cpm - 50) - 50 * (views - 100000) / 100000
-        else:
+        else:  # 20万以上の場合は基本のCPMから100を引いた値を返す
             return base_cpm - 100
 
 
     def calculate_cpc(self, clicks):
         base_cpc = float(self.cpc)
 
-        if clicks <= 500:  # 500クリックまで
+        if clicks <= 2000:  # 2000以下の場合は基本のCPCをそのまま返す
             return base_cpc
-        elif clicks <= 1000:  # 500～1000クリックまで
-            # 500と1000クリックの間で線形補間
-            return base_cpc - 5 * (clicks - 500) / 500
-        elif clicks <= 2000:  # 1000～2000クリックまで
-            # 1000と2000クリックの間で線形補間
-            return (base_cpc - 5) - 5 * (clicks - 1000) / 1000
-        else:
-            # 2000クリックを超える場合は、CPCから一律で10を引く
+        else:  # 2000を超える場合は基本のCPCから10を引いた値を返す
             return base_cpc - 10
 
 

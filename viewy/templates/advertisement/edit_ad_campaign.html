@@ -40,17 +40,13 @@
           {% endif %}
         </div>
         <div class="info-name" style="margin-top: 8px;">終了日</div>
-        <div class="info-input">
-          {{ form.end_date }}
-          {% if form.end_date.errors %}
-          <div class="error-messages">
-            {% for error in form.end_date.errors %}
-            <p>{{ error }}</p>
-            {% endfor %}
-          </div>
-          {% endif %}
+        <div class="end_date_option">
+          {{ form.end_date_option }}
         </div>
-        <input type="checkbox" id="no_end_date" name="no_end_date" {% if no_end_date_checked %}checked{% endif %}> 期限なし
+        <div class="info-input" id="end-date-container">
+          {{ form.end_date }}
+          {{ form.end_date.errors }}
+        </div>
       </div>
 
       <div class="info-item">
@@ -84,6 +80,11 @@
         <div class="info-name">目標表示回数</div>
         <div class="info-input">
           {{ form.target_views }}
+          {% if form.target_views.value < 200000 %}
+          <p class="info-description text-muted">
+            目標表示回数が20万回以下のため、この項目は編集できません。
+          </p>
+          {% endif %}
           {% if form.target_views.errors %}
           <div class="error-messages">
             {% for error in form.target_views.errors %}
@@ -117,6 +118,11 @@
         <div class="info-name">クリック目標数</div>
         <div class="info-input">
           {{ form.target_clicks }}
+          {% if form.target_clicks.value <= 2000 %}
+          <p class="info-description text-muted">
+            クリック目標数が2000回以下のため、このフィールドは編集できません。
+          </p>
+          {% endif %}
           {% if form.target_clicks.errors %}
           <div class="error-messages">
             {% for error in form.target_clicks.errors %}
@@ -178,5 +184,53 @@ document.addEventListener('DOMContentLoaded', function() {
   // end_date 入力フィールドに最小値として今日の日付を設定
   document.getElementById('end-date-input').setAttribute('min', today);
 });
+</script>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    var endDateContainer = document.getElementById('end-date-container');
+    var noEndDateInput = document.getElementById('id_end_date_option_0'); // '終了期限なし'のinput
+    var setEndDateInput = document.getElementById('id_end_date_option_1'); // '期限を設定する'のinput
+    var endDateInput = document.getElementById('end-date-input'); // 終了日のinput
+
+    // ラジオボタンの選択に応じて終了日フィールドを表示または非表示
+    function toggleEndDate() {
+      // 終了日フィールドが非表示の場合かどうかをチェック
+      endDateContainer.style.display = noEndDateInput.checked ? 'none' : 'block';
+    }
+
+    noEndDateInput.addEventListener('change', toggleEndDate);
+    setEndDateInput.addEventListener('change', toggleEndDate);
+
+    // 初期状態の設定
+    // 保存されている終了日の値があるかどうかをチェックして、
+    // ラジオボタンの状態を設定します。
+    if (endDateInput.value) {
+      setEndDateInput.checked = true; // '期限を設定する'が選択される
+    } else {
+      noEndDateInput.checked = true; // '終了期限なし'が選択される
+    }
+
+    // 初期状態で endDateContainer の表示/非表示を切り替える
+    toggleEndDate();
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // 開始日の入力フィールドを選択
+    var startDateField = document.querySelector('input[name="start_date"]');
+
+    // 終了日の入力フィールドを選択
+    var endDateField = document.querySelector('input[name="end_date"]');
+
+    // 開始日の入力フィールドにイベントリスナーを設定
+    startDateField.addEventListener('change', function () {
+      // 開始日の値を取得して終了日のmin属性に設定
+      endDateField.setAttribute('min', this.value);
+    });
+
+    // 初期状態で終了日のminを設定するためのイベントを発火
+    if (startDateField.value) {
+      startDateField.dispatchEvent(new Event('change'));
+    }
+  });
 </script>
 {% endblock %}
