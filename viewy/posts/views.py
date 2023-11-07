@@ -269,7 +269,7 @@ class BasePostListView(ListView):
         total_ads = len(ad_posts_list)
 
         # オペレーター広告主ID
-        OPERATOR_ADVERTISER_ID = 1z
+        OPERATOR_ADVERTISER_ID = 1
 
         # 広告リストを埋めるためにオペレーターの広告を準備
         operator_ads_list = [post for post in ad_posts if post.poster.id == OPERATOR_ADVERTISER_ID]
