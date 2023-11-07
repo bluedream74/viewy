@@ -125,13 +125,8 @@
           </div>
         </div>
 
+        <div class="ellipsis"><i class="fa-solid fa-ellipsis"></i></div>
 
-
-        <div class="mute">
-          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-            <input type="checkbox" class="mute-frag" checked>
-          </label>
-        </div>
         <div class="space-for-hide"></div>
 
       </div>
@@ -147,7 +142,7 @@
         <div class="preview-title">
         </div>
 
-        <div class="preview-caption"></div>
+        <div class="preview-caption caption"></div>
         <div class="preview-hashtags">
 
           <span class="url preview-url"><a href="" target="_blank">
@@ -160,9 +155,6 @@
         </div>
       </div>
 
-      <div class="report not-yet">
-        <i class="fa-solid fa-circle-exclamation"></i>
-      </div>
 
     </div>
 
@@ -187,6 +179,11 @@
 <style>
   .add-post {
     border-top: solid 2px aqua;
+  }
+
+  /* プレビュー内のcaptionのmargin-topを上書き */
+  .preview-caption {
+    margin-top: 0;
   }
 </style>
 <script>
@@ -245,4 +242,5 @@
 </script>
 <script src="{% static 'js/preview_manga.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
+<script src="{% static 'js/read_more.js' %}"></script>
 {% endblock %}

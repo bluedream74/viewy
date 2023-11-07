@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   let previewButton = document.querySelector("[name='preview_button']");
-  let url = document.querySelector(".url");
-  url.style.display = "none";
 
   if (previewButton) {
     previewButton.addEventListener("click", function (event) {
@@ -61,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Post Details
       let title = document.querySelector(".title input");
-      let url = document.querySelector(".url-set input");
       let hashtags = [
         document.querySelector(".hashtag1 input"),
         document.querySelector(".hashtag2 input"),
@@ -75,14 +72,19 @@ document.addEventListener("DOMContentLoaded", function () {
       if (title && title.value) {
         previewBlock.querySelector(".title").textContent = title.value;
       }
-      if (url && url.value) {
-        previewBlock.querySelector(".url a").href = url.value;
-        previewBlock.querySelector(".url").style.display = "inline"; // 追加
-      } else {
-        previewBlock.querySelector(".url").style.display = "none"; // 追加
-      }
       if (caption && caption.value) {
         previewBlock.querySelector(".caption").textContent = caption.value;
+      }
+
+      // URLを取得してプレビューにセット
+      let urlInput = document.querySelector(".url-set input");
+      let adDetailLink = document.querySelector(".ad-detail.ad-click");
+
+      if (urlInput && urlInput.value) {
+        adDetailLink.setAttribute('href', urlInput.value);
+        console.log("広告の詳細リンクにURLがセットされました。");
+      } else {
+        console.error("URLが入力されていません。");
       }
 
       let hashtagElements = previewBlock.querySelectorAll(".hashtag a");

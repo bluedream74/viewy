@@ -7,6 +7,7 @@
   // 現在のビューポートの高さをCSS変数として設定
   document.documentElement.style.setProperty('--vh', `${vh}px`);
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
 <link rel="stylesheet" href="{% static 'css/stylecreate.css' %}">
 <!-- CSS -->
@@ -90,6 +91,14 @@
       <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
       <br>
 
+      <div class="mute-box">
+        <div class="mute">
+          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+            <input type="checkbox" class="mute-frag" checked>
+          </label>
+        </div>
+      </div>
+
     <div class="content">
       <div class="side-bar">
 
@@ -137,13 +146,8 @@
           </div>
         </div>
 
+        <div class="ellipsis"><i class="fa-solid fa-ellipsis"></i></div>
 
-
-        <div class="mute">
-          <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-            <input type="checkbox" class="mute-frag" checked>
-          </label>
-        </div>
         <div class="space-for-hide"></div>
 
       </div>
@@ -159,7 +163,7 @@
         <div class="preview-title">
         </div>
 
-        <div class="preview-caption"></div>
+        <div class="preview-caption caption"></div>
         <div class="preview-hashtags">
 
           <span class="url preview-url"><a href="" target="_blank">
@@ -172,9 +176,6 @@
         </div>
       </div>
 
-      <div class="report not-yet">
-        <i class="fa-solid fa-circle-exclamation"></i>
-      </div>
 
     </div>
 
@@ -183,6 +184,9 @@
       <input class="hide-input" type="checkbox" style="display: none;">
     </label>
 
+    <div class="play-button">
+      <i class="fa-solid fa-play"></i>
+    </div>
 
   </div>
   
@@ -203,6 +207,12 @@
   .add-post {
     border-top: solid 2px aqua;
   }
+
+  /* プレビュー内のcaptionのmargin-topを上書き */
+  .preview-caption {
+    margin-top: 0;
+  }
+
 </style>
 <script>
   document.getElementById('submit-form').addEventListener('submit', function (event) {
@@ -260,12 +270,7 @@
 </script>
 <script src="{% static 'js/preview_video.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
+<script src="{% static 'js/mute.js' %}"></script>
+<script src="{% static 'js/control_video.js' %}"></script>
+<script src="{% static 'js/read_more.js' %}"></script>
 {% endblock %}
-
-<div class="urls">
-  <div class="url"></div>
-  <div class="url"></div>
-  <div class="url"></div>
-  <div class="url"></div>
-  <div class="url"></div>
-</div>

@@ -50,10 +50,6 @@
   {% if not post.poster.is_affiliateadvertiser %}
   <!-- アフィリエイターの広告じゃない場合 -->
 
-    {% if post.poster.is_advertiser %}
-      <a href="{{ post.url }}" class="ad-click">
-    {% endif %}
-
     {% if post.ismanga %}
     <!-- マンガの場合 -->
       <div class="book">
@@ -88,10 +84,6 @@
           </label>
         </div>
       </div>
-    {% endif %}
-
-    {% if post.poster.is_advertiser %}
-      </a>
     {% endif %}
 
   {% else %}

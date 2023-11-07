@@ -5,14 +5,14 @@ $(document).ready(function() {
 
   let pressStartTime;
 
-  $(document.body).on("mousedown", function(event) {
+  $(document.body).on("mousedown", ".post video", function(event) {
     // .tab-bar や .side-bar でのクリックを無視
     if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay .notification-modal .survey-modal .freeze-notification-modal, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
 
     pressStartTime = new Date().getTime();
   });
 
-  $(document.body).on("mouseup", function(event) {
+  $(document.body).on("mouseup", ".post video", function(event) {
     // .tab-bar や .side-bar でのクリックを無視
     if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay .notification-modal .survey-modal .freeze-notification-modal, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
 
@@ -53,7 +53,7 @@ $(document).ready(function() {
     mutations.forEach(function(mutation) {
       if (mutation.addedNodes && mutation.addedNodes.length > 0) {
         mutation.addedNodes.forEach(function(node) {
-          if (node.tagName === 'VIDEO') {
+          if (node.tagName === 'VIDEO' && $(node).parents('.post').length) {
             node.muted = isMuted;
           }
         });

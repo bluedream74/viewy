@@ -1,0 +1,50 @@
+{% extends 'advertisement/ad_base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div>
+  <div class="sub-title">プロフィール編集</div>
+  {% if form.errors %}
+  <ul class="error-list">
+    {% for field in form %}
+    {% for error in field.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="forms">
+      <div class="prf-img">
+        <div class="current-img">
+          <img src="{{ form.instance.prf_img.url }}" alt="変更前の画像">
+        </div>
+      </div>
+      <input type="file" name="prf_img">
+  
+      <div class="displayname">
+        {{ form.displayname }}
+      </div>
+  
+      <div class="caption">
+        {{ form.caption }}
+      </div>
+
+    <!-- 他のフィールドは隠れたフィールドとして存在する -->
+    {{ form.caption.as_hidden }}
+    {{ form.url1.as_hidden }}
+    {{ form.url2.as_hidden }}
+    {{ form.url3.as_hidden }}
+    {{ form.url4.as_hidden }}
+    {{ form.url5.as_hidden }}
+
+    <input type="submit" class="button">変更</input>
+  </div>
+  </form>
+</div>
+{% endblock %}
