@@ -1894,18 +1894,23 @@ class BaseFollowListView(BasePostListView):
         cache_key = f'followed_posts_for_user_{self.request.user.id}'
         cached_posts_data = cache.get(cache_key)
 
-        if cached_posts_data:
-            print(f"Cache HIT for followed posts for user {self.request.user.id}")
-            return Posts.objects.filter(id__in=cached_posts_data)
-
-        print(f"Cache MISS for followed posts for user {self.request.user.id}")
         queryset = super().get_queryset()
         followed_user_ids = self.get_followed_user_ids()
-        queryset = queryset.filter(poster__id__in=followed_user_ids).order_by('-posted_at')
-        posts_data = list(queryset.values_list('id', flat=True))
-        cache.set(cache_key, posts_data, 300)  # 5分間キャッシュ
+
+        if cached_posts_data:
+            print(f"Cache HIT for followed posts for user {self.request.user.id}")
+            queryset = queryset.filter(id__in=cached_posts_data)
+        else:
+            print(f"Cache MISS for followed posts for user {self.request.user.id}")
+            queryset = queryset.filter(poster__id__in=followed_user_ids)
+            posts_data = list(queryset.values_list('id', flat=True))
+            cache.set(cache_key, posts_data, 300)  # キャッシュに保存
+
+        # キャッシュの有無に関わらず共通のフィルターやソートを適用する
+        queryset = queryset.order_by('-posted_at')
         return queryset
-    
+
+        
 
 
 

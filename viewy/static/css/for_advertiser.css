@@ -49,7 +49,7 @@ body{
 .logo{
   width: 70%;
   position: relative;
-  top: -80px;
+  top: -45px;
 }
 
 .partner80, .follower{
@@ -432,6 +432,7 @@ hr{
   display: flex;
   justify-content: space-around;
   margin-top: 32px;
+  text-align: center;
 }
 
 
