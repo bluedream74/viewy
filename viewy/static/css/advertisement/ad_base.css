@@ -86,7 +86,7 @@ body{
 
 
 .block{
-  margin: 0px auto;
+  margin: 0px 16px;
   margin-bottom: 32px;
   padding: 8px 32px;
   color: rgb(69, 69, 69);

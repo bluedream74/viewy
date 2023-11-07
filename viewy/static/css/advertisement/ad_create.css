@@ -28,7 +28,7 @@
   background-color: rgb(72, 227, 227);
   color: white;
   font-weight: bold;
-  padding: 2px 8px;
+  padding: 2px 12px;
   border-radius: 50px;
 }
 
@@ -66,6 +66,19 @@
 .category{
   padding: 0px 16px;
   margin: 16px 0px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.preparing{
+  font-size: 18px;
+  padding: 8px 120px;
+  width: max-content;
+  background-color: ghostwhite;
+  box-shadow: 0px 2px 4px gainsboro;
+  position: relative;
+  top: -108px;
+  right: -64px;
 }
 
 .custom-label {
@@ -138,7 +151,7 @@ input[type="checkbox"]:checked + .custom-label {
   margin: auto;
   border-radius: 8px;
   width: max-content;
-  background-color: rgb(73, 230, 230);
+  background-color: rgb(247, 186, 54);
   color: white;
   font-weight: bold;
 }

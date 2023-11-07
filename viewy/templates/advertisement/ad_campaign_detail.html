@@ -197,7 +197,7 @@
         <td>{{ billing.month_year|date:"Y-m" }}</td>
         <td>{{ billing.monthly_views }}回</td>
         <td>{{ billing.monthly_clicks }}回</td>
-        <td>{{ billing.monthly_fee }}円</td>
+        <td style="text-align: right;">{{ billing.monthly_fee }}円</td>
       </tr>
       {% empty %}
       <tr>
