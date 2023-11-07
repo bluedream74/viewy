@@ -9,6 +9,19 @@
 <div class="page-title">キャンペーン作成</div>
 
 <div class="monthly-costs">
+  <div class="costs-title">今月の料金</div>
+  <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value">{{ current_cpm }}</span>円</div>
+  <div class="fee">CPC <span class="fee-value">{{ current_cpc }}</span>円</div>
+
+  <!-- {% if next_cpc and next_cpm %}
+  <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
+  <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
+  {% else %}
+  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
+  {% endif %} -->
+</div>
+
+<!-- <div class="monthly-costs">
   <p class="cpc">今月のCPC: {{ current_cpc }}円</p>
   <p class="cpm">今月のCPM: {{ current_cpm }}円</p>
 
@@ -21,7 +34,7 @@
   {% if ad_cost_message %}
   <div class="alert alert-warning" style="color: red;">{{ ad_cost_message }}</div>
   {% endif %}
-</div>
+</div> -->
 
 <div class="block">
   <form method="post" class="flex">
@@ -45,11 +58,14 @@
           {{ form.end_date }}
           {{ form.end_date.errors }}
         </div>
-        <input type="checkbox" id="no_end_date" name="no_end_date"> 期限なし
+        <div class="no_end_date">
+        <input type="checkbox" id="no_end_date" name="no_end_date">
+        <label for="no_end_date">期限なし</label>
+        </div>
       </div>
 
       <div class="info-item">
-        <div class="info-name">CPCかCPMか</div>
+        <div class="info-name">料金方式</div>
         <div class="info-input">{{ form.pricing_model }}</div>
       </div>
 

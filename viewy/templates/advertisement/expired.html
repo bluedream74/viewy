@@ -3,6 +3,13 @@
 {% block table %}
 <div class="sub-page-title">終了期限に到達にしたキャンペーン</div>
 
+<div class="filter">
+  絞り込み：
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='achieved' %}" class="status-button">目標達成</a>
+  <a href="{% url 'advertisement:filtered_ad_campaign_list' status='stopped' %}" class="status-button">途中停止</a>
+  <a href="{% url 'advertisement:close_ad_campaigns_list' %}" class="status-button" style="background-color: rgba(193, 193, 193, 0.76);">期限到達</a>
+</div>
+
 <div class="block">
 
   <table>
@@ -41,7 +48,7 @@
         <span class="date">
           {{ campaign.start_date|date:"Y-m-d" }}
         </span>
-        ～
+        ～<br>
         <span class="date">
           {{ campaign.end_date|date:"Y-m-d" }}</span>
       </td>

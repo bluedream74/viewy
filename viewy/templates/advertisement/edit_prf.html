@@ -1,13 +1,12 @@
 {% extends 'advertisement/ad_base.html' %}
 {% load static %}
 {% block head %}
-<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
-<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/edit_prf.css' %}">
 {% endblock %}
 
 {% block content %}
-<div>
-  <div class="sub-title">プロフィール編集</div>
+<div class="sub-title">プロフィール編集</div>
+<div class="block">
   {% if form.errors %}
   <ul class="error-list">
     {% for field in form %}
@@ -27,6 +26,7 @@
       </div>
       <input type="file" name="prf_img">
   
+      <div class="form-title">表示名</div>
       <div class="displayname">
         {{ form.displayname }}
       </div>
@@ -43,7 +43,7 @@
     {{ form.url4.as_hidden }}
     {{ form.url5.as_hidden }}
 
-    <input type="submit" class="button">変更</input>
+    <input type="submit" class="button" value="変更">
   </div>
   </form>
 </div>

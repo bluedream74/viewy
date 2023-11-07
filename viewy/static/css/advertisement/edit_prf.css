@@ -1,0 +1,54 @@
+.sub-title{
+  margin: 32px 0px 0px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.block{
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0px 2px 4px gainsboro;
+  padding: 48px 24px;
+  width: 400px;
+  margin: 32px auto;
+}
+
+.form-title{
+  font-size: 14px;
+  font-weight: bold;
+  color: gray;
+  margin-top: 32px;
+  text-align: left;
+  padding-left: 64px;
+}
+
+.current-img img{
+  border-radius: 50%;
+  border: 1px solid rgb(69, 69, 69);
+  width: 120px;
+}
+
+.displayname input{
+  font-size: 16px;
+  padding: 6px 24px;
+  background-color: rgb(240, 240, 240);
+  border-radius: 50px;
+}
+
+.button{
+  background-color: rgb(70, 234, 234);
+  margin-top: 48px;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+  padding: 8px 48px;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0px 2px 4px gainsboro;
+}
+
+.button:hover{
+  box-shadow: none;
+  cursor: pointer;
+  background-color: rgb(60, 192, 192);
+}
