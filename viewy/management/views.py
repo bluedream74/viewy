@@ -92,6 +92,39 @@ class Account(SuperUserCheck, TemplateView):
             other_gender_users_percentage = (other_gender_users / total_users) * 100
         else:
             male_users_percentage = female_users_percentage = other_gender_users_percentage = 0
+            
+        # 年齢層の集計をする
+        current_year = timezone.now().year
+        age_brackets = [
+            ('10-', 10),
+            ('10s', 20),
+            ('20s', 30),
+            ('30s', 40),
+            ('40s', 50),
+            ('50s', 60),
+            ('60s', 70),
+            ('70+', None)
+        ]
+        age_groups = {}
+
+        for label, max_age in age_brackets:
+            if max_age:
+                min_age = max_age - 10
+                count = Users.objects.filter(
+                    is_active=True,
+                    birth_year__isnull=False,  # これにより生年月が入力されていないユーザーを除外
+                    birth_year__lte=current_year - min_age,
+                    birth_year__gt=current_year - max_age
+                ).count()
+            else:  # '70+'の場合
+                count = Users.objects.filter(
+                    is_active=True,
+                    birth_year__isnull=False,  # ここも同様に生年月が入力されていないユーザーを除外
+                    birth_year__lte=current_year - 70
+                ).count()
+            age_groups[label] = count
+
+        context['age_groups'] = age_groups
         
         # コンテキストに追加
         context['male_users_percentage'] = male_users_percentage

@@ -530,7 +530,8 @@ hr{
 }
 
 .gift-image > img{
-  width: 240px;
+  width: 300px;
+  box-shadow: 0px 2px 4px gainsboro;
 }
 
 .detail{
@@ -804,6 +805,17 @@ hr{
   list-style: none;
   font-size: 18px;
   margin: 8px;
+}
+
+.police{
+  margin: 16px 24px;
+  background-color: rgb(255, 255, 244);
+  border: 1px solid rgb(193, 205, 203);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 /* スマートフォン用のスタイル */
