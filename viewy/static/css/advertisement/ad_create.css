@@ -48,6 +48,11 @@
   font-weight: bold;
 }
 
+.info-input{
+  margin-left: 16px;
+  font-size: 18px;
+}
+
 .info-input > input{
   padding: 6px 16px;
   border-radius: 50px;

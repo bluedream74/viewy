@@ -111,6 +111,7 @@ body{
 table {
   width: 100%;
   border-collapse: collapse;
+  text-align: left;
 }
 
 th, td {

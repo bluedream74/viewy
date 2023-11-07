@@ -26,7 +26,7 @@
 
   <table>
     <tr>
-      <th>CPM/CPC</th>
+      <th>料金方式</th>
       <th>キャンペーンタイトル</th>
       <th>広告数</th>
       <th>合計数/目標数</th>
@@ -59,7 +59,7 @@
       <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">
           {{ campaign.start_date|date:"Y/m/d" }}</span>～<span class="date">
           {{ campaign.end_date|date:"Y/m/d" }}</span></td>
-      <td>
+      <td style="text-align: center;">
         {% if campaign.status == 'pending' %}
         <form>
           <button class="release-button pending disabled-button">
