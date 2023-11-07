@@ -7,16 +7,17 @@
 
 {% block content %}
 {% block table %}
-<div class="page-title">月末請求履歴</div>
+<div class="page-title">請求履歴</div>
 <div class="block">
   <form method="get" action="{% url 'advertisement:billings' %}">
-    {{ form.as_p }}
-    <button type="submit">表示</button>
+    <div class="table-set">
+      {{ form.as_p }}
+      <button type="submit">表示</button>
+    </div>
   </form>
   <table>
     <thead>
       <tr>
-        <th>年/月</th>
         <th>キャンペーン名</th>
         <th>請求料金</th>
       </tr>
@@ -24,12 +25,11 @@
     <tbody>
       {% for billing in campaign_billings %}
       <tr>
-        <td>{{ billing.month_year|date:"Y/m" }}</td>
         <td>
           <a href="{% url 'advertisement:ad_campaign_detail' billing.campaign_id %}" class="campaign-title">
             {{ billing.campaign_title }}</a>
         </td>
-        <td>{{ billing.monthly_fee }}円</td>
+        <td style="text-align: right;">{{ billing.monthly_fee }}円</td>
       </tr>
       {% empty %}
       <tr>
@@ -39,12 +39,12 @@
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="2">合計</td>
-        <td>{{ total_fee }}円</td>
+        <td></td>
+        <td style="text-align: right;">合計 {{ total_fee }}円</td>
       </tr>
       <tr>
-        <td colspan="2">税込</td>
-        <td>{{ total_fee_with_tax }}円</td>
+        <td></td>
+        <td style="text-align: right;">税込 {{ total_fee_with_tax }}円</td>
       </tr>
     </tfoot>
   </table>

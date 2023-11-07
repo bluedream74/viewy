@@ -7,84 +7,88 @@
 
 
 {% block content %}
-<div class="page-title">キャンペーン別レポート</div>
-<div class="sub-page-title">{{ campaign.title }}</div>
-<div class="sub-page-title">
-  ステータス：
-  {% if campaign.status == "pending" %}
-  公開前
-  {% elif campaign.status == "running" %}
-  公開中
-  {% elif campaign.status == "achieved" %}
-  目標達成
-  {% elif campaign.status == "expired" %}
-  終了期限に到達
-  {% elif campaign.status == "stopped" %}
-  途中停止
-  {% endif %}
-</div>
-
-<div class="campaign-info">
-  <div class="tag">{{ campaign.pricing_model }}：<span class="">{{ campaign.actual_cpc_or_cpm }}</span>円</div>
-  {% if campaign.pricing_model == "CPM" %}
-  <div class="tag">合計表示回数/目標表示回数：
-    <span class="">
-      {{ campaign.total_views_count }}/{{ campaign.target_views }}
-    </span>回
-  </div>
-  <div class="tag">合計クリック回数：
-    <span class="">
-      {{ campaign.total_clicks_count }}
-    </span>回
-  </div>
-  {% elif campaign.pricing_model == "CPC" %}
-  <div class="tag">合計表示回数：
-    <span class="">
-      {{ campaign.total_views_count }}
-    </span>回
-  </div>
-  <div class="tag">合計クリック回数/目標クリック回数：
-    <span class="">
-      {{ campaign.total_clicks_count }}/{{ campaign.target_clicks }}
-    </span>回
-  </div>
-  {% endif %}
-
-  <div class="tag">料金/予算：<span class="budget">
-      {{ campaign.fee }}/{{ campaign.budget }}
-    </span>円
-  </div>
-  <div class="tag">期限：{{ campaign.start_date|date:"Y/m/d" }}～<span class="date">
-      {{ campaign.end_date|date:"Y/m/d" }}</span></div>
-  <div class="tag">ターゲット：
-    <div>
-      {% if andfeatures %}
-      {% for andfeature in andfeatures %}
-      <div class="target">{{ andfeature }}</div>
-      {% if not forloop.last %}
-      かつ
-      {% endif %}
-      {% endfor %}
-      {% else %}
-      全員
+<!-- <div class="page-title">キャンペーン別レポート</div> -->
+<div class="campaign-main-info">
+  <div style="display: flex; align-items: center;">
+    <div class="self-title">{{ campaign.title }}</div>
+    <div class="self-condition">
+      {% if campaign.status == "pending" %}
+      公開前
+      {% elif campaign.status == "running" %}
+      公開中
+      {% elif campaign.status == "achieved" %}
+      目標達成
+      {% elif campaign.status == "expired" %}
+      終了期限に到達
+      {% elif campaign.status == "stopped" %}
+      途中停止
       {% endif %}
     </div>
   </div>
-  <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
+
+  <div class="edit_campaign">
+    <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
       class="fa-solid fa-pen"></i> 編集</a>
-  {% if campaign.status == "pending" %}
-  <form method="POST" action="{% url 'advertisement:delete_ad_campaign' campaign_id=campaign.id %}"
+    {% if campaign.status == "pending" %}
+    <form method="POST" action="{% url 'advertisement:delete_ad_campaign' campaign_id=campaign.id %}"
     onsubmit="return confirm('このキャンペーンを本当に削除しますか?キャンペーンに紐付く全広告も削除されます。');">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
       <i class="fa-solid fa-trash"></i> 削除
-    </button>
-  </form>
-  {% endif %}
+      </button>
+    </form>
+    {% endif %}
+  </div>
 </div>
 
-<div class="block campaign">
-  <div>広告</div>
+
+<div class="campaign-info">
+  <table>
+    <tr>
+      <th>{{ campaign.pricing_model }}</th>
+      {% if campaign.pricing_model == "CPM" %}
+      <th>合計表示回数/目標表示回数</th>
+      <th>合計クリック回数</th>
+      {% elif campaign.pricing_model == "CPC" %}
+      <th>合計表示回数</th>
+      <th>合計クリック回数/目標クリック回数</th>
+      {% endif %}
+      <th>料金/予算</th>
+      <th>期限</th>
+      <th>ターゲット</th>
+    </tr>
+    <tr>
+      <td>{{ campaign.actual_cpc_or_cpm }}円</td>
+      {% if campaign.pricing_model == "CPM" %}
+      <td>{{ campaign.total_views_count }} / {{ campaign.target_views }}</td>
+      <td>{{ campaign.total_clicks_count }}</td>
+      {% elif campaign.pricing_model == "CPC" %}
+      <td>{{ campaign.total_views_count }}</td>
+      <td>{{ campaign.total_clicks_count }} / {{ campaign.target_clicks }}</td>
+      {% endif %}
+      <td>{{ campaign.fee }} / {{ campaign.budget }}</td>
+      <td>{{ campaign.end_date|date:"Y/m/d" }}</td>
+      <td>
+        {% if andfeatures %}
+        {% for andfeature in andfeatures %}
+        <div class="target">{{ andfeature }}</div>
+        {% if not forloop.last %}
+        かつ
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        全員
+        {% endif %}
+      </td>
+    </tr>
+    <tr></tr>
+  </table>
+
+
+
+</div>
+
+<div class="block campaign ads">
   <table>
     <tr>
       <th>サムネイル</th>
@@ -158,7 +162,7 @@
         {% endif %}
         {% endif %}
       </td>
-      <td>
+      <td style="text-align: center;">
         <button class="view-button" data-post-id="{{ ad_info.post.id }}">
           <i class="fa-solid fa-play"></i>
         </button>
@@ -177,7 +181,7 @@
 </div>
 
 <div class="monthly-billing-info">
-  <h3>月末請求料金</h3>
+  <h3>このキャンペーンの月間料金</h3>
   <table>
     <thead>
       <tr>
@@ -193,7 +197,7 @@
         <td>{{ billing.month_year|date:"Y-m" }}</td>
         <td>{{ billing.monthly_views }}回</td>
         <td>{{ billing.monthly_clicks }}回</td>
-        <td>{{ billing.monthly_fee }}円</td>
+        <td style="text-align: right;">{{ billing.monthly_fee }}円</td>
       </tr>
       {% empty %}
       <tr>

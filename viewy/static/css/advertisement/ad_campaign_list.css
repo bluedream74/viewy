@@ -41,7 +41,7 @@
   background-color: rgb(72, 227, 227);
   color: white;
   font-weight: bold;
-  padding: 2px 8px;
+  padding: 2px 12px;
   border-radius: 50px;
 }
 
@@ -88,6 +88,7 @@
   border-radius: 8px;
   box-shadow: 0px 1px 4px rgb(187, 187, 187);
   display: block; /* 必要に応じて追加 */
+  width: max-content;
 }
 
 .campaign-title:hover{
@@ -191,12 +192,44 @@
 
 .campaign-info{
   /* display: flex; */
-  padding: 16px 32px;
-  margin: 0px 32px;
+  padding: 4px 32px;
+  margin: 0px 32px 64px;
 }
 
 .campaign-info > div, .campaign-info > a{
   padding: 8px 16px;
+}
+
+.campaign-main-info{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 48px;
+  margin-top: 48px;
+  margin-bottom: 16px;
+}
+
+.self-title{
+  font-size: 24px;
+  font-weight: bold;
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px 24px;
+  margin-bottom: 8px;
+  text-decoration: underline;
+  text-decoration-color: rgb(74, 230, 230);
+  text-decoration-line: 2px;
+  margin-right: 16px;
+}
+
+.self-condition{
+  font-size: 16px;
+  font-weight: bold;
+  padding: 8px 24px;
+  border-radius: 50px;
+  color: white;
+  background-color: gray;
+  margin-bottom: 8px;
 }
 
 .campaign-big-title, .tag{
@@ -214,8 +247,8 @@
   color: white;
   box-shadow: 0px 1px 2px rgb(197, 197, 197);
   text-decoration: none;
-  margin-left: auto;
-  /* display: flex; */
+  display: block;
+  padding: 8px 12px;
   align-items: center;
 }
 
@@ -271,7 +304,10 @@
   padding: 1px;
 } */
 
-
+.ads th{
+  color: rgb(69, 69, 69);
+  background-color: rgb(199, 199, 199);
+}
 
 
 .book {
@@ -304,3 +340,21 @@
   font-size: 24px;
   color: white;
 }
+
+.monthly-billing-info{
+  width: max-content;
+  margin: 0px auto 64px;
+}
+
+.monthly-billing-info th{
+  background-color: rgb(41, 147, 108);
+  color: rgb(255, 255, 255);
+  padding: 6px 16px;
+  text-align: left;
+}
+
+.monthly-billing-info td{
+  padding: 6px 16px;
+  text-align: left;
+}
+

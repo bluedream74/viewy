@@ -1,3 +1,37 @@
 #id_month_year_day {
   display: none;
 }
+
+.table-set{
+  display: flex;
+  align-items: center;
+}
+
+.table-set button{
+  margin-left: 16px;
+  padding: 4px 24px;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0px 1px 2px rgb(146, 146, 146);
+}
+
+.table-set button:hover{
+  box-shadow: none;
+  cursor: pointer;
+  background-color: rgb(165, 165, 165);
+}
+
+table{
+  width: max-content;
+}
+
+th, td{
+  width: max-content;
+  padding: 6px 8px;
+}
+
+th{
+  background-color: rgb(41, 147, 108);
+  color: rgb(255, 255, 255);
+  padding: 6px 16px;
+}
