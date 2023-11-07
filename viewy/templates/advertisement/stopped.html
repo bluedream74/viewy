@@ -8,9 +8,10 @@
 
   <table>
     <tr>
+      <th>CPM/CPC</th>
       <th>キャンペーンタイトル</th>
       <th>広告数</th>
-      <th>合計表示回数/目標表示回数</th>
+      <th>合計数/目標数</th>
       <th>料金(円)</th>
       <th>予算(円)</th>
       <th>表示期間</th>
@@ -19,13 +20,22 @@
     {% for campaign in campaigns %}
     {% if campaign.status == 'stopped' %}
     <tr class="release-campaign">
+      <td>{{ campaign.pricing_model }}</td>
       <td>
         <a href="{% url 'advertisement:ad_campaign_detail' campaign.id %}" class="campaign-title">
           {{ campaign.title }}
         </a>
       </td>
       <td>{{ campaign.adinfos_count }}</td>
-      <td class="views">{{ campaign.total_views_count }}/{{ campaign.target_views }}</td>
+      <td class="views">
+        {% if campaign.pricing_model == 'CPM' %}
+        <span>{{ campaign.total_views_count }}</span>
+        <span>/{{ campaign.target_views }}</span>
+        {% elif campaign.pricing_model == 'CPC' %}
+        <span>{{ campaign.total_clicks_count }}</span>
+        <span>/{{ campaign.target_clicks }}</span>
+        {% endif %}
+      </td>
       <td class="fee">{{ campaign.fee }}</td>
       <td class="budget">{{ campaign.budget }}</td>
       <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">{{

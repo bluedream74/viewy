@@ -95,6 +95,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     verification_code = models.CharField(max_length=5, null=True, blank=True)   # 認証用のコード
     verification_code_generated_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    max_ad_per = models.FloatField(default=0.25)
 
     
     USERNAME_FIELD = 'email'

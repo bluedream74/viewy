@@ -143,39 +143,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-// 動画のクリックイベントリスナー
-document.body.addEventListener('click', (event) => {
-  if (event.target.matches('.post-video')) {
-    const targetVideo = event.target;
-
-    if (targetVideo.paused) {
-      targetVideo.play();
-    } else {
-      targetVideo.pause();
-    }
-  }
-});
-
-// 動画が再生されたときのイベントリスナー
-document.body.addEventListener('play', (event) => {
-  if (event.target.matches('.post-video')) {
-    const playButton = event.target.parentNode.querySelector('.play-button');
-
-    playButton.style.display = 'none';
-
-  }
-}, true);
-
-// 動画が停止されたときのイベントリスナー
-document.body.addEventListener('pause', (event) => {
-  if (event.target.matches('.post-video')) {
-    const playButton = event.target.parentNode.querySelector('.play-button');
-
-    playButton.style.display = 'block';
-
-  }
-}, true);
-
 
 // まだ見てない部分の色指定
 const baseColor = 'rgba(150, 150, 150, 0.539)';

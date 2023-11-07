@@ -12,7 +12,7 @@
     <ul class="error-list">
     {% for field in form %}
         {% for error in field.errors %}
-            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            <li>{{ error }}</li>
         {% endfor %}
     {% endfor %}
     </ul>

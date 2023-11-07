@@ -99,7 +99,7 @@
     </tr>
     {% for ad_info in ad_infos %}
     <tr>
-      <td>
+      <td class="td-thumbnail">
         <div class="square-img">
 
           {% if ad_info.post.ismanga %}
@@ -115,7 +115,12 @@
           {% if video.thumbnail %}
           <img class="thumbnail" loading="lazy" src="{{ video.thumbnail.url }}" alt="{{ ad_info.post.title }}">
           {% else %}
-          <video class="post-video" loading="lazy" src="{{ video.video.url }}" muted playsinline autoplay loop></video>
+          <div class="spinner-container">
+            <div class="spinner-box">
+              <div class="spinner2"></div>
+            </div>
+            <div class="spinner-comment">アップロード中</div>
+          </div>
           {% endif %}
           {% endwith %}
           {% endif %}
@@ -220,6 +225,14 @@
     <!-- {% endfor %} -->
     <!-- {% endif %} -->
 
+    <div class="mute-box">
+      <div class="mute">
+        <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
+          <input type="checkbox" class="mute-frag" checked>
+        </label>
+      </div>
+    </div>
+
     <div class="content">
       <div class="side-bar">
 
@@ -231,7 +244,7 @@
           </div>
         </div>
 
-        <div class="follow-poster">
+        <div class="follow-poster" style="opacity: 0;">
           <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
         </div>
 
@@ -267,13 +280,8 @@
           </div>
         </div>
 
+        <div class="ellipsis"><i class="fa-solid fa-ellipsis"></i></div>
 
-
-        <div class="mute">
-          <label class="fa-solid fa-volume-xmark">
-            <input type="checkbox" class="mute-frag" checked>
-          </label>
-        </div>
         <div class="space-for-hide"></div>
 
       </div>
@@ -303,11 +311,14 @@
           <span class="hashtag"><a></a></span> -->
 
         </div>
+
+        <a href="" class="ad-detail ad-click">
+          <div class="ad-detail-title">詳しくはこちら</div>
+          <div><i class="fa-solid fa-angle-right"></i></div>
+        </a>
+
       </div>
 
-      <div class="report not-yet">
-        <i class="fa-solid fa-circle-exclamation"></i>
-      </div>
 
     </div>
 
@@ -316,10 +327,6 @@
       <input class="hide-input" type="checkbox" style="display: none;">
     </label>
 
-
-    <div class="page-count">
-      <span id="current-page">?</span>/<span class="total-page">?</span>
-    </div>
 
     <div class="play-button">
       <i class="fa-solid fa-play"></i>
@@ -407,17 +414,29 @@
             let hashtag1Html = post.hashtag1 ? `<span class="hashtag"><a>${post.hashtag1}</a></span>` : '';
             let hashtag2Html = post.hashtag2 ? `<span class="hashtag"><a>${post.hashtag2}</a></span>` : '';
             let hashtag3Html = post.hashtag3 ? `<span class="hashtag"><a>${post.hashtag3}</a></span>` : '';
-            let urlHtml = post.url ? `<span class="url"><a href="${post.url}" target="_blank"><i class="fas fa-link"></i></a></span>` : '';
 
             // hashtagとurlのHTMLを結合
-            let dynamicHashtagsHtml = `${urlHtml}${hashtag1Html}${hashtag2Html}${hashtag3Html}`;
+            let dynamicHashtagsHtml = `${hashtag1Html}${hashtag2Html}${hashtag3Html}`;
 
             // HTMLを挿入
             document.getElementById("dynamic-hashtags").innerHTML = dynamicHashtagsHtml;
 
+            let detailLink = document.querySelector('.ad-detail.ad-click');
+            if (detailLink) {
+              detailLink.setAttribute('href', post.url);
+            }
+
             // preview divのクラスをトグルして表示・非表示を制御
             previewDiv.classList.add('active'); // 情報がロードされたときにpreview divを表示
 
+            // ここでsetupControlBarを呼び出す
+            post.videos.forEach((video, index) => {
+              let videoElement = document.getElementById(`postVideo${index + 1}`);
+              let seekSliderElement = document.getElementById(`seekSlider${index + 1}`);
+              if (videoElement && seekSliderElement) {
+                setupControlBar(videoElement, seekSliderElement);
+              }
+            });
           });
       });
     });
@@ -430,6 +449,91 @@
       previewDiv.classList.remove('active'); // preview divを非表示
     }
   });
+
+  // まだ見てない部分の色指定
+const baseColor = 'rgba(150, 150, 150, 0.539)';
+// 見た部分の色指定
+const activeColor = 'rgba(255, 255, 255, 0.639)';
+
+// コントロールバーの設定
+function setupControlBar(video, seekSlider) {
+  video.addEventListener('loadedmetadata', function () {
+    seekSlider.max = video.duration;
+  });
+
+  video.addEventListener('timeupdate', function () {
+    seekSlider.value = video.currentTime;
+    updateSlider(seekSlider);
+  });
+
+  seekSlider.addEventListener('input', function () {
+    video.currentTime = seekSlider.value;
+  });
+
+  // 透明なヒットエリアを作成
+  var hitArea = document.createElement('div');
+  hitArea.classList.add('hit-area');
+  seekSlider.parentElement.insertBefore(hitArea, seekSlider.nextSibling);
+
+  // ヒットエリアにドラッグ動作のイベントリスナを追加
+  hitArea.addEventListener('mousedown', startDrag);
+  hitArea.addEventListener('touchstart', startDrag);
+
+  function startDrag(event) {
+    event.preventDefault(); // ブラウザのデフォルトのタッチ動作を防ぎます
+
+    var isDragging = false; // 最初はfalseに設定
+
+    var initialClientX = (event.touches ? event.touches[0].clientX : event.clientX);
+    var initialSliderValue = parseFloat(seekSlider.value);
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('touchmove', onMouseMove);
+
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+
+    function onMouseMove(event) {
+      if (!isDragging) {
+        isDragging = true; // 最初のmousemoveまたはtouchmoveイベントでtrueに設定
+        updateSliderValue(event);
+      } else {
+        updateSliderValue(event);
+      }
+    }
+
+    function updateSliderValue(event) {
+      var currentX = (event.touches ? event.touches[0].clientX : event.clientX);
+      var rect = hitArea.getBoundingClientRect();
+      var dx = currentX - initialClientX;
+      var changeInValue = (dx / rect.width) * parseFloat(seekSlider.getAttribute('max'));
+      var newValue = initialSliderValue + changeInValue;
+
+      newValue = Math.min(Math.max(newValue, 0), parseFloat(seekSlider.getAttribute('max')));
+
+      seekSlider.value = newValue;
+      video.currentTime = newValue;
+      updateSlider(seekSlider);
+    }
+
+    function endDrag() {
+      isDragging = false;
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('touchmove', onMouseMove);
+
+      document.removeEventListener('mouseup', endDrag);
+      document.removeEventListener('touchend', endDrag);
+    }
+  }
+  function updateSlider(slider) {
+    var progress = (slider.value / slider.max) * 100;
+    slider.style.background = `linear-gradient(to right, ${activeColor} ${progress}%, ${baseColor} ${progress}%)`;
+  }
+
+  // Run once to set initial state
+  updateSlider(seekSlider);
+}
 
 </script>
 <script>
@@ -455,4 +559,6 @@
 <script src="{% static 'js/is_hidden_toggle.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
 <script src="{% static 'js/adinfo_delete.js' %}"></script>
+<script src="{% static 'js/control_video.js' %}"></script>
+<script src="{% static 'js/mute.js' %}"></script>
 {% endblock %}

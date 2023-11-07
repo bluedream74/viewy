@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="{% static 'css/advertisement/ad_base.css' %}">
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
   <title>Viewy-advertisement</title>
@@ -16,7 +17,13 @@
     <div class="side-menu">
       <div class="main-title">
         <img class="prf_img" src="{{user.prf_img.url}}" alt="">
-        <div>{{user.username}}様の</div>
+        <div>
+          {% if user.displayname %}
+              {{ user.displayname }}様の
+          {% else %}
+              {{ user.username }}様の
+          {% endif %}
+        </div>
         <div>広告管理ページ</div>
       </div>
       <a href="{% url 'advertisement:ad_campaigns_list'%}"><i class="fa-solid fa-receipt menu-icon"></i><span class="menu-title">キャンペーン</span></a>
@@ -26,6 +33,7 @@
       <a href="{% url 'advertisement:campaign_form'%}"><i class="fa-solid fa-rectangle-ad menu-icon"></i><span class="menu-title">キャンペーン作成</span></a>
       <a href="{% url 'advertisement:ad_manga_create'%}"><i class="fa-solid fa-images menu-icon"></i><span class="menu-title">画像広告作成</span></a>
       <a href="{% url 'advertisement:ad_video_create'%}"><i class="fa-solid fa-film menu-icon"></i><span class="menu-title">動画広告作成</span></a>
+      <a href="{% url 'advertisement:ad_edit_prf'%}"><i class="fa-solid fa-film menu-icon"></i><span class="menu-title">プロフィール編集</span></a>
       <a href="{% url 'advertisement:billings'%}"><i class="fa-solid fa-film menu-icon"></i><span class="menu-title">料金</span></a>
       <a href="{% url 'posts:my_account'%}" class="back"><i class="fa-solid fa-arrow-right-from-bracket menu-icon"></i><span class="menu-title">Viewyに戻る</span></a>
     </div>

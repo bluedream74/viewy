@@ -9,6 +9,10 @@
 {% block content %}
 <div class="page-title">マンガ広告作成</div>
 
+<div class="spinner-container" id="spinner" style="display: none;">
+  <div class="spinner"></div>
+  <div id="loading">投稿中です<br>この処理は数分かかる場合があります<br>ブラウザの戻るボタンを押さないでください</div>
+</div>
 
 <div class="block flex">
 
@@ -21,17 +25,17 @@
           {% for error in form.non_field_errors %}
           <div class="error">{{ error }}</div>
           {% endfor %}
-  
+
           {% for error in post_form.non_field_errors %}
           <div class="error">{{ error }}</div>
           {% endfor %}
-  
+
           {% for error in visual_form.non_field_errors %}
           <div class="error">{{ error }}</div>
           {% endfor %}
-  
+
         </div>
-  
+
         <div class="section-title">キャンペーンを選択</div>
         {% for field in form %}
         <div class="fieldWrapper">
@@ -51,9 +55,17 @@
           {{ post_form.title }}
         </div>
         <div class="url-set">
-          <div class="error">{{ post_form.url.errors }}</div>
+          <div class="error">
+            {{ post_form.url.errors }}
+          </div>
+          <div class="about-url">「詳しくはこちら」に設定するURLを入力してください</div>
           {{ post_form.url }}
         </div>
+        <div class="caption">
+          <div class="error">{{ post_form.caption.errors }}</div>
+          {{ post_form.caption }}
+        </div>
+
         <div class="hashtags">
           <div class="error">{{ post_form.hashtag1.errors }}</div>
           <div class="error">{{ post_form.hashtag2.errors }}</div>
@@ -65,23 +77,18 @@
           </div>
 
         </div>
-        <div class="caption">
-          <div class="error">{{ post_form.caption.errors }}</div>
-          {{ post_form.caption }}
-        </div>
-
       </div>
       <div class="buttons">
-        <input type="hidden"name="post_id" value="{{ post.id }}">
-        <input type="submit" class="submit-button"  name="preview_button" value="プレビュー">
-        <input type="submit"  class="submit-button" name="confirm_button" value="投稿">
+        <input type="hidden" name="post_id" value="{{ post.id }}">
+        <input type="submit" class="submit-button" name="preview_button" value="プレビュー">
+        <input type="submit" class="submit-button" name="confirm_button" id="confirm_button" value="投稿">
       </div>
     </form>
   </div>
 
   <div class="post-preview">
     <div class="post not-ad" data-post-id="{{ post.id }}" data-is-advertisement="{{ post.poster.is_advertiser }}">
-      <div class="spinner"></div>
+      <!-- <div class="spinner"></div> -->
       <div class="book">
       </div>
 
@@ -96,7 +103,7 @@
             </div>
           </div>
 
-          <div class="follow-poster">
+          <div class="follow-poster" style="opacity: 0;">
             <a class="fa-solid fa-plus fa-2xs " style="color: black;"></a>
           </div>
 
@@ -132,13 +139,8 @@
             </div>
           </div>
 
+          <div class="ellipsis"><i class="fa-solid fa-ellipsis"></i></div>
 
-
-          <div class="mute">
-            <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
-              <input type="checkbox" class="mute-frag" checked>
-            </label>
-          </div>
           <div class="space-for-hide"></div>
 
         </div>
@@ -160,18 +162,17 @@
           <div class="caption"></div>
           <div class="hashtags">
 
-            <span class="url"><a href="" target="_blank">
-                <i class="fas fa-link"></i>
-              </a></span>
             <span class="hashtag"><a></a></span>
             <span class="hashtag"><a></a></span>
             <span class="hashtag"><a></a></span>
 
           </div>
-        </div>
 
-        <div class="report not-yet">
-          <i class="fa-solid fa-circle-exclamation"></i>
+          <a href="" class="ad-detail ad-click">
+            <div class="ad-detail-title">詳しくはこちら</div>
+            <div><i class="fa-solid fa-angle-right"></i></div>
+          </a>
+
         </div>
 
       </div>
@@ -181,13 +182,8 @@
         <input class="hide-input" type="checkbox" style="display: none;">
       </label>
 
-
-      <div class="page-count">
-        <span id="current-page">?</span>/<span class="total-page">?</span>
-      </div>
-
     </div>
-    
+
     <div class="tab-bar">
       <a class="home"><i class="fa-solid fa-house fa-xs"></i></a>
       <a class="serch"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
@@ -201,6 +197,55 @@
 
 {% endblock %}
 {% block script %}
+<script>
+  // URLフィールドが空かどうかチェック
+  document.addEventListener('DOMContentLoaded', function () {
+
+    var form = document.querySelector('form');
+
+    form.addEventListener('submit', function (event) {
+      // URLフィールドを取得
+      var urlField = document.querySelector('input[name="url"]');
+      var AboutUrl = urlField.parentNode.querySelector('.about-url');
+
+      if (!urlField.value.trim()) {
+        // URLフィールドが空の場合はエラーメッセージを表示
+        AboutUrl.style.display = 'block';
+        AboutUrl.style.color = 'red';
+
+        event.preventDefault();
+      }
+    });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var confirmButton = document.getElementById('confirm_button');
+
+    confirmButton.addEventListener('click', function () {
+      var spinner = document.getElementById('spinner');
+      spinner.style.display = 'flex'; // display: none を display: flex に変更
+    });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var confirmButton = document.getElementById('confirm_button');
+
+    // confirmButtonがnullでないことを確認
+    if (confirmButton) {
+      confirmButton.addEventListener('click', function () {
+        // '.spinner'というクラスを持つ最初の要素を選択
+        var spinnerContainer = document.querySelector('.spinner-container');
+        // spinnerContainerがnullでないことを確認
+        if (spinnerContainer) {
+          spinnerContainer.style.display = 'flex'; // コンテナの表示を変更
+        }
+      });
+    }
+  });
+</script>
 <script src="{% static 'js/preview_ad_manga.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
+<script src="{% static 'js/read_more.js' %}"></script>
 {% endblock %}

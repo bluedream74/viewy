@@ -7,6 +7,7 @@ from moviepy.editor import VideoFileClip
 from operator import itemgetter
 from django.db import transaction
 from django.db.models import F, Sum
+from django import forms
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
@@ -33,6 +34,7 @@ from django.template.loader import select_template
 
 from .forms import AdCampaignForm, AdInfoForm, MonthSelectorForm
 from posts.forms import PostForm, VisualForm, VideoForm
+from accounts.forms import EditPrfForm
 from django.forms import formset_factory
 
 from django.shortcuts import get_object_or_404, render, redirect
@@ -170,10 +172,11 @@ class FilteredAdCampaignsListView(AdCampaignsListView):
 class CloseAdCampaignsListView(AdvertiserCheckView, View):
     template_name = 'advertisement/close.html' 
 
-    def get_queryset(self):
+    def get_queryset(self, request):
         # ステータスがachieved、expired、またはstoppedのキャンペーンのみを取得
         return AdCampaigns.objects.filter(
-            status__in=['achieved', 'expired', 'stopped']
+            status__in=['achieved', 'expired', 'stopped'],
+            created_by=request.user
         ).prefetch_related(
             Prefetch('ad_infos', queryset=AdInfos.objects.select_related('post'))
         ).annotate(
@@ -181,7 +184,7 @@ class CloseAdCampaignsListView(AdvertiserCheckView, View):
         ).order_by('-created_at')
 
     def get(self, request, *args, **kwargs):
-        campaigns = self.get_queryset()  # 更新されたクエリセットを取得
+        campaigns = self.get_queryset(request)  # 更新されたクエリセットを取得
 
         context = {
             'campaigns': campaigns,
@@ -590,7 +593,6 @@ class AdVideoCreateView(BaseAdCreateView):
         return path
 
     def form_valid(self, form):
-        print("form_valid開始")
         # まず、親クラスのform_validを実行(Postオブジェクトの生成・保存)
         response = super().form_valid(form)
 
@@ -824,6 +826,35 @@ class AdCampaignDelete(AdvertiserCheckView, View):
         redirect_url = reverse('advertisement:ad_campaigns_list')  
         return HttpResponseRedirect(redirect_url)
 
+
+class AdEditPrf(AdvertiserCheckView, View):
+    def get(self, request):
+        # 広告主用フォームインスタンスを作成し、特定のフィールドのみを表示する
+        form = EditPrfForm(instance=request.user)
+        # 'displayname' と 'prf_img' のみを表示するために、他のフィールドを隠す
+        for field_name in ['caption', 'url1', 'url2', 'url3', 'url4', 'url5']:
+            form.fields[field_name].widget = forms.HiddenInput()
+        return render(request, 'advertisement/edit_prf.html', {'form': form})
+    
+    @transaction.atomic
+    def post(self, request):
+        # 送信されたデータとファイルからフォームを構築
+        form = EditPrfForm(request.POST, request.FILES, instance=request.user)
+        # フォームから特定のフィールドのみを保存する
+        if form.is_valid():
+            with transaction.atomic():
+                user = form.save(commit=False)
+                # 広告主として 'displayname' と 'prf_img' のみを更新する
+                user.displayname = form.cleaned_data['displayname']
+                user.prf_img = form.cleaned_data['prf_img']
+                user.save()
+            return redirect('advertisement:ad_edit_prf')
+        else:
+            # 有効でない場合は、エラーを含むフォームを再度表示する
+            # ここでも 'displayname' と 'prf_img' 以外を隠す
+            for field_name in ['caption', 'url1', 'url2', 'url3', 'url4', 'url5']:
+                form.fields[field_name].widget = forms.HiddenInput()
+            return render(request, 'advertisement/edit_prf.html', {'form': form})
 
 class AdClickCountView(View):
 
