@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
       let adjustedCPM = calculateCPM(targetViews, baseCPMToUse);
       let budget = (targetViews / 1000) * adjustedCPM;
 
-      // CPMと予算を表示する場所を指定してください
+      // CPMと見積金額を表示する場所を指定してください
       document.querySelector('#calculated_cpm').textContent = adjustedCPM.toLocaleString() + '円';
       document.querySelector('#calculated_budget_cpm').textContent = budget.toLocaleString() + '円';
     } else {

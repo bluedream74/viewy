@@ -21,7 +21,7 @@ class AdCampaignForm(forms.ModelForm):
     target_views = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={
-            'min': 100000,
+            'min': 50000,
             'step': 10000,
             'placeholder': '目標表示回数を入力'
         })

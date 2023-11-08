@@ -350,21 +350,38 @@ class InvitedRegistUserView(BaseRegistUserView):
 
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        # フォームのエラーをコンソールに出力する
+        print("Form is invalid")
+        print(form.errors)
+        
+        # デフォルトのform_invalid処理を行う（フォームを再表示する）
+        return super().form_invalid(form)
+
 
 # 広告主用のユーザー登録
 class RegistAdvertiserView(BaseRegistUserView):
     template_name = 'regist_advertiser.html'
     form_class = InvitedRegistForm
     success_url = reverse_lazy('accounts:verify')
-
     def form_valid(self, form):
         # ユーザーのis_advertiserフィールドをTrueにセット
         form.instance.is_advertiser = True
         
         # ユーザーが広告主として登録されたことを示すセッション変数をセット
         self.request.session['registered_as_advertiser'] = True
-
+        print("DEBUG: registered_as_advertiser set to True") 
+        print("DEBUG: Session ID on form_valid in RegistAdvertiserView:",
+            self.request.session.session_key)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # フォームのエラーをコンソールに出力する
+        print("Form is invalid")
+        print(form.errors)
+        
+        # デフォルトのform_invalid処理を行う（フォームを再表示する）
+        return super().form_invalid(form)
   
 
 class VerifyView(FormView):
@@ -405,14 +422,21 @@ class VerifyView(FormView):
             # Add a success message
             messages.success(self.request, 'ユーザー登録が完了しました')
                 
+            # セッションから値を取得する前に状態を出力
+            print("DEBUG: Session before pop - registered_as_advertiser:",
+                self.request.session.get('registered_as_advertiser'))
+
             # セッションから広告主として登録されたかの情報を取得し、セッションからその情報を削除
             registered_as_advertiser = self.request.session.pop('registered_as_advertiser', False)
-            
+            # pop した後の状態を出力
+            print("DEBUG: registered_as_advertiser after pop:", registered_as_advertiser)
+                
             # セッションからリダイレクト先URLを取得し、セッションからその情報を削除
             next_url = self.request.session.pop('return_to', None)
             if registered_as_advertiser:
                 # ここで広告主用のリダイレクト先URLにとばす
-                return redirect('advertisement:ad_campaigns_list')
+                print('広告主用のリダイレクト先によぶよ')
+                return redirect('advertisement:ad_edit_prf')
             elif next_url:
                 return redirect(next_url)  # 元のページにリダイレクト
             return redirect(self.success_url)  # デフォルトのリダイレクト先に移動

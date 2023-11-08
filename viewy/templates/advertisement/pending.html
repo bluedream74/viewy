@@ -1,5 +1,5 @@
 {% extends 'advertisement/ad_campaigns_list.html' %}
-
+{% load extra_filters %}
 {% block table %}
 <div class="sub-page-title">公開前のキャンペーン</div>
 
@@ -11,8 +11,7 @@
       <th>キャンペーンタイトル</th>
       <th>広告数</th>
       <th>合計数/目標数</th>
-      <th>料金(円)</th>
-      <th>予算(円)</th>
+      <th>料金 / 見積金額</th>
       <th>表示期間</th>
       <th>停止／公開</th>
     </tr>
@@ -28,15 +27,14 @@
       <td>{{ campaign.adinfos_count }}</td>
       <td class="views">
         {% if campaign.pricing_model == 'CPM' %}
-        <span>{{ campaign.total_views_count }}</span>
-        <span>/{{ campaign.target_views }}</span>
+        <span>{{ campaign.total_views_count|add_commas }}</span>
+        <span>/{{ campaign.target_views|add_commas }}</span>
         {% elif campaign.pricing_model == 'CPC' %}
-        <span>{{ campaign.total_clicks_count }}</span>
-        <span>/{{ campaign.target_clicks }}</span>
+        <span>{{ campaign.total_clicks_count|add_commas }}</span>
+        <span>/{{ campaign.target_clicks|add_commas }}</span>
         {% endif %}
       </td>
-      <td class="fee">{{ campaign.fee }}</td>
-      <td class="budget">{{ campaign.budget }}</td>
+      <td>{{ campaign.fee|add_commas }} / {{ campaign.budget|add_commas }}</td>
       <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell">
         <span class="date">
           {{ campaign.start_date|date:"Y-m-d" }}

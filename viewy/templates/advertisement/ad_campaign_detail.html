@@ -1,5 +1,6 @@
 {% extends 'advertisement/ad_base.html' %}
 {% load static %}
+{% load extra_filters %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
 <link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
@@ -59,21 +60,21 @@
       <th>合計表示回数</th>
       <th>合計クリック回数 / 目標クリック回数</th>
       {% endif %}
-      <th>料金 / 予算</th>
+      <th>料金 / 見積金額</th>
       <th>期限</th>
       <th>ターゲット</th>
     </tr>
     <tr>
       <td>{{ campaign.actual_cpc_or_cpm }}円</td>
       {% if campaign.pricing_model == "CPM" %}
-      <td>{{ campaign.total_views_count }} / {{ campaign.target_views }}</td>
-      <td>{{ campaign.total_clicks_count }}</td>
+      <td>{{ campaign.total_views_count|add_commas }} / {{ campaign.target_views|add_commas }}</td>
+      <td>{{ campaign.total_clicks_count|add_commas }}</td>
       {% elif campaign.pricing_model == "CPC" %}
-      <td>{{ campaign.total_views_count }}</td>
-      <td>{{ campaign.total_clicks_count }} / {{ campaign.target_clicks }}</td>
+      <td>{{ campaign.total_views_count|add_commas }}</td>
+      <td>{{ campaign.total_clicks_count|add_commas }} / {{ campaign.target_clicks|add_commas }}</td>
       {% endif %}
-      <td>{{ campaign.fee }} / {{ campaign.budget }}</td>
-      <td>{{ campaign.end_date|date:"Y/m/d" }}</td>
+      <td>{{ campaign.fee|add_commas }} / {{ campaign.budget|add_commas }}</td>
+      <td>{{ campaign.end_date|date:"Y/m/d"|default:"なし" }}</td>
       <td>
         {% if andfeatures %}
         {% for andfeature in andfeatures %}
@@ -138,11 +139,11 @@
         </div>
       </td>
       <td>{{ ad_info.post.title }}</td>
-      <td>{{ ad_info.post.views_count }}</td>
-      <td>{{ ad_info.clicks_count }}</td> <!-- 追加 -->
+      <td>{{ ad_info.post.views_count|add_commas }}</td>
+      <td>{{ ad_info.clicks_count|add_commas }}</td> <!-- 追加 -->
       <td>{{ ad_info.calculated_click_through_rate|floatformat:2 }}%</td>
       <td>{{ ad_info.post.avg_duration|floatformat:1 }}秒</td>
-      <td class="fee">{{ ad_info.fee }}</td>
+      <td class="fee">{{ ad_info.fee|add_commas }}</td>
       <td>
         {% if campaign.status == 'pending' %}
         公開前
@@ -201,9 +202,9 @@
       {% for billing in monthly_billings %}
       <tr>
         <td>{{ billing.month_year|date:"Y-m" }}</td>
-        <td>{{ billing.monthly_views }}回</td>
-        <td>{{ billing.monthly_clicks }}回</td>
-        <td style="text-align: right;">{{ billing.monthly_fee }}円</td>
+        <td>{{ billing.monthly_views|add_commas }}回</td>
+        <td>{{ billing.monthly_clicks|add_commas }}回</td>
+        <td style="text-align: right;">{{ billing.monthly_fee|add_commas }}円</td>
       </tr>
       {% empty %}
       <tr>
@@ -460,29 +461,9 @@
     }
   });
 </script>
-<script>
-  // カンマ
-  // document.querySelectorAll('.budget').forEach(function (elem) {
-  //   let value = parseInt(elem.textContent, 10);
-  //   if (!isNaN(value)) {
-  //     elem.textContent = value.toLocaleString();
-  //   }
-  // });
-  // カンマ
-  document.querySelectorAll('.fee').forEach(function (elem) {
-    let value = parseFloat(elem.textContent);
-
-    if (!isNaN(value)) {
-      value = Math.ceil(value);
-
-      elem.textContent = value.toLocaleString();
-    }
-  });
-</script>
 <script src="{% static 'js/read_more.js' %}"></script>
 <script src="{% static 'js/is_hidden_toggle.js' %}"></script>
 <script src="{% static 'js/hide_contents.js' %}"></script>
-<script src="{% static 'js/adinfo_delete.js' %}"></script>
 <script src="{% static 'js/control_video.js' %}"></script>
 <script src="{% static 'js/mute.js' %}"></script>
 {% endblock %}

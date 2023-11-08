@@ -17,12 +17,12 @@
 <meta property="og:description" content="最大２分の動画と最大３１ページのマンガがリール形式で楽しめるスマホ向けウェブサービスです。" />
 <meta property="og:image" content="{{ MEDIA_URL }}others/card_long_logo.png" />
 {% endblock %}
-{%block content%}
+{% block content %}
 <!-- <div class="mid-logo">V</div> -->
 <div class="mid-logo" >
   <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
 </div>
-<div class="sub-title">広告主用アカウント登録</div>
+<div class="sub-title">広告主様用アカウント登録</div>
 <form method="POST">
   {% csrf_token %}
   <div class="form">
@@ -54,7 +54,7 @@
   </div>
 </form>
 
-  <div style="width:100%; padding-top: 75%; position:relative;"><iframe width="100%" height="100%" max-width="1280px" style="position: absolute; top: 0; left: 0;" src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=viewy-001/cid=ssis00889/size=1280_720/" scrolling="no" frameborder="0" allowfullscreen></iframe></div>
+  <!-- <div style="width:100%; padding-top: 75%; position:relative;"><iframe width="100%" height="100%" max-width="1280px" style="position: absolute; top: 0; left: 0;" src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=viewy-001/cid=ssis00889/size=1280_720/" scrolling="no" frameborder="0" allowfullscreen></iframe></div> -->
 <!-- <div class="guide">
   広告主用アカウントをお持ちの方は
   <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
@@ -66,4 +66,4 @@
 </div> -->
 
 
-{%endblock%}
+{% endblock %}

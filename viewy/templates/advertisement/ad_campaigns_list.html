@@ -1,5 +1,6 @@
 {% extends 'advertisement/ad_base.html' %}
 {% load static %}
+{% load extra_filters %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
 {% endblock %}
@@ -30,8 +31,7 @@
       <th>キャンペーンタイトル</th>
       <th>広告数</th>
       <th>合計数/目標数</th>
-      <th>料金(円)</th>
-      <th>予算(円)</th>
+      <th>料金 / 見積金額</th>
       <th>表示期間</th>
       <th>公開/非公開</th>
     </tr>
@@ -47,15 +47,14 @@
       <td>{{ campaign.adinfos_count }}</td>
       <td class="views">
         {% if campaign.pricing_model == 'CPM' %}
-        <span>{{ campaign.total_views_count }}</span>
-        <span>/{{ campaign.target_views }}</span>
+        <span>{{ campaign.total_views_count|add_commas }}</span>
+        <span>/{{ campaign.target_views|add_commas }}</span>
         {% elif campaign.pricing_model == 'CPC' %}
-        <span>{{ campaign.total_clicks_count }}</span>
-        <span>/{{ campaign.target_clicks }}</span>
+        <span>{{ campaign.total_clicks_count|add_commas }}</span>
+        <span>/{{ campaign.target_clicks|add_commas }}</span>
         {% endif %}
       </td>
-      <td class="fee">{{ campaign.fee }}</td>
-      <td class="budget">{{ campaign.budget }}</td>
+      <td>{{ campaign.fee|add_commas }} / {{ campaign.budget|add_commas }}</td>
       <td data-end-date="{{ campaign.end_date|date:" Y-m-d" }}" class="date-cell"><span class="date">
           {{ campaign.start_date|date:"Y/m/d" }}</span>～<span class="date">
           {{ campaign.end_date|date:"Y/m/d" }}</span></td>
@@ -99,7 +98,7 @@
     </tr>
     {% empty %}
     <tr>
-      <td colspan="8">キャンペーンはありません。</td>
+      <td colspan="7">キャンペーンはありません。</td>
     </tr>
     {% endfor %}
   </table>
@@ -110,37 +109,6 @@
 
 {% block script %}
 <script src="{% static 'js/adcampaign_delete.js' %}"></script>
-<script>
-  // カンマ関連
-  document.querySelectorAll('.budget').forEach(function (elem) {
-    let value = parseInt(elem.textContent, 10);
-    if (!isNaN(value)) {
-      elem.textContent = value.toLocaleString();
-    }
-  });
-
-  document.querySelectorAll('.fee').forEach(function (elem) {
-    let value = parseFloat(elem.textContent);
-
-    if (!isNaN(value)) {
-      // 小数点を切り上げる
-      value = Math.ceil(value);
-
-      // カンマで区切り、そしてセルのテキストを更新する
-      elem.textContent = value.toLocaleString();
-    }
-  });
-
-  document.querySelectorAll('.views').forEach(function (elem) {
-    // テキストを "/" で分割して、合計ビューと目標ビューを取得する
-    let [totalViews, targetViews] = elem.textContent.split('/').map(text => parseInt(text, 10));
-
-    if (!isNaN(totalViews) && !isNaN(targetViews)) {
-      // カンマで区切り、そしてセルのテキストを更新する
-      elem.textContent = `${totalViews.toLocaleString()} / ${targetViews.toLocaleString()}`;
-    }
-  });
-</script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     let buttons = document.querySelectorAll(".release-button.release");

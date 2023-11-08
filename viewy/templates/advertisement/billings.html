@@ -1,5 +1,6 @@
 {% extends 'advertisement/ad_base.html' %}
 {% load static %}
+{% load extra_filters %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
 <link rel="stylesheet" href="{% static 'css/advertisement/billings.css' %}">
@@ -29,7 +30,7 @@
           <a href="{% url 'advertisement:ad_campaign_detail' billing.campaign_id %}" class="campaign-title">
             {{ billing.campaign_title }}</a>
         </td>
-        <td style="text-align: right;">{{ billing.monthly_fee }}円</td>
+        <td style="text-align: right;">{{ billing.monthly_fee|add_commas }}円</td>
       </tr>
       {% empty %}
       <tr>
@@ -40,11 +41,11 @@
     <tfoot>
       <tr>
         <td></td>
-        <td style="text-align: right;">合計 {{ total_fee }}円</td>
+        <td style="text-align: right;">合計 {{ total_fee|add_commas }}円</td>
       </tr>
       <tr>
         <td></td>
-        <td style="text-align: right;">税込 {{ total_fee_with_tax }}円</td>
+        <td style="text-align: right;">税込 {{ total_fee_with_tax|add_commas }}円</td>
       </tr>
     </tfoot>
   </table>

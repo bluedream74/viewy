@@ -345,7 +345,7 @@ class CampaignFormView(AdvertiserCheckView, View):
         if form.is_valid():
             adcampaign = form.save(commit=False)
 
-            # ここから予算の自動計算
+            # ここから見積金額の自動計算
             pricing_model = form.cleaned_data['pricing_model']
 
             # monthly_ad_cost の設定

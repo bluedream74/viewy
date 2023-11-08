@@ -146,6 +146,26 @@ class InvitedRegistForm(RegistForm):
         widget=forms.TextInput(attrs={'placeholder': 'ユーザーネーム（英数字と_のみ）'})
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # InvitedRegistFormのときだけ生年月を必須ではなくする
+        self.fields['birth_year'].required = False
+        self.fields['birth_month'].required = False
+
+    def clean_birth_year(self):
+        # 必須でない場合はバリデーションをカスタマイズ
+        birth_year = self.cleaned_data.get('birth_year')
+        if not birth_year:
+            return None  # 必須ではないのでNoneを返す
+        return birth_year  # 他のバリデーションは親クラスに任せる
+
+    def clean_birth_month(self):
+        # 必須でない場合はバリデーションをカスタマイズ
+        birth_month = self.cleaned_data.get('birth_month')
+        if not birth_month:
+            return None  # 必須ではないのでNoneを返す
+        return birth_month  # 他のバリデーションは親クラスに任せる
+
 
 # 認証コードを入力するためのフォーム
 class VerifyForm(forms.Form):
