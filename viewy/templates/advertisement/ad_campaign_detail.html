@@ -147,6 +147,13 @@
       <td>
         {% if campaign.status == 'pending' %}
         公開前
+        <form method="POST" action="{% url 'advertisement:delete_ad_info' ad_info.id %}"
+        onsubmit="return confirm('この広告を本当に削除しますか?');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+          <i class="fa-solid fa-trash"></i> 削除
+          </button>
+        </form>
         {% elif campaign.status == 'achieved' %}
         目標達成
         {% elif campaign.status == 'expired' %}

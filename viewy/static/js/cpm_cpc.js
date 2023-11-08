@@ -23,25 +23,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 今月のCPMをページから直接取得します
   let baseCPMElement = document.querySelector('.cpm');
-  let baseCPM = parseFloat(baseCPMElement.textContent.replace('円', ''));
+  // let baseCPM = parseFloat(baseCPMElement.textContent.replace('円', ''));
   let baseCPCElement = document.querySelector('.cpc');
-  let baseCPC = parseFloat(baseCPCElement.textContent.replace('円', ''));
+  // let baseCPC = parseFloat(baseCPCElement.textContent.replace('円', ''));
 
-  // Get next month's CPC and CPM from the page, similar to current values
-  // let nextBaseCPM = parseFloat(document.querySelector('.next-cpm').textContent.replace('来月のCPM: ', '').replace('円', ''));
-  // let nextBaseCPC = parseFloat(document.querySelector('.next-cpc').textContent.replace('来月のCPC: ', '').replace('円', ''));
+  let nextbaseCPMElement = document.querySelector('.next-cpm');
+  // let nextbaseCPM = parseFloat(nextbaseCPMElement.textContent.replace('円', ''));
+  let nextbaseCPCElement = document.querySelector('.next-cpc');
+  // let nextbaseCPC = parseFloat(nextbaseCPCElement.textContent.replace('円', ''));
+  // console.log(nextbaseCPM);
+  // console.log(nextbaseCPC);
+
 
   function updateDisplay() {
 
-    // let startDateInput = document.querySelector('#start-date-input');
-    // let startDate = new Date(startDateInput.value);
-    // let currentDate = new Date();
-    // let isNextMonth = startDate.getMonth() === currentDate.getMonth() + 1 && startDate.getFullYear() === currentDate.getFullYear() ||
-    //   startDate.getMonth() === 0 && currentDate.getMonth() === 11 && startDate.getFullYear() === currentDate.getFullYear() + 1;
-
-    // Choose the base CPC and CPM depending on the campaign's start date
-    // let baseCPMToUse = isNextMonth ? nextBaseCPM : baseCPM;
-    // let baseCPCToUse = isNextMonth ? nextBaseCPC : baseCPC;
+    let currentDate = new Date();
+    let startDateInput = document.querySelector('#start-date-input');
+    let selectedStartDate = new Date(startDateInput.value);
+  
+    // 次の月を取得するために現在の月に1を加える（月は0から始まるため）
+    let nextMonth = currentDate.getMonth() + 1;
+  
+    // 現在が年の終わりの場合、来年の1月に調整する
+    if (nextMonth > 11) {
+      nextMonth = 0; // 1月は0で表される
+      currentDate.setFullYear(currentDate.getFullYear() + 1);
+    }
+  
+    // 使用するCPMとCPCを決定する
+    let useNextMonthValues = selectedStartDate.getMonth() === nextMonth && selectedStartDate.getFullYear() === currentDate.getFullYear();
+  
+    let baseCPM = useNextMonthValues ? parseFloat(nextbaseCPMElement.textContent.replace('円', '')) : parseFloat(baseCPMElement.textContent.replace('円', ''));
+    let baseCPC = useNextMonthValues ? parseFloat(nextbaseCPCElement.textContent.replace('円', '')) : parseFloat(baseCPCElement.textContent.replace('円', ''));
 
     let selectedPricingModel = document.querySelector('[name="pricing_model"]:checked').value;
 

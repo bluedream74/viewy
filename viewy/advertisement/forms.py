@@ -4,8 +4,9 @@ from posts.models import Posts
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import datetime
+import calendar
 
 
 class AdCampaignForm(forms.ModelForm):
@@ -59,7 +60,10 @@ class AdCampaignForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={
                 'type': 'date', 
                 'id': 'start-date-input',
-                'min': date.today()  # 今日の日付をmin属性として設定
+                # 今日の日付を min 属性として設定
+                'min': date.today().isoformat(),  
+                # 翌月末の日付を max 属性として設定
+                'max': '',  # この値は後でセットします
             }),
         }
 
@@ -153,6 +157,20 @@ class AdCampaignForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         super(AdCampaignForm, self).__init__(*args, **kwargs)
 
+        # 今日の日付を取得
+        today = date.today()
+        # 現在の年と月を取得
+        year, month = today.year, today.month
+        # 翌月を計算
+        next_month = month + 1 if month < 12 else 1
+        next_year = year if month < 12 else year + 1
+        # 翌月末の日を計算
+        last_day_of_next_month = calendar.monthrange(next_year, next_month)[1]
+        # 翌月末の日付を作成
+        last_date_of_next_month = date(next_year, next_month, last_day_of_next_month)
+        # max 属性をセット
+        self.fields['start_date'].widget.attrs['max'] = last_date_of_next_month.isoformat()
+
         # instanceが存在し、pkが設定されている場合は編集画面とみなす
         if instance and instance.pk:
             self.fields['end_date'].initial = timezone.localtime(instance.end_date) if instance.end_date else None
@@ -174,7 +192,7 @@ class AdCampaignForm(forms.ModelForm):
                 self.fields['target_clicks'].disabled = True
             
             else:
-                 self.fields['target_clicks'].widget.attrs.update({'min': 2001})
+                 self.fields['target_clicks'].widget.attrs.update({'min': 2000})
 
             # pricing_model を変更不可にし、バリデーションを必須ではないように設定
             self.fields['pricing_model'].disabled = True

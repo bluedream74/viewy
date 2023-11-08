@@ -1,5 +1,8 @@
 {% extends 'advertisement/ad_campaigns_list.html' %}
 {% load extra_filters %}
+
+{% block content %}
+
 {% block table %}
 <div class="sub-page-title">非公開のキャンペーン</div>
 
@@ -79,4 +82,5 @@
     {% endfor %}
   </table>
 </div>
+{% endblock %}
 {% endblock %}

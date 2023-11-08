@@ -814,11 +814,12 @@ class AdInfoDelete(AdvertiserCheckView, View):
         # 削除する前に、関連するAdCampaignのIDを取得
         campaign_id = ad_info.ad_campaign.id
 
-        # AdInfoの削除 (関連するAdCampaignは削除しない)
+        # Delete the ad_info and its related Post object
+        post_to_delete = ad_info.post
         ad_info.delete()
+        post_to_delete.delete()
 
-        redirect_url = reverse('advertisement:ad_campaign_detail', kwargs={'campaign_id': campaign_id})
-        return JsonResponse({'success': True, 'redirect_url': redirect_url})
+        return redirect('advertisement:ad_campaign_detail', campaign_id=campaign_id)
 
 class AdCampaignDelete(AdvertiserCheckView, View):
     def post(self, request, campaign_id):

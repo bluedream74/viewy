@@ -12,15 +12,17 @@
   <div class="costs-title">今月の料金</div>
   <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value cpm">{{ current_cpm }}</span>円</div>
   <div class="fee">CPC <span class="fee-value cpc">{{ current_cpc }}</span>円</div>
-
-  <!-- {% if next_cpc and next_cpm %}
-  <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
-  <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
-  {% else %}
-  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
-  {% endif %} -->
 </div>
 
+<div class="next-monthly-costs">
+  {% if next_cpc and next_cpm %}
+  <div class="costs-title">来月の料金</div>
+  <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value cpm next-cpm">{{ next_cpm }}</span>円</div>
+  <div class="fee">CPC <span class="fee-value cpc next-cpc">{{ next_cpc }}</span>円</div>
+  {% else %}
+  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
+  {% endif %}
+</div>
 <!-- <div class="monthly-costs">
   <p class="cpc">今月のCPC: {{ current_cpc }}円</p>
   <p class="cpm">今月のCPM: {{ current_cpm }}円</p>

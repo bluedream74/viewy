@@ -153,11 +153,12 @@
   display: none;
 }
 
+
 .square-img{
   width: 90px;
   height: 90px;
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   overflow: hidden;
   position: relative;
