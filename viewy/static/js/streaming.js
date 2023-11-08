@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var index = Array.from(document.querySelectorAll('.video-player')).indexOf(video) + 1;
     var hlsUrl = video.dataset.hlsUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.hlsUrl : null;
     var dashUrl = video.dataset.dashUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.dashUrl : null;
+    var mp4Url = video.dataset.videoUrl; // MP4のURLを直接取得
 
+    // HLSの対応をチェック
     if (hlsUrl && (isiOS || isAndroid)) {
       if (Hls.isSupported()) {
         var hls = new Hls({
@@ -18,13 +20,16 @@ document.addEventListener('DOMContentLoaded', function() {
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
           console.log('HLS manifest parsed, playing video:', index);
+          // HLSで再生を開始しないように削除
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = hlsUrl;
+        // 再生を開始しないようにイベントリスナー内のplay()呼び出しを削除
         video.addEventListener('loadedmetadata', function() {
-          console.log('Metadata loaded, playing video:', index);
+          console.log('Metadata loaded for HLS:', index);
         });
       }
+    // DASHの対応をチェック
     } else if (dashUrl) {
       var player = dashjs.MediaPlayer().create();
       player.initialize(video, dashUrl, false);
@@ -35,9 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
       });
+      // DASHで再生を開始しないように削除
+    // MP4の対応をチェック
+    } else if (mp4Url) {
+      video.src = mp4Url;
+      // 再生を開始しないようにイベントリスナー内のplay()呼び出しを削除
+      video.addEventListener('loadedmetadata', function() {
+        console.log('Metadata loaded for MP4:', index);
+      });
     }
   }
 
+  // インターセクションオブザーバーを設定
   var observer = new IntersectionObserver(function(entries, observer) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -48,36 +62,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }, { threshold: 0.25 });
 
+  // 既存のビデオプレーヤーにオブザーバーを適用
   var videos = document.querySelectorAll('.video-player');
   videos.forEach(function(video) {
     observer.observe(video);
   });
 
-// DOMの変更を監視する
-var mutationObserver = new MutationObserver(function(mutations) {
-  console.log('Mutation observed'); // 変更が検出されたか確認
-  mutations.forEach(function(mutation) {
-    if (mutation.type === 'childList') {
-      mutation.addedNodes.forEach(function(node) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          console.log('Element node added:', node); // 追加されたノードが要素ノードか確認
-          var newVideos = node.querySelectorAll('.video-player');
-          newVideos.forEach(function(newVideo) {
-            // ここでinitializedを避けて監視する処理を抜いている。理由はなぜか追加された動画すべてinitializedがついていてうまく監視できないから。
-            console.log('Initializing new video:', newVideo); // 新しい動画要素が見つかったか確認
-            observer.observe(newVideo);
-          });
-        }
-      });
-    }
+  // DOMの変更を監視する
+  var mutationObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            var newVideos = node.querySelectorAll('.video-player');
+            newVideos.forEach(function(newVideo) {
+              observer.observe(newVideo);
+            });
+          }
+        });
+      }
+    });
   });
-});
 
-var screenElement = document.querySelector('.screen');
-if (screenElement) {
-  mutationObserver.observe(screenElement, { childList: true, subtree: true });
-  console.log('Mutation observer attached to .screen element'); // MutationObserverが適用されたか確認
-} else {
-  console.error('".screen" element not found!');
-}
+  // .screen要素がある場合はMutationObserverを適用
+  var screenElement = document.querySelector('.screen');
+  if (screenElement) {
+    mutationObserver.observe(screenElement, { childList: true, subtree: true });
+  } else {
+    console.error('".screen" element not found!');
+  }
 });

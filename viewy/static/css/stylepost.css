@@ -116,6 +116,22 @@ input[type=range]::-webkit-slider-thumb {
   }
 }
 
+.thumbnail{
+  position: absolute;
+  /* 位置を絶対位置に設定 */
+  top: 50%;
+  /* 親要素から上に50%の位置に配置 */
+  transform: translateY(-50%);
+  /* 要素自体をY軸に-50%移動させて中心に配置 */
+  width: 100%;
+  /* 親要素に対して100%の幅 */
+  height: auto;
+  /* 高さを自動で調整 */
+  object-fit: cover;
+  /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
+  pointer-events: auto;
+}
+
 
 .post-video {
   position: absolute;
@@ -2039,6 +2055,8 @@ label {
     width: 100%;
     height: calc(var(--vh, 1vh) * 100 - 42px);
   }
+
+
 
   .post-video {
     position: absolute;

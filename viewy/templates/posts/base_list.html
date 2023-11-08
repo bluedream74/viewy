@@ -68,8 +68,9 @@
 
     <!-- 動画の場合 -->
       {% for video in post.videos.all %}
+        <img class="thumbnail" src="{{ video.thumbnail.url }}" alt="">
       {% if video.hls_path %}
-        <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}"  id="postVideo{{ forloop.counter }}" width="200px" height="400px" loading="lazy" playsinline loop muted {% if forloop.first %}autoplay{% endif %}></video>
+        <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}" data-video-url="{{ video.video.url }}"  id="postVideo{{ forloop.counter }}" width="200px" height="400px" loading="lazy" playsinline loop muted {% if forloop.first %}autoplay{% endif %}></video>
       {% else %}
         <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
           src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
