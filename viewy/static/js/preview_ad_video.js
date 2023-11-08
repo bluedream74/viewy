@@ -35,11 +35,11 @@ document.addEventListener("DOMContentLoaded", function () {
             newPreview.setAttribute("loop", "");
             newPreview.className = "post-video";
 
-            let previewBlock = document.querySelector(".post");
-            let spinnerElement = previewBlock.querySelector(".spinner");
-            if (spinnerElement) {
-              spinnerElement.insertAdjacentElement('afterend', newPreview);
-              console.log("spinnerの後に新しい<video>を追加しました。");
+            let previewBlock = document.querySelector(".post-preview");
+            let postElement = previewBlock.querySelector(".post");
+            if (postElement) {
+              postElement.prepend(newPreview);
+              console.log("新しい<video>を.postの後に追加しました。");
             }
 
             // プレビューボタンをクリックしたときの動画再生
