@@ -30,7 +30,10 @@ body{
 
 .main-title > img{
   width: 64px;
+  height: 64px;
   border-radius: 50%;
+  overflow: hidden;
+  object-fit: cover; /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
 }
 
 .side-menu > a{

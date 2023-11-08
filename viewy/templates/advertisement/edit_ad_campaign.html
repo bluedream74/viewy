@@ -30,7 +30,7 @@
       <div class="info-item">
         <div class="info-name">開始日</div>
         <div class="info-input">
-          {{ form.start_date }}
+          {{ form.start_date.value }}
           {% if form.start_date.errors %}
           <div class="error-messages">
             {% for error in form.start_date.errors %}
@@ -50,7 +50,7 @@
       </div>
 
       <div class="info-item">
-        <div class="info-name">課金モデル</div>
+        <div class="info-name">料金方式</div>
         <div class="info-input" id="pricing_model">{{ form.pricing_model.value }}</div>
       </div>
 
@@ -97,13 +97,13 @@
 
       <div class="info-item">
         <div class="info-name">CPM</div>
-        <div class="info-input" id="calculated_cpm">
+        <div class="info-input" id="calculated_cpm" style="color: rgb(11, 150, 1);">
           {{ actual_cpc_or_cpm }}円</div>
       </div>
 
       <div class="info-item">
         <div class="info-name">予算</div>
-        <div class="info-input" id="calculated_budget_cpm">円</div>
+        <div class="info-input" id="calculated_budget_cpm" style="color: rgb(11, 150, 1);">円</div>
         <p class="info-description" style="width: 400px;">
           注意：CPMの場合、目標表示回数に応じて予算が自動計算されます。そのためここでの予算とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達しなかった場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。
       </div>
@@ -135,13 +135,13 @@
 
       <div class="info-item">
         <div class="info-name">CPC</div>
-        <div class="info-input" id="calculated_cpc">
+        <div class="info-input" id="calculated_cpc" style="color: rgb(11, 150, 1);">
           {{ actual_cpc_or_cpm }}円</div>
       </div>
 
       <div class="info-item">
         <div class="info-name">予算</div>
-        <div class="info-input" id="calculated_budget_cpc">円</div>
+        <div class="info-input" id="calculated_budget_cpc" style="color: rgb(11, 150, 1);">円</div>
       </div>
       {% endif %}
 

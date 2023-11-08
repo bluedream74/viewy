@@ -8,6 +8,10 @@
   position: relative;
 }
 
+.contents{
+  position: relative;
+}
+
 .monthly-costs{
   display: flex;
   background-color: white;
@@ -48,6 +52,10 @@
   font-weight: bold;
 }
 
+.info-name{
+  color: rgb(88, 88, 88);
+}
+
 .info-input{
   margin-left: 16px;
   font-size: 18px;
@@ -56,6 +64,12 @@
 .info-input > input{
   padding: 6px 16px;
   border-radius: 50px;
+}
+
+.info-description{
+  font-size: 12px;
+  font-weight: 100;
+  color: rgb(84, 84, 84);
 }
 
 .campaign-title > input{
@@ -151,7 +165,7 @@ input[type="checkbox"]:checked + .custom-label {
   margin: auto;
   border-radius: 8px;
   width: max-content;
-  background-color: rgb(247, 186, 54);
+  background-color: rgb(129, 129, 129);
   color: white;
   font-weight: bold;
 }
