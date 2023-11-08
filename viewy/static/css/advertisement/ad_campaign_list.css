@@ -223,9 +223,9 @@
 }
 
 .self-condition{
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
-  padding: 8px 24px;
+  padding: 4px 16px;
   border-radius: 50px;
   color: white;
   background-color: gray;
@@ -254,6 +254,29 @@
 
 .edit:hover{
   background-color: rgb(80, 80, 80);
+  box-shadow: none;
+}
+
+.edit-campaign{
+  display: flex;
+}
+
+.delete-button button{
+  margin-left: 8px;
+  background-color: orangered;
+  border-radius: 4px;
+  color: white;
+  box-shadow: 0px 1px 2px rgb(197, 197, 197);
+  text-decoration: none;
+  display: block;
+  padding: 8px 12px;
+  align-items: center;
+  border: none;
+  font-size: 16px;
+}
+
+.delete-button button:hover{
+  background-color: rgb(203, 54, 0);
   box-shadow: none;
 }
 
@@ -347,7 +370,7 @@
 }
 
 .monthly-billing-info th{
-  background-color: rgb(41, 147, 108);
+  background-color: rgb(11, 150, 1);
   color: rgb(255, 255, 255);
   padding: 6px 16px;
   text-align: left;

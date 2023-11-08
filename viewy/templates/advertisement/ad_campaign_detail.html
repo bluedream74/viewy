@@ -11,7 +11,7 @@
 <div class="campaign-main-info">
   <div style="display: flex; align-items: center;">
     <div class="self-title">{{ campaign.title }}</div>
-    <div class="self-condition">
+    <div class="self-condition" {% if campaign.status == "pending" %} style="background-color: orange;" {% elif campaign.status == "running" %} style="background-color: rgb(79, 231, 231);" {% endif %}>
       {% if campaign.status == "pending" %}
       公開前
       {% elif campaign.status == "running" %}
@@ -26,18 +26,24 @@
     </div>
   </div>
 
-  <div class="edit_campaign">
-    <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
-      class="fa-solid fa-pen"></i> 編集</a>
-    {% if campaign.status == "pending" %}
-    <form method="POST" action="{% url 'advertisement:delete_ad_campaign' campaign_id=campaign.id %}"
-    onsubmit="return confirm('このキャンペーンを本当に削除しますか?キャンペーンに紐付く全広告も削除されます。');">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-danger">
-      <i class="fa-solid fa-trash"></i> 削除
-      </button>
-    </form>
-    {% endif %}
+  <div class="edit-campaign">
+    <div>
+      <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
+        class="fa-solid fa-pen"></i> 編集</a>
+    </div>
+    <div class="delete-button">
+      {% if campaign.status == "pending" %}
+      <form method="POST" action="{% url 'advertisement:delete_ad_campaign' campaign_id=campaign.id %}"
+      onsubmit="return confirm('このキャンペーンを本当に削除しますか?キャンペーンに紐付く全広告も削除されます。');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+        <i class="fa-solid fa-trash"></i> 削除
+        </button>
+      </form>
+      {% endif %}
+    </div>
+
+
   </div>
 </div>
 
@@ -47,13 +53,13 @@
     <tr>
       <th>{{ campaign.pricing_model }}</th>
       {% if campaign.pricing_model == "CPM" %}
-      <th>合計表示回数/目標表示回数</th>
+      <th>合計表示回数 / 目標表示回数</th>
       <th>合計クリック回数</th>
       {% elif campaign.pricing_model == "CPC" %}
       <th>合計表示回数</th>
-      <th>合計クリック回数/目標クリック回数</th>
+      <th>合計クリック回数 / 目標クリック回数</th>
       {% endif %}
-      <th>料金/予算</th>
+      <th>料金 / 予算</th>
       <th>期限</th>
       <th>ターゲット</th>
     </tr>
@@ -98,7 +104,7 @@
       <th>クリック率</th>
       <th>滞在時間</th>
       <th>料金(円)</th>
-      <th>停止／再開</th>
+      <th>停止／公開</th>
       <th>プレビュー</th>
     </tr>
     {% for ad_info in ad_infos %}

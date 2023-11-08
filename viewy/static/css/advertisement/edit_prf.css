@@ -22,10 +22,15 @@
   padding-left: 64px;
 }
 
+
 .current-img img{
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   border: 1px solid rgb(69, 69, 69);
-  width: 120px;
+  overflow: hidden;
+  object-fit: cover; /* 画像のアスペクト比を保ちつつ、要素のサイズにフィットするようにします。 */
+  margin: 0px auto;
 }
 
 .displayname input{

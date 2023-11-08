@@ -71,19 +71,20 @@
       <div id="cpc-container" style="display:none;">
 
         <div class="info-item">
-          <div class="info-name">クリック目標数</div>
+          <div class="info-name">目標クリック数</div>
           <div class="info-input">{{ form.target_clicks }}回</div>
         </div>
 
         <div class="info-item">
           <div class="info-name">CPC</div>
-          <div class="info-input" id="calculated_cpc">円</div>
+          <div class="info-input" id="calculated_cpc" style="color: rgb(11, 150, 1);">円</div>
         </div>
-
         <div class="info-item">
           <div class="info-name">予算</div>
-          <div class="info-input" id="calculated_budget_cpc">円</div>
+          <div class="info-input" id="calculated_budget_cpc" style="color: rgb(11, 150, 1);">円</div>
         </div>
+        <p class="info-description" style="width: 400px;">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px; color: rgb(255, 200, 0); font-size: 14px;"></i>CPCの場合、目標クリック回数に応じて予算が自動計算されます。そのためここでの予算とは、目標クリック回数に到達した場合実際に請求される料金です。目標クリック回数に到達する前にキャンペーン及びキャンペーン内の全広告を非表示(中断)した場合、その時点でのクリック回数に応じたCPMで料金が再計算され、請求料金が確定します。</p>
 
       </div>
 
@@ -97,14 +98,14 @@
 
         <div class="info-item">
           <div class="info-name">CPM</div>
-          <div class="info-input" id="calculated_cpm">円</div>
+          <div class="info-input" id="calculated_cpm" style="color: rgb(11, 150, 1);">円</div>
         </div>
 
         <div class="info-item">
           <div class="info-name">予算</div>
-          <div class="info-input" id="calculated_budget_cpm">円</div>
+          <div class="info-input" id="calculated_budget_cpm" style="color: rgb(11, 150, 1);">円</div>
           <p class="info-description" style="width: 400px;">
-            注意：CPMの場合、目標表示回数に応じて予算が自動計算されます。そのためここでの予算とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達しなかった場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。
+            <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px; color: rgb(255, 200, 0); font-size: 14px;"></i>CPMの場合、目標表示回数に応じて予算が自動計算されます。そのためここでの予算とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達する前にキャンペーン及びキャンペーン内の全広告を非表示(中断)した場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。</p>
         </div>
       </div>
     </div>
