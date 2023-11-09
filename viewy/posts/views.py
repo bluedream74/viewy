@@ -159,7 +159,6 @@ class BasePostListView(ListView):
             print(f"Cache MISS for user {user.id}")  # キャッシュがミスした場合にログを表示
         
         user_features = set(user.features.all())
-        print(user_features)
         advertiser_users = self.get_advertiser_users()
 
         # まず、各 AndFeatures の中で、user_features と一致する orfeatures の数を計算
@@ -260,48 +259,9 @@ class BasePostListView(ListView):
             'adinfos__ad_campaign__andfeatures__orfeatures'
         ))
 
-        # QuerySetをリストに変換
-        ad_posts_list = list(ad_posts)
-
-        # 広告主ごとに広告リストを作成し、広告数をカウント
-        advertiser_ad_count = defaultdict(int)
-        ads_by_advertiser = defaultdict(list)
-
-        for post in ad_posts_list:
-            advertiser_id = post.poster.id
-            advertiser_ad_count[advertiser_id] += 1
-            ads_by_advertiser[advertiser_id].append(post)
-
-        # 全体の広告数をカウント
-        total_ads = len(ad_posts_list)
-
-        # 各広告主の割合が上限を超えていないか確認し、超えていれば調整
-        for advertiser_id, ads in list(ads_by_advertiser.items()):
-
-            # 広告主の最大許容割合を取得
-            max_ad_percentage = ads[0].poster.max_ad_per * 100
-
-            # 現在の広告主の割合を計算
-            current_percentage = (advertiser_ad_count[advertiser_id] / total_ads) * 100
-
-            # 割合が上限を超えていれば、ランダムに広告を削除して調整
-            while current_percentage > max_ad_percentage:
-                # 広告主の広告からランダムに一つ選びリストから削除
-                post_to_remove = random.choice(ads_by_advertiser[advertiser_id])
-                ad_posts_list.remove(post_to_remove)
-                ads_by_advertiser[advertiser_id].remove(post_to_remove)
-
-                # 全広告数を更新
-                total_ads -= 1
-
-                # 広告主の広告数を更新
-                advertiser_ad_count[advertiser_id] -= 1
-
-                # 新しい割合を計算
-                current_percentage = (advertiser_ad_count[advertiser_id] / total_ads) * 100
 
         # 適切な広告をランダムに取得
-        posts = ad_posts_list
+        posts = ad_posts
         # 以下のコードは以前のものを変更せずにそのまま使用します。
         ad_post_ids = [post.id for post in posts]
         favorited_ads = Favorites.objects.filter(user=user, post_id__in=ad_post_ids).values_list('post', flat=True)
@@ -319,16 +279,50 @@ class BasePostListView(ListView):
         # 結果をキャッシュに保存
         cache.set(cache_key, ad_post_ids, 3600)  # 1時間キャッシュする
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
-        print(posts)
         
         return posts
     
     def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
-
         # キャッシュから全ての広告を取得
-        all_advertiser_posts = list(self.get_advertiser_posts(user)) 
+        ad_posts = self.get_advertiser_posts(user)
 
-        return sample(all_advertiser_posts, min(2, len(all_advertiser_posts)))
+        # 広告主ごとの広告数を取得
+        advertisers_with_count = ad_posts.values('poster').annotate(total=Count('poster')).order_by('poster')
+
+        # 特別な広告主を識別
+        affiliate_advertiser = advertisers_with_count.filter(poster__is_affiliateadvertiser=True).order_by('poster').first()
+
+        # 通常の広告主のリストを取得（特別な広告主は除く）
+        regular_advertisers = advertisers_with_count.filter(poster__is_affiliateadvertiser=False)
+        
+        # 広告主の総数
+        total_advertisers = regular_advertisers.count() + (1 if affiliate_advertiser else 0)
+        
+        # 重みづけたランダム選択のためのリストと重みを設定
+        selected_advertisers_with_weights = []
+        if total_advertisers <= 4:
+            if total_advertisers == 1:
+                posts = list(ad_posts.filter(poster=affiliate_advertiser['poster']))
+                return random.sample(posts, k=min(2, len(posts)))
+            elif total_advertisers == 2:
+                weights = [1, 3]  # 通常広告主:特別広告主 = 1:3
+            elif total_advertisers == 3:
+                weights = [1, 1, 2]  # 通常広告主1:通常広告主2:特別広告主 = 1:1:2
+            else:  # total_advertisers == 4
+                weights = [1, 1, 1, 1]  # 全て等しい確率
+
+            selected_advertisers = list(regular_advertisers) + ([affiliate_advertiser] if affiliate_advertiser else [])
+            for advertiser, weight in zip(selected_advertisers, weights):
+                selected_advertisers_with_weights.extend([advertiser['poster']] * weight)
+        else:
+            # 5以上の場合、全ての広告主が等しい確率で選ばれる
+            selected_advertisers_with_weights = [advertiser['poster'] for advertiser in regular_advertisers]
+
+        # 重みに基づいて広告主を選択し、その広告主の投稿からランダムに2つを選ぶ
+        chosen_advertisers = random.choices(selected_advertisers_with_weights, k=2)
+        posts_to_display = [random.choice(ad_posts.filter(poster_id=advertiser_id)) for advertiser_id in chosen_advertisers]
+
+        return posts_to_display
     
     def integrate_ads(self, queryset, ad_posts_iterator):
         final_posts = []
@@ -1480,7 +1474,6 @@ class GetMoreHashtagView(BaseHashtagListView):
         return self.request.POST.get('hashtag')
 
     def get_queryset(self):
-        print(self.request.POST)  # POSTデータをログに出力
 
         last_post_id = int(self.request.POST.get('last_post_id', 0))
         hashtag = self.get_hashtag()  # Use the method to get hashtag
