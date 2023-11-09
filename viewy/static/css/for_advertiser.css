@@ -772,13 +772,86 @@ hr{
   font-weight: bold;
 }
 
-.cpm{
+/* .cpm{
   margin-right: 32px;
 }
 
 .try-plan .cpm, .try-plan .cpc{
   text-decoration: underline;
   text-decoration-color: aqua;
+} */
+
+/* 共通のスタイル */
+.grid-container {
+  display: grid;
+  margin-bottom: 20px;
+  background-color: #f8f8f8;
+  padding: 10px;
+  text-align: center;
+}
+
+.grid-container > div{
+  padding: 12px;
+}
+
+.cpc, .cpm{
+  font-weight: bold;
+  background-color: white;
+  padding: 5px;  
+  font-size: 24px;
+}
+
+.grid-header {
+  font-weight: bold;
+  background-color: #ddd;
+  padding: 5px;
+  border: 1px solid #c3c3c3;
+}
+
+.line-header{
+  font-weight: bold;
+  background-color: #ddd;
+  padding: 5px;
+  border: 1px solid #c3c3c3;
+}
+
+.grid-item {
+  padding: 5px;
+  background-color: white;
+  font-size: 20px;
+  font-weight: bold;
+  border: 1px solid #c3c3c3;
+}
+
+.special-price{
+  font-size: 24px;
+}
+
+
+.try-header{
+  background-color: rgb(14, 226, 226);
+  color: white;
+}
+
+.try-price1{
+  border-left: 2px rgb(14, 226, 226) solid;
+  border-right: 2px rgb(14, 226, 226) solid;
+
+}
+
+.try-price2{
+  border: 2px rgb(14, 226, 226) solid;
+  border-top: 1px solid #c3c3c3;
+}
+
+/* 最初の料金表のグリッド設定 */
+.grid-container:not(.large) {
+  grid-template-columns: auto 1fr 1fr; /* 3列の設定 */
+}
+
+/* 2番目の料金表のグリッド設定 */
+.grid-container.large {
+  grid-template-columns: auto 1fr 1fr 1fr; /* 4列の設定 */
 }
 
 

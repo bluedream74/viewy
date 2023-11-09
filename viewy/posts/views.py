@@ -88,8 +88,19 @@ class BasePostListView(ListView):
     
 
     def get_viewed_count_dict(self, user, post_ids):
-        viewed_counts = ViewDurations.objects.filter(user=user, post_id__in=post_ids).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
-        return {item[0]: item[1] for item in viewed_counts}
+        # ユーザーによる各投稿の視聴回数を取得するクエリセットを作成
+        viewed_counts_query = ViewDurations.objects.filter(
+            user=user, post_id__in=post_ids
+        ).values('post').annotate(post_count=Count('id')).values_list('post', 'post_count')
+        
+        # クエリセットから取得した視聴回数の辞書を作成
+        viewed_counts = {item[0]: item[1] for item in viewed_counts_query}
+        
+        # 全ての投稿IDについて視聴回数があるかをチェックし、なければ0として辞書に追加
+        for post_id in post_ids:
+            viewed_counts.setdefault(post_id, 0)
+        
+        return viewed_counts
 
     def get_followed_posters_set(self, user, poster_ids):
         followed_poster_ids = Follows.objects.filter(user_id=user.id, poster_id__in=poster_ids).values_list('poster_id', flat=True)
@@ -516,8 +527,11 @@ class PostListView(BasePostListView):
     def get_combined_posts(self, posts, user):
 
         # 1. 視聴回数の辞書を取得
-        post_ids = list(posts.values_list('id', flat=True))
+        post_ids = list(posts.values_list('id', flat=True))      
         viewed_counts = self.get_viewed_count_dict(user, post_ids)
+        
+        # # ここで視聴回数の辞書をprintする
+        # print(viewed_counts)
 
         # 2. 視聴回数が最も少ない投稿を絞り込む
         sorted_viewed_counts = sorted(viewed_counts.items(), key=lambda x: x[1])
@@ -530,9 +544,16 @@ class PostListView(BasePostListView):
                 least_viewed_posts.add(sorted_viewed_counts[i][0])
                 post_ids_at_current_viewed_count.append(sorted_viewed_counts[i][0])
                 i += 1
+                
+        for post_id in least_viewed_posts:
+            # get_viewed_count_dict が post_id をキーとし、視聴回数を値とする辞書を返すと仮定
+            print(f"投稿ID: {post_id}, 視聴回数: {viewed_counts.get(post_id, '情報なし')}")
 
         # QP順上位8位を取得
         posts_with_least_views = posts.filter(id__in=least_viewed_posts).order_by('-qp')[:8]
+        
+        # for post in posts_with_least_views:
+        #     print(f"タイトル: {post.title}, QP: {post.qp}")
 
         # フォローしているユーザーの投稿を取得
         followed_users_posts = self.get_followed_users_posts(user, posts)
