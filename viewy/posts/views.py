@@ -249,42 +249,23 @@ class BasePostListView(ListView):
             'adinfos__ad_campaign__andfeatures__orfeatures'
         ))
 
-        print("最初に選択された広告リスト:")
-        for post in ad_posts:
-            print(f"広告ID: {post.id}, 広告主ID: {post.poster.id}, 広告タイトル: {post.title}")
-
-        # コードの実行開始時刻を記録
-        start_time = time.time()
-
         # QuerySetをリストに変換
         ad_posts_list = list(ad_posts)
 
-        # 広告主IDをキーとして、その広告主の広告数をカウントする辞書を作成
+        # 広告主ごとに広告リストを作成し、広告数をカウント
         advertiser_ad_count = defaultdict(int)
-
-        # 広告主ごとに広告リストを作成
         ads_by_advertiser = defaultdict(list)
 
-        # 全体の広告数をカウント
-        total_ads = len(ad_posts_list)
-
-        # オペレーター広告主ID
-        OPERATOR_ADVERTISER_ID = 1
-
-        # 広告リストを埋めるためにオペレーターの広告を準備
-        operator_ads_list = [post for post in ad_posts if post.poster.id == OPERATOR_ADVERTISER_ID]
-
-        # 広告主ごとに広告リストを作成し、広告数をカウント
-        for post in ad_posts:
+        for post in ad_posts_list:
             advertiser_id = post.poster.id
             advertiser_ad_count[advertiser_id] += 1
             ads_by_advertiser[advertiser_id].append(post)
 
+        # 全体の広告数をカウント
+        total_ads = len(ad_posts_list)
+
         # 各広告主の割合が上限を超えていないか確認し、超えていれば調整
-        for advertiser_id, ads in ads_by_advertiser.items():
-            # オペレーターの広告は除外
-            if advertiser_id == OPERATOR_ADVERTISER_ID:
-                continue
+        for advertiser_id, ads in list(ads_by_advertiser.items()):
 
             # 広告主の最大許容割合を取得
             max_ad_percentage = ads[0].poster.max_ad_per * 100
@@ -292,36 +273,21 @@ class BasePostListView(ListView):
             # 現在の広告主の割合を計算
             current_percentage = (advertiser_ad_count[advertiser_id] / total_ads) * 100
 
-            # 割合が上限を超えていれば、オペレーターの広告を追加して調整
+            # 割合が上限を超えていれば、ランダムに広告を削除して調整
             while current_percentage > max_ad_percentage:
-                # オペレーターの広告をランダムに一つ選びリストに追加
-                selected_post = random.choice(operator_ads_list)
-                ad_posts_list.append(selected_post)
-                
+                # 広告主の広告からランダムに一つ選びリストから削除
+                post_to_remove = random.choice(ads_by_advertiser[advertiser_id])
+                ad_posts_list.remove(post_to_remove)
+                ads_by_advertiser[advertiser_id].remove(post_to_remove)
+
                 # 全広告数を更新
-                total_ads += 1
+                total_ads -= 1
 
                 # 広告主の広告数を更新
-                advertiser_ad_count[advertiser_id] = len(ads_by_advertiser[advertiser_id])
+                advertiser_ad_count[advertiser_id] -= 1
 
                 # 新しい割合を計算
                 current_percentage = (advertiser_ad_count[advertiser_id] / total_ads) * 100
-
-        # 最終的な広告リストと統計を表示
-        for advertiser_id, ads in ads_by_advertiser.items():
-            ad_count = len(ads)
-            ad_percentage = (ad_count / total_ads) * 100
-            print(f"広告主 {advertiser_id}: {ad_count}広告, 全広告に占める割合: {ad_percentage:.2f}%")
-
-        print("最後に選択された広告リスト:")
-        for post in ad_posts_list:
-            print(f"広告ID: {post.id}, 広告主ID: {post.poster.id}, 広告タイトル: {post.title}")
-
-
-        # コードの実行終了時刻を記録し、実行時間を計算
-        end_time = time.time()
-        total_time = end_time - start_time
-        print(f"最適化後の実行時間: {total_time:.4f}秒")
 
         # 適切な広告をランダムに取得
         posts = ad_posts_list
