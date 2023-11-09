@@ -961,6 +961,9 @@ class FirstSettingView(View):
                 feature_3d = get_object_or_404(Features, name='love 3D')
                 request.user.features.add(feature_2d, feature_3d)
 
+            # キャッシュを削除する必要がある場合、ここで削除します。
+            cache_key = f"advertiser_posts_for_user_{request.user.id}"
+            cache.delete(cache_key)
             request.user.save()
             
             messages.success(request, '初期設定が完了しました。')
