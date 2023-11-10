@@ -96,7 +96,7 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
             if ad_infos_to_save:
                 AdInfos.objects.bulk_update(ad_infos_to_save, ['fee'])
 
-        ad_costs = self.get_ad_costs()
+        ad_costs = self.get_ad_costs(request)
         context = {
             'campaigns': campaigns,
             **ad_costs,
@@ -104,22 +104,33 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
 
         return render(request, self.template_name, context)
 
-    def get_ad_costs(self):
+    @staticmethod
+    def get_ad_costs(request):
         today = timezone.now()
         year_month = date(today.year, today.month, 1)
         next_month_date = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
+        discount_rate = 0.9  # 10%の割引
 
         ad_costs = {
             'current_cpc': None,
             'current_cpm': None,
+            'discounted_current_cpc': None,
+            'discounted_current_cpm': None,
             'next_cpc': None,
             'next_cpm': None,
+            'discounted_next_cpc': None,
+            'discounted_next_cpm': None,
         }
 
         try:
             monthly_ad_cost = MonthlyAdCost.objects.get(year_month=year_month)
             ad_costs['current_cpc'] = monthly_ad_cost.cpc
             ad_costs['current_cpm'] = monthly_ad_cost.cpm
+
+            # リクエストユーザーが特別広告主であるかどうかをチェック
+            if request.user.is_specialadvertiser:
+                ad_costs['discounted_current_cpc'] = monthly_ad_cost.cpc * discount_rate
+                ad_costs['discounted_current_cpm'] = monthly_ad_cost.cpm * discount_rate
         except MonthlyAdCost.DoesNotExist:
             pass  # Values remain None
 
@@ -127,6 +138,10 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
             next_monthly_ad_cost = MonthlyAdCost.objects.get(year_month=next_month_date)
             ad_costs['next_cpc'] = next_monthly_ad_cost.cpc
             ad_costs['next_cpm'] = next_monthly_ad_cost.cpm
+
+            if request.user.is_specialadvertiser:
+                ad_costs['discounted_next_cpc'] = next_monthly_ad_cost.cpc * discount_rate
+                ad_costs['discounted_next_cpm'] = next_monthly_ad_cost.cpm * discount_rate
         except MonthlyAdCost.DoesNotExist:
             pass  # Values remain None
 
@@ -163,7 +178,7 @@ class FilteredAdCampaignsListView(AdCampaignsListView):
 
         template_name = self.get_template_names()
 
-        ad_costs = self.get_ad_costs()
+        ad_costs = self.get_ad_costs(request)
         context = {
             'campaigns': campaigns,
             **ad_costs,
@@ -301,46 +316,20 @@ class CampaignFormView(AdvertiserCheckView, View):
         sex = self.get_andfeature_by_orfeatures_name("男性")
         dimension = self.get_andfeature_by_orfeatures_name("三次元好き")
 
-        # 今月の年と月を取得
-        today = date.today()
-        year_month = date(today.year, today.month, 1)
-
-        # 来月の年と月を取得
-        next_month_date = date.today().replace(day=1) + timedelta(days=32)
-        next_month_date = next_month_date.replace(day=1) 
-
-        # 今月のCPCとCPMのデータを取得
-        try:
-            monthly_ad_cost = MonthlyAdCost.objects.get(year_month=year_month)
-            current_cpc = monthly_ad_cost.cpc
-            current_cpm = monthly_ad_cost.cpm
-        except MonthlyAdCost.DoesNotExist:
-            current_cpc = None
-            current_cpm = None
-
-        # 来月のCPCとCPMのデータを取得
-        try:
-            next_monthly_ad_cost = MonthlyAdCost.objects.get(year_month=next_month_date)
-            next_cpc = next_monthly_ad_cost.cpc
-            next_cpm = next_monthly_ad_cost.cpm
-        except MonthlyAdCost.DoesNotExist:
-            next_cpc = None
-            next_cpm = None
+        ad_costs = AdCampaignsListView.get_ad_costs(request)
 
         return render(request, self.template_name, {
             'form': form,
             'sex': sex, 
             'dimension': dimension,
-            'current_cpc': current_cpc,
-            'current_cpm': current_cpm,
-            'next_cpc': next_cpc,
-            'next_cpm': next_cpm,
+            **ad_costs,
             })
 
     def post(self, request, *args, **kwargs):
         form = AdCampaignForm(request.POST)
         # ad_cost_message の初期値を設定
         ad_cost_message = ""
+        ad_costs = AdCampaignsListView.get_ad_costs(request)
 
         if form.is_valid():
             adcampaign = form.save(commit=False)
@@ -365,6 +354,7 @@ class CampaignFormView(AdvertiserCheckView, View):
                     'sex': self.get_andfeature_by_orfeatures_name("男性"),
                     'dimension': self.get_andfeature_by_orfeatures_name("三次元好き"),
                     'ad_cost_message': ad_cost_message,
+                    **ad_costs,
                 }
                 return render(request, self.template_name, context)
 
@@ -386,13 +376,13 @@ class CampaignFormView(AdvertiserCheckView, View):
 
             if pricing_model == "CPC":
                 adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
-                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks)
+                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks, request.user)
                 adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
                 adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
                 adcampaign.actual_cpc_or_cpm = adjusted_cpc
             else:  # pricing_model == "CPM"
                 adcampaign.target_views = form.cleaned_data.get('target_views')
-                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views)
+                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views, request.user)
                 adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm
                 adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
                 adcampaign.actual_cpc_or_cpm = adjusted_cpm
@@ -444,6 +434,7 @@ class CampaignFormView(AdvertiserCheckView, View):
             'sex': self.get_andfeature_by_orfeatures_name("男性"),
             'dimension': self.get_andfeature_by_orfeatures_name("三次元好き"),
             'ad_cost_message': ad_cost_message,
+            **ad_costs,
         }
 
         return render(request, self.template_name, context)
@@ -698,30 +689,21 @@ class EditAdCampaignView(AdvertiserCheckView, View):
         pricing_model = campaign.pricing_model
         # 'no_end_date' チェックボックスの状態を判定
         no_end_date_checked = 'checked' if campaign.end_date is None else ''
-        if campaign.monthly_ad_cost:
-            year_month_value = campaign.monthly_ad_cost.year_month
-            if pricing_model == 'CPM':
-                monthly_ad_cost_value = campaign.monthly_ad_cost.cpm
-            elif pricing_model == 'CPC':
-                monthly_ad_cost_value = campaign.monthly_ad_cost.cpc
-        else:
-            monthly_ad_cost_value = 0
-            year_month_value = None
 
         actual_cpc_or_cpm_value = campaign.actual_cpc_or_cpm or 0
         total_views_count = campaign.total_views_count
         total_clicks_count = campaign.total_clicks_count
+        status = campaign.status
         
         return render(request, self.template_name, {
             'form': form,
             'andfeatures': andfeatures,
             'pricing_model': pricing_model,
             'no_end_date_checked': no_end_date_checked,
-            'monthly_ad_cost': monthly_ad_cost_value,
             'actual_cpc_or_cpm': actual_cpc_or_cpm_value,
-            'year_month': year_month_value, 
             'total_views_count': total_views_count,
             'total_clicks_count': total_clicks_count,
+            'status': status
         })
 
     def post(self, request, campaign_id):
@@ -743,16 +725,17 @@ class EditAdCampaignView(AdvertiserCheckView, View):
             # CPC または CPM の計算と保存
             if adcampaign.pricing_model == "CPC":
                 adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
-                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks)
-                adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
-                adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
-                adcampaign.actual_cpc_or_cpm = adjusted_cpc
+                # target_clicks と actual_cpc_or_cpm を Decimal に変換
+                target_clicks_decimal = Decimal(adcampaign.target_clicks)
+                actual_cpc_or_cpm_decimal = Decimal(adcampaign.actual_cpc_or_cpm)
+                # 計算を実行
+                adcampaign.budget = target_clicks_decimal * actual_cpc_or_cpm_decimal
             else:
                 adcampaign.target_views = form.cleaned_data.get('target_views')
-                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views)
-                adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm
-                adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
-                adcampaign.actual_cpc_or_cpm = adjusted_cpm
+                target_views_decimal = Decimal(adcampaign.target_views) / Decimal(1000)
+                actual_cpc_or_cpm_decimal = Decimal(adcampaign.actual_cpc_or_cpm)
+                # 計算を実行
+                adcampaign.budget = target_views_decimal * actual_cpc_or_cpm_decimal
 
             adcampaign.save()
             # 成功した場合のリダイレクト（例）
@@ -768,7 +751,6 @@ class EditAdCampaignView(AdvertiserCheckView, View):
             actual_cpc_or_cpm_value = campaign.actual_cpc_or_cpm or 0
             total_views_count = campaign.total_views_count
             total_clicks_count = campaign.total_clicks_count
-            budget = campaign.budget
 
             return render(request, self.template_name, {
                 'form': form,
@@ -778,7 +760,6 @@ class EditAdCampaignView(AdvertiserCheckView, View):
                 'actual_cpc_or_cpm': actual_cpc_or_cpm_value,
                 'total_views_count': total_views_count,
                 'total_clicks_count': total_clicks_count,
-                'budget': budget,
             })
 
 class AdCampaignStatusView(AdvertiserCheckView, View):

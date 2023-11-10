@@ -177,6 +177,9 @@ class AdCampaignForm(forms.ModelForm):
             self.fields['start_date'].widget.attrs['readonly'] = 'readonly'
             self.fields['target_views'].initial = instance.target_views
             self.fields['target_clicks'].initial = instance.target_clicks
+            # pricing_model を変更不可にし、バリデーションを必須ではないように設定
+            self.fields['pricing_model'].required = False
+            self.fields['pricing_model'].initial = instance.pricing_model
 
             # Disable target_views if the current value is less than 200,000
             if instance.target_views < 200000:
@@ -193,11 +196,6 @@ class AdCampaignForm(forms.ModelForm):
             
             else:
                  self.fields['target_clicks'].widget.attrs.update({'min': 2000})
-
-            # pricing_model を変更不可にし、バリデーションを必須ではないように設定
-            self.fields['pricing_model'].disabled = True
-            self.fields['pricing_model'].required = False
-            self.fields['pricing_model'].initial = instance.pricing_model
 
 
 class AdInfoForm(forms.ModelForm):

@@ -45,29 +45,24 @@
         </div>
         <div class="info-input" id="end-date-container">
           {{ form.end_date }}
+          <p class="info-description">午前0:00に公開が終了します。</p>
           {{ form.end_date.errors }}
         </div>
       </div>
 
       <div class="info-item">
-        <div class="info-name">料金方式</div>
-        <div class="info-input" id="pricing_model">{{ form.pricing_model.value }}</div>
-      </div>
-
-      {% if year_month %}
-      <div class="info-item">
-        <div class="info-input">
-          {{ year_month|date:"Y-m" }}
-          の基準
+        <div class="info-name" id="pricing-model">
           {% if pricing_model == 'CPM' %}
           CPM
           {% elif pricing_model == 'CPC' %}
           CPC
           {% endif %}
-          ：<span id="monthly_ad_cost">{{ monthly_ad_cost }}</span>円
+        </div>
+        <div class="info-input" id="actual-cpc-or-cpm">
+          {{ actual_cpc_or_cpm|floatformat:"0" }}円
         </div>
       </div>
-      {% endif %}
+
 
       {% if pricing_model == 'CPM' %}
       <div class="info-item">
@@ -94,12 +89,12 @@
           {% endif %}
         </div>
       </div>
-
+<!-- 
       <div class="info-item">
         <div class="info-name">CPM</div>
         <div class="info-input" id="calculated_cpm" style="color: rgb(11, 150, 1);">
           {{ actual_cpc_or_cpm }}円</div>
-      </div>
+      </div> -->
 
       <div class="info-item">
         <div class="info-name">見積金額</div>
@@ -133,11 +128,11 @@
         </div>
       </div>
 
-      <div class="info-item">
+      <!-- <div class="info-item">
         <div class="info-name">CPC</div>
         <div class="info-input" id="calculated_cpc" style="color: rgb(11, 150, 1);">
           {{ actual_cpc_or_cpm }}円</div>
-      </div>
+      </div> -->
 
       <div class="info-item">
         <div class="info-name">見積金額</div>
@@ -166,8 +161,9 @@
       </div>
 
 
-
+      {% if status != "achieved" and campaign.status != "expired" and campaign.status != "stopped" %}
       <button type="submit" class="submit-campaign">変更</button>
+      {% endif %}
     </div>
 
   </form>
@@ -177,14 +173,6 @@
 {% endblock %}
 {% block script %}
 <script src="{% static 'js/edit_cpm_cpc.js' %}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // 現在の日付を YYYY-MM-DD 形式で取得
-  var today = new Date().toISOString().split('T')[0];
-  // end_date 入力フィールドに最小値として今日の日付を設定
-  document.getElementById('end-date-input').setAttribute('min', today);
-});
-</script>
 <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', function () {
     var endDateContainer = document.getElementById('end-date-container');
@@ -215,22 +203,23 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   document.addEventListener('DOMContentLoaded', function () {
-    // 開始日の入力フィールドを選択
-    var startDateField = document.querySelector('input[name="start_date"]');
-
     // 終了日の入力フィールドを選択
     var endDateField = document.querySelector('input[name="end_date"]');
 
-    // 開始日の入力フィールドにイベントリスナーを設定
-    startDateField.addEventListener('change', function () {
-      // 開始日の値を取得して終了日のmin属性に設定
-      endDateField.setAttribute('min', this.value);
-    });
+    // 明日の日付を取得する
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1); // 現在の日付に1日加える
+
+    // 日付を YYYY-MM-DD 形式に変換
+    var tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+
+    // 最小日付を明日に設定
+    endDateField.setAttribute('min', tomorrowFormatted);
 
     // 初期状態で終了日のminを設定するためのイベントを発火
-    if (startDateField.value) {
-      startDateField.dispatchEvent(new Event('change'));
+    if (endDateField.value) {
+      endDateField.dispatchEvent(new Event('change'));
     }
-  });
+});
 </script>
 {% endblock %}

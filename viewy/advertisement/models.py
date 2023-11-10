@@ -24,22 +24,32 @@ class MonthlyAdCost(models.Model):
     def __str__(self):
         return f"{self.year_month} - CPC:{self.cpc} - CPM:{self.cpm}"
 
-    def calculate_cpm(self, views):
+    # 割引率を定義
+    DISCOUNT_RATE = 0.9  # 10%の割引
+
+    def calculate_cpm(self, views, user):
         base_cpm = float(self.cpm)
+        final_cpm = base_cpm
 
-        if views < 200000:  # 20万未満の場合は基本のCPMをそのまま返す
-            return base_cpm
-        else:  # 20万以上の場合は基本のCPMから100を引いた値を返す
-            return base_cpm - 100
+        if views >= 200000:
+            final_cpm = base_cpm - 100
 
+        if user.is_specialadvertiser:
+            final_cpm *= self.DISCOUNT_RATE
 
-    def calculate_cpc(self, clicks):
+        return final_cpm
+
+    def calculate_cpc(self, clicks, user):
         base_cpc = float(self.cpc)
+        final_cpc = base_cpc
 
-        if clicks <= 2000:  # 2000以下の場合は基本のCPCをそのまま返す
-            return base_cpc
-        else:  # 2000を超える場合は基本のCPCから10を引いた値を返す
-            return base_cpc - 10
+        if clicks > 2000:
+            final_cpc = base_cpc - 10
+
+        if user.is_specialadvertiser:
+            final_cpc *= self.DISCOUNT_RATE
+
+        return final_cpc
 
 
 class AdCampaigns(models.Model):
@@ -115,13 +125,13 @@ class AdCampaigns(models.Model):
 
         # 実際の表示回数(total_views_count)でactual_cpc_or_cpm と fee の再計算
         if self.pricing_model == 'CPM':
-            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpm(self.total_views_count))
+            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpm(self.total_views_count), request.user)
             self.fee = Decimal(self.total_views_count / 1000) * self.actual_cpc_or_cpm
         elif self.pricing_model == 'CPC':
             total_clicks = AdInfos.objects.filter(ad_campaign=self).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
             total_clicks = total_clicks or 0
             self.total_clicks_count = total_clicks
-            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpc(self.total_clicks_count))
+            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpc(self.total_clicks_count), request.user)
             self.fee = Decimal(self.total_clicks_count) * self.actual_cpc_or_cpm
         
         # 小数第一位まで保存し、それ以降は切り上げ

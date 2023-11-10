@@ -367,12 +367,13 @@ class RegistAdvertiserView(BaseRegistUserView):
     def form_valid(self, form):
         # ユーザーのis_advertiserフィールドをTrueにセット
         form.instance.is_advertiser = True
+
+        # ユーザーのis_specialadvertiserフィールドをTrueにセット
+        # 12月末までに広告をしてくれる広告主のみ（12月末に削除）
+        form.instance.is_specialadvertiser = True
         
         # ユーザーが広告主として登録されたことを示すセッション変数をセット
         self.request.session['registered_as_advertiser'] = True
-        print("DEBUG: registered_as_advertiser set to True") 
-        print("DEBUG: Session ID on form_valid in RegistAdvertiserView:",
-            self.request.session.session_key)
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -421,15 +422,9 @@ class VerifyView(FormView):
 
             # Add a success message
             messages.success(self.request, 'ユーザー登録が完了しました')
-                
-            # セッションから値を取得する前に状態を出力
-            print("DEBUG: Session before pop - registered_as_advertiser:",
-                self.request.session.get('registered_as_advertiser'))
 
             # セッションから広告主として登録されたかの情報を取得し、セッションからその情報を削除
             registered_as_advertiser = self.request.session.pop('registered_as_advertiser', False)
-            # pop した後の状態を出力
-            print("DEBUG: registered_as_advertiser after pop:", registered_as_advertiser)
                 
             # セッションからリダイレクト先URLを取得し、セッションからその情報を削除
             next_url = self.request.session.pop('return_to', None)

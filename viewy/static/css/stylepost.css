@@ -1,8 +1,6 @@
 html,
 body {
   touch-action: manipulation;
-  user-select: none; /* テキスト選択を防ぐ */
-  -webkit-user-select: none;/* テキスト選択を防ぐ */
 }
 
 .screen {
@@ -2033,6 +2031,11 @@ label {
 /* スマートフォン用のスタイル */
 @media only screen and (max-width: 600px) {
 
+  html, body {
+    user-select: none; /* テキスト選択を防ぐ */
+    -webkit-user-select: none; /* テキスト選択を防ぐ */
+  }
+  
   .tab-bar {
     z-index: 999;
   }

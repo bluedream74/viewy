@@ -8,35 +8,28 @@
 {% block content %}
 <div class="page-title">キャンペーン作成</div>
 
+{% if discounted_current_cpm %}
+<div class="monthly-costs">
+  <div class="costs-title">今月の料金</div>
+  <div class="fee" style="margin-right: 16px;">
+    CPM
+    <span class='cpm' data-original="true" style="text-decoration: line-through;">{{ current_cpm }}</span>
+    <span class="fee-value">{{ discounted_current_cpm|floatformat:"0" }}</span>円
+  </div>
+  <div class="fee">
+    CPC
+    <span class='cpc' style="text-decoration: line-through;">{{ current_cpc }}</span>
+    <span class="fee-value">{{ discounted_current_cpc|floatformat:"0" }}</span>円
+  </div>
+</div>
+{% else %}
 <div class="monthly-costs">
   <div class="costs-title">今月の料金</div>
   <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value cpm">{{ current_cpm }}</span>円</div>
   <div class="fee">CPC <span class="fee-value cpc">{{ current_cpc }}</span>円</div>
 </div>
+{% endif %}
 
-<!-- <div class="next-monthly-costs">
-  {% if next_cpc and next_cpm %}
-  <div class="costs-title">来月の料金</div>
-  <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value cpm next-cpm">{{ next_cpm }}</span>円</div>
-  <div class="fee">CPC <span class="fee-value cpc next-cpc">{{ next_cpc }}</span>円</div>
-  {% else %}
-  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
-  {% endif %}
-</div> -->
-<!-- <div class="monthly-costs">
-  <p class="cpc">今月のCPC: {{ current_cpc }}円</p>
-  <p class="cpm">今月のCPM: {{ current_cpm }}円</p>
-
-  {% if next_cpc and next_cpm %}
-  <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
-  <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
-  {% else %}
-  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
-  {% endif %}
-  {% if ad_cost_message %}
-  <div class="alert alert-warning" style="color: red;">{{ ad_cost_message }}</div>
-  {% endif %}
-</div> -->
 
 <div class="block">
   <form method="post" class="flex">
@@ -55,12 +48,14 @@
           {{ form.start_date }}
           {{ form.start_date.errors }}
         </div>
+        <p class="info-description">午前0:00から公開が開始されます。</p>
         <div class="info-name" style="margin-top: 8px;">終了日</div>
         <div class="end_date_option">
           {{ form.end_date_option }}
         </div>
         <div class="info-input" id="end-date-container">
           {{ form.end_date }}
+          <p class="info-description">目標数に到達しなかった場合、終了日の午前0:00に公開が終了します。</p>
           {{ form.end_date.errors }}
         </div>
       </div>
@@ -75,6 +70,7 @@
         <div class="info-item">
           <div class="info-name">目標クリック数</div>
           <div class="info-input">{{ form.target_clicks }}回</div>
+          <p class="info-description">目標クリック数に到達すると自動でキャンペーンが終了します。</p>
         </div>
 
         <div class="info-item">
@@ -96,6 +92,7 @@
         <div class="info-item">
           <div class="info-name">目標表示回数</div>
           <div class="info-input" id="target_views">{{ form.target_views }}回</div>
+          <p class="info-description">目標表示回数に到達すると自動でキャンペーンが終了します。</p>
         </div>
 
         <div class="info-item">
@@ -185,14 +182,26 @@
 
     // 開始日の入力フィールドにイベントリスナーを設定
     startDateField.addEventListener('change', function () {
-      // 開始日の値を取得して終了日のmin属性に設定
-      endDateField.setAttribute('min', this.value);
+        if (this.value) {
+            // 開始日の値をDateオブジェクトに変換
+            var startDate = new Date(this.value);
+
+            // 開始日に1日を加算
+            startDate.setDate(startDate.getDate() + 1);
+
+            // 日付を YYYY-MM-DD 形式に変換
+            var nextDay = startDate.toISOString().split('T')[0];
+
+            // 終了日のmin属性を更新
+            endDateField.setAttribute('min', nextDay);
+        }
     });
 
     // 初期状態で終了日のminを設定するためのイベントを発火
     if (startDateField.value) {
-      startDateField.dispatchEvent(new Event('change'));
+        startDateField.dispatchEvent(new Event('change'));
     }
-  });
+});
 </script>
+
 {% endblock %}

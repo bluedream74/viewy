@@ -218,10 +218,10 @@ class BasePostListView(ListView):
                 
                 # 実際の表示回数(total_views_count)でactual_cpc_or_cpm と fee の再計算し料金を確定
                 if campaign.pricing_model == 'CPM':
-                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpm(campaign.total_views_count))
+                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpm(campaign.total_views_count, user))
                     campaign.fee = Decimal(campaign.total_views_count / 1000) * campaign.actual_cpc_or_cpm
                 elif campaign.pricing_model == 'CPC':
-                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpc(campaign.total_clicks_count))
+                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpc(campaign.total_clicks_count, user))
                     campaign.fee = Decimal(campaign.total_clicks_count) * campaign.actual_cpc_or_cpm
 
                 # 小数第一位まで保存し、それ以降は切り上げ
@@ -279,13 +279,12 @@ class BasePostListView(ListView):
         # 結果をキャッシュに保存
         cache.set(cache_key, ad_post_ids, 3600)  # 1時間キャッシュする
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
-        
+        print(posts)
         return posts
     
     def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
         # キャッシュから全ての広告を取得
         ad_posts = self.get_advertiser_posts(user)
-
         # 広告主ごとの広告数を取得
         advertisers_with_count = ad_posts.values('poster').annotate(total=Count('poster')).order_by('poster')
 
@@ -303,6 +302,10 @@ class BasePostListView(ListView):
         if total_advertisers <= 4:
             if total_advertisers == 1:
                 posts = list(ad_posts.filter(poster=affiliate_advertiser['poster']))
+                # 広告が存在しない場合は適切に処理
+                if not posts:
+                    # 例: 空のリストを返す、エラーメッセージを出力するなど
+                    return []
                 return random.sample(posts, k=min(2, len(posts)))
             elif total_advertisers == 2:
                 weights = [1, 3]  # 通常広告主:特別広告主 = 1:3
@@ -318,9 +321,12 @@ class BasePostListView(ListView):
             # 5以上の場合、全ての広告主が等しい確率で選ばれる
             selected_advertisers_with_weights = [advertiser['poster'] for advertiser in regular_advertisers]
 
-        # 重みに基づいて広告主を選択し、その広告主の投稿からランダムに2つを選ぶ
-        chosen_advertisers = random.choices(selected_advertisers_with_weights, k=2)
-        posts_to_display = [random.choice(ad_posts.filter(poster_id=advertiser_id)) for advertiser_id in chosen_advertisers]
+        if len(selected_advertisers_with_weights) >= 2:
+            # リストに十分な要素がある場合は通常どおりに処理
+            chosen_advertisers = random.choices(selected_advertisers_with_weights, k=2)
+            posts_to_display = [random.choice(ad_posts.filter(poster_id=advertiser_id)) for advertiser_id in chosen_advertisers]
+        else:
+            posts_to_display =[]
 
         return posts_to_display
     
@@ -538,10 +544,6 @@ class PostListView(BasePostListView):
                 least_viewed_posts.add(sorted_viewed_counts[i][0])
                 post_ids_at_current_viewed_count.append(sorted_viewed_counts[i][0])
                 i += 1
-                
-        for post_id in least_viewed_posts:
-            # get_viewed_count_dict が post_id をキーとし、視聴回数を値とする辞書を返すと仮定
-            print(f"投稿ID: {post_id}, 視聴回数: {viewed_counts.get(post_id, '情報なし')}")
 
         # QP順上位8位を取得
         posts_with_least_views = posts.filter(id__in=least_viewed_posts).order_by('-qp')[:8]

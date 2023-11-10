@@ -8,18 +8,29 @@
 
 {% block content %}
 
+
+{% if discounted_current_cpm %}
+<div class="monthly-costs">
+  <div class="costs-title">今月の料金</div>
+  <div class="fee" style="margin-right: 16px;">
+    CPM
+    <span class="original-fee-value" style="text-decoration: line-through;">{{ current_cpm }}</span>
+    <span class="fee-value">{{ discounted_current_cpm|floatformat:"0" }}</span>円
+  </div>
+  <div class="fee">
+    CPC
+    <span class="original-fee-value" style="text-decoration: line-through;">{{ current_cpc }}</span>
+    <span class="fee-value">{{ discounted_current_cpc|floatformat:"0" }}</span>円
+  </div>
+</div>
+{% else %}
 <div class="monthly-costs">
   <div class="costs-title">今月の料金</div>
   <div class="fee" style="margin-right: 16px;">CPM <span class="fee-value">{{ current_cpm }}</span>円</div>
   <div class="fee">CPC <span class="fee-value">{{ current_cpc }}</span>円</div>
-
-  <!-- {% if next_cpc and next_cpm %}
-  <p class="next-cpc">来月のCPC: {{ next_cpc }}円</p>
-  <p class="next-cpm">来月のCPM: {{ next_cpm }}円</p>
-  {% else %}
-  <p>来月のCPCとCPMのデータはまだ利用できません。</p>
-  {% endif %} -->
 </div>
+{% endif %}
+
 
 {% block table %}
 <div class="page-title">全てのキャンペーン</div>
