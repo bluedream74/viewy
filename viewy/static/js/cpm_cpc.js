@@ -48,6 +48,47 @@ document.addEventListener('DOMContentLoaded', function () {
   // 属性の値を取得（属性が存在しない場合はnullが返される）
   var dataOriginalValue = elementWithDataOriginal ? elementWithDataOriginal.getAttribute('data-original') : null;
 
+  // 初回限定キャンペーンチェックボックスの参照
+  const firstTimeCampaignCheckbox = document.getElementById('first-time-campaign-checkbox');
+
+  function handleFirstTimeCampaignChange() {
+    if (firstTimeCampaignCheckbox.checked) {
+      // 初回限定料金の処理
+      const fixedCPM = 360;
+      const budget = 36000;
+
+      document.querySelector('#id_pricing_model').value = 'CPM';
+      document.querySelector('#id_target_views').value = 100000;
+      document.querySelector('#calculated_cpm').textContent = `${fixedCPM.toLocaleString()}円`;
+      document.querySelector('#calculated_budget_cpm').textContent = `${budget.toLocaleString()}円`;
+
+      // 初回限定料金のテキストを表示
+      const calculatedCPMElement = document.querySelector('.checkbox-container');
+      calculatedCPMElement.insertAdjacentHTML('afterend', '<p id="discount-note" style="color: red; class="info-description">※初回限定価格として目標表示回数100,000回、<br>　CPM360円のご案内となります。</p>');
+      // フォーム要素を読み取り専用に設定
+      targetViewsInput.readOnly = true;
+      targetClicksInput.readOnly = true;
+      // pricingModelRadios.forEach(radio => radio.disabled = true);
+    } else {
+      // 初回限定料金のテキストを削除
+      const discountNote = document.getElementById('discount-note');
+      if (discountNote) {
+        discountNote.remove();
+      }
+      // フォーム要素の読み取り専用を解除
+      targetViewsInput.readOnly = false;
+      targetClicksInput.readOnly = false;
+      // pricingModelRadios.forEach(radio => radio.disabled = false);
+      // 表示を更新
+      updateDisplay();
+    }
+  }
+
+  // チェックボックスの変更イベントにリスナーを設定
+  if (firstTimeCampaignCheckbox) {
+    firstTimeCampaignCheckbox.addEventListener('change', handleFirstTimeCampaignChange);
+  }
+
   function updateDisplay() {
 
     let currentDate = new Date();
@@ -73,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (selectedPricingModel === 'CPM') {
       let targetViews = parseInt(targetViewsInput.value);
-      console.log(targetViews);
       cpmContainer.style.display = 'block';
       cpcContainer.style.display = 'none';
       let adjustedCPM = calculateCPM(targetViews, baseCPM, dataOriginalValue);

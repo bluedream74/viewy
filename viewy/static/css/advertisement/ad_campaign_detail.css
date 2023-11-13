@@ -1,1 +1,17 @@
+.check-container {
+  position: relative;
+  text-align: center; /* Center the content */
+}
 
+.check-icon {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  color: green;
+  background-color: white;
+  height: 15px;
+}
+
+.xmark {
+  color: red;
+}

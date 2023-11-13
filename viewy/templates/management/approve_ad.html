@@ -1,0 +1,295 @@
+{% extends 'management/management_base.html' %}
+{% load static %}
+{% block head %}
+<script>
+  // ビューポートの高さを取得
+  let vh = window.innerHeight * 0.01;
+  // 現在のビューポートの高さをCSS変数として設定
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/stylebase.css' %}">
+<link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
+<link rel="stylesheet" href="{% static 'css/management/management_base.css' %}">
+<!-- Dash.js -->
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+<!-- HLS.js -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<link rel="stylesheet" href="{% static 'css/management/approve_ad.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="screen">
+  <div class="top-adjust-trigger">
+    <div class="top-load-trigger"></div>
+  </div>
+  <div class="top-space"></div>
+
+
+  {% for ad_info in ads %}
+
+  <div class="post" data-post-id="{{ ad_info.post.id }}"
+    data-is-advertisement="{{ ad_info.post.poster.is_advertiser }}">
+    <div class="adinfo-detail">
+      <div class="ad-name">
+        広告主：
+        {% if ad_info.post.poster.displayname %}
+        <a href="{{ ad_info.post.url }}" class="poster-name">
+          ＠{{ad_info.post.poster.displayname}}
+        </a>
+        {% else %}
+        <a href="{{ ad_info.post.url }}" class="poster-name">
+          ＠{{ad_info.post.poster.username}}
+        </a>
+        {% endif %}
+      </div>
+      <div class="ad-campaign">
+        {{ ad_info.ad_campaign.title }}
+        公開日：
+        <span>{{ ad_info.ad_campaign.start_date }}</span>
+      </div>
+      <button class="approve-btn" data-ad-id="{{ ad_info.id }}" data-action="approve">承認</button>
+      <button class="approve-btn" data-ad-id="{{ ad_info.id }}" data-action="disapprove">承認しない</button>
+    </div>
+    <div class="spinner"></div>
+
+    {% if ad_info.post.ismanga %}
+    <!-- マンガの場合 -->
+    <div class="book">
+      {% for visual in ad_info.post.visuals.all %}
+      <div class="manga-page">
+        <img class="page-content" src="{{ visual.visual.url }}" alt="{{ ad_info.post.title }}">
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+
+    <!-- 動画の場合 -->
+    {% for video in ad_info.post.videos.all %}
+    <!-- # サムネイルを乗せる -->
+    {% if video.hls_path %}
+    <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}"
+      data-video-url="{{ video.video.url }}" id="postVideo{{ forloop.counter }}" width="200px" height="400px"
+      loading="lazy" playsinline loop muted {% if forloop.first %}autoplay{% endif %}></video>
+    {% else %}
+    <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+      src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
+    {% endif %}
+    <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
+    <br>
+    {% endfor %}
+    <div class="mute-box">
+      <div class="mute">
+        <label class="fa-solid fa-volume-xmark" data-post-id="{{ ad_info.post.id }}">
+          <input type="checkbox" class="mute-frag" checked>
+        </label>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="content">
+      <div class="side-bar">
+
+        <div class="poster">
+
+          <div>
+            {% if ad_info.post.poster.is_advertiser %}
+            <a href="{% url 'posts:poster_page' username=ad_info.post.poster.username %}" class="poster_username">
+              <img class="poster-img" src="{{ad_info.post.poster.prf_img.url}}" alt="{{ad_info.post.poster.prf_img}}">
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        <!-- 広告だったらフォローボタンは表示しない -->
+        <div class="follow-poster clear">
+          <input type="hidden" class="poster_pk" name="poster_pk" value="{{ ad_info.post.poster.pk }}">
+        </div>
+
+
+
+
+        <div class="favorite">
+          <a class="fa-regular fa-heart not-liked" href="{% url 'accounts:user_login'%}"
+            style="color: rgb(255, 255, 255);"></a>
+        </div>
+
+
+
+        <div class="emotes" data-formatted-total-emote="{{ ad_info.post.emote_total_count_display }}">
+          <div class="emote emote-icon">
+            <i class="fa-regular fa-face-smile"></i>
+            <span class="emote-count total-count">{{ ad_info.post.emote_total_count_display }}</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/ニチャァ36ppi.png" alt="Emote 1" />
+            <span class="emote-count">{{ ad_info.post.emote1_count }}</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/鼻血36ppi.png" alt="Emote 2" />
+            <span class="emote-count">{{ ad_info.post.emote2_count }}</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/発射36ppi.png" alt="Emote 3" />
+            <span class="emote-count">{{ ad_info.post.emote3_count }}</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/尊い36ppi.png" alt="Emote 4" />
+            <span class="emote-count">{{ ad_info.post.emote4_count }}</span>
+          </div>
+          <div class="emote hidden-emote">
+            <img src="{{ MEDIA_URL }}emotes/よだれ36ppi.png" alt="Emote 5" />
+            <span class="emote-count">{{ ad_info.post.emote5_count }}</span>
+          </div>
+        </div>
+
+
+        <div class="ellipsis" data-post-id="{{ ad_info.post.id }}"
+          data-reported="{% if ad_info.post.reported_by_user %}true{% else %}false{% endif %}"><i
+            class="fa-solid fa-ellipsis"></i></div>
+
+
+
+        <div class="space-for-hide"></div>
+
+
+      </div>
+
+      <div class="captions">
+        <div class="poster-name">
+
+          {% if ad_info.post.poster.is_affiliateadvertiser %}
+          <span class="poster-name">＠{{ad_info.post.poster.displayname}}</span>
+          {% else %}
+
+          {% if ad_info.post.poster.displayname %}
+          <a href="{{ ad_info.post.url }}" class="poster-name">
+            ＠{{ad_info.post.poster.displayname}}
+          </a>
+          {% else %}
+          <a href="{{ ad_info.post.url }}" class="poster-name">
+            ＠{{ad_info.post.poster.username}}
+          </a>
+          {% endif %}
+
+          {% endif %}
+
+          {% if ad_info.post.poster.is_advertiser %}
+          <span class="ad-tag">広告</span>
+          {% endif %}
+          {% if ad_info.post.poster.is_specialadvertiser %}
+          <span class="ss">SS</span>
+          {% endif %}
+
+        </div>
+        <div class="title">
+          {{ad_info.post.title}}
+        </div>
+
+        <div class="caption">{{ad_info.post.caption}}</div>
+        <div class="hashtags" data-user="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+
+
+          {% if ad_info.post.hashtag1 %}
+          <span class="hashtag"> <a
+              href="{% url 'posts:hashtag' ad_info.post.hashtag1 %}">#{{ad_info.post.hashtag1}}</a></span>
+          {% endif %}
+          {% if ad_info.post.hashtag2 %}
+          <span class="hashtag"> <a
+              href="{% url 'posts:hashtag' ad_info.post.hashtag2 %}">#{{ad_info.post.hashtag2}}</a></span>
+          {% endif %}
+          {% if ad_info.post.hashtag3 %}
+          <span class="hashtag"><a
+              href="{% url 'posts:hashtag' ad_info.post.hashtag3 %}">#{{ad_info.post.hashtag3}}</a></span>
+          {% endif %}
+
+
+        </div>
+
+        {% if ad_info.post.poster.is_advertiser %}
+        {% if not ad_info.post.poster.is_affiliateadvertiser %}
+        <a href="{{ ad_info.post.url }}" class="ad-detail">
+          <div class="ad-detail-title">詳しくはこちら</div>
+          <div><i class="fa-solid fa-angle-right"></i></div>
+        </a>
+        {% endif %}
+        {% endif %}
+      </div>
+
+    </div>
+
+
+    <label class="hide-label fa-solid fa-angle-down hide">
+      <input class="hide-input" type="checkbox" style="display: none;">
+    </label>
+
+    <div class="page-count">
+      {% if ad_info.post.ismanga %}
+      <span id="current-page">1</span>/<span class="total-page">{{ ad_info.post.visuals.all|length }}</span>
+      {% endif %}
+    </div>
+
+    {% if not ad_info.post.ismanga %}
+    <div class="play-button">
+      <i class="fa-solid fa-play"></i>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+
+
+  <img class="logo-img" src="{{ MEDIA_URL }}others/viewy-logo.png" alt="">
+
+
+
+  <div class="bottom-space"></div>
+  <div class="adjust-trigger">
+    <div class="load-trigger"></div>
+  </div>
+  <div class="tab-bar">
+    {% if user.is_authenticated %}
+    <a class="home" href="{% url 'posts:postlist'%}"><i class="fa-solid fa-house fa-xs"></i></a>
+    <a class="serch" href="{% url 'posts:hothashtag'%}"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+    {% if user.is_advertiser %}
+    <a class="add-post-disabled">
+      <i class="fa-solid fa-square-plus fa-sm"></i>
+    </a>
+    {% else %}
+    <a class="add-post">
+      <i class="fa-solid fa-square-plus fa-sm"></i>
+    </a>
+    {% endif %}
+    <a class="like" href="{% url 'posts:star'%}"><i class="fa-solid fa-star fa-xs"></i></a>
+    <a class="my-account" href="{% url 'posts:my_account'%}"><i class="fa-solid fa-user fa-xs"></i></a>
+    {% else %}
+    <a class="home" href="{% url 'posts:visitor_postlist'%}"><i class="fa-solid fa-house fa-xs"></i></a>
+    <a class="serch" href="{% url 'posts:hothashtag'%}"><i class="fa-solid fa-magnifying-glass fa-xs"></i></a>
+    <a class="add-post visitor" href="{% url 'accounts:user_login'%}"><i
+        class="fa-solid fa-square-plus fa-sm"></i></a>
+    <a class="like visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-star fa-xs"></i></a>
+    <a class="my-account visitor" href="{% url 'accounts:user_login'%}"><i class="fa-solid fa-user fa-xs"></i></a>
+    {% endif %}
+
+  </div>
+
+  <script src="{% static 'js/content_hide.js' %}"></script>
+  <script src="{% static 'js/auto_focus.js' %}"></script>
+  <script src="{% static 'js/auto_play.js' %}"></script>
+  <script src="{% static 'js/streaming.js' %}"></script>
+  <script src="{% static 'js/control_video.js' %}"></script>
+  <script src="{% static 'js/custom_controlbar.js' %}"></script>
+  <script src="{% static 'js/lazyload.js' %}"></script>
+  <script src="{% static 'js/mute.js' %}"></script>
+  <script src="{% static 'js/read_more.js' %}"></script>
+  <script src="{% static 'js/ad_click_count.js' %}"></script>
+  <script src="{% static 'js/report.js' %}"></script>
+  <script src="{% static 'js/hashtag_history.js' %}"></script>
+  <script src="{% static 'js/mangapage_count.js' %}"></script>
+  <script src="{% static 'js/emote_count.js' %}"></script>
+
+  <script src="{% static 'js/approve_ad.js' %}"></script>
+
+</div>
+{% endblock %}

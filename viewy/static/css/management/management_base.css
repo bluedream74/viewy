@@ -4,7 +4,7 @@ body{
   font-family: 'Meiryo', sans-serif;
 }
 
-.screen{
+.screen0{
   display: flex;
 }
 
@@ -39,7 +39,7 @@ body{
   margin-right: 16px;
 }
 
-.content{
+.content0{
   max-height: calc(100vh - 64px);
   overflow: scroll;
   padding: 32px 64px;

@@ -366,3 +366,27 @@ textarea{
   margin-top: 32vh;
   margin-left: 10vh;
 }
+
+#first-time-campaign-checkbox {
+  display: inline;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.styled-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+}
+
+.checkbox-label {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+  margin-top: 4px;
+}

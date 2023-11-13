@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import Sum, Q
 from decimal import Decimal, ROUND_UP
 from django.db import transaction
+import math
 
 class AndFeatures(models.Model):
     orfeatures = models.ManyToManyField(Features)
@@ -64,7 +65,7 @@ class AdCampaigns(models.Model):
     andfeatures = models.ManyToManyField(AndFeatures, blank=True)
     target_views = models.PositiveIntegerField(default=0, null=True, blank=True)
     target_clicks = models.PositiveIntegerField(default=0, null=True, blank=True) 
-    fee = models.PositiveIntegerField(null=True, blank=True)
+    fee = models.PositiveIntegerField(default=0, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     monthly_ad_cost = models.ForeignKey(MonthlyAdCost, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -118,33 +119,41 @@ class AdCampaigns(models.Model):
             return True  # end_dateが設定されていない場合は、キャンペーンは進行中と見なす
         return now <= self.end_date
 
-    def recalculate_campaign(self):
-        # total_views_count の再計算
-        total_views = sum(ad_info.post.views_count for ad_info in self.ad_infos.all())
-        self.total_views_count = total_views
+    def recalculate_campaign(self, user):
 
-        # 実際の表示回数(total_views_count)でactual_cpc_or_cpm と fee の再計算
+        # actual_cpc_or_cpm と fee の再計算
         if self.pricing_model == 'CPM':
-            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpm(self.total_views_count), request.user)
-            self.fee = Decimal(self.total_views_count / 1000) * self.actual_cpc_or_cpm
+            # 実際の表示回数が10万回未満の場合、10万回分の料金を計算
+            self.total_views_count = max(self.total_views_count, 100000)
+            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpm(self.total_views_count, user))
+            self.fee = math.ceil(Decimal(self.total_views_count / 1000) * self.actual_cpc_or_cpm)
         elif self.pricing_model == 'CPC':
-            total_clicks = AdInfos.objects.filter(ad_campaign=self).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
-            total_clicks = total_clicks or 0
-            self.total_clicks_count = total_clicks
-            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpc(self.total_clicks_count), request.user)
-            self.fee = Decimal(self.total_clicks_count) * self.actual_cpc_or_cpm
+            # 実際のクリック数が1000未満の場合、1000クリック分の料金を計算
+            self.total_clicks_count = max(self.total_clicks_count, 1000)
+            self.actual_cpc_or_cpm = Decimal(self.monthly_ad_cost.calculate_cpc(self.total_clicks_count, user))
+            self.fee = math.ceil(Decimal(self.total_clicks_count) * self.actual_cpc_or_cpm)
         
         # 小数第一位まで保存し、それ以降は切り上げ
         self.actual_cpc_or_cpm = self.actual_cpc_or_cpm.quantize(Decimal('0.1'), rounding=ROUND_UP)
-        self.fee = self.fee.quantize(Decimal('0.1'), rounding=ROUND_UP)
         
-        self.save()
 
 class AdInfos(models.Model):
     post = models.OneToOneField(Posts, on_delete=models.CASCADE)
     ad_campaign = models.ForeignKey(AdCampaigns, on_delete=models.CASCADE, related_name='ad_infos')
     clicks_count = models.PositiveIntegerField(default=0)
     fee = models.PositiveIntegerField(default=0)
+
+    STATUS_CHOICES = [
+        ('pending', '審査中'),
+        ('failed', '審査失敗'),
+        ('approved', '承認済み'),
+    ]
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending',
+    )
     
     def __str__(self):
         return f"{self.post.title} - {self.ad_campaign.title} - {self.clicks_count}"

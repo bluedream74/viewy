@@ -25,6 +25,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.db.models.functions import Concat
 from django.db.models import CharField
+from django.core.mail import send_mail
 
 from posts.models import Posts, Users, Videos, Visuals
 from .models import AdInfos, AndFeatures, MonthlyAdCost, MonthlyBilling, UserMonthlyBillingSummary
@@ -69,25 +70,25 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
             ad_infos_to_save = []
 
             for campaign in campaigns:
-                total_fee = 0 
-                total_views = 0
-                total_clicks = 0
-                
-                # Updating each AdInfo's fee
-                for ad_info in campaign.ad_infos.all(): 
-                    ad_info.update_fee()
-                    total_fee += ad_info.fee
-                    total_views += ad_info.post.views_count   
-                    total_clicks += ad_info.clicks_count
-                    ad_infos_to_save.append(ad_info)
+                if campaign.status == 'running':
+                    total_fee = 0 
+                    total_views = 0
+                    total_clicks = 0
+                    
+                    # Updating each AdInfo's fee
+                    for ad_info in campaign.ad_infos.all(): 
+                        ad_info.update_fee()
+                        total_fee += ad_info.fee
+                        total_views += ad_info.post.views_count   
+                        total_clicks += ad_info.clicks_count
+                        ad_infos_to_save.append(ad_info)
 
-
-                # Check if the fee or total_views_count has changed
-                if campaign.fee != total_fee or campaign.total_views_count != total_views or campaign.total_clicks_count != total_clicks:
-                    campaign.fee = total_fee
-                    campaign.total_views_count = total_views
-                    campaign.total_clicks_count = total_clicks
-                    campaigns_to_save.append(campaign)
+                    # Check if the fee or total_views_count has changed
+                    if campaign.fee != total_fee or campaign.total_views_count != total_views or campaign.total_clicks_count != total_clicks:
+                        campaign.fee = total_fee
+                        campaign.total_views_count = total_views
+                        campaign.total_clicks_count = total_clicks
+                        campaigns_to_save.append(campaign)
 
             if campaigns_to_save:
                 AdCampaigns.objects.bulk_update(campaigns_to_save, ['total_views_count', 'fee', 'total_clicks_count'])
@@ -374,18 +375,30 @@ class CampaignFormView(AdvertiserCheckView, View):
             else:
                 adcampaign.end_date = form.cleaned_data.get('end_date')
 
-            if pricing_model == "CPC":
-                adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
-                adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks, request.user)
-                adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
-                adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
-                adcampaign.actual_cpc_or_cpm = adjusted_cpc
-            else:  # pricing_model == "CPM"
-                adcampaign.target_views = form.cleaned_data.get('target_views')
-                adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views, request.user)
-                adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm
-                adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
-                adcampaign.actual_cpc_or_cpm = adjusted_cpm
+            # 初回限定キャンペーンの処理
+            if 'first_time_campaign' in request.POST and not request.user.discount_applied:
+                adcampaign.pricing_model = "CPM"
+                adcampaign.target_views = 100000
+                adcampaign.budget = 36000
+                adcampaign.actual_cpc_or_cpm = Decimal(360)
+                request.user.discount_applied = True
+                adcampaign.title = f"{form.cleaned_data['title']} (初回限定価格)"
+                request.user.save()
+
+            else:
+                # 通常の料金計算処理
+                if pricing_model == "CPC":
+                    adcampaign.target_clicks = form.cleaned_data.get('target_clicks')
+                    adjusted_cpc = adcampaign.monthly_ad_cost.calculate_cpc(adcampaign.target_clicks, request.user)
+                    adcampaign.budget = adcampaign.target_clicks * adjusted_cpc
+                    adjusted_cpc = Decimal(adjusted_cpc).quantize(Decimal('0.1'), rounding=ROUND_UP)
+                    adcampaign.actual_cpc_or_cpm = adjusted_cpc
+                else:  # pricing_model == "CPM"
+                    adcampaign.target_views = form.cleaned_data.get('target_views')
+                    adjusted_cpm = adcampaign.monthly_ad_cost.calculate_cpm(adcampaign.target_views, request.user)
+                    adcampaign.budget = adcampaign.target_views / 1000 * adjusted_cpm
+                    adjusted_cpm = Decimal(adjusted_cpm).quantize(Decimal('0.1'), rounding=ROUND_UP)
+                    adcampaign.actual_cpc_or_cpm = adjusted_cpm
 
             adcampaign.created_by = request.user
             adcampaign.save()
@@ -493,6 +506,21 @@ class BaseAdCreateView(AdvertiserCheckView, CreateView):
         kwargs['user'] = self.request.user
         return kwargs
 
+    def send_ad_creation_notification(self, ad_instance):
+        subject = '広告の審査をしてください'
+        approval_url = 'https://www.viewy.net/management/approve_ad/'
+        message = f'広告が作成されました。\n審査を行ってください。\n審査はこちら: {approval_url}'
+        from_email = '広告審査 <adcreate@viewy.net>'
+        recipient_list = ['support@viewy.net']
+        try:
+            result = send_mail(subject, message, from_email, recipient_list)
+            if result:
+                print("メールが正常に送信されました。")
+            else:
+                print("メール送信に失敗しました。")
+        except Exception as e:
+            print(f"メール送信中にエラーが発生しました: {e}")
+
     def test_func(self):
         return self.request.user.is_advertiser
 
@@ -504,6 +532,10 @@ class BaseAdCreateView(AdvertiserCheckView, CreateView):
         return self.render_to_response(context)
 
 
+
+class VisualFormValidationFailedException(Exception):
+    """ VisualFormのバリデーション失敗のためのカスタム例外 """
+    pass
 
 
 class AdMangaCreateView(BaseAdCreateView):
@@ -519,43 +551,61 @@ class AdMangaCreateView(BaseAdCreateView):
         return context
 
     def form_valid(self, form):
-        # まず、親クラスのform_validを実行して、AdInfosとPostが関連付けられ、両方がデータベースに保存されるようにします。
-        response = super().form_valid(form)
+        with transaction.atomic():
+            # まず、親クラスのform_validを実行して、AdInfosとPostが関連付けられ、両方がデータベースに保存されるようにします。
+            response = super().form_valid(form)
 
-        # post フィールドがセットされているか確認
-        if not hasattr(form.instance, 'post'):
-            # エラーメッセージを表示して処理を中止する。
-            return self.form_invalid(form)
+            # post フィールドがセットされているか確認
+            if not hasattr(form.instance, 'post'):
+                raise VisualFormValidationFailedException('Post field is not set')
 
-        # 次に、form.instance.postでPostオブジェクトを取得し、その属性を設定して保存します。
-        post_instance = form.instance.post
-        post_instance.ismanga = True
+            # 次に、form.instance.postでPostオブジェクトを取得し、その属性を設定して保存します。
+            post_instance = form.instance.post
+            post_instance.ismanga = True
 
-        # VisualFormのインスタンスを作成
-        visual_form = self.get_context_data()['visual_form']
+            post_instance.is_hidden = True
 
-        # VisualFormのバリデーションを行う(画像サイズが５MBを超えている、または'visuals'がアップロードされていない場合)
-        if not visual_form.is_valid() or 'visuals' not in self.request.FILES:
-            # バリデーションに失敗した場合、エラーメッセージを含めて再度フォームを表示
-            return self.form_invalid(form)
+            # VisualFormのインスタンスを作成
+            visual_form = self.get_context_data()['visual_form']
+            # VisualFormのバリデーションを行う(画像サイズが５MBを超えている、または'visuals'がアップロードされていない場合)
+            if not visual_form.is_valid() or 'visuals' not in self.request.FILES:
+                print('Visualのフォームバリに失敗')
+                raise VisualFormValidationFailedException('画像ファイルを選択してください')
 
-        # 画像の枚数が4ページ以下の場合は、content_lengthを20秒に設定
-        image_files = self.request.FILES.getlist('visuals')
-        if len(image_files) <= 4:
-            post_instance.content_length = 20
-        else:
-            # 画像の枚数に5を掛けて秒数を計算
-            post_instance.content_length = len(image_files) * 5
+            # 画像の枚数が4ページ以下の場合は、content_lengthを20秒に設定
+            image_files = self.request.FILES.getlist('visuals')
+            if len(image_files) <= 4:
+                post_instance.content_length = 20
+            else:
+                # 画像の枚数に5を掛けて秒数を計算
+                post_instance.content_length = len(image_files) * 5
+            post_instance.save()  # ismangaとcontent_lengthを保存します。
+            
+            # 最後に、画像ファイルを保存します。
+            for visual_file in image_files:
+                # ファイルが画像でない場合は、例外を発生させます
+                if not is_valid_image(visual_file):  # is_valid_image は適切な画像ファイルかどうかをチェックする関数
+                    raise Exception('Not an image!!')
+                visual = Visuals(post=post_instance)  
+                visual.visual.save(visual_file.name, visual_file, save=True)
+                print("保存されたVisualのID：", visual.id)
 
-        post_instance.save()  # ismangaとcontent_lengthを保存します。
-        
-        # 最後に、画像ファイルを保存します。
-        for visual_file in image_files:
-            visual = Visuals(post=post_instance)  
-            visual.visual.save(visual_file.name, visual_file, save=True)
-            print("保存されたVisualのID：", visual.id)
+            # 全てのバリデーションと処理が成功した後にメール送信
+            if form.is_valid():
+                self.send_ad_creation_notification(form.instance)
         
         return response
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except VisualFormValidationFailedException as e:
+            form = self.get_form()
+            if hasattr(form.instance, 'post'):
+                form.instance.post.delete()
+            
+            form.add_error(None, str(e))
+            return self.form_invalid(form)
 
 class AdVideoCreateView(BaseAdCreateView):
     template_name = 'advertisement/ad_video_create.html'
@@ -593,13 +643,12 @@ class AdVideoCreateView(BaseAdCreateView):
         # 次に、form.instance.postでPostオブジェクトを取得し、その属性を設定して保存します。
         post_instance = form.instance.post
         post_instance.is_manga = False 
-        print("Postインスタンス取得完了")
+        post_instance.is_hidden = True
 
         # VideoFormのバリデーションとビデオ保存の処理
         video_form = self.get_context_data()['video_form']
 
         if video_form.is_valid(): #ここでVideoFormのバリデーション
-            print("VideoFormのバリデーション成功")
             video_file = video_form.cleaned_data.get('video')
             print(type(video_file))  # video_file の型を表示
             print(video_file)  # video_file の内容を表示           
@@ -613,7 +662,8 @@ class AdVideoCreateView(BaseAdCreateView):
                 video = Videos(post=post_instance)#新しい Videos インスタンスの作成,保存
                 video.video.save(video_file.name, video_file, save=True)#Videos モデルのsave メソッドが実行
                 print("Videoの保存完了")
-                
+                # ビデオ保存後、全てのバリデーションと処理が成功した場合にメール送信
+                self.send_ad_creation_notification(form.instance)
                 return response
             except Exception as e:
                 print(f"エラー発生：{str(e)}")
@@ -655,12 +705,20 @@ class IsHiddenToggle(AdvertiserCheckView, View):
             campaign.is_hidden = True
             campaign.status = 'stopped'  # ステータスをストップに
             campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
-            campaign.recalculate_campaign() # 料金を再計算し保存
+
+            # 合計視聴回数と合計クリック数を計算
+            total_views = sum(ad_info.post.views_count for ad_info in campaign.ad_infos.all())
+            campaign.total_views_count = total_views
+
+            total_clicks = AdInfos.objects.filter(ad_campaign=campaign).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
+            campaign.total_clicks_count = total_clicks
+
+            campaign.recalculate_campaign(request.user) # 料金を再計算し保存
         else:
             campaign.is_hidden = False
             campaign.status = 'running'  # ステータスを公開中に
 
-        campaign.save(update_fields=['is_hidden', 'status'])
+        campaign.save()
 
         return JsonResponse({'is_hidden': post.is_hidden})
 
@@ -765,22 +823,30 @@ class EditAdCampaignView(AdvertiserCheckView, View):
 class AdCampaignStatusView(AdvertiserCheckView, View):
     
     def post(self, request, campaign_id):
-        campaign = AdCampaigns.objects.filter(id=campaign_id).first()
-        
-        if not campaign:
-            raise Http404("Campaign not found")
+        with transaction.atomic():
+            campaign = AdCampaigns.objects.filter(id=campaign_id).first()
+            
+            if not campaign:
+                raise Http404("Campaign not found")
 
-        campaign.is_hidden = True
-        campaign.status = 'stopped'
-        campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
-        campaign.recalculate_campaign() # 料金を再計算し保存
-        campaign.save()
+            # 合計視聴回数と合計クリック数を計算
+            total_views = sum(ad_info.post.views_count for ad_info in campaign.ad_infos.all())
+            campaign.total_views_count = total_views
 
-        # そのキャンペーンに紐づくすべてのAdInfosとPostsの状態を更新
-        for ad_info in campaign.ad_infos.all():
-            post = ad_info.post
-            post.is_hidden = campaign.is_hidden
-            post.save()
+            total_clicks = AdInfos.objects.filter(ad_campaign=campaign).aggregate(total_clicks=Sum('clicks_count'))['total_clicks']
+            campaign.total_clicks_count = total_clicks
+
+            campaign.is_hidden = True
+            campaign.status = 'stopped'
+            campaign.end_date = timezone.now()  # 終了日を現在の日付に設定
+            campaign.recalculate_campaign(request.user) # 料金を再計算し保存
+            campaign.save()
+
+            # そのキャンペーンに紐づくすべてのAdInfosとPostsの状態を更新
+            for ad_info in campaign.ad_infos.all():
+                post = ad_info.post
+                post.is_hidden = campaign.is_hidden
+                post.save()
         
         # HTTPリファラから前のURLを取得
         referer_url = request.META.get('HTTP_REFERER')
