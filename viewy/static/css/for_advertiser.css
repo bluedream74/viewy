@@ -49,23 +49,24 @@ body{
 .logo{
   width: 70%;
   position: relative;
-  top: -45px;
+  top: -83px;
 }
 
 .partner80, .follower{
 
   position: absolute;
-  bottom: 96px;
+  bottom: 80px;
 }
 
 .partner80{
-  left: 210px;
+  left: 262px;
   width: 260px;
 }
 
 .follower{
-  right: 180px;
-  width: 300px;
+  right: 150px;
+  bottom: 108px;
+  width: 383px;
 }
 
 .right-side, .left-side{
@@ -772,26 +773,31 @@ hr{
   font-weight: bold;
 }
 
-/* .cpm{
-  margin-right: 32px;
+.fee-guide{
+  font-size: 13px;
+  color: gray;
+  margin: 8px;
 }
 
-.try-plan .cpm, .try-plan .cpc{
+.ss{
   text-decoration: underline;
-  text-decoration-color: aqua;
-} */
+  text-decoration-color: rgb(14, 226, 226);
+}
 
 /* 共通のスタイル */
 .grid-container {
   display: grid;
   margin-bottom: 20px;
-  background-color: #f8f8f8;
-  padding: 10px;
   text-align: center;
+  box-shadow: 0px 2px 4px gainsboro;
 }
 
 .grid-container > div{
   padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .cpc, .cpm{
@@ -799,18 +805,21 @@ hr{
   background-color: white;
   padding: 5px;  
   font-size: 24px;
+  border: 1px solid #c3c3c3;
 }
+
+
 
 .grid-header {
   font-weight: bold;
-  background-color: #ddd;
+  background-color: #ededed;
   padding: 5px;
   border: 1px solid #c3c3c3;
 }
 
 .line-header{
   font-weight: bold;
-  background-color: #ddd;
+  background-color: rgb(212, 212, 212);
   padding: 5px;
   border: 1px solid #c3c3c3;
 }
@@ -825,12 +834,15 @@ hr{
 
 .special-price{
   font-size: 24px;
+  text-decoration: underline;
+  text-decoration-color: rgb(14, 226, 226);
 }
 
 
 .try-header{
   background-color: rgb(14, 226, 226);
   color: white;
+  border: 2px rgb(14, 226, 226) solid;
 }
 
 .try-price1{
@@ -854,6 +866,9 @@ hr{
   grid-template-columns: auto 1fr 1fr 1fr; /* 4列の設定 */
 }
 
+.main-price{
+  font-size: 30px;
+}
 
 .price{
   font-size: 36px;
@@ -872,7 +887,7 @@ hr{
 .result-list{
   background-color: rgb(241, 241, 241);
   padding: 8px 24px;
-  margin: 0px 160px;
+  margin: 0px 20%;
 }
 
 .result-list li{
@@ -938,6 +953,7 @@ hr{
   .follower{
     right: 14%;
     width: 28%;
+    bottom: 80px;
   }
 
   .main > div{
@@ -1065,6 +1081,38 @@ hr{
 .ad-features .sentence{
   width: 100%;
   margin-top: 24px;
+}
+
+.grid-container > div{
+  padding: 12px 4px;
+}
+
+.grid-item{
+  font-size: 18px;
+}
+
+.line-header{
+  font-size: 14px;
+}
+
+.grid-header{
+  font-size: 14px;
+}
+
+.cpc, .cpm{
+  font-size: 24px;
+}
+
+.special-price{
+  font-size: 20px;
+}
+
+.main-price{
+  font-size: 24px;
+}
+
+.result-list{
+  margin: 0px auto;
 }
 
 .list{
@@ -1230,6 +1278,12 @@ hr{
 
 .set-meeting{
   padding: 12px 48px;
+  position: relative;
+  top: -50px;
+}
+
+.second-one{
+  top: 0px;
 }
 
 }
