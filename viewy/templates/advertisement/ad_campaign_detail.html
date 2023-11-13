@@ -4,6 +4,7 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/stylepost.css' %}">
 <link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/advertisement/ad_campaign_detail.css' %}">
 {% endblock %}
 
 
@@ -31,16 +32,16 @@
     {% if campaign.status != "achieved" and campaign.status != "expired" and campaign.status != "stopped" %}
     <div>
       <a href="{% url 'advertisement:edit_ad_campaign' campaign_id=campaign.id %}" class="edit"><i
-        class="fa-solid fa-pen"></i> 編集</a>
+          class="fa-solid fa-pen"></i> 編集</a>
     </div>
     {% endif %}
     <div class="delete-button">
       {% if campaign.status == "pending" %}
       <form method="POST" action="{% url 'advertisement:delete_ad_campaign' campaign_id=campaign.id %}"
-      onsubmit="return confirm('このキャンペーンを本当に削除しますか?キャンペーンに紐付く全広告も削除されます。');">
+        onsubmit="return confirm('このキャンペーンを本当に削除しますか?キャンペーンに紐付く全広告も削除されます。');">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">
-        <i class="fa-solid fa-trash"></i> 削除
+          <i class="fa-solid fa-trash"></i> 削除
         </button>
       </form>
       {% endif %}
@@ -147,36 +148,53 @@
       <td>{{ ad_info.post.avg_duration|floatformat:1 }}秒</td>
       <td class="fee">{{ ad_info.fee|add_commas }}</td>
       <td>
-        {% if campaign.status == 'pending' %}
-        公開前
-        <form method="POST" action="{% url 'advertisement:delete_ad_info' ad_info.id %}"
-        onsubmit="return confirm('この広告を本当に削除しますか?');">
+        <div class="check-container">
+        {% if ad_info.status == "pending" %}
+        <div style="font-weight: bold;">審査中</div>
+        {% elif ad_info.status == 'failed' %}
+          <div class="check-icon xmark"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div style="font-weight: bold;">審査失敗</div>
+          <form method="POST" action="{% url 'advertisement:delete_ad_info' ad_info.id %}"
+          onsubmit="return confirm('この広告を本当に削除しますか?');">
           {% csrf_token %}
           <button type="submit" class="btn btn-danger">
-          <i class="fa-solid fa-trash"></i> 削除
+            <i class="fa-solid fa-trash"></i> 削除
           </button>
-        </form>
-        {% elif campaign.status == 'achieved' %}
-        目標達成
-        {% elif campaign.status == 'expired' %}
-        終了期限に到達
-        {% elif campaign.status == 'stopped' %}
-        途中停止
-        {% elif campaign.status == 'running' %}
+          </form>
+        {% elif ad_info.status == 'approved' %}
+          <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
+          {% if campaign.status == "pending" %}
+          公開前
+          <form method="POST" action="{% url 'advertisement:delete_ad_info' ad_info.id %}"
+            onsubmit="return confirm('この広告を本当に削除しますか?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              <i class="fa-solid fa-trash"></i> 削除
+            </button>
+          </form>
+          {% elif campaign.status == 'achieved' %}
+          目標達成
+          {% elif campaign.status == 'expired' %}
+          終了期限に到達
+          {% elif campaign.status == 'stopped' %}
+          途中停止
+          {% elif campaign.status == 'running' %}
 
-        {% if campaign.is_hidden %}
-        永久停止
-        {% else %}
-        <button class="toggle-hidden release-button {% if ad_info.post.is_hidden %}stop{% else %}release{% endif %}"
-          data-post-id="{{ ad_info.post.id }}">
-          {% if ad_info.post.is_hidden %}
-          停止中
+          {% if campaign.is_hidden %}
+          永久停止
           {% else %}
-          公開中
+          <button class="toggle-hidden release-button {% if ad_info.post.is_hidden %}stop{% else %}release{% endif %}"
+            data-post-id="{{ ad_info.post.id }}">
+            {% if ad_info.post.is_hidden %}
+            停止中
+            {% else %}
+            公開中
+            {% endif %}
+          </button>
           {% endif %}
-        </button>
-        {% endif %}
-        {% endif %}
+          {% endif %}
+          {% endif %}
+        </div>
       </td>
       <td style="text-align: center;">
         <button class="view-button" data-post-id="{{ ad_info.post.id }}">

@@ -35,6 +35,12 @@
   <form method="post" class="flex">
     {% csrf_token %}
     <div>
+      {% if not request.user.discount_applied %}
+      <div class="checkbox-container">
+        <input type="checkbox" id="first-time-campaign-checkbox" name="first_time_campaign" class="styled-checkbox">
+        <label for="first-time-campaign-checkbox" class="checkbox-label">初回限定キャンペーンを適用する</label>
+      </div>
+      {% endif %}
       <div class="info-item">
         <div class="info-name">キャンペーンタイトル</div>
         <div class="info-input campaign-title">
@@ -82,7 +88,9 @@
           <div class="info-input" id="calculated_budget_cpc" style="color: rgb(11, 150, 1);">円</div>
         </div>
         <p class="info-description" style="width: 400px;">
-          <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px; color: rgb(255, 200, 0); font-size: 14px;"></i>CPCの場合、目標クリック回数に応じて見積金額が自動計算されます。そのためここでの見積金額とは、目標クリック回数に到達した場合実際に請求される料金です。目標クリック回数に到達する前にキャンペーン及びキャンペーン内の全広告を非表示(中断)した場合、その時点でのクリック回数に応じたCPCで料金が再計算され、請求料金が確定します。</p>
+          <i class="fa-solid fa-triangle-exclamation"
+            style="margin-right: 4px; color: rgb(255, 200, 0); font-size: 14px;"></i>CPCの場合、目標クリック回数に応じて見積金額が自動計算されます。そのためここでの見積金額とは、目標クリック回数に到達した場合実際に請求される料金です。目標クリック回数に到達する前にキャンペーン及びキャンペーン内の全広告を非表示(中断)した場合、その時点でのクリック回数に応じたCPCで料金が再計算され、請求料金が確定します。
+        </p>
 
       </div>
 
@@ -104,7 +112,9 @@
           <div class="info-name">見積金額</div>
           <div class="info-input" id="calculated_budget_cpm" style="color: rgb(11, 150, 1);">円</div>
           <p class="info-description" style="width: 400px;">
-            <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px; color: rgb(255, 200, 0); font-size: 14px;"></i>CPMの場合、目標表示回数に応じて見積金額が自動計算されます。そのためここでの見積金額とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達する前にキャンペーン及びキャンペーン内の全広告を非表示(中断)した場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。</p>
+            <i class="fa-solid fa-triangle-exclamation"
+              style="margin-right: 4px; color: rgb(255, 200, 0); font-size: 14px;"></i>CPMの場合、目標表示回数に応じて見積金額が自動計算されます。そのためここでの見積金額とは、目標表示回数に到達した場合実際に請求される料金です。目標表示回数に到達する前にキャンペーン及びキャンペーン内の全広告を非表示(中断)した場合、その時点での表示回数に応じたCPMで料金が再計算され、請求料金が確定します。
+          </p>
         </div>
       </div>
     </div>
@@ -144,6 +154,15 @@
       </div>
 
       {{ form.non_field_errors }}
+      {% for field in form %}
+      <div>
+        {% if field.errors %}
+        {% for error in field.errors %}
+        <div class="error">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
 
       <button type="submit" class="submit-campaign">作成</button>
     </div>
@@ -182,26 +201,26 @@
 
     // 開始日の入力フィールドにイベントリスナーを設定
     startDateField.addEventListener('change', function () {
-        if (this.value) {
-            // 開始日の値をDateオブジェクトに変換
-            var startDate = new Date(this.value);
+      if (this.value) {
+        // 開始日の値をDateオブジェクトに変換
+        var startDate = new Date(this.value);
 
-            // 開始日に1日を加算
-            startDate.setDate(startDate.getDate() + 1);
+        // 開始日に1日を加算
+        startDate.setDate(startDate.getDate() + 1);
 
-            // 日付を YYYY-MM-DD 形式に変換
-            var nextDay = startDate.toISOString().split('T')[0];
+        // 日付を YYYY-MM-DD 形式に変換
+        var nextDay = startDate.toISOString().split('T')[0];
 
-            // 終了日のmin属性を更新
-            endDateField.setAttribute('min', nextDay);
-        }
+        // 終了日のmin属性を更新
+        endDateField.setAttribute('min', nextDay);
+      }
     });
 
     // 初期状態で終了日のminを設定するためのイベントを発火
     if (startDateField.value) {
-        startDateField.dispatchEvent(new Event('change'));
+      startDateField.dispatchEvent(new Event('change'));
     }
-});
+  });
 </script>
 
 {% endblock %}

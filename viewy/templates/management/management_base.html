@@ -15,7 +15,7 @@
 </head>
 <body>
 
-  <div class="screen">
+  <div class="screen0">
     <div class="side-menu">
       <a href="{% url 'management:account'%}"><i class="fa-solid fa-user menu-icon"></i><span class="menu-title">アカウント</span></a>
       <a href="{% url 'management:user_analytics'%}"><i class="fa-solid fa-chart-simple menu-icon"></i></i><span class="menu-title">ユーザー分析</span></a>
@@ -26,13 +26,14 @@
       <a href="{% url 'management:kanji_regist'%}"><i class="fa-regular fa-keyboard menu-icon"></i></i></i><span class="menu-title">漢字登録</span></a>
       <a href="{% url 'management:affiliate_create'%}"><i class="fa-solid fa-folder-plus menu-icon"></i><span class="menu-title">アフィリエイト</span></a>
       <a href="{% url 'management:ad'%}"><i class="fa-solid fa-rectangle-ad menu-icon"></i></i><span class="menu-title">広告</span></a>
+      <a href="{% url 'management:approve_ad'%}"><i class="fa-solid fa-file-circle-check menu-icon"></i><span class="menu-title">広告審査</span></a>
       <a href="{% url 'management:search_user'%}"><i class="fa-solid fa-magnifying-glass menu-icon"></i><span class="menu-title">ユーザー検索</span></a>
       <a href="{% url 'management:poster_waiter_list'%}"><i class="fa-solid fa-square-check menu-icon"></i><span class="menu-title">投稿認証待ち</span></a>
       <a href="{% url 'management:freeze_notification_approve'%}"><i class="fa-regular fa-snowflake menu-icon"></i></i><span class="menu-title">凍結通知申請</span></a>
       <a href="{% url 'management:calculate_monthly_billing'%}"><i class="fa-regular menu-icon"></i></i><span class="menu-title">月末広告計算</span></a>
     </div>
 
-    <div class="content">
+    <div class="content0">
       {% block content %}
       {% endblock %}
     </div>

@@ -211,24 +211,11 @@ class BasePostListView(ListView):
             if campaign.status != 'running':
                 campaign.status = 'running'
             
-            # campaignの終了日が現在日時を超えている場合
+            # campaignの終了日が現在日時より前（過ぎている）場合
             if campaign.end_date and campaign.end_date < timezone.now():
                 campaign.status = 'expired'  # 状態をExpiredに設定
                 campaign.is_hidden = True
-                
-                # 実際の表示回数(total_views_count)でactual_cpc_or_cpm と fee の再計算し料金を確定
-                if campaign.pricing_model == 'CPM':
-                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpm(campaign.total_views_count, user))
-                    campaign.fee = Decimal(campaign.total_views_count / 1000) * campaign.actual_cpc_or_cpm
-                elif campaign.pricing_model == 'CPC':
-                    campaign.actual_cpc_or_cpm = Decimal(campaign.monthly_ad_cost.calculate_cpc(campaign.total_clicks_count, user))
-                    campaign.fee = Decimal(campaign.total_clicks_count) * campaign.actual_cpc_or_cpm
-
-                # 小数第一位まで保存し、それ以降は切り上げ
-                campaign.actual_cpc_or_cpm = campaign.actual_cpc_or_cpm.quantize(Decimal('0.1'), rounding=ROUND_UP)
-                campaign.fee = campaign.fee.quantize(Decimal('0.1'), rounding=ROUND_UP)
-
-                campaign.save(update_fields=['fee', 'actual_cpc_or_cpm'])
+                campaign.recalculate_campaign(user)
             
             # 目標の表示回数やクリック数を超えていたら状態をachievedに設定
             if (campaign.pricing_model == 'CPC' and campaign.total_clicks_count >= campaign.target_clicks) or \
@@ -241,7 +228,7 @@ class BasePostListView(ListView):
 
         # Save all updated campaigns in a single query
         if to_update:
-            AdCampaigns.objects.bulk_update(to_update, ['total_views_count', 'total_clicks_count', 'is_hidden', 'status', 'end_date'])
+            AdCampaigns.objects.bulk_update(to_update, ['total_views_count', 'total_clicks_count', 'is_hidden', 'status', 'end_date', 'actual_cpc_or_cpm', 'fee'])
 
 
         

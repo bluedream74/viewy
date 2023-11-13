@@ -39,7 +39,7 @@
                   </div>
           
                   {% else %}
-                  {% with ad.videos.first as video %}
+                  {% with ad.first_video.0 as video %}
                   {% if video.thumbnail %}
                   <img class="thumbnail" loading="lazy" src="{{ video.thumbnail.url }}" alt="{{ ad.title }}">
                   {% endif %}

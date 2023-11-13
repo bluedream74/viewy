@@ -1,0 +1,20 @@
+.content0 {
+  padding: 0 64px;
+}
+
+.screen {
+  width: 1100px;
+}
+
+.post {
+  overflow: unset;
+}
+
+.adinfo-detail {
+  position: absolute;
+  top: 380px;
+  left: 392px;
+  z-index: 1000;
+  white-space: nowrap;
+  color: white;
+}

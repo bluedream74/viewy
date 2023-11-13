@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView, CreateView
 from django.http import HttpResponse
+from django.db.models import Subquery, OuterRef, Prefetch
 
 
 from django.http import HttpResponseRedirect, JsonResponse
@@ -585,10 +586,57 @@ class Ad(SuperUserCheck, View):
     template_name = 'management/ad.html'
 
     def get(self, request, *args, **kwargs):
-        ads = Posts.objects.filter(poster__is_advertiser=True)
+        first_video_ids = Videos.objects.filter(post=OuterRef('pk')).order_by('id').values('id')[:1]
+        ads = Posts.objects.filter(poster__is_advertiser=True).annotate(
+            first_video_id=Subquery(first_video_ids)
+        ).prefetch_related(
+            Prefetch('adinfos', queryset=AdInfos.objects.select_related('ad_campaign').prefetch_related('ad_campaign__andfeatures')),
+            'visuals',
+            'videos'  # ここでは全ての videos オブジェクトを取得する
+        )
 
         context = {'ads': ads}
         return render(request, self.template_name, context)
+
+class UnapprovedAdsView(SuperUserCheck, View):
+    template_name = 'management/approve_ad.html'
+
+    def get(self, request, *args, **kwargs):
+        ads = AdInfos.objects.filter(
+            status='pending',
+            ad_campaign__status__in=['pending', 'running']
+        ).select_related(
+            'post',
+            'post__poster',
+            'ad_campaign'
+        ).prefetch_related(
+            Prefetch('post__visuals'),
+            Prefetch('post__videos')
+        )
+
+        context = {'ads': ads}
+        return render(request, self.template_name, context)
+
+class ApproveView(SuperUserCheck, View):
+
+    def post(self, request, *args, **kwargs):
+        # JSONデータを解析する
+        data = json.loads(request.body)
+        action = data.get('action')
+        ad_id = kwargs.get('ad_id')  # URLからad_idを取得
+        ad_info = get_object_or_404(AdInfos, pk=ad_id)
+
+        if action == 'approve':
+            ad_info.status = 'approved'
+            ad_info.post.is_hidden = False
+        else:  # disapprove
+            ad_info.status = 'failed'
+            ad_info.post.is_hidden = True
+
+        ad_info.save()
+        ad_info.post.save()
+
+        return JsonResponse({'status': 'success'})
     
 class AffiliateCreateView(SuperUserCheck, CreateView):
     template_name = 'management/affiliate_create.html'
