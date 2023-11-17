@@ -197,9 +197,6 @@
     <div class="messages">
       <a href="{% url 'accounts:message_list' %}">
         <i class="fa-regular fa-envelope fa-lg mini-logo"></i>運営からのメッセージ
-        {% if request.user|has_unread_messages %}
-        <div class="unread"></div> <!-- add your blue dot here -->
-        {% endif %}
       </a>
       <div class="line"></div>
     </div>
