@@ -708,53 +708,53 @@ class PostListView(BasePostListView):
                         print(f"イベント '{current_event.name}' の {participation_days} 日目達成！")
 
             
-            # 今月開催中のイベントがあって、ユーザーが参加していない場合
-            if current_event and not user_participating:
-                context['ask_participation'] = True
+        # 今月開催中のイベントがあって、ユーザーが参加していない場合
+        if current_event and not user_participating:
+            context['ask_participation'] = True
 
-                # イベント情報と参加状況をコンソールに出力
-                print(f"現在のイベント: {current_event.name}")
-                print("ユーザーはまだこのイベントへ参加するかどうか決めていません。")
-            elif current_event:
-                # イベントは存在するが、ユーザーは既に参加している場合
-                print(f"現在のイベント: {current_event.name}")
-                print("ユーザーはこのイベントに既に参加するかどうか決めています。")
-            else:
-                # 開催中のイベントがない場合
-                print("現在開催中のイベントはありません。")
-            
-            # フォローしているユーザーがリコメンドしている投稿の取得
-            context['followed_recommends_details'] = self.get_followed_recommends(user)
-   
-            # 未回答のアンケートのチェック
-            unanswered_survey = self.check_unanswered_surveys(user)
-            if random.random() < 0.1:
-                context['unanswered_survey'] = unanswered_survey
-            else:
-                context['unanswered_survey'] = None
-            
+            # イベント情報と参加状況をコンソールに出力
+            print(f"現在のイベント: {current_event.name}")
+            print("ユーザーはまだこのイベントへ参加するかどうか決めていません。")
+        elif current_event:
+            # イベントは存在するが、ユーザーは既に参加している場合
+            print(f"現在のイベント: {current_event.name}")
+            print("ユーザーはこのイベントに既に参加するかどうか決めています。")
+        else:
+            # 開催中のイベントがない場合
+            print("現在開催中のイベントはありません。")
+        
+        # フォローしているユーザーがリコメンドしている投稿の取得
+        context['followed_recommends_details'] = self.get_followed_recommends(user)
 
-            cache_key_poster = f"is_poster_{user.id}"
-            is_poster = cache.get(cache_key_poster)
-            if is_poster is None:
-                is_poster = user.groups.filter(name='Poster').exists()
-                cache.set(cache_key_poster, is_poster, 600)  # 600 seconds = 10 minutes
+        # 未回答のアンケートのチェック
+        unanswered_survey = self.check_unanswered_surveys(user)
+        if random.random() < 0.1:
+            context['unanswered_survey'] = unanswered_survey
+        else:
+            context['unanswered_survey'] = None
+        
 
-            # 未読の通知の取得
-            read_notifications = NotificationView.objects.filter(user=user).values_list('notification_id', flat=True)
-            if is_poster:
-                unread_notifications = Notification.objects.exclude(id__in=read_notifications)
-            else:
-                unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
-            context['unread_notifications'] = unread_notifications
-            
-            # ユーザーがフォローしているposterのIDリストの取得
-            followed_posters_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
-            
-            # 未読の凍結通知の取得
-            read_freeze_notifications = FreezeNotificationView.objects.filter(user=user).values_list('freeze_notification_id', flat=True)
-            unread_freeze_notifications = FreezeNotification.objects.exclude(id__in=read_freeze_notifications).filter(approve=True, poster_id__in=followed_posters_ids)
-            context['unread_freeze_notifications'] = unread_freeze_notifications
+        cache_key_poster = f"is_poster_{user.id}"
+        is_poster = cache.get(cache_key_poster)
+        if is_poster is None:
+            is_poster = user.groups.filter(name='Poster').exists()
+            cache.set(cache_key_poster, is_poster, 600)  # 600 seconds = 10 minutes
+
+        # 未読の通知の取得
+        read_notifications = NotificationView.objects.filter(user=user).values_list('notification_id', flat=True)
+        if is_poster:
+            unread_notifications = Notification.objects.exclude(id__in=read_notifications)
+        else:
+            unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
+        context['unread_notifications'] = unread_notifications
+        
+        # ユーザーがフォローしているposterのIDリストの取得
+        followed_posters_ids = Follows.objects.filter(user=user).values_list('poster_id', flat=True)
+        
+        # 未読の凍結通知の取得
+        read_freeze_notifications = FreezeNotificationView.objects.filter(user=user).values_list('freeze_notification_id', flat=True)
+        unread_freeze_notifications = FreezeNotification.objects.exclude(id__in=read_freeze_notifications).filter(approve=True, poster_id__in=followed_posters_ids)
+        context['unread_freeze_notifications'] = unread_freeze_notifications
 
         return context
        
