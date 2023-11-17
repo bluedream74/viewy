@@ -32,43 +32,31 @@
   <div class="main">
     <div class="accordion">
       <div class="accordion-item">
-        <div class="accordion-header pretitle" data-pretitle="user"><a href="{% url 'support:pretitle_page' pretitle='user' %}">ユーザー</a></div>
+        <div class="accordion-header pretitle" data-pretitle="about_viewy">
+          <a href="{% url 'support:pretitle_page' pretitle='about_viewy' %}">Viewyについて</a>
+          <i class="fas fa-chevron-down"></i>
+        </div>
         <div class="accordion-content">
 
           <div class="n-accordion">
             <div class="n-accordion-item">
 
               <div class="n-accordion-header title">
-                <a  href="{% url 'support:title_page' pretitle='user' title='general' %}">一般情報</a>
+                <a  href="{% url 'support:title_page' pretitle='about_viewy' title='use' %}">Viewyの利用方法</a>
               </div>
 
               <div class="n-accordion-content">
-                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='user' title='general' subtitle='viewy' %}">Viewyとは？</a></div>
-                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='general' subtitle='how_much' %}">料金はかかりますか</a></div>
-                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='general' subtitle='is_app' %}">アプリはありますか</a></div>
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='about_viewy' title='use' subtitle='viewy' %}">Viewyとは？</a></div>
               </div>
 
             </div>
             <div class="n-accordion-item">
               <div class="n-accordion-header title">
-                <a  href="{% url 'support:title_page' pretitle='user' title='beginner' %}">初めての方</a>
+                <a  href="{% url 'support:title_page' pretitle='about_viewy' title='regist_login' %}">登録・ログイン</a>
               </div>
               <div class="n-accordion-content">
-                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='beginner' subtitle='beginner1' %}">初めての方1</a></div>
-                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='beginner' subtitle='beginner2' %}">初めての方2</a></div>
-                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='beginner' subtitle='beginner3' %}">初めての方3</a></div>
-              </div>
-            </div>
-            <div class="n-accordion-item">
-              <div class="n-accordion-header title">
-                <a  href="{% url 'support:title_page' pretitle='user' title='use' %}">利用方法</a>
-              </div>
-              <div class="n-accordion-content">
-                <div>ホーム画面</div>
-                <div>検索画面</div>
-                <div>投稿画面</div>
-                <div>スター画面</div>
-                <div>アカウント画面</div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='about_viewy' title='regist_login' subtitle='regist' %}">新規登録</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='about_viewy' title='regist_login' subtitle='n_login' %}">ログインできない</a></div>
               </div>
             </div>
 
@@ -76,29 +64,123 @@
         </div>
       </div>
       <div class="accordion-item">
-        <div class="accordion-header pretitle" data-pretitle="partner">パートナー</div>
+        <div class="accordion-header pretitle" data-pretitle="user">
+          <a href="{% url 'support:pretitle_page' pretitle='user' %}">ユーザー</a>
+          <i class="fas fa-chevron-down"></i>
+        </div>
         <div class="accordion-content">
-          <div>一般情報</div>
-          <div>パートナーになるには</div>
-          <div>投稿について</div>
-          <div>紹介特典</div>
+
+          <div class="n-accordion">
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='user' title='function' %}">各種機能</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='user' title='function' subtitle='collection' %}">コレクション機能</a></div>
+              </div>
+
+            </div>
+            <div class="n-accordion-item">
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='user' title='error' %}">閲覧時のエラー</a>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='error' subtitle='n_view' %}">投稿が視聴できません</a></div>
+              </div>
+            </div>
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='user' title='campaign' %}">キャンペーン</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='fee' %}">キャンペーンとは何ですか</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='join' %}">どのように参加すればいいですか</a></div>
+              </div>
+
+            </div>
+
+          </div>
         </div>
       </div>
       <div class="accordion-item">
-        <div class="accordion-header" data-pretitle="service">サービス全般</div>
+        <div class="accordion-header pretitle" data-pretitle="partner">
+          <a href="{% url 'support:pretitle_page' pretitle='partner' %}">パートナー</a>
+          <i class="fas fa-chevron-down"></i>
+        </div>
         <div class="accordion-content">
-          <div>Web環境</div>
-          <div>アカウントの登録</div>
-          <div>機能紹介</div>
-          <div>不具合</div>
-          <div>その他</div>
+
+          <div class="n-accordion">
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='partner' title='regist' %}">パートナー登録</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='partner' title='regist' subtitle='who' %}">誰でもパートナーになれますか</a></div>
+              </div>
+
+            </div>
+            <div class="n-accordion-item">
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='partner' title='post' %}">投稿</a>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='img' %}">画像を投稿</a></div>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='img_error' %}">画像を投稿できない</a></div>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='video' %}">動画を投稿</a></div>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='video_error' %}">動画を投稿できない</a></div>
+              </div>
+            </div>
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='partner' title='account_page' %}">アカウントページ</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='partner' title='account_page' subtitle='mypost' %}">自分の投稿</a></div>
+              </div>
+
+            </div>
+
+          </div>
         </div>
       </div>
       <div class="accordion-item">
-        <div class="accordion-header" data-pretitle="general">一般情報</div>
+        <div class="accordion-header pretitle" data-pretitle="service">
+          <a href="{% url 'support:pretitle_page' pretitle='service' %}">サービス全般</a>
+          <i class="fas fa-chevron-down"></i>
+        </div>
         <div class="accordion-content">
-          <div>一般情報</div>
-          <div>規約</div>
+
+          <div class="n-accordion">
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='service' title='general' %}">一般情報</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='service' title='general' subtitle='campany' %}">運営会社</a></div>
+              </div>
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='service' title='general' subtitle='term' %}">規約</a></div>
+              </div>
+
+            </div>
+
+          </div>
         </div>
       </div>
     </div>

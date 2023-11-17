@@ -54,14 +54,7 @@
           <div class="error">{{ post_form.title.errors }}</div>
           {{ post_form.title }}
         </div>
-        <div class="url-set">
-          <div class="error">
-            {{ post_form.url.errors }}
-          </div>
-          <div class="about-url">詳しくはこちら・アイコン・ユーザーネーム
-            <br>に設定するURLを入力してください</div>
-          {{ post_form.url }}
-        </div>
+
         <div class="caption">
           <div class="error">{{ post_form.caption.errors }}</div>
           {{ post_form.caption }}
@@ -77,6 +70,17 @@
             <div class="hashtag3">#{{ post_form.hashtag3 }}</div>
           </div>
 
+        </div>
+
+        <div class="url-set">
+          <div class="error">
+            {{ post_form.url.errors }}
+          </div>
+          {{ post_form.url }}
+          <div class="about-url">※｢詳しくはこちら・アイコン・ユーザーネーム｣に設定するURLを入力</div>
+          <div class="about-url">※GAなどの計測ツールをご利用の場合、<a
+              href="https://ga-dev-tools.google/ga4/campaign-url-builder/">Campaign URL
+              Builder</a>でUTMパラメータを作成し、そのURLを入力</div>
         </div>
 
       </div>
@@ -239,18 +243,25 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var confirmButton = document.getElementById('confirm_button');
+      var spinnerContainer = document.querySelector('.spinner-container');
+      var urlField = document.querySelector('input[name="url"]');
+      var titleField = document.querySelector('input[name="title"]');
 
-      // confirmButtonがnullでないことを確認
-      if (confirmButton) {
-        confirmButton.addEventListener('click', function () {
-          // '.spinner'というクラスを持つ最初の要素を選択
-          var spinnerContainer = document.querySelector('.spinner-container');
-          // spinnerContainerがnullでないことを確認
+      confirmButton.addEventListener('click', function (event) {
+        // フィールドが適切に入力されているかチェック
+        var isUrlFilled = urlField.value.trim() !== '';
+        var isTitleFilled = titleField.value.trim() !== '';
+
+        if (isUrlFilled && isTitleFilled) {
+          // フィールドが適切に入力されている場合、スピナーを表示
           if (spinnerContainer) {
-            spinnerContainer.style.display = 'flex'; // コンテナの表示を変更
+            spinnerContainer.style.display = 'flex';
           }
-        });
-      }
+        } else {
+          // フィールドが適切に入力されていない場合、Djangoの検証メッセージを表示させるために何もしない
+          // フォームのデフォルトの送信動作を妨げない
+        }
+      });
     });
   </script>
   <script src="{% static 'js/preview_ad_video.js' %}"></script>

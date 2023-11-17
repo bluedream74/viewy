@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function handleFirstTimeCampaignChange() {
     if (firstTimeCampaignCheckbox.checked) {
       // 初回限定料金の処理
-      const fixedCPM = 360;
-      const budget = 36000;
+      const fixedCPM = 0;
+      const budget = 0;
 
       document.querySelector('#id_pricing_model').value = 'CPM';
       document.querySelector('#id_target_views').value = 100000;
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // 初回限定料金のテキストを表示
       const calculatedCPMElement = document.querySelector('.checkbox-container');
-      calculatedCPMElement.insertAdjacentHTML('afterend', '<p id="discount-note" style="color: red; class="info-description">※初回限定価格として目標表示回数100,000回、<br>　CPM360円のご案内となります。</p>');
+      calculatedCPMElement.insertAdjacentHTML('afterend', '<p id="discount-note" style="color: red; class="info-description">※初回限定価格として目標表示回数100,000回、<br>　CPM式、見積金額0円のご案内となります。</p>');
       // フォーム要素を読み取り専用に設定
       targetViewsInput.readOnly = true;
       targetClicksInput.readOnly = true;

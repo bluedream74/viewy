@@ -41,11 +41,11 @@
       <div class="section-cards">
         <div class="card">
           <div class="card-text">
-            <a>ユーザー</a>
+            <a>一般情報</a>
             <span>></span>
-            <a>初めての方</a>
+            <a>運営</a>
           </div>
-          <div class="card-link"><a href="">アカウント作成</a></div>
+          <div class="card-link"><a href="">安全なサイトですか</a></div>
         </div>
         <div class="card">
           <div class="card-text">
@@ -81,46 +81,44 @@
       <div class="topic-cards">
         <div class="topic-card">
           <div class="topic-card-header">
-            <div class="topic-card-name">ユーザー</div>
+            <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='about_viewy' %}">
+              Viewyについて</a></div>
             <div><i class="fa-solid fa-user"></i></div>
           </div>
           <ul class="topic-card-list">
-            <li><a href="">初めての方</a></li>
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='about_viewy' title='use' %}">Viewyの利用方法</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='about_viewy' title='regist_login' %}">登録・ログイン</a></li>
           </ul>
         </div>
         <div class="topic-card">
           <div class="topic-card-header">
-            <div class="topic-card-name">パートナー</div>
+            <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='user' %}">ユーザー</a></div>
             <div><i class="fa-solid fa-user"></i></div>
           </div>
           <ul class="topic-card-list">
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='user' title='function' %}">各種機能</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='user' title='error' %}">閲覧時のエラー</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='user' title='campaign' %}">キャンペーン</a></li>
           </ul>
         </div>
         <div class="topic-card">
           <div class="topic-card-header">
-            <div class="topic-card-name">サービス全般</div>
+            <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='partner' %}">パートナー</a></div>
             <div><i class="fa-solid fa-user"></i></div>
           </div>
           <ul class="topic-card-list">
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='partner' title='regist' %}">パートナー登録</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='partner' title='post' %}">投稿</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='partner' title='account_page' %}">アカウントページ</a></li>
           </ul>
         </div>
         <div class="topic-card">
           <div class="topic-card-header">
-            <div class="topic-card-name">一般情報</div>
+            <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='service' %}">サービス全般</a></div>
             <div><i class="fa-solid fa-user"></i></div>
           </div>
           <ul class="topic-card-list">
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
-            <li><a href="">一般情報</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='service' title='general' %}">一般情報</a></li>
           </ul>
         </div>
       </div>

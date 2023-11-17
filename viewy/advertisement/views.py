@@ -71,29 +71,34 @@ class AdCampaignsListView(AdvertiserCheckView, TemplateView):
 
             for campaign in campaigns:
                 if campaign.status == 'running':
-                    total_fee = 0 
                     total_views = 0
                     total_clicks = 0
-                    
-                    # Updating each AdInfo's fee
+
+                    # Updating each AdInfo's values
                     for ad_info in campaign.ad_infos.all(): 
                         ad_info.update_fee()
-                        total_fee += ad_info.fee
                         total_views += ad_info.post.views_count   
                         total_clicks += ad_info.clicks_count
-                        ad_infos_to_save.append(ad_info)
 
-                    # Check if the fee or total_views_count has changed
-                    if campaign.fee != total_fee or campaign.total_views_count != total_views or campaign.total_clicks_count != total_clicks:
-                        campaign.fee = total_fee
+                        # feeの更新はfirst_timeがTrueでない場合のみ行う
+                        if not campaign.first_time:
+                            ad_infos_to_save.append(ad_info)
+
+                    # Check if total_views_count or total_clicks_count has changed
+                    if campaign.total_views_count != total_views or campaign.total_clicks_count != total_clicks:
                         campaign.total_views_count = total_views
                         campaign.total_clicks_count = total_clicks
                         campaigns_to_save.append(campaign)
 
+                    # first_timeがTrueでない場合のみ、feeを更新
+                    if not campaign.first_time:
+                        total_fee = sum(ad_info.fee for ad_info in campaign.ad_infos.all())
+                        if campaign.fee != total_fee:
+                            campaign.fee = total_fee
+
             if campaigns_to_save:
-                AdCampaigns.objects.bulk_update(campaigns_to_save, ['total_views_count', 'fee', 'total_clicks_count'])
-            
-            # Bulk update the ad_infos_to_save list if it is not empty
+                AdCampaigns.objects.bulk_update(campaigns_to_save, ['total_views_count', 'total_clicks_count', 'fee'])
+
             if ad_infos_to_save:
                 AdInfos.objects.bulk_update(ad_infos_to_save, ['fee'])
 
@@ -379,10 +384,11 @@ class CampaignFormView(AdvertiserCheckView, View):
             if 'first_time_campaign' in request.POST and not request.user.discount_applied:
                 adcampaign.pricing_model = "CPM"
                 adcampaign.target_views = 100000
-                adcampaign.budget = 36000
-                adcampaign.actual_cpc_or_cpm = Decimal(360)
+                adcampaign.budget = 0
+                adcampaign.actual_cpc_or_cpm = Decimal(0)
                 request.user.discount_applied = True
-                adcampaign.title = f"{form.cleaned_data['title']} (初回限定価格)"
+                adcampaign.title = f"{form.cleaned_data['title']} (初回無料)"
+                adcampaign.first_time = True
                 request.user.save()
 
             else:
@@ -583,9 +589,6 @@ class AdMangaCreateView(BaseAdCreateView):
             
             # 最後に、画像ファイルを保存します。
             for visual_file in image_files:
-                # ファイルが画像でない場合は、例外を発生させます
-                if not is_valid_image(visual_file):  # is_valid_image は適切な画像ファイルかどうかをチェックする関数
-                    raise Exception('Not an image!!')
                 visual = Visuals(post=post_instance)  
                 visual.visual.save(visual_file.name, visual_file, save=True)
                 print("保存されたVisualのID：", visual.id)

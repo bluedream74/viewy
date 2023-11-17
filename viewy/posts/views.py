@@ -243,7 +243,8 @@ class BasePostListView(ListView):
         .prefetch_related(
             'visuals',
             'adinfos__ad_campaign__andfeatures',
-            'adinfos__ad_campaign__andfeatures__orfeatures'
+            'adinfos__ad_campaign__andfeatures__orfeatures',
+            'videos'
         ))
 
 
@@ -266,7 +267,6 @@ class BasePostListView(ListView):
         # 結果をキャッシュに保存
         cache.set(cache_key, ad_post_ids, 3600)  # 1時間キャッシュする
         print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
-        print(posts)
         return posts
     
     def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
@@ -275,7 +275,7 @@ class BasePostListView(ListView):
         # 広告主ごとの広告数を取得
         advertisers_with_count = ad_posts.values('poster').annotate(total=Count('poster')).order_by('poster')
 
-        # 特別な広告主を識別
+        # 特別な広告主を識別(一番最初はここでアフィリエイトユーザーが取得できないから、total_advertisers == 1のときaffiliate_advertiser が None の場合の処理を書く)
         affiliate_advertiser = advertisers_with_count.filter(poster__is_affiliateadvertiser=True).order_by('poster').first()
 
         # 通常の広告主のリストを取得（特別な広告主は除く）
@@ -288,12 +288,19 @@ class BasePostListView(ListView):
         selected_advertisers_with_weights = []
         if total_advertisers <= 4:
             if total_advertisers == 1:
-                posts = list(ad_posts.filter(poster=affiliate_advertiser['poster']))
-                # 広告が存在しない場合は適切に処理
-                if not posts:
-                    # 例: 空のリストを返す、エラーメッセージを出力するなど
+
+                # affiliate_advertiser が None でないことを確認
+                if affiliate_advertiser:
+                    posts = list(ad_posts.filter(poster=affiliate_advertiser['poster']))
+
+                    # 広告が存在しない場合は適切に処理
+                    if not posts:
+                        # 例: 空のリストを返す、エラーメッセージを出力するなど
+                        return []
+                    return random.sample(posts, k=min(2, len(posts)))
+                else:
+                    # ここに affiliate_advertiser が None の場合の処理を書く
                     return []
-                return random.sample(posts, k=min(2, len(posts)))
             elif total_advertisers == 2:
                 weights = [1, 3]  # 通常広告主:特別広告主 = 1:3
             elif total_advertisers == 3:
@@ -311,9 +318,19 @@ class BasePostListView(ListView):
         if len(selected_advertisers_with_weights) >= 2:
             # リストに十分な要素がある場合は通常どおりに処理
             chosen_advertisers = random.choices(selected_advertisers_with_weights, k=2)
-            posts_to_display = [random.choice(ad_posts.filter(poster_id=advertiser_id)) for advertiser_id in chosen_advertisers]
+            # 選ばれた広告主に基づいて広告を一括でフィルタリング
+            filtered_posts = ad_posts.filter(poster_id__in=chosen_advertisers).select_related('poster').prefetch_related('visuals', 'videos')
+
+            # 選ばれた各広告主からランダムに1つの広告を選択
+            posts_to_display = []
+            for advertiser_id in chosen_advertisers:
+                # Pythonのレベルでフィルタリングしてランダム選択
+                posts_by_advertiser = list(filter(lambda post: post.poster_id == advertiser_id, filtered_posts))
+                if posts_by_advertiser:
+                    selected_post = random.choice(posts_by_advertiser)
+                    posts_to_display.append(selected_post)
         else:
-            posts_to_display =[]
+            posts_to_display = []
 
         return posts_to_display
     
@@ -603,7 +620,7 @@ class PostListView(BasePostListView):
         # 選択したIDを使って投稿を取得
         random_two_posts = (Posts.objects.filter(id__in=selected_ids)
                     .select_related('poster')
-                    .prefetch_related('visuals', 'collected_in__collection')  # 'collected_in'とその'collection'を追加
+                    .prefetch_related('visuals', 'videos', 'collected_in__collection')  # 'collected_in'とその'collection'を追加
                     .all())
 
         # 残りのフィルターとアノテーションを適用
@@ -716,9 +733,16 @@ class PostListView(BasePostListView):
             else:
                 context['unanswered_survey'] = None
             
+
+            cache_key_poster = f"is_poster_{user.id}"
+            is_poster = cache.get(cache_key_poster)
+            if is_poster is None:
+                is_poster = user.groups.filter(name='Poster').exists()
+                cache.set(cache_key_poster, is_poster, 600)  # 600 seconds = 10 minutes
+
             # 未読の通知の取得
             read_notifications = NotificationView.objects.filter(user=user).values_list('notification_id', flat=True)
-            if user.groups.filter(name='Poster').exists():
+            if is_poster:
                 unread_notifications = Notification.objects.exclude(id__in=read_notifications)
             else:
                 unread_notifications = Notification.objects.exclude(id__in=read_notifications).filter(only_partner=False)
