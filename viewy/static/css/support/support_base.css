@@ -56,7 +56,7 @@ header {
 
 .footer {
   width: 100%;
-  padding: 20px 0;
+  padding: 6px 0;
   background-color: #333;
   color: #fff;
   text-align: center;
@@ -73,12 +73,13 @@ header {
 
 .main {
   display: flex;
-  padding: 120px 128px 100px 55px;
+  padding: 120px 70px 100px 55px;
 }
 
 .accordion {
   width: 290px;
   border-right: 1px solid #e0e0e0;
+  padding-right: 44px;
 }
 
 .accordion-header {
@@ -89,20 +90,16 @@ header {
   font-weight: bold;
 }
 
-.accordion-header:after {
-  content: '▼';
+.accordion-header i {
+  font-size: 13px;
   position: absolute;
   right: 10px;
   top: 50%;
-  transform: translateY(-50%);
-}
-
-.accordion-item.active .accordion-header:after {
-  content: '▲';
+  transform: translate(36px, -5px);
 }
 
 .pretitle.active {
-  border-left: 5px solid red;
+  border-left: 2px solid red;
   padding-left: 5px; 
 }
 
@@ -131,13 +128,17 @@ header {
 .n-accordion-header {
   cursor: pointer;
   margin: 0px 0px 6px 8px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
-  color: #3c3c3c;
+  color: #424242;
+}
+
+.title {
+  padding-left: 5px;
 }
 
 .title.active {
-  border-left: 5px solid red;
+  border-left: 2px solid red;
   padding-left: 5px; 
   color: #000;
 }
@@ -148,6 +149,7 @@ header {
   font-weight: bold;
   font-size: 14px;
   margin: 0px 0px 12px 22px;
+  padding-left: 5px;
 }
 
 .subtitle.active {
@@ -155,6 +157,19 @@ header {
   padding-left: 5px; 
   color: #000;
 }
+
+
+.pretitle:hover {
+  padding: 10px;
+  border-left: 2px solid red;
+}
+/* マウスホバー時のスタイル */
+.title:hover, .subtitle:hover {
+  color: #000; /* 黒色にする */
+  border-left: 2px solid red;
+  /* padding-left: 5px; */
+}
+
 
 .n-accordion-item.active .n-accordion-content {
   display: block;
@@ -181,4 +196,18 @@ header {
   box-shadow: rgba(34, 90, 89, 0.2) 2px 4px 20px;
   font-weight: bold;
   font-size: 28px
+}
+
+
+p, h3 {
+  margin: 0;
+}
+
+h3 {
+  font-size: 1.125em;
+}
+
+.paragraph {
+  font-size: 16px;
+  font-weight: normal;
 }

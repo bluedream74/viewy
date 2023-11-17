@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const parent = header;
             parent.classList.toggle('active');
 
+            // アイコンの切り替え
+            const icon = header.querySelector('i');
+            if (parent.classList.contains('active')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+
             // アコーディオンコンテンツの表示状態をトグル
             const content = header.nextElementSibling;
             if (parent.classList.contains('active')) {

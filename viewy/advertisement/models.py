@@ -68,6 +68,7 @@ class AdCampaigns(models.Model):
     fee = models.PositiveIntegerField(default=0, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     monthly_ad_cost = models.ForeignKey(MonthlyAdCost, on_delete=models.SET_NULL, null=True, blank=True)
+    first_time = models.BooleanField(default=False)
 
     PRICING_MODEL_CHOICES = [
         ('CPC', 'CPC'),

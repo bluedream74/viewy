@@ -1,0 +1,12 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">Viewyの利用方法</div>
+<div class="sub-topics">
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='about_viewy' title='use' subtitle='viewy' %}">Viewyとは？</a></div>
+</div>
+{% endblock %}

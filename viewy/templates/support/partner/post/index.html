@@ -1,0 +1,15 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">投稿</div>
+<div class="sub-topics">
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='img' %}">画像を投稿</a></div>
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='img_error' %}">画像を投稿できない</a></div>
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='video' %}">動画を投稿</a></div>
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='partner' title='post' subtitle='video_error' %}">動画を投稿できない</a></div>
+</div>
+{% endblock %}

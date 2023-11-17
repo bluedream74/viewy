@@ -1,0 +1,13 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">各種機能</div>
+<div class="sub-topics">
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='fee' %}">キャンペーンとは何ですか</a></div>
+  <div class="sub-topic"><a href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='join' %}">どのように参加すればいいですか</a></div>
+</div>
+{% endblock %}

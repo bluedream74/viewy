@@ -72,7 +72,7 @@ class Posts(models.Model):
       db_table = 'posts'
 
     def __str__(self):
-      return self.title
+      return self.title + ':' + str(self.id)
 
     def get_url_prefix(self):
         if 'twitter' in self.url:

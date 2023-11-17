@@ -605,6 +605,8 @@ class UnapprovedAdsView(SuperUserCheck, View):
         ads = AdInfos.objects.filter(
             status='pending',
             ad_campaign__status__in=['pending', 'running']
+        ).exclude(
+            post__poster__is_affiliateadvertiser=True
         ).select_related(
             'post',
             'post__poster',
