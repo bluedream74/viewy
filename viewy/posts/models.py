@@ -832,3 +832,38 @@ class TomsTalk(models.Model):
             return 'knip'
         else:
             return 'link'
+        
+        
+# イベントの名前や達成に必要な日数など 
+class Event(models.Model):
+    name = models.CharField(max_length=100)
+    required_days = models.PositiveIntegerField()
+    month = models.PositiveIntegerField()
+    image = models.ImageField(upload_to='event_images/', null=True, blank=True)
+    description = models.TextField(null=True, blank=True)  # 説明文は任意
+
+    def __str__(self):
+        return self.name
+    
+    
+#一人一人の参加状況 
+class EventParticipation(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=[('not_started', 'Not Started'), ('participating', 'Participating'), ('completed', 'Completed')])
+    participation_days = models.PositiveIntegerField(default=0)  # 参加した日数
+
+    def __str__(self):
+        return f"{self.user.username} - {self.event.name}"
+    
+    
+# 誰が何日にログインしたか
+class EventParticipationLog(models.Model):
+    participation = models.ForeignKey(EventParticipation, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('participation', 'date')  # ユニークネス制約 同じ人が同じ日に２回記録しないように
+
+    def __str__(self):
+        return f"{self.participation.user.username} - {self.date}"

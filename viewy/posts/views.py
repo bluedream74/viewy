@@ -37,7 +37,7 @@ from accounts.models import Follows, SearchHistorys, Surveys, Notification, Free
 from advertisement.models import AdInfos, AndFeatures, AdCampaigns
 from management.models import SupportRate
 from .forms import PostForm, SearchForm, VisualForm, VideoForm, FreezeNotificationForm
-from .models import Favorites, Collection, Collect, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk, Recommends, PinnedPost
+from .models import Favorites, Collection, Collect, Posts, Report, Users, Videos, Visuals, Ads, WideAds, HotHashtags, KanjiHiraganaSet, RecommendedUser, ViewDurations, TomsTalk, Recommends, PinnedPost, EventParticipation, Event, EventParticipationLog
 
 from collections import defaultdict
 import logging
@@ -633,6 +633,18 @@ class PostListView(BasePostListView):
         unanswered_surveys = Surveys.objects.exclude(id__in=answered_surveys.values_list('id'))
 
         return unanswered_surveys.first() 
+    
+    def get_current_event(self):
+        current_month = timezone.now().month
+        try:
+            return Event.objects.get(month=current_month)
+        except Event.DoesNotExist:
+            return None
+        
+    def is_user_participating_in_event(self, user, event):
+        if event:
+            return EventParticipation.objects.filter(user=user, event=event).exists()
+        return False
 
     def get_context_data(self, **kwargs):
         
@@ -646,6 +658,53 @@ class PostListView(BasePostListView):
             # ポスト情報の取得と結合
             posts = context['posts']
             context['posts'] = self.get_combined_posts(posts, user)
+            today = timezone.now().date()
+            current_event = self.get_current_event()
+            context['current_event'] = current_event
+            user_participating = self.is_user_participating_in_event(user, current_event)
+            
+        if current_event:
+            # 参加中のイベントのみを抽出
+            participation = EventParticipation.objects.filter(
+                user=user, event=current_event, status='participating'
+            ).first()
+            
+            if participation:
+                # 今日の参加状況をチェック
+                log_exists = EventParticipationLog.objects.filter(participation=participation, date=today).exists()
+                if not log_exists:
+                    # 今日の日付を記録
+                    EventParticipationLog.objects.create(participation=participation, date=today)
+                    print(f"イベント '{current_event.name}' に {today} に参加しました。")
+
+                    # 参加日数をカウント
+                    participation_days = EventParticipationLog.objects.filter(participation=participation).count()
+                    context['participation_day'] = participation_days
+
+                    # イベント完了のチェック
+                    if participation_days >= current_event.required_days:
+                        participation.status = 'completed'
+                        participation.save()
+                        context['event_completed'] = True
+                        print(f"イベント '{current_event.name}' 完了！")
+                    else:
+                        print(f"イベント '{current_event.name}' の {participation_days} 日目達成！")
+
+            
+            # 今月開催中のイベントがあって、ユーザーが参加していない場合
+            if current_event and not user_participating:
+                context['ask_participation'] = True
+
+                # イベント情報と参加状況をコンソールに出力
+                print(f"現在のイベント: {current_event.name}")
+                print("ユーザーはまだこのイベントへ参加するかどうか決めていません。")
+            elif current_event:
+                # イベントは存在するが、ユーザーは既に参加している場合
+                print(f"現在のイベント: {current_event.name}")
+                print("ユーザーはこのイベントに既に参加するかどうか決めています。")
+            else:
+                # 開催中のイベントがない場合
+                print("現在開催中のイベントはありません。")
             
             # フォローしているユーザーがリコメンドしている投稿の取得
             context['followed_recommends_details'] = self.get_followed_recommends(user)
@@ -2154,6 +2213,25 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
     template_name = os.path.join('posts', 'my_account.html')
     login_url = '/accounts/user_login/'  # ユーザがログインしていない場合にリダイレクトされるURL。これはプロジェクトの設定に基づいて変更してください。
     
+    def get_current_event(self):
+        current_month = timezone.now().month
+        user = self.request.user
+
+        try:
+            current_event = Event.objects.get(month=current_month)
+
+            # ユーザーがイベントに「参加中」または「完了」しているかチェック
+            if EventParticipation.objects.filter(
+                user=user, event=current_event, 
+                status__in=['participating', 'completed']
+            ).exists():
+                return current_event
+            else:
+                return None
+
+        except Event.DoesNotExist:
+            return None
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -2177,6 +2255,24 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
         context['tomstalk'] = TomsTalk.objects.get(pk=selected_id) if selected_id else None
         
         context['current_dimension'] = user.dimension
+        
+        # 現在のイベントを取得
+        current_event = self.get_current_event()
+        context['current_event'] = current_event
+
+        if current_event:
+            participation = EventParticipation.objects.filter(user=user, event=current_event).first()
+            if participation:
+                participation_days = EventParticipationLog.objects.filter(participation=participation).count()
+                context['participation_days'] = participation_days
+                context['event_required_days'] = current_event.required_days
+                context['days_list'] = list(range(1, current_event.required_days + 1))
+
+                # 要求日数を達成しているかのチェック
+                if participation_days >= current_event.required_days:
+                    context['lottery_completed'] = True
+                else:
+                    context['lottery_completed'] = False
 
         return context
     
@@ -2731,3 +2827,42 @@ class TestStreamingView(TemplateView):
             context['dash_url'] = f'https://{AWS_S3_CUSTOM_DOMAIN}/{video.dash_path}'
 
         return context
+    
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class HandleEventParticipationView(View):
+
+    def post(self, request, *args, **kwargs):
+        print("POSTリクエスト受信")
+        data = json.loads(request.body)
+        user = request.user
+        event_id = data.get('eventId')
+        is_participating = data.get('participating')
+
+        print(f"ユーザー: {user}, イベントID: {event_id}, 参加状況: {is_participating}")
+
+        try:
+            event = Event.objects.get(id=event_id)
+            print(f"イベント '{event.name}' が見つかりました")
+
+            # イベント参加ステータスの更新
+            if is_participating:
+                status = 'participating'
+            else:
+                status = 'not_started'
+
+            participation, created = EventParticipation.objects.update_or_create(
+                user=user, event=event,
+                defaults={'status': status}
+            )
+
+            print(f"イベント参加状況: {'作成された' if created else '更新された'}")
+
+            return JsonResponse({'success': True})
+
+        except Event.DoesNotExist:
+            print("イベントが見つかりませんでした")
+            return JsonResponse({'success': False, 'message': 'Event not found'}, status=404)
+
+        print("リクエスト処理に失敗しました")
+        return JsonResponse({'success': False}, status=400)

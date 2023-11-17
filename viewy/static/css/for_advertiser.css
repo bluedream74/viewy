@@ -55,12 +55,12 @@ body{
 .partner80, .follower{
 
   position: absolute;
-  bottom: 80px;
+  bottom: 120px;
 }
 
 .partner80{
   left: 262px;
-  width: 260px;
+  width: 300px;
 }
 
 .follower{
@@ -459,6 +459,17 @@ hr{
   margin-right: 4px;
 }
 
+.ad-price .title{
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.favor{
+  background-color: rgb(240, 255, 255);
+}
+
 .favor .title{
   font-size: 48px;
   font-weight: bold;
@@ -580,7 +591,8 @@ hr{
   margin-top: 64px;
   padding: 32px;
   font-size: 20px;
-  background-color: #eff3f9;
+  background-color: white;
+  box-shadow: 0px 2px 4px gainsboro;
 }
 
 .summary{
@@ -779,6 +791,30 @@ hr{
   margin: 8px;
 }
 
+.wow{
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.howmany{
+  font-size: 36px;
+  margin-right: 8px;
+}
+
+.forfree{
+  font-size: 64px;
+  color: rgb(28, 232, 232);
+  margin-left: 8px;
+}
+
+.fee-menu{
+  background-color: #f4f4f4;
+  font-size: 14px;
+  margin: 36px 48px;
+  padding: 24px 36px;
+}
+
 .ss{
   text-decoration: underline;
   text-decoration-color: rgb(14, 226, 226);
@@ -863,7 +899,7 @@ hr{
 
 /* 2番目の料金表のグリッド設定 */
 .grid-container.large {
-  grid-template-columns: auto 1fr 1fr 1fr; /* 4列の設定 */
+  grid-template-columns: auto 1fr 1fr; /* 4列の設定 */
 }
 
 .main-price{
@@ -943,6 +979,10 @@ hr{
 
     position: absolute;
     bottom: 64px;
+  }
+
+  .partner80{
+    bottom: 82px;
   }
   
   .partner80{
@@ -1166,6 +1206,25 @@ hr{
   font-size: 24px;
 }
 
+.ad-price{
+  font-size: 14px;
+}
+
+.howmany{
+  font-size: 28px;
+}
+
+.wow{
+  font-size: 16px;
+}
+
+.fee-menu{
+  margin: 0px;
+  padding: 16px;
+}
+
+
+
 .favor .title{
   font-size: 32px;
   margin-bottom: 16px;
@@ -1280,6 +1339,11 @@ hr{
   padding: 12px 48px;
   position: relative;
   top: -50px;
+}
+
+.middle-button{
+  position: relative;
+  top: 0px;
 }
 
 .second-one{

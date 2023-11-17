@@ -158,6 +158,29 @@
   {% endif %}
 </div>
 
+{% if current_event %}
+    <div class="event-progress-container">
+        <div class="event-title">{{ current_event.name }}</div>
+        <div>
+          <div class="event-progress">
+            {% for day in days_list %}
+            <div class="{% if forloop.last %}last-day{% endif %} {% if day == next_day_after_participation %}next-after-completed{% endif %}">
+              <div class="day-counter">{{ day }}日目</div>
+              <div class="progress-box {% if day <= participation_days %}completed{% endif %} {% if day == next_day_after_participation %}next-after-completed{% endif %}">
+                {% if day <= participation_days %}
+                  <i class="fa-solid fa-check check"></i>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% if lottery_completed %}
+        <div>抽選参加完了</div>
+        {% endif %}
+    </div>
+{% endif %}
+
 <div class="display-setting"><i class="fa-brands fa-uncharted fa-xl mini-logo"></i>表示設定</div>
 <div class="dimension-radio-group" data-reload="false">
   <input type="radio" id="dimension-2" name="dimension" value="2" {% if current_dimension == 2.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">

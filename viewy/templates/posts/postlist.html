@@ -21,6 +21,18 @@
 {% endfor %}
 {% endif %}
 
+{% if event_completed %}
+    <div class="event-message event-completed">
+        <strong>{{ current_event.name }}</strong>
+        <div>抽選申し込み完了！</div>
+        <div>月末に結果発表！お楽しみに！</div>
+    </div>
+{% elif participation_day %}
+    <div class="event-message event-day-achieved">
+        <strong>{{ current_event.name }}</strong> <br> {{ participation_day }} 日目達成！
+    </div>
+{% endif %}
+
 {% if not user.gender %}
 <div id="firstSettingModal" class="first-setting-modal">
   <div class="first-setting-modal-content">
@@ -60,6 +72,22 @@
 {% endif %}
 
 {% if user.gender %}
+
+{% if ask_participation %}
+<div class="event-modal">
+  <div class="event-modal-content">
+    <div id="eventParticipationPopup" data-event-id="{{ current_event.id }}">
+      <div class="event-title">{{ current_event.name }}</div>
+      <div>に参加しますか？</div>
+      <img src="{{ current_event.image.url }}" alt="" class="event-img">
+      <div class="event-description">{{ current_event.description }}</div>
+      <button id="participateButton">参加する</button>
+      <button id="declineButton">参加しない</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% if unanswered_survey %}
 <div id="SurveyModal" class="survey-modal">
   <div class="survey-modal-content">
@@ -154,6 +182,25 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <script src="{% static 'js/more_posts.js' %}"></script>
 
+<script>
+$(function() {
+    // イベントメッセージのフェードイン
+    window.setTimeout(function() {
+        $(".event-message").css({
+            "top": "0px",
+            "opacity": "1"
+        });
+    }, 500); // 0.5秒後に表示
+
+    // その後、3秒後にメッセージをフェードアウト
+    window.setTimeout(function() {
+        $(".event-message").css({
+            "top": "-60px",
+            "opacity": "0"
+        });
+    }, 8500); // 合計4秒後に非表示（0.5秒表示後、3秒間表示）
+});
+</script>
 
 <script>
 $(function() {
@@ -171,6 +218,57 @@ $(function() {
         
     }, 500);  // 0.5 sec
 });
+</script>
+<script>
+document.getElementById('participateButton').addEventListener('click', function() {
+  sendDataToServer(true); // 参加する場合
+});
+
+document.getElementById('declineButton').addEventListener('click', function() {
+  sendDataToServer(false); // 参加しない場合
+});
+
+function sendDataToServer(isParticipating) {
+  var xhr = new XMLHttpRequest();
+  var url = '/posts/handle_event_participation/'; // Djangoビューへのパス
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken')); // CSRFトークンを設定
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      // 成功したときの処理
+      console.log('サーバーへの送信成功');
+      document.querySelector('.event-modal').style.opacity = '0';
+      window.location.reload(); // ページをリロード
+    }
+  };
+
+  var eventModal = document.getElementById('eventParticipationPopup');
+  var eventId = eventModal.getAttribute('data-event-id');
+
+  var data = JSON.stringify({
+    participating: isParticipating,
+    eventId: eventId // イベントID
+  });
+  xhr.send(data);
+}
+
+// CSRFトークン取得用のヘルパー関数
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 </script>
 <script>
   $(document).ready(function() {

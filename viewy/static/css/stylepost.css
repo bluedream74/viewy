@@ -373,6 +373,22 @@ label {
   pointer-events: none;
 }
 
+.event-message{
+  position: fixed;
+  top: -60px; /* 初期状態では見えない位置に設定 */
+  opacity: 0;
+  width: 350px;
+  background-color: #a90000;
+  color: white;
+  font-weight: bold;
+  padding: 16px 0px;
+  text-align: center;
+  transition: opacity 0.5s, top 0.5s; /* トランジションを追加 */
+  z-index: 1000; /* 必要に応じてz-indexを設定 */
+}
+
+
+
 @keyframes fadeOutAndScale {
   0% {
     transform: scale(1);
@@ -1222,6 +1238,76 @@ label {
   background-color: rgb(255, 255, 255);
 }
 
+.event-modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1001;
+  /* 前のモーダルより上に表示 */
+  opacity: 0;
+  animation: surveyFadeIn 0.5s forwards;
+}
+
+.event-modal-content{
+  position: absolute;
+  top: 50%;
+  /* 位置を調整 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 290px;
+  /* 幅を調整 */
+  animation: surveySlideUp 1s forwards;
+  padding: 32px 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: rgb(69, 69, 69);
+}
+
+.event-title{
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.event-img{
+  width: 100%;
+  margin: 8px auto;
+  border-radius: 8px;
+}
+
+.event-modal button{
+  display: inline-block;
+  padding: 8px 32px;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0px 2px 4px gainsboro;
+  font-weight: bold;
+  background-color: #34d5db;
+  color: white;
+  margin-top: 16px;
+  font-size: 15px;
+}
+
+.event-modal button:hover{
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+#declineButton{
+  background-color: gainsboro;
+  color: #696969;
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+.event-description{
+  font-size: 13px;
+  text-align: left;
+}
 
 @keyframes surveyFadeIn {
   from {

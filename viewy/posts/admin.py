@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-  Posts, Visuals, Videos, Favorites, Recommends, Collection, Collect, Report, Ads, KanjiHiraganaSet, WideAds, ViewDurations, TomsTalk, PinnedPost
+  Posts, Visuals, Videos, Favorites, Recommends, Collection, Collect, Report, Ads, KanjiHiraganaSet, WideAds, ViewDurations, TomsTalk, PinnedPost, Event, EventParticipation, EventParticipationLog
 )
 
 class PostsAdmin(admin.ModelAdmin):
@@ -9,5 +9,5 @@ class PostsAdmin(admin.ModelAdmin):
 admin.site.register(Posts, PostsAdmin)
 
 admin.site.register(
-  [Visuals, Videos, Favorites, Recommends, Collection, Collect, Report, Ads, KanjiHiraganaSet, WideAds, ViewDurations, TomsTalk, PinnedPost]
+  [Visuals, Videos, Favorites, Recommends, Collection, Collect, Report, Ads, KanjiHiraganaSet, WideAds, ViewDurations, TomsTalk, PinnedPost, Event, EventParticipation, EventParticipationLog]
 )

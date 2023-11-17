@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var ua = navigator.userAgent.toLowerCase();
   var isiOS = /iphone|ipad|ipod/.test(ua);
   var isAndroid = /android/.test(ua);
+  var isXperia = /xperia/.test(ua); // Xperia端末のチェック
 
   function setupVideo(video) {
     var index = Array.from(document.querySelectorAll('.video-player')).indexOf(video) + 1;
@@ -10,8 +11,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var dashUrl = video.dataset.dashUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.dashUrl : null;
     var mp4Url = video.dataset.videoUrl; // MP4のURLを直接取得
 
-    // HLSの対応をチェック
-    if (hlsUrl && (isiOS || isAndroid)) {
+    // エクスペリアの場合にMP4を優先する
+    if (isXperia && mp4Url) {
+      video.src = mp4Url;
+      video.addEventListener('loadedmetadata', function() {
+        console.log('Metadata loaded for MP4 (Xperia):', index);
+      });
+    } else if (hlsUrl && (isiOS || isAndroid)) {
       if (Hls.isSupported()) {
         var hls = new Hls({
           maxMaxBufferLength: 2
