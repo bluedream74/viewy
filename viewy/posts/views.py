@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import serializers
+from django.core.serializers import serialize, deserialize
 from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField, Subquery
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -150,13 +151,13 @@ class BasePostListView(ListView):
 
     def get_advertiser_posts(self, user, count=1):
         cache_key = f"advertiser_posts_for_user_{user.id}"
-        cached_post_ids = cache.get(cache_key)
+        cached_query = cache.get(cache_key)
 
-        if cached_post_ids:
+        if cached_query:
             print(f"Cache HIT for user {user.id}")  # キャッシュがヒットした場合にログを表示
-            return Posts.objects.filter(id__in=cached_post_ids)
+            return cached_query
         else:
-            print(f"Cache MISS for user {user.id}")  # キャッシュがミスした場合にログを表示
+            print(f"Cache MISS advertiser_posts for user {user.id}")  # キャッシュがミスした場合にログを表示
         
         user_features = set(user.features.all())
         advertiser_users = self.get_advertiser_users()
@@ -193,19 +194,23 @@ class BasePostListView(ListView):
         # 全キャンペーンのIDリストを取得
         campaign_ids = matching_adcampaigns.values_list('id', flat=True)
 
-        # 各キャンペーンに関連する広告情報から、表示回数の合計を集計
-        aggregated_views = AdInfos.objects.filter(ad_campaign_id__in=campaign_ids).values('ad_campaign').annotate(total_views=Sum('post__views_count'))
-        views_dict = {item['ad_campaign']: item['total_views'] for item in aggregated_views}
-
-        # 各キャンペーンに関連する広告情報から、クリック数の合計を集計
-        aggregated_clicks = AdInfos.objects.filter(ad_campaign_id__in=campaign_ids).values('ad_campaign_id').annotate(total_clicks=Sum('clicks_count'))
-        clicks_dict = {item['ad_campaign_id']: item['total_clicks'] for item in aggregated_clicks}
+        # 各キャンペーンに関連する広告情報から、表示回数とクリック数の合計を集計
+        aggregated_data = AdInfos.objects.filter(ad_campaign_id__in=campaign_ids).values(
+            'ad_campaign_id'
+        ).annotate(
+            total_views=Sum('post__views_count'),
+            total_clicks=Sum('clicks_count')
+        )
+        aggregated_dict = {item['ad_campaign_id']: item for item in aggregated_data}
 
         to_update = []
         for campaign in matching_adcampaigns:
             # 合計表示回数と合計クリック回数を更新
-            campaign.total_views_count = views_dict.get(campaign.id, 0)
-            campaign.total_clicks_count = clicks_dict.get(campaign.id, 0)
+            aggregated = aggregated_dict.get(campaign.id, {'total_views': 0, 'total_clicks': 0})
+
+            # 合計表示回数と合計クリック回数を更新
+            campaign.total_views_count = aggregated['total_views']
+            campaign.total_clicks_count = aggregated['total_clicks']
 
             # 状態がRunningでなければRunningに設定する
             if campaign.status != 'running':
@@ -242,50 +247,39 @@ class BasePostListView(ListView):
         .select_related('poster', 'adinfos__post', 'adinfos__ad_campaign')
         .prefetch_related(
             'visuals',
+            'videos',
             'adinfos__ad_campaign__andfeatures',
-            'adinfos__ad_campaign__andfeatures__orfeatures',
-            'videos'
+            'adinfos__ad_campaign__andfeatures__orfeatures'
         ))
 
 
-        # 適切な広告をランダムに取得
-        posts = ad_posts
-        # 以下のコードは以前のものを変更せずにそのまま使用します。
-        ad_post_ids = [post.id for post in posts]
-        favorited_ads = Favorites.objects.filter(user=user, post_id__in=ad_post_ids).values_list('post', flat=True)
-        favorited_ads_set = set(favorited_ads)
+        # キャッシュに保存
+        cache.set(cache_key, ad_posts, 3600)
+        cache.delete(f'advertisers_weights_{user.id}')
+        print(f"Cache SET ad_posts for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
+            # 関連するキャッシュの削除
+        return ad_posts
 
-        followed_ad_posters_ids = [post.poster.id for post in posts]
-        followed_ad_posters_set = self.get_followed_posters_set(user, followed_ad_posters_ids)
 
-        for post in posts:
-            post.favorited_by_user = post.id in favorited_ads_set
-            post.followed_by_user = post.poster.id in followed_ad_posters_set
-        
-        ad_post_ids = [post.id for post in posts]
-        
-        # 結果をキャッシュに保存
-        cache.set(cache_key, ad_post_ids, 3600)  # 1時間キャッシュする
-        print(f"Cache SET for user {user.id}")  # キャッシュにデータをセットした場合にログを表示
-        return posts
-    
-    def get_random_ad_posts(self, user): #二つの広告を取得するメソッド
-        # キャッシュから全ての広告を取得
-        ad_posts = self.get_advertiser_posts(user)
-        # 広告主ごとの広告数を取得
+    def get_advertisers_with_weights(self, user, ad_posts):
+        # キャッシュキーを設定
+        cache_key = f'advertisers_weights_{user.id}'
+
+        # キャッシュからデータを取得
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return cached_data
+
+        # キャッシュにデータがない場合、処理を実行
         advertisers_with_count = ad_posts.values('poster').annotate(total=Count('poster')).order_by('poster')
-
-        # 特別な広告主を識別(一番最初はここでアフィリエイトユーザーが取得できないから、total_advertisers == 1のときaffiliate_advertiser が None の場合の処理を書く)
         affiliate_advertiser = advertisers_with_count.filter(poster__is_affiliateadvertiser=True).order_by('poster').first()
-
-        # 通常の広告主のリストを取得（特別な広告主は除く）
         regular_advertisers = advertisers_with_count.filter(poster__is_affiliateadvertiser=False)
-        
+
         # 広告主の総数
         total_advertisers = regular_advertisers.count() + (1 if affiliate_advertiser else 0)
-        
-        # 重みづけたランダム選択のためのリストと重みを設定
         selected_advertisers_with_weights = []
+
+        # 広告主と重みの計算
         if total_advertisers <= 4:
             if total_advertisers == 1:
 
@@ -315,17 +309,25 @@ class BasePostListView(ListView):
             # 5以上の場合、全ての広告主が等しい確率で選ばれる
             selected_advertisers_with_weights = [advertiser['poster'] for advertiser in regular_advertisers]
 
+        # 結果をキャッシュに保存 (有効期間は3600秒)
+        cache.set(cache_key, selected_advertisers_with_weights, 3600)
+        return selected_advertisers_with_weights
+    
+    def get_random_ad_posts(self, user): #二つの広告を取得する
+        ad_posts = self.get_advertiser_posts(user)
+        selected_advertisers_with_weights = self.get_advertisers_with_weights(user, ad_posts)
+
         if len(selected_advertisers_with_weights) >= 2:
             # リストに十分な要素がある場合は通常どおりに処理
             chosen_advertisers = random.choices(selected_advertisers_with_weights, k=2)
             # 選ばれた広告主に基づいて広告を一括でフィルタリング
-            filtered_posts = ad_posts.filter(poster_id__in=chosen_advertisers).select_related('poster').prefetch_related('visuals', 'videos')
+            filtered_posts = [post for post in ad_posts if post.poster_id in chosen_advertisers]
 
             # 選ばれた各広告主からランダムに1つの広告を選択
             posts_to_display = []
             for advertiser_id in chosen_advertisers:
                 # Pythonのレベルでフィルタリングしてランダム選択
-                posts_by_advertiser = list(filter(lambda post: post.poster_id == advertiser_id, filtered_posts))
+                posts_by_advertiser = [post for post in filtered_posts if post.poster_id == advertiser_id]
                 if posts_by_advertiser:
                     selected_post = random.choice(posts_by_advertiser)
                     posts_to_display.append(selected_post)
@@ -436,29 +438,6 @@ class BasePostListView(ListView):
         # ポスト情報の取得
         posts = context.get('object_list', [])
         context['posts'] = posts
-        
-        # 全てのpost_idを取得
-        if isinstance(posts, QuerySet):
-            # posts はクエリセットの場合
-            post_ids = list(posts.values_list('id', flat=True))
-        else:
-            # posts はリスト（またはクエリセットでない何か）の場合
-            post_ids = [post.id for post in posts]
-        
-        # collected_inの情報を取得
-
-        collections_for_posts = Collect.objects.filter(post__id__in=post_ids).values_list('post_id', 'collection_id')
-        
-        # post_idをキーにしたcollection_idのリストを生成
-        collections_map = {}
-        for post_id, collection_id in collections_for_posts:
-            collections_map.setdefault(post_id, []).append(collection_id)
-        
-        # already_added_collectionsの生成
-        already_added_collections = set()
-        for post_id, collection_ids in collections_map.items():
-            already_added_collections.update(collection_ids)
-        context['already_added_collections'] = list(already_added_collections)
 
         return context
     
@@ -2376,8 +2355,11 @@ class HotHashtagView(TemplateView):
             reports = Report.objects.filter(reporter=self.request.user, post=OuterRef('pk'))
             posts = posts.annotate(reported_by_user=Exists(reports))
 
-        # ハッシュタグに基づいて投稿を整理
-        # Use a dictionary to keep track of posts by their hashtags
+         # 現在の日時を取得
+        now = timezone.now()
+        # 予約投稿を除外
+        posts = posts.exclude(scheduled_post_time__gt=now, scheduled_post_time__isnull=False)
+
         # ハッシュタグに基づいて投稿を整理
         posts_by_hashtag = defaultdict(list)
         for post in posts:
@@ -2440,7 +2422,11 @@ class AutoCorrectView(View):
                                 .annotate(total_search_count=Sum('search_count')))
 
             # Pythonでソートとフィルタリング
-            top_searched = sorted(top_searched, key=lambda x: (-x['total_search_count'], x['query']))[:5]
+            top_searched = sorted(top_searched, key=lambda x: (-x['total_search_count'], x['query']))[:20]
+
+            # ランダムに5個選択
+            if len(top_searched) > 5:
+                top_searched = random.sample(top_searched, 5)
 
             data = [{"type": "hashtag", "value": record['query']} for record in top_searched]
             return JsonResponse(data, safe=False)
