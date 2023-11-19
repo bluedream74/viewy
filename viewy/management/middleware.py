@@ -8,7 +8,6 @@ class MaintenanceModeMiddleware:
 
     def __call__(self, request):
         maintenance_mode = os.environ.get('MAINTENANCE_MODE', 'off')
-        allowed_user_ids = [1]  # ここに許可するユーザーIDをリストとして記述
 
         # 静的ファイルとメディアファイルへのリクエストは除外
         if request.path.startswith(settings.STATIC_URL) or request.path.startswith(settings.MEDIA_URL):
@@ -19,7 +18,7 @@ class MaintenanceModeMiddleware:
             return self.get_response(request)
 
         # 特定のユーザーIDの場合はメンテナンスページをバイパス
-        if request.user.is_authenticated and request.user.id in allowed_user_ids:
+        if request.user.is_authenticated and request.user.is_superuser:
             return self.get_response(request)
 
         if maintenance_mode == 'on':
