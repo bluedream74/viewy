@@ -14,6 +14,10 @@ body {
   min-height: 600px;
 }
 
+.screen.android {
+  scroll-behavior: smooth;
+}
+
 .post {
   height: 560px;
   width: 350px;
@@ -22,6 +26,10 @@ body {
   position: relative;
   overflow: hidden;
   outline: none;
+}
+
+.screen.android .post {
+  scroll-snap-stop: always;
 }
 
 /* ボトムスペース */
@@ -175,6 +183,7 @@ input[type=range]::-webkit-slider-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
+  scroll-snap-stop: always;
 }
 
 .page-content {

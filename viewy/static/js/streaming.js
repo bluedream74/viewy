@@ -2,22 +2,14 @@ document.addEventListener('DOMContentLoaded', function() {
   var AWS_S3_CUSTOM_DOMAIN = 'https://d26kmcll34ldze.cloudfront.net/';
   var ua = navigator.userAgent.toLowerCase();
   var isiOS = /iphone|ipad|ipod/.test(ua);
-  var isAndroid = /android/.test(ua);
-  var isXperia = /xperia/.test(ua); // Xperia端末のチェック
 
   function setupVideo(video) {
     var index = Array.from(document.querySelectorAll('.video-player')).indexOf(video) + 1;
     var hlsUrl = video.dataset.hlsUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.hlsUrl : null;
     var dashUrl = video.dataset.dashUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.dashUrl : null;
-    var mp4Url = video.dataset.videoUrl; // MP4のURLを直接取得
 
-    // エクスペリアの場合にMP4を優先する
-    if (isXperia && mp4Url) {
-      video.src = mp4Url;
-      video.addEventListener('loadedmetadata', function() {
-        console.log('Metadata loaded for MP4 (Xperia):', index);
-      });
-    } else if (hlsUrl && (isiOS || isAndroid)) {
+    // iOSデバイスでHLSを試みる
+    if (isiOS && hlsUrl) {
       if (Hls.isSupported()) {
         var hls = new Hls({
           maxMaxBufferLength: 2
@@ -26,16 +18,14 @@ document.addEventListener('DOMContentLoaded', function() {
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
           console.log('HLS manifest parsed, playing video:', index);
-          // HLSで再生を開始しないように削除
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = hlsUrl;
-        // 再生を開始しないようにイベントリスナー内のplay()呼び出しを削除
         video.addEventListener('loadedmetadata', function() {
           console.log('Metadata loaded for HLS:', index);
         });
       }
-    // DASHの対応をチェック
+    // それ以外のデバイスでDASHを試みる
     } else if (dashUrl) {
       var player = dashjs.MediaPlayer().create();
       player.initialize(video, dashUrl, false);
@@ -46,14 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
       });
-      // DASHで再生を開始しないように削除
-    // MP4の対応をチェック
-    } else if (mp4Url) {
-      video.src = mp4Url;
-      // 再生を開始しないようにイベントリスナー内のplay()呼び出しを削除
-      video.addEventListener('loadedmetadata', function() {
-        console.log('Metadata loaded for MP4:', index);
-      });
+      console.log('DASH initialized, playing video:', index);
     }
   }
 
