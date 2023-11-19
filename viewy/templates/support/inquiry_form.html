@@ -1,0 +1,32 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">お問い合わせ</div>
+<div class="sub-topics">
+  <form method="post">
+    {% csrf_token %}
+    {{ base_form.as_p }}
+    <div id="normalForm" style="display: none;">
+      {{ normal_form.as_p }}
+    </div>
+    <div id="corporateForm" style="display: none;">
+      {{ corporate_form.as_p }}
+    </div>
+    <button type="submit">送信</button>
+  </form>
+</div>
+<script>
+  function toggleFormDisplay() {
+      var inquiryType = document.querySelector('input[name="inquiry_type"]:checked').value;
+      document.getElementById('normalForm').style.display = inquiryType === 'normal' ? 'block' : 'none';
+      document.getElementById('corporateForm').style.display = inquiryType === 'corporate' ? 'block' : 'none';
+  }
+  document.querySelectorAll('input[name="inquiry_type"]').forEach(function(input) {
+      input.addEventListener('change', toggleFormDisplay);
+  });
+</script>
+{% endblock %}

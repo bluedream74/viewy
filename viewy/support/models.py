@@ -1,3 +1,31 @@
 from django.db import models
 
-# Create your models here.
+class BaseInquiry(models.Model):
+    INQUIRY_CHOICES = (
+        ('copyright', '著作権者様のみ'),
+        ('corporate', '法人様からの問い合わせ・取材申し込み等'),
+        # 他に必要な選択肢を追加
+    )
+
+    name = models.CharField(max_length=100, verbose_name="氏名")
+    email = models.EmailField(verbose_name="メールアドレス")
+    inquiry_type = models.CharField(max_length=100, choices=INQUIRY_CHOICES, verbose_name="お問い合わせ種類")
+
+    class Meta:
+        abstract = True  # これは抽象モデルです
+
+
+class NormalInquiry(BaseInquiry):
+    subject = models.CharField(max_length=200, verbose_name="件名")
+    occurrence_date = models.DateTimeField(verbose_name="お問い合わせ事項発生日時")
+    occurrence_url = models.URLField(verbose_name="お問い合わせ事項発生URL")
+    device = models.CharField(max_length=100, verbose_name="機種")
+    browser = models.CharField(max_length=100, verbose_name="ブラウザ")
+    content = models.TextField(verbose_name="お問い合わせ内容")
+
+
+class CorporateInquiry(models.Model):
+    company_name = models.CharField(max_length=100, verbose_name="会社名")
+    department_name = models.CharField(max_length=100, blank=True, verbose_name="所属部署名")
+    subject = models.CharField(max_length=200, verbose_name="件名")
+    content = models.TextField(verbose_name="お問い合わせ内容")
