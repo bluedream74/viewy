@@ -8,6 +8,7 @@ body {
   /* スクロールコンテナーの高さを指定 */
   overflow-y: scroll;
   /* 縦スクロールを許可 */
+  scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
   /* 縦方向にスナップするように設定 */
   -webkit-overflow-scrolling: touch; /* 慣性スクロールを有効にする */
@@ -19,6 +20,7 @@ body {
   width: 350px;
   scroll-snap-align: start;
   /* 要素の上端をスナップ位置にする */
+  scroll-snap-stop: always;
   position: relative;
   overflow: hidden;
   outline: none;
@@ -175,6 +177,7 @@ input[type=range]::-webkit-slider-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
+  scroll-snap-stop: always;
 }
 
 .page-content {
