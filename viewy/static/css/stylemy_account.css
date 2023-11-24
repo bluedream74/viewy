@@ -1,8 +1,10 @@
+
 .header{
   width: 100%;
   border-radius: 8px 8px 0px 0px;
   height: 80px;
   margin-bottom: 24px;
+  position: relative;
 }
 
 .screen{
@@ -173,6 +175,21 @@ a{
   animation: ViewyblinkAnimation 5s infinite; 
 }
 
+.share{
+  position: absolute;
+  top: 76px;
+  right: 12px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+}
+
+.sharebyline{
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.648);
+  margin-right: 4px;
+}
+
 .caption{
   width: 80%;
   margin-left: auto;
@@ -287,88 +304,153 @@ a{
   border-radius: 50%;
 }
 
-.event-progress-container{
-  margin: 8px 16px;
-  padding: 8px 16px;
-  background-color: white;
-  /* border-radius: 8px; */
-  text-align: center;
+.daily-event-modal{
+  width: 350px;
+  margin: 0px auto;
+  position: relative;
+  margin-top: 8px;
+  transition: opacity 0.5s, top 0.8s; /* トランジションを追加 */
 }
 
-.event-title{
-  font-size: 14px;
-  font-weight: bold;
+.daily-event-modal-img{
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  width: 80%;
+  margin: 0px auto;
 }
 
-.event-progress{
+.daily-event-modal-message{
+  position: absolute;
+  font-size: 13px;
+  bottom: 15px;
+  left: 50%;
+  transform: translate(-50%, 0%);
+}
+
+.progress-container {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  margin: 8px;
 }
 
-.day-counter{
-  font-size: 11px;
-  text-align: center;
-  margin-bottom: 4px;
+.day-container {
+  display: flex;
+  align-items: center;
 }
 
-.progress-box{
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid rgb(255, 161, 54);
-  font-size: 12px;
-  color: gray;
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #ead200;
   background-color: white;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
   box-shadow: 0px 2px 4px gainsboro;
   position: relative;
+  z-index: 21;
 }
 
-.check{
+.last-circle{
+  width: 60px;
+  height: 60px;
+}
+
+.day{
+  margin: 2px auto;
+  color: #525252;
+  text-align: center;
+  font-size: 10px;
+}
+
+.completed {
   color: white;
-  font-size: 18px;
 }
 
-@keyframes GoldblinkAnimation {
-  0%, 100% {background-color: rgb(255, 161, 54); border: rgb(255, 161, 54);}
-  50% {background-color: rgb(255, 81, 0); border: rgb(255, 81, 0);}
+@keyframes fillAndBounce {
+  0% {
+      background-color: white;
+      transform: scale(1); /* 初期状態 */
+  }
+  50% {
+      transform: scale(1.35); /* 拡大 */
+  }
+  100% {
+      background-color: #ead200;
+      transform: scale(1); /* 元のサイズに戻る */
+  }
 }
 
-.progress-box.completed{
-  background-color: rgb(255, 161, 54);
-  border: 1px solid rgb(255, 161, 54);
-  animation: GoldblinkAnimation 5s infinite; 
+.animated-fill-bounce {
+  animation: fillAndBounce 0.5s forwards;
 }
 
-.progress-box.completed::after {
-  content: ''; /* 疑似要素を生成 */
+@keyframes dashToSolid {
+  0% { border-bottom-style: dashed; }
+  100% { border-bottom-style: solid; }
+}
+
+.dash-to-solid {
+  animation: dashToSolid 0.5s forwards; /* アニメーションの持続時間 */
+}
+
+@keyframes smallRotate {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.small-rotate {
+  animation: smallRotate 0.3s 6 alternate; /* 合計3秒間（0.3秒×10回） */
+}
+
+.dotted-line {
+  border-bottom: 2px dashed #b7b7b7;
+  width: 30px; /* 破線の長さ */
+  margin-bottom: 14px;
+  opacity: 0.7;
+  z-index: 20;
+}
+
+@keyframes dashToSolid {
+  from { 
+      border-bottom: 2px dashed #b7b7b7;
+      opacity: 0.7;
+  }
+  to { 
+      border-bottom: 2px solid #ead200;
+      opacity: 1;
+  }
+}
+
+.dash-to-solid {
+  animation: dashToSolid 1s forwards; /* アニメーションの持続時間 */
+}
+
+.gift-chance{
   position: absolute;
-  top: 50%; /* 縦方向の中心に合わせる */
-  right: -20px; /* 右側へのオフセット */
-  height: 2px; /* 線の太さ */
-  width: 20px; /* 線の長さ */
-  background-color: rgb(255, 161, 54); /* 線の色 */
-  transform: translateY(-50%); /* 線を垂直方向の中心に合わせる */
-}
-
-.last-day .check{
-  font-size: 24px;
-}
-
-.last-day .progress-box{
-  width: 40px;
-  height: 40px;
-  /* border: 2px solid #a90000; */
-}
-
-.last-day .day-counter{
-  font-size: 13px;
-  color: rgb(255, 161, 54);
+  width: max-content;
+  top: -3px;
+  margin: 0px auto;
+  font-size: 10px;
   font-weight: bold;
+  color: white;
+  padding: 0px 4px;
+  border-radius: 50px;
+  background-color: #ead200;
+  z-index: 98;
+}
+
+.event-gift{
+  width: 45px;
+  z-index: 99;
+}
+
+.event-description{
+  color: rgb(233, 233, 233);
+  font-size: 10px;
+  width: 280px;
+  margin: 0px auto;
 }
 
 /* .space{
@@ -563,6 +645,8 @@ input[type="radio"] {
   .add-link{
     margin-top: 4px;
   }
+
+
 }
 
 

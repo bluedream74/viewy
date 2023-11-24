@@ -14,7 +14,7 @@ body{
   min-width: 180px;
   min-height: 400px;
   background-color: rgb(32, 41, 43);
-  padding-top: 100px;
+  padding-top: 36px;
   padding-bottom: 120px;
   color: white;
   box-shadow: 1px 2px 3px gray;
@@ -23,9 +23,8 @@ body{
 .side-menu > a{
   display: block;
   text-decoration: none;
-  height: 40px;
+  padding: 7px 0px;
   padding-left: 12%;
-  line-height: 40px;
   font-weight: bold ;
   color: white;
 }
@@ -301,6 +300,12 @@ p > input{
   .content{
     min-height: 100vh;
     margin: 0px;
+    padding: 0px;
+  }
+
+  .content0{
+    max-height: calc(100vh - 64px);
+    overflow: scroll;
     padding: 0px;
   }
 

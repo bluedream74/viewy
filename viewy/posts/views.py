@@ -676,6 +676,7 @@ class PostListView(BasePostListView):
                     # 参加日数をカウント
                     participation_days = EventParticipationLog.objects.filter(participation=participation).count()
                     context['participation_day'] = participation_days
+                    context['event_days_range'] = range(1, current_event.required_days + 1)
 
                     # イベント完了のチェック
                     if participation_days >= current_event.required_days:
@@ -2264,18 +2265,22 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
         context['current_event'] = current_event
 
         if current_event:
-            participation = EventParticipation.objects.filter(user=user, event=current_event).first()
-            if participation:
-                participation_days = EventParticipationLog.objects.filter(participation=participation).count()
-                context['participation_days'] = participation_days
-                context['event_required_days'] = current_event.required_days
-                context['days_list'] = list(range(1, current_event.required_days + 1))
+            # 参加中または完了したイベントを抽出
+            participation = EventParticipation.objects.filter(
+                user=user, event=current_event, 
+                status__in=['participating', 'completed']
+            ).first()
 
-                # 要求日数を達成しているかのチェック
-                if participation_days >= current_event.required_days:
-                    context['lottery_completed'] = True
-                else:
-                    context['lottery_completed'] = False
+            if participation:
+                # 参加日数をカウント
+                participation_days = EventParticipationLog.objects.filter(participation=participation).count()
+                context['participation_day'] = participation_days  # テンプレート内の変数名に合わせる
+
+                # イベント完了のチェック
+                context['event_completed'] = participation_days >= current_event.required_days
+
+            # イベントの日数範囲を設定
+            context['event_days_range'] = range(1, current_event.required_days + 1)
 
         return context
     
@@ -2391,6 +2396,18 @@ class HotHashtagView(TemplateView):
         ).all()
         recommended_users = [entry.user for entry in recommended_user_entries]
         context['recommended_users'] = recommended_users
+        
+        # スペシャルサポーターとして広告主でありアフィリエイターでないユーザーのトプ画と名前だけを取ってくる
+        advertisers = Users.objects.filter(
+            is_advertiser=True, 
+            is_affiliateadvertiser=False
+        ).only(
+            'displayname', 
+            'prf_img'
+        )
+
+        # Adding advertisers to the context
+        context['advertisers'] = advertisers
             
         context['posts_by_hashtag'] = ordered_posts_by_hashtag
         context['form'] = SearchForm()

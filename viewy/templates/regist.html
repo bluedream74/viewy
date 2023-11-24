@@ -22,7 +22,10 @@
 <div class="mid-logo" >
   <img src="{{ MEDIA_URL }}others/Viewy-full-logo-aqua.png" alt="">
 </div>
-<div class="sub-title">ユーザー登録</div>
+<div class="sub-title">アカウント作成</div>
+<div class="describe">また一人、<br>
+究極のオカズを求める戦士が ここに生まれる...。
+</div>
 <form method="POST">
   {% csrf_token %}
   <div class="form">
@@ -84,8 +87,8 @@
 </form>
 
 <div class="guide">
-  ユーザー登録が済んでいる方は
-  <div><a href="{% url 'accounts:user_login'%}">ログイン</a></div>
+  既にアカウントを持っている方は
+  <div><a href="{% url 'accounts:user_login'%}" style="font-weight: bold;">ログイン</a></div>
 </div>
 
 <div class="spinner-container" id="spinner" style="display: none;">

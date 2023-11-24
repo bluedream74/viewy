@@ -146,7 +146,7 @@ class Posts(models.Model):
 
     def stay_rate_point(self):
         """滞在率に基づいた評価ポイントを算出するメソッド"""
-        point = self.stay_rate() * (1 + self.content_length / 15)
+        point = self.stay_rate() * (1 + self.content_length / 10)  # 長いコンテンツをどれだけ評価するかがここで決まる(15→10に変更した)
         print(f"滞在ポイント: {point}")
         return point
 
@@ -188,7 +188,8 @@ class Posts(models.Model):
         
     def update_qp_if_necessary(self):
         """視聴回数に基づき、必要に応じてQPを更新するメソッド"""
-        if self.views_count <= 10000 or (self.views_count > 10000 and self.views_count % 30 == 0) or self.views_count == 20000:
+        # 現状２千回再生行くまでは毎回QPを計算し、以降は30回ごとに計算するようにしている。
+        if self.views_count <= 2000 or (self.views_count > 2000 and self.views_count % 30 == 0) or self.views_count == 2000:
             # print(f"Updating QP for view count: {self.views_count}")
             self.calculate_qp()
     

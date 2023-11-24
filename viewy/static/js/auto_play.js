@@ -19,9 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const videoObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
+      if (entry.isIntersecting) {  
         entry.target.play().catch(error => {
           console.error('Video play failed:', error);
+        }).then(() => {
+          // ビデオの再生が開始された0.2秒後にvisibleにする
+          setTimeout(() => {
+            entry.target.style.visibility = 'visible';
+          }, 500); // これによって再生時に一瞬ガクつくのを見せないようにする(それでもたまになるときはある)
         });
       } else {
         entry.target.pause();

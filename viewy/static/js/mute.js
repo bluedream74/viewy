@@ -5,14 +5,14 @@ $(document).ready(function() {
 
   let pressStartTime;
 
-  $(document.body).on("mousedown", ".post video", function(event) {
+  $(document.body).on("mousedown", ".post video, .scroll-tab", function(event) {
     // .tab-bar や .side-bar でのクリックを無視
     if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay .notification-modal .survey-modal .freeze-notification-modal, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
 
     pressStartTime = new Date().getTime();
   });
 
-  $(document.body).on("mouseup", ".post video", function(event) {
+  $(document.body).on("mouseup", ".post video, .scroll-tab", function(event) {
     // .tab-bar や .side-bar でのクリックを無視
     if ($(event.target).closest('.tab-bar, .side-bar, .hide, .modal, .modal-overlay .notification-modal .survey-modal .freeze-notification-modal, .content, .book, .scheduled_post_time, .recommend-tag').length) return;
 

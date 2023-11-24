@@ -52,6 +52,10 @@
   background-image: linear-gradient(to right bottom, rgb(52, 255, 208), rgb(0, 205, 232));
 }
 
+.line{
+  background-color: rgb(10, 198, 10);
+}
+
 .option-info{
   color: white;
   padding: 12px 16px;

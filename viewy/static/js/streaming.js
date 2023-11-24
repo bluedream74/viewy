@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var isiOS = /iphone|ipad|ipod/.test(ua);
 
   function setupVideo(video) {
+    // videoタグのdata-setの中からそれぞれのマニフェストファイルのパスを取得し、ドメイン等と繋げる
     var index = Array.from(document.querySelectorAll('.video-player')).indexOf(video) + 1;
     var hlsUrl = video.dataset.hlsUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.hlsUrl : null;
     var dashUrl = video.dataset.dashUrl ? AWS_S3_CUSTOM_DOMAIN + video.dataset.dashUrl : null;

@@ -74,10 +74,10 @@
 
 <div id="loginModal" class="login-modal">
   <div class="login-modal-content">
-      <span class="close-btn">&times;</span>
-      <div class="login-title">Viewyにログインしよう</div>
-      <div class="login-content">ログインすれば無料で全投稿が見放題！<br>気に入ったらいいねとフォローで保存しよう！</div>
-      <a href="{% url 'accounts:user_login' %}?next={{ request.get_full_path }}" class="login-btn">ログイン</a>
+      <span class="close-btn" style="opacity: 0;">&times;</span>
+      <div class="login-title">Viewyのアカウントを作ろう</div>
+      <div class="login-content">アカウント作成で全投稿が見放題に！<br>もちろん、完全無料です。</div>
+      <a href="{% url 'accounts:regist' %}?next={{ request.get_full_path }}" class="login-btn">アカウント作成</a>
   </div>
 </div>
 

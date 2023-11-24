@@ -3,6 +3,15 @@ body {
   touch-action: manipulation;
 }
 
+.active-monitor{
+  position: fixed;
+  top: 10px;
+  background-color: white;
+  padding: 16px;
+  font-weight: bold;
+  z-index: 1000;
+}
+
 .screen {
   height: 100vh;
   /* スクロールコンテナーの高さを指定 */
@@ -245,6 +254,56 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .horizontal-slide-icon.show-icon {
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  /* ベジェ曲線を使って滑らかに */
+  animation-name: fade-out;
+  /* アニメーション名を指定 */
+  animation-duration: 2.0s;
+  /* アニメーションの持続時間を1秒に設定 */
+  animation-delay: 0.8s;
+  /* アニメーションの開始を1秒遅らせる */
+  animation-fill-mode: forwards;
+  /* アニメーション終了後に最後のフレームで止まるように設定 */
+}
+
+.mute-guide {
+  position: absolute;
+  /* 絶対位置を指定 */
+  top: 50%;
+  /* 親要素（.book）の高さの50%の位置に配置 */
+  left: 50%;
+  /* 親要素（.book）の幅の50%の位置に配置 */
+  transform: translate(-50%, -50%);
+  /* インターフェイスが中心に配置されるように調整 */
+  z-index: 10;
+  /* 他の要素の上に表示するためのz-index */
+  font-size: 40px;
+  /* アイコンのサイズ。必要に応じて調整 */
+  color: #ffffff;
+  /* アイコンの色。必要に応じて調整 */
+  text-align: center;
+  background-color: #282828;
+  width: 100px;
+  height: 100px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  /* アイコンの初期透明度を0に設定 */
+}
+
+.mute-guide i {
+  display: block;
+  color: white;
+}
+
+.mute-guide-word {
+  font-size: 8px;
+  margin-top: 8px;
+}
+
+.mute-guide.show-icon {
   animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
   /* ベジェ曲線を使って滑らかに */
   animation-name: fade-out;
@@ -1045,9 +1104,11 @@ label {
 }
 
 .login-modal {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
-  z-index: 1000;
+  z-index: 800;
   left: 50%;
   top: 50%;
   width: 100%;
@@ -1066,8 +1127,6 @@ label {
 
 .login-modal-content {
   background-color: #fff;
-  margin: 15% auto;
-  margin-top: 200px;
   padding: 20px;
   width: 300px;
   border-radius: 24px;
@@ -1316,6 +1375,147 @@ label {
 .event-description{
   font-size: 13px;
   text-align: left;
+}
+
+.daily-event-modal{
+  position: fixed;
+  top: -300px;
+  width: 350px;
+  transition: opacity 0.5s, top 0.8s; /* トランジションを追加 */
+}
+
+.daily-event-modal-img{
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  width: 80%;
+  margin: 0px auto;
+}
+
+.daily-event-modal-message{
+  position: absolute;
+  font-size: 13px;
+  bottom: 15px;
+  left: 50%;
+  transform: translate(-50%, 0%);
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+}
+
+.day-container {
+  display: flex;
+  align-items: center;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #ead200;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 2px 4px gainsboro;
+  position: relative;
+  z-index: 21;
+}
+
+.last-circle{
+  width: 60px;
+  height: 60px;
+}
+
+.day{
+  margin: 2px auto;
+  color: #525252;
+  text-align: center;
+  font-size: 10px;
+}
+
+.completed {
+  color: white;
+}
+
+@keyframes fillAndBounce {
+  0% {
+      background-color: white;
+      transform: scale(1); /* 初期状態 */
+  }
+  50% {
+      transform: scale(1.35); /* 拡大 */
+  }
+  100% {
+      background-color: #ead200;
+      transform: scale(1); /* 元のサイズに戻る */
+  }
+}
+
+.animated-fill-bounce {
+  animation: fillAndBounce 0.5s forwards;
+}
+
+@keyframes dashToSolid {
+  0% { border-bottom-style: dashed; }
+  100% { border-bottom-style: solid; }
+}
+
+.dash-to-solid {
+  animation: dashToSolid 0.5s forwards; /* アニメーションの持続時間 */
+}
+
+@keyframes smallRotate {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.small-rotate {
+  animation: smallRotate 0.3s 6 alternate; /* 合計3秒間（0.3秒×10回） */
+}
+
+.dotted-line {
+  border-bottom: 2px dashed #b7b7b7;
+  width: 30px; /* 破線の長さ */
+  margin-bottom: 14px;
+  opacity: 0.7;
+  z-index: 20;
+}
+
+@keyframes dashToSolid {
+  from { 
+      border-bottom: 2px dashed #b7b7b7;
+      opacity: 0.7;
+  }
+  to { 
+      border-bottom: 2px solid #ead200;
+      opacity: 1;
+  }
+}
+
+.dash-to-solid {
+  animation: dashToSolid 1s forwards; /* アニメーションの持続時間 */
+}
+
+.gift-chance{
+  position: absolute;
+  width: max-content;
+  top: -3px;
+  margin: 0px auto;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  padding: 0px 4px;
+  border-radius: 50px;
+  background-color: #ead200;
+  z-index: 98;
+}
+
+.event-gift{
+  width: 45px;
+  z-index: 99;
 }
 
 @keyframes surveyFadeIn {
@@ -2169,10 +2369,13 @@ label {
     /* 高さを自動で調整 */
     object-fit: cover;
     /* 画像のアスペクト比を保ちつつ親要素を覆うように表示 */
-    pointer-events: auto;
+    pointer-events: none;
     z-index: 1;
-    /* user-select: none; */
   }
+
+
+
+
 
   .manga-page {
     scroll-snap-align: start;
@@ -2192,6 +2395,14 @@ label {
   video {
     z-index: -999;
     user-select: none;
+  }
+
+  /* iOSのスクロールが止まる問題を解決するために設置した画面 */
+  .scroll-tab{
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    position: relative;
   }
 
   .side-bar {
@@ -2275,6 +2486,15 @@ label {
 
   .load-trigger{
     height: 2500px;
+  }
+
+  .daily-event-modal{
+    z-index: 1;
+    width: 100%;
+  }
+  
+  .daily-event-modal-img{
+    width: 280px;
   }
 
 }

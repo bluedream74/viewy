@@ -10,7 +10,7 @@
       listArea.addEventListener('click', function (event) {
           if (event.target.closest('.post') && !isAuthenticated) {
               event.preventDefault();
-              loginModal.style.display = "block";
+              loginModal.style.display = "flex";
           }
       });
 
@@ -30,7 +30,7 @@
       if (loginBtn) {
           loginBtn.addEventListener('click', function () {
               const returnTo = window.location.href;
-              loginBtn.setAttribute('href', `/accounts/user_login/?next=${encodeURIComponent(returnTo)}`);
+              loginBtn.setAttribute('href', `/accounts/regist/?next=${encodeURIComponent(returnTo)}`);
           });
       }
   });

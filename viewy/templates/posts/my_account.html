@@ -8,6 +8,11 @@
 
 {% block content %}
 <div class="about-me">
+  <div class="share">
+    <div class="sharebyline">友達にViewyを紹介してあげよう</div>
+    <div class="line-it-button" data-lang="ja" data-type="share-b" data-env="REAL" data-url="https://www.viewy.net" data-color="default" data-size="small" data-count="false" data-ver="3" style="display: none;"></div>
+    <script src="https://www.line-website.com/social-plugins/js/thirdparty/loader.min.js" async="async" defer="defer"></script>
+  </div>
   <img src="{{ MEDIA_URL }}accounts_prf_imgs/仮ヘッダー２.png" alt="" class="header">
   <div class="not-caption">
     <div class="user-img">
@@ -94,6 +99,9 @@
             <div class="boost_type viewy-boost">VIEWY BOOST</div>
           {% endif %}
         {% endif %}
+
+
+
       </div>
 
     </div>
@@ -159,26 +167,43 @@
 </div>
 
 {% if current_event %}
-    <div class="event-progress-container">
-        <div class="event-title">{{ current_event.name }}</div>
-        <div>
-          <div class="event-progress">
-            {% for day in days_list %}
-            <div class="{% if forloop.last %}last-day{% endif %} {% if day == next_day_after_participation %}next-after-completed{% endif %}">
-              <div class="day-counter">{{ day }}日目</div>
-              <div class="progress-box {% if day <= participation_days %}completed{% endif %} {% if day == next_day_after_participation %}next-after-completed{% endif %}">
-                {% if day <= participation_days %}
-                  <i class="fa-solid fa-check check"></i>
-                {% endif %}
+<div class="daily-event-modal">
+  <img class="daily-event-modal-img" src="{{ MEDIA_URL }}others/年末大感射精祭ミニ.png" alt="">
+  <div class="daily-event-modal-message event-day-achieved">
+    <div class="progress-container">
+      {% for day in event_days_range %}
+        <div class="day-container">
+          <div class="each-day">
+            <div class="circle {% if day <= participation_day %} completed {% endif %}{% if forloop.last %}last-circle{% endif %}">
+
+              {% if forloop.last %}
+              <div class="gift-chance">
+              {% if event_completed %}
+                抽選参加完了
+              {% else %}
+                ギフトチャンス！
+              {% endif %}
               </div>
+              <img src="{{ MEDIA_URL }}others/Amazonギフトカード.png" alt="" class="event-gift">
+              {% endif %}
+              {% if day <= participation_day %}
+              {% if not forloop.last %}
+                <i class="fa-solid fa-check"></i>
+              {% endif %}
+              {% endif %}
             </div>
-            {% endfor %}
+
+            <div class="day">{{day}}日目</div>
           </div>
+          {% if not forloop.last %}
+            <span class="dotted-line {% if day <= participation_day %} nomal-line {% endif %}" ></span>
+          {% endif %}
         </div>
-        {% if lottery_completed %}
-        <div>抽選参加完了</div>
-        {% endif %}
+      {% endfor %}
     </div>
+  </div>
+</div>
+<div class="event-description">※結果発表は月末。当選者にのみメールにてお知らせします。<br>（なりすましにご注意ください。）</div>
 {% endif %}
 
 <div class="display-setting"><i class="fa-brands fa-uncharted fa-xl mini-logo"></i>表示設定</div>
@@ -192,6 +217,8 @@
   <input type="radio" id="dimension-3" name="dimension" value="3" {% if current_dimension == 3.0 %}checked{% endif %} onchange="updateAndReloadDimension(this.value)">
   <label for="dimension-3">3</label>
 </div>
+
+
 
 <div class="menu-list">
 
@@ -285,6 +312,49 @@ function copyToClipboard() {
   // Optional: Notify the user that the link has been copied
   alert('リンクがクリップボードにコピーされました。');
 }
+</script>
+<script>
+  window.addEventListener('load', function() {
+      setTimeout(function() {
+          var circles = document.querySelectorAll('.circle');
+          var delay = 0; // 初期遅延時間
+          var increment = 700; // 各円のアニメーションの間隔（ミリ秒）
+
+          circles.forEach(function(circle, index) {
+              if (circle.classList.contains('completed')) {
+                  circle.style.animationDelay = delay + 'ms';
+                  circle.classList.add('animated-fill-bounce');
+                  delay += increment; // 次の円のために遅延時間を増やす
+              }
+          });
+      }, 200); // 最初のアニメーションを開始するまでの遅延時間
+  });
+
+  window.addEventListener('load', function() {
+        setTimeout(function() {
+            var lines = document.querySelectorAll('.dotted-line');
+            var delay = 0; // 初期遅延時間
+            var increment = 700; // 各線のアニメーション間隔（ミリ秒）
+
+            lines.forEach(function(line, index) {
+                if (line.classList.contains('nomal-line')) {
+                    line.style.animationDelay = delay + 'ms';
+                    line.classList.add('dash-to-solid');
+                    delay += increment; // 次の線のために遅延時間を増やす
+                }
+            });
+        }, 400); // ページロードから2秒後にアニメーションを開始
+    });
+    
+  window.addEventListener('load', function() {
+        setTimeout(function() {
+            var gift = document.querySelector('.event-gift');
+            if (gift) {
+                gift.classList.add('small-rotate');
+            }
+        }, 2000); // 4秒後にアニメーションを開始
+    });
+
 </script>
 <script src="{% static 'js/dimension_change.js' %}"></script>
 {% endblock %}

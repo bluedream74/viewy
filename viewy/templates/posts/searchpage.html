@@ -99,9 +99,9 @@
   </div>
 
   {% if forloop.counter == 1 %}
-  <a href="{% url 'request_documents' %}" class="ad-ad">
+  <!-- <a href="{% url 'request_documents' %}" class="ad-ad">
     <img src="{{ MEDIA_URL }}others/ad_ad.png" alt="">
-  </a>
+  </a> -->
   {% elif forloop.counter == 2 %}
   <div class="ad-space wide-ad" data-ad-id="{{ random_ad2.id }}">
     {{ random_ad2.ad_tag|safe }}
@@ -125,22 +125,24 @@
   </div>
   <div class="recommended-users">
     <div class="recommended-user-list">
-      <div class="recommended-user">
-        <img src="{{ MEDIA_URL }}others/ロゴサンプル.png" alt="">
-        <div class="poster-name" style="color: white;">
-          <div class="poster-name">企業名</div>
+      {% for advertiser in advertisers %}
+        <div class="recommended-user">
+          <img src="{{ advertiser.prf_img.url }}" alt="{{ advertiser.displayname }}">
+          <div class="poster-name" style="color: white;">
+            <div class="poster-name">{{ advertiser.displayname }}</div>
+          </div>
         </div>
-    </div>
+      {% endfor %}
     </div>
   </div>
 </div>
 
 <div id="loginModal" class="login-modal">
   <div class="login-modal-content">
-      <span class="close-btn">&times;</span>
-      <div class="login-title">Viewyにログインしよう</div>
-      <div class="login-content">ログインすれば無料で全投稿が見放題！<br>気に入ったらいいねとフォローで保存しよう！</div>
-      <a href="{% url 'accounts:user_login' %}?next={{ request.get_full_path }}" class="login-btn">ログイン</a>
+      <span class="close-btn" style="opacity: 0;">&times;</span>
+      <div class="login-title">Viewyのアカウントを作ろう</div>
+      <div class="login-content">アカウント作成で全投稿が見放題に！<br>もちろん、完全無料です。</div>
+      <a href="{% url 'accounts:regist' %}?next={{ request.get_full_path }}" class="login-btn">アカウント作成</a>
   </div>
 </div>
 

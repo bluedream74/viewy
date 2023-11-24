@@ -21,16 +21,47 @@
 {% endfor %}
 {% endif %}
 
-{% if event_completed %}
-    <div class="event-message event-completed">
-        <strong>{{ current_event.name }}</strong>
-        <div>抽選申し込み完了！</div>
-        <div>月末に結果発表！お楽しみに！</div>
+
+<!-- イベントに参加していたら表示 -->
+{% if participation_day %}
+<div class="daily-event-modal">
+  <img class="daily-event-modal-img" src="{{ MEDIA_URL }}others/年末大感射精祭トム変更.png" alt="">
+  <div class="daily-event-modal-message event-day-achieved">
+    <div class="progress-container">
+      {% for day in event_days_range %}
+        <div class="day-container">
+          <div class="each-day">
+            <!-- 達成した日の丸にはcompletedが付与され、それを対象にアニメーションが実行される -->
+            <div class="circle {% if day <= participation_day %} completed {% endif %}{% if forloop.last %}last-circle{% endif %}">
+
+              {% if forloop.last %}
+              <div class="gift-chance">
+              {% if event_completed %}
+                抽選参加完了
+              {% else %}
+                ギフトチャンス！
+              {% endif %}
+              </div>
+              <img src="{{ MEDIA_URL }}others/Amazonギフトカード.png" alt="" class="event-gift">
+              {% endif %}
+              {% if day <= participation_day %}
+              {% if not forloop.last %}
+                <i class="fa-solid fa-check"></i>
+              {% endif %}
+              {% endif %}
+            </div>
+
+            <div class="day">{{day}}日目</div>
+          </div>
+          {% if not forloop.last %}
+          <!-- 丸の間は点線で結ばれる -->
+            <span class="dotted-line {% if day <= participation_day %} nomal-line {% endif %}" ></span>
+          {% endif %}
+        </div>
+      {% endfor %}
     </div>
-{% elif participation_day %}
-    <div class="event-message event-day-achieved">
-        <strong>{{ current_event.name }}</strong> <br> {{ participation_day }} 日目達成！
-    </div>
+  </div>
+</div>
 {% endif %}
 
 {% if not user.gender %}
@@ -182,26 +213,75 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <script src="{% static 'js/more_posts.js' %}"></script>
 
+
+
 <script>
 $(function() {
     // イベントメッセージのフェードイン
     window.setTimeout(function() {
-        $(".event-message").css({
-            "top": "0px",
+        $(".daily-event-modal").css({
+            "top": "32px",
             "opacity": "1"
         });
     }, 500); // 0.5秒後に表示
 
     // その後、3秒後にメッセージをフェードアウト
     window.setTimeout(function() {
-        $(".event-message").css({
-            "top": "-60px",
+        $(".daily-event-modal").css({
+            "top": "-100px",
             "opacity": "0"
         });
-    }, 8500); // 合計4秒後に非表示（0.5秒表示後、3秒間表示）
+    }, 6500); // 合計4秒後に非表示（0.5秒表示後、3秒間表示）
 });
 </script>
 
+<!-- イベント用のアニメーションJS -->
+<script>
+  // 達成した日の丸がポヨンと拡大するアニメーション
+  window.addEventListener('load', function() {
+      setTimeout(function() {
+          var circles = document.querySelectorAll('.circle');
+          var delay = 0; // 初期遅延時間
+          var increment = 700; // 各円のアニメーションの間隔（ミリ秒）
+
+          circles.forEach(function(circle, index) {
+              if (circle.classList.contains('completed')) {
+                  circle.style.animationDelay = delay + 'ms';
+                  circle.classList.add('animated-fill-bounce');
+                  delay += increment; // 次の円のために遅延時間を増やす
+              }
+          });
+      }, 1200); // 最初のアニメーションを開始するまでの遅延時間
+  });
+
+  // 次の丸までの破線が実線になるアニメーション
+  window.addEventListener('load', function() {
+        setTimeout(function() {
+            var lines = document.querySelectorAll('.dotted-line');
+            var delay = 0; // 初期遅延時間
+            var increment = 700; // 各線のアニメーション間隔（ミリ秒）
+
+            lines.forEach(function(line, index) {
+                if (line.classList.contains('nomal-line')) {
+                    line.style.animationDelay = delay + 'ms';
+                    line.classList.add('dash-to-solid');
+                    delay += increment; // 次の線のために遅延時間を増やす
+                }
+            });
+        }, 1400); // ページロードから2秒後にアニメーションを開始
+    });
+    
+  // ギフトが揺れるアニメーション
+  window.addEventListener('load', function() {
+        setTimeout(function() {
+            var gift = document.querySelector('.event-gift');
+            if (gift) {
+                gift.classList.add('small-rotate');
+            }
+        }, 3000); // 4秒後にアニメーションを開始
+    });
+
+</script>
 <script>
 $(function() {
     // 0.5秒後にメッセージを降ろして表示する

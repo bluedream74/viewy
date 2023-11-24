@@ -71,14 +71,22 @@
       {% for video in post.videos.all %}
         <img class="thumbnail" src="{{ video.thumbnail.url }}" alt="">
       {% if video.hls_path %}
-        <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}" data-video-url="{{ video.video.url }}"  id="postVideo{{ forloop.counter }}" width="200px" height="400px" loading="lazy" playsinline loop muted {% if forloop.first %}autoplay{% endif %}></video>
+        <video class="video-player post-video" data-hls-url="{{ video.hls_path }}" data-dash-url="{{ video.dash_path }}" data-video-url="{{ video.video.url }}" style="visibility: hidden;" id="postVideo{{ video.id }}" width="100%" loading="lazy" playsinline loop muted {% if forloop.first %}autoplay{% endif %}></video>
       {% else %}
-        <video id="postVideo{{ forloop.counter }}" class="post-video" width="200px" height="400px"
+        <video id="postVideo{{ video.id }}" class="post-video" width="100%"
           src="{{ video.video.url }}" loading="lazy" playsinline loop muted></video>
       {% endif %}
         <input id="seekSlider{{ forloop.counter }}" class="custom-controlbar" type="range" min="0" step="0.1" value="0">
         <br>
+        <div class="scroll-tab"></div>
+        <div class="mute-guide">
+          <div>
+            <i class="fa-solid fa-volume-high"></i>
+            <div class="mute-guide-word">タップでミュート解除</div>
+          </div>
+        </div>
       {% endfor %}
+
       <div class="mute-box">
         <div class="mute">
           <label class="fa-solid fa-volume-xmark" data-post-id="{{ post.id }}">
@@ -86,8 +94,8 @@
           </label>
         </div>
       </div>
-    {% endif %}
 
+    {% endif %}
   {% else %}
 
   <!-- アフィリエイターの広告の場合 -->
@@ -506,6 +514,7 @@
 <script src="{% static 'js/hashtag_history.js' %}"></script>
 <script src="{% static 'js/mangapage_count.js' %}"></script>
 <script src="{% static 'js/horizontal_arrow.js' %}"></script>
+<script src="{% static 'js/mute_guide.js' %}"></script>
 <script src="{% static 'js/emote_count.js' %}"></script>
 <script src="{% static 'js/others_modal.js' %}"></script>
 {% endblock %}
