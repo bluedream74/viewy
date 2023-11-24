@@ -7,26 +7,233 @@
 {% block topic %}
 <div class="topic-title">お問い合わせ</div>
 <div class="sub-topics">
-  <form method="post">
-    {% csrf_token %}
-    {{ base_form.as_p }}
-    <div id="normalForm" style="display: none;">
-      {{ normal_form.as_p }}
+  <div class="sub-topic">
+    <div class="sub-topics">お問い合わせフォーム</div>
+    <p class="paragraph"><br>ご入力いただいたメールアドレス等に誤りがある場合、あるいはお問い合わせの内容によっては、回答に時間がかかる場合や回答できない場合があります。</p>
+    <div class="inquiry">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form">
+          <div class="form_label">
+            <label for="{{ base_form.name.id_for_label }}">
+              {{ base_form.name.label }}<span class="danger">*</span>
+            </label>
+          </div>
+          <div class="form-form">
+            {{ base_form.name }}
+          </div>
+        </div>
+
+        <div class="form">
+          <div class="form_label">
+            <label for="{{ base_form.email.id_for_label }}">
+              {{ base_form.email.label }}<span class="danger">*</span>
+            </label>
+          </div>
+          <div class="form-form">
+            {{ base_form.email }}
+          </div>
+        </div>
+
+        <div class="form">
+          <div class="form_label">
+            <label for="{{ base_form.inquiry_type.id_for_label }}">
+              {{ base_form.inquiry_type.label }}<span class="danger">*</span>
+            </label>
+          </div>
+          <div class="form-radio">
+            {{ base_form.inquiry_type }}
+          </div>
+        </div>
+
+
+        <div id="normalForm">
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ normal_form.normal_subject.id_for_label }}">
+                {{ normal_form.normal_subject.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-form">
+              {{ normal_form.normal_subject }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ normal_form.occurrence_date.id_for_label }}">
+                {{ normal_form.occurrence_date.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-date">
+              {{ normal_form.occurrence_date }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ normal_form.occurrence_url.id_for_label }}">
+                {{ normal_form.occurrence_url.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-form">
+              {{ normal_form.occurrence_url }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ normal_form.device.id_for_label }}">
+                {{ normal_form.device.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-select">
+              {{ normal_form.device }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ normal_form.browser.id_for_label }}">
+                {{ normal_form.browser.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-select">
+              {{ normal_form.browser }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ normal_form.normal_content.id_for_label }}">
+                {{ normal_form.normal_content.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-textarea">
+              {{ normal_form.normal_content }}
+            </div>
+          </div>
+        </div>
+
+        <div id="corporateForm" style="display: none;">
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ corporate_form.company_name.id_for_label }}">
+                {{ corporate_form.company_name.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-form">
+              {{ corporate_form.company_name }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ corporate_form.department_name.id_for_label }}">
+                {{ corporate_form.department_name.label }}<span class="n-danger">(任意)</span>
+              </label>
+            </div>
+            <div class="form-form">
+              {{ corporate_form.department_name }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ corporate_form.corporate_subject.id_for_label }}">
+                {{ corporate_form.corporate_subject.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-form">
+              {{ corporate_form.corporate_subject }}
+            </div>
+          </div>
+
+          <div class="form">
+            <div class="form_label">
+              <label for="{{ corporate_form.corporate_content.id_for_label }}">
+                {{ corporate_form.corporate_content.label }}<span class="danger">*</span>
+              </label>
+            </div>
+            <div class="form-textarea">
+              {{ corporate_form.corporate_content }}
+            </div>
+          </div>
+        </div>
+
+        <div class="attention">
+          <input type="checkbox" name="terms" id="terms" required>
+          <label for="terms">
+            利用規約 (<a href="{% url 'terms'%}" target="_blank">https://www.viewy.net/terms/</a>) 、注意事項に同意して問い合わせをする
+          </label>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">送信</button>
+      </form>
     </div>
-    <div id="corporateForm" style="display: none;">
-      {{ corporate_form.as_p }}
-    </div>
-    <button type="submit">送信</button>
-  </form>
+  </div>
 </div>
 <script>
-  function toggleFormDisplay() {
-      var inquiryType = document.querySelector('input[name="inquiry_type"]:checked').value;
-      document.getElementById('normalForm').style.display = inquiryType === 'normal' ? 'block' : 'none';
-      document.getElementById('corporateForm').style.display = inquiryType === 'corporate' ? 'block' : 'none';
-  }
-  document.querySelectorAll('input[name="inquiry_type"]').forEach(function(input) {
-      input.addEventListener('change', toggleFormDisplay);
+  document.addEventListener('DOMContentLoaded', function () {
+    var checkBox = document.getElementById('terms');
+    var submitBtn = document.getElementById('submitBtn');
+
+    // ページ読み込み時にボタンの状態を初期化
+    toggleSubmitButton();
+
+    checkBox.addEventListener('change', function () {
+      toggleSubmitButton();
+    });
+
+    function toggleSubmitButton() {
+      if (checkBox.checked) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn-disabled');
+        submitBtn.style.cursor = 'pointer';
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('btn-disabled');
+        submitBtn.style.cursor = 'not-allowed';
+      }
+    }
   });
+  function updateRequiredAttributes(displayedFormId) {
+    // すべてのフォームフィールド（input, textarea, select）を取得
+    const allFields = document.querySelectorAll('#normalForm input, #normalForm textarea, #normalForm select, #corporateForm input, #corporateForm textarea, #corporateForm select');
+
+    // すべてのフィールドの required 属性をリセット
+    allFields.forEach(function (field) {
+      field.required = false;
+    });
+
+    // 表示されているフォームのフィールドのみ required をセット
+    const displayedFields = document.querySelectorAll(`#${displayedFormId} input, #${displayedFormId} textarea, #${displayedFormId} select`);
+    displayedFields.forEach(function (field) {
+      // department_name フィールドは任意なので、required を false に設定
+      if (field.name !== 'department_name') {
+        field.required = true;
+      }
+    });
+  }
+
+  function toggleFormDisplay() {
+    var inquiryType = document.querySelector('input[name="inquiry_type"]:checked').value;
+    var normalForm = document.getElementById('normalForm');
+    var corporateForm = document.getElementById('corporateForm');
+
+    normalForm.style.display = inquiryType === 'normal' ? 'block' : 'none';
+    corporateForm.style.display = inquiryType === 'corporate' ? 'block' : 'none';
+
+    // 選択されているフォームに基づいて、必須属性を更新
+    updateRequiredAttributes(inquiryType === 'normal' ? 'normalForm' : 'corporateForm');
+  }
+
+  document.querySelectorAll('input[name="inquiry_type"]').forEach(function (input) {
+    input.addEventListener('change', toggleFormDisplay);
+  });
+
+  // 初期表示時のフォーム状態を更新
+  toggleFormDisplay();
 </script>
 {% endblock %}

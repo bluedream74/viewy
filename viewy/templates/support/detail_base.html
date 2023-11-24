@@ -19,13 +19,13 @@
   <header>
     <div class="nav-container">
       <div class="nav-item logo">
-        <a href="#">
+        <a href="{% url 'support:first'%}">
           <img src="{{ MEDIA_URL }}others/viewy-logo-colored.png" alt="Home">
         </a>
       </div>
       <div class="nav-right">
-        <div class="nav-item"><a href="#">Support</a></div>
         <div class="nav-item"><a href="{% url 'support:inquiry_form'%}">お問い合わせ</a></div>
+        <div class="nav-item viewy"><a href="{% url 'posts:postlist'%}">Viewyへ</a></div>
       </div>
     </div>
   </header>
@@ -52,10 +52,10 @@
             </div>
             <div class="n-accordion-item">
               <div class="n-accordion-header title">
-                <a  href="{% url 'support:title_page' pretitle='about_viewy' title='regist_login' %}">登録・ログイン</a>
+                <a  href="{% url 'support:title_page' pretitle='about_viewy' title='regist_login' %}">アカウント作成・ログイン</a>
               </div>
               <div class="n-accordion-content">
-                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='about_viewy' title='regist_login' subtitle='regist' %}">新規登録</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='about_viewy' title='regist_login' subtitle='regist' %}">アカウント作成</a></div>
                 <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='about_viewy' title='regist_login' subtitle='n_login' %}">ログインできない</a></div>
               </div>
             </div>
@@ -99,6 +99,7 @@
               <div class="n-accordion-content">
                 <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='fee' %}">キャンペーンとは何ですか</a></div>
                 <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='join' %}">どのように参加すればいいですか</a></div>
+                <div class="subtitle"><a  href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='winning' %}">当選を確認したい</a></div>
               </div>
 
             </div>
@@ -149,7 +150,7 @@
               </div>
 
               <div class="n-accordion-content">
-                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='partner' title='account_page' subtitle='mypost' %}">自分の投稿</a></div>
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='partner' title='account_page' subtitle='mypost' %}">自分の投稿を確認・ピン留め・削除したい</a></div>
               </div>
 
             </div>
@@ -180,6 +181,18 @@
 
             </div>
 
+            <div class="n-accordion-item">
+
+              <div class="n-accordion-header title">
+                <a  href="{% url 'support:title_page' pretitle='service' title='amusement' %}">風営法</a>
+              </div>
+
+              <div class="n-accordion-content">
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='service' title='amusement' subtitle='notification' %}">映像送信型性風俗特殊営業の届出</a></div>
+              </div>
+
+            </div>
+
           </div>
         </div>
       </div>
@@ -192,7 +205,7 @@
 
   </div>
   <footer class="footer">
-    <div><a href="">Viewy Support</a></div>
+    <div><a href="{% url 'support:first'%}">Viewy Support</a></div>
   </footer>
   <script src="{% static 'js/support/accordion.js' %}"></script>
 </body>

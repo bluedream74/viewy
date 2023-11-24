@@ -29,7 +29,7 @@ header {
 }
 
 .nav-item.logo img {
-  width: 48px; 
+  width: 48px;
   height: auto;
   margin-top: 8px;
   background-color: #f8f9fa;
@@ -38,7 +38,7 @@ header {
 .nav-right {
   display: flex;
   align-items: center;
-  margin-right: 32px;
+  margin-right: 56px;
 }
 
 .nav-item {
@@ -47,7 +47,7 @@ header {
 
 .nav-item a {
   text-decoration: none;
-  color: #333;
+  color: #337ab7;
 }
 
 .nav-item a:hover {
@@ -61,8 +61,10 @@ header {
   color: #fff;
   text-align: center;
   font-size: 14px;
-  position: relative; /* 必要に応じて追加: ページの一番下に固定したい場合は 'fixed' に変更 */
-  bottom: 0; /* position: fixed と組み合わせて使用 */
+  position: relative;
+  /* 必要に応じて追加: ページの一番下に固定したい場合は 'fixed' に変更 */
+  bottom: 0;
+  /* position: fixed と組み合わせて使用 */
   left: 0;
 }
 
@@ -100,24 +102,26 @@ header {
 
 .pretitle.active {
   border-left: 2px solid red;
-  padding-left: 5px; 
+  /* padding-left: 5px;  */
 }
 
 .accordion-content {
-  display: none; /* 最初は非表示にしておく */
+  display: none;
+  /* 最初は非表示にしておく */
   padding: 10px;
 }
 
-.accordion-content > div {
+.accordion-content>div {
   padding: 5px 0;
 }
 
-.accordion-content > div:last-child {
+.accordion-content>div:last-child {
   border-bottom: none;
 }
 
 .accordion-item.active .accordion-content {
-  display: block; /* アクティブな項目の内容のみ表示 */
+  display: block;
+  /* アクティブな項目の内容のみ表示 */
 }
 
 .topic {
@@ -133,13 +137,17 @@ header {
   color: #424242;
 }
 
+.pretitle {
+  border-left: 2px solid white;
+}
+
 .title {
+  border-left: 2px solid white;
   padding-left: 5px;
 }
 
 .title.active {
   border-left: 2px solid red;
-  padding-left: 5px; 
   color: #000;
 }
 
@@ -149,27 +157,31 @@ header {
   font-weight: bold;
   font-size: 14px;
   margin: 0px 0px 12px 22px;
+  border-left: 2px solid white;
   padding-left: 5px;
 }
 
 .subtitle.active {
-  border-left: 5px solid red;
-  padding-left: 5px; 
+  border-left: 2px solid rgb(0, 0, 0);
   color: #000;
 }
 
 
 .pretitle:hover {
-  padding: 10px;
   border-left: 2px solid red;
-}
-/* マウスホバー時のスタイル */
-.title:hover, .subtitle:hover {
-  color: #000; /* 黒色にする */
-  border-left: 2px solid red;
-  /* padding-left: 5px; */
 }
 
+.title:hover {
+  color: #000;
+  /* 黒色にする */
+  border-left: 2px solid red;
+}
+
+.subtitle:hover {
+  color: #000;
+  /* 黒色にする */
+  border-left: 2px solid rgb(0, 0, 0);
+}
 
 .n-accordion-item.active .n-accordion-content {
   display: block;
@@ -183,7 +195,7 @@ header {
 
 .sub-topic {
   box-sizing: border-box;
-  width: 100%; 
+  width: 100%;
   height: auto;
   /* align-self: flex-start; */
   /* min-height: 20vh; 最小の高さを設定 */
@@ -199,7 +211,8 @@ header {
 }
 
 
-p, h3 {
+p,
+h3 {
   margin: 0;
 }
 
@@ -210,4 +223,169 @@ h3 {
 .paragraph {
   font-size: 16px;
   font-weight: normal;
+}
+
+.inquiry {
+  font-size: 16px;
+  font-weight: normal;
+  margin-top: 24px;
+}
+
+.form {
+  margin-bottom: 26px;
+}
+
+.form_label label {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-form {
+  display: block;
+  width: 100%;
+  height: 34px;
+  background-image: none;
+  border-radius: 4px;
+}
+
+.form-form input {
+  height: 100%;
+  width: 100%;
+  font-size: 16px;
+  border-radius: 4px;
+  border-color: rgb(204, 204, 204);
+  border-width: 1px;
+  border-style: solid;
+}
+
+.form-radio label {
+  font-weight: bold;
+}
+
+.form-select select {
+  height: 36px;
+  width: 220px;
+  border-color: rgb(204, 204, 204);
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.form-date input {
+  height: 36px;
+  width: 178px;
+  border-color: rgb(204, 204, 204);
+  border-width: 1px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  margin-right: 10px;
+}
+
+.form-textarea textarea {
+  width: 100%;
+  border-color: rgb(204, 204, 204);
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  appearance: none;
+  opacity: .65;
+  background-color: #4beded;
+  border-color: #4beded;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.btn:hover {
+  background-color: #00d9d9;
+}
+
+.btn-disabled {
+  background-color: #ccc;
+  /* 無効時の背景色 */
+  color: #666;
+  /* 無効時の文字色 */
+  cursor: not-allowed;
+  /* カーソルを押せないアイコンに変更 */
+}
+
+.btn-disabled:hover {
+  background-color: #ccc;
+}
+
+.danger {
+  color: #dc3545;
+  font-size: 12px;
+  vertical-align: super;
+}
+
+.n-danger {
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.attention {
+  margin: 0 0 12px 0;
+}
+
+.attention a {
+  font-size: 14px;
+  color: #337ab7;
+}
+
+@media (max-width: 970px) {
+  .main {
+    flex-direction: column;
+    /* フレックスボックスの方向を縦に変更 */
+    padding: 20px;
+  }
+
+  .viewy {
+    display: none;
+  }
+
+
+  .topic-title {
+    font-weight: 700;
+    font-size: 33px;
+    margin-bottom: 18px;
+  }
+
+  .sub-topic {
+    padding: 48px 22px;
+  }
+
+  .accordion {
+    width: 90%;
+    /* 幅を自動調整に変更 */
+    border-right: none;
+    /* 右の境界線を削除 */
+    padding-right: 0;
+    /* 右のパディングを削除 */
+    border-bottom: 1px solid #e0e0e0;
+    /* 下に境界線を追加 */
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    margin-top: 48px;
+  }
+
+  .topic {
+    width: 90%;
+    margin: 0px auto;
+  }
+
 }
