@@ -2,9 +2,8 @@ from django.db import models
 
 class BaseInquiry(models.Model):
     INQUIRY_CHOICES = (
-        ('copyright', '著作権者様のみ'),
-        ('corporate', '法人様からの問い合わせ・取材申し込み等'),
-        # 他に必要な選択肢を追加
+        ('normal', 'Viewyに関して'),
+        ('corporate', '法人様からのお問い合わせ'),
     )
 
     name = models.CharField(max_length=100, verbose_name="氏名")
@@ -24,7 +23,7 @@ class NormalInquiry(BaseInquiry):
     content = models.TextField(verbose_name="お問い合わせ内容")
 
 
-class CorporateInquiry(models.Model):
+class CorporateInquiry(BaseInquiry):
     company_name = models.CharField(max_length=100, verbose_name="会社名")
     department_name = models.CharField(max_length=100, blank=True, verbose_name="所属部署名")
     subject = models.CharField(max_length=200, verbose_name="件名")

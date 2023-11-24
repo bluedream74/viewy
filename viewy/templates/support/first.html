@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
   <link rel="stylesheet" href="{% static 'css/support/first.css' %}">
   <!-- iOS向けの指定 -->
   <!-- <link rel="apple-touch-icon" type="image/png" href="{{ MEDIA_URL }}icon_management/apple-touch-icon.png" sizes="180x180"> -->
@@ -19,13 +20,13 @@
   <header>
     <div class="nav-container">
       <div class="nav-item logo">
-        <a href="#">
+        <a href="{% url 'support:first'%}">
           <img src="{{ MEDIA_URL }}others/viewy-logo-colored.png" alt="Home">
         </a>
       </div>
       <div class="nav-right">
-        <div class="nav-item"><a href="#">Support</a></div>
-        <div class="nav-item"><a href="#">Contact</a></div>
+        <div class="nav-item"><a href="{% url 'support:inquiry_form'%}">お問い合わせ</a></div>
+        <div class="nav-item viewy"><a href="{% url 'posts:postlist'%}">Viewyへ</a></div>
       </div>
     </div>
   </header>
@@ -36,7 +37,6 @@
     <div class="popular articles">
       <div class="section-head">
         <div class="faq-text">よくある質問</div>
-        <div class="faq-icon"><i class="fa-solid fa-fire"></i></div>
       </div>
       <div class="section-cards">
         <div class="card">
@@ -119,6 +119,7 @@
           </div>
           <ul class="topic-card-list">
             <li><a href="{% url 'support:title_page' pretitle='service' title='general' %}">一般情報</a></li>
+            <li><a href="{% url 'support:title_page' pretitle='service' title='amusement' %}">風営法</a></li>
           </ul>
         </div>
       </div>

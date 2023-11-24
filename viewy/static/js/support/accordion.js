@@ -1,70 +1,55 @@
-
 document.addEventListener('DOMContentLoaded', function () {
+    // URLからパラメータを取得
+    const url = window.location.pathname;
+    const [pretitle, title, subtitle] = url.split('/').slice(2, 5);
 
     const headers = document.querySelectorAll('.accordion-header');
 
     headers.forEach(header => {
-
-        // アコーディオンヘッダー内の<a>タグに対するクリックイベント
+        // アコーディオンヘッダー内の<a>タグに対するクリックイベントの処理
         const aTag = header.querySelector('a');
         if (aTag) {
-            aTag.addEventListener('click', (event) => {
-                event.stopPropagation(); // イベントの伝播を停止
-            });
+            aTag.addEventListener('click', (event) => event.stopPropagation());
         }
 
-        header.addEventListener('click', () => {
-            const parent = header;
-            parent.classList.toggle('active');
+        // ヘッダークリックによるアコーディオンの開閉処理
+        header.addEventListener('click', function () {
+            const content = this.nextElementSibling;
+            const icon = this.querySelector('i');
 
-            // アイコンの切り替え
-            const icon = header.querySelector('i');
-            if (parent.classList.contains('active')) {
-                icon.classList.remove('fa-chevron-down');
-                icon.classList.add('fa-chevron-up');
-            } else {
-                icon.classList.remove('fa-chevron-up');
-                icon.classList.add('fa-chevron-down');
-            }
-
-            // アコーディオンコンテンツの表示状態をトグル
-            const content = header.nextElementSibling;
-            if (parent.classList.contains('active')) {
-                content.style.display = 'block';
-            } else {
+            if (content.style.display === 'block') {
                 content.style.display = 'none';
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            } else {
+                content.style.display = 'block';
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
             }
         });
+
+        // URLに基づく初期アクティブ状態の設定
+        if (header.dataset.pretitle === pretitle) {
+            header.classList.add('active'); // 常にactiveを付けたままにする
+            const icon = header.querySelector('i');
+
+            if (window.innerWidth > 970) {
+                icon.classList.add('fa-chevron-up');
+                icon.classList.remove('fa-chevron-down');
+                header.nextElementSibling.style.display = 'block';
+            } else {
+                icon.classList.add('fa-chevron-down');
+                icon.classList.remove('fa-chevron-up');
+                header.nextElementSibling.style.display = 'none';
+            }
+        }
     });
 
-    // URLからプレを取得する
-    const url = window.location.pathname;
-    const pretitle = url.split('/')[2];
-
-    const title = url.split('/')[3];
-
-    // URLからサブを取得する
-    const subtitle = url.split('/')[4];
-
-    // サブに基づいて対応するアコーディオン項目を選択する
+    // サブタイトルとタイトルに基づくアコーディオン項目の選択
     if (subtitle) {
-        const accordionItem = document.querySelector(`.subtitle a[href$="${subtitle}/"]`).parentElement;
-        if (accordionItem) {
-            accordionItem.classList.add('active');
-        }
+        const subtitleLink = document.querySelector(`.subtitle a[href$="${subtitle}/"]`);
+        subtitleLink?.parentElement.classList.add('active');
     }
-
-    // titleに基づいて対応するアコーディオン項目のヘッダーにアクティブをつける
     if (title) {
-        const accordionHeaderLink = document.querySelector(`.title a[href$="/${title}/"]`).parentElement;
-        if (accordionHeaderLink) {
-            accordionHeaderLink.classList.add('active');
-        }
-    }
-
-    // プレに基づいてアコーディオンセクションを開く
-    const accordionHeader = document.querySelector(`.accordion-header[data-pretitle="${pretitle}"]`);
-    if (accordionHeader) {
-        accordionHeader.click();
+        const titleLink = document.querySelector(`.title a[href$="/${title}/"]`);
+        titleLink?.parentElement.classList.add('active');
     }
 });

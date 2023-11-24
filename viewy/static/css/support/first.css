@@ -29,7 +29,7 @@ header {
 }
 
 .nav-item.logo img {
-  width: 48px; 
+  width: 48px;
   height: auto;
   margin-top: 8px;
   background-color: #f8f9fa;
@@ -38,7 +38,7 @@ header {
 .nav-right {
   display: flex;
   align-items: center;
-  margin-right: 32px;
+  margin-right: 56px;
 }
 
 .nav-item {
@@ -47,7 +47,7 @@ header {
 
 .nav-item a {
   text-decoration: none;
-  color: #333;
+  color: #337ab7;
 }
 
 .nav-item a:hover {
@@ -55,7 +55,7 @@ header {
 }
 
 .img-container {
-  margin-top: 68px; 
+  margin-top: 68px;
 }
 
 .img-container img {
@@ -90,14 +90,15 @@ header {
   flex-wrap: wrap;
   gap: 26px;
   justify-content: space-between;
-  width: 100%; 
+  width: 100%;
 }
 
 .card {
   box-sizing: border-box;
   width: calc(100% / 2 - 16px);
   height: 20vh;
-  background-color: white; /* または任意の色 */
+  background-color: white;
+  /* または任意の色 */
   text-align: center;
   line-height: 1.5;
   padding: 32px;
@@ -117,7 +118,7 @@ header {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  text-align: left; 
+  text-align: left;
 
 }
 
@@ -131,22 +132,21 @@ header {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  text-align: left; 
+  text-align: left;
   font-weight: bold;
 }
 
 .topic-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;  /* これでカード間の隙間を制御します */
+  gap: 16px;
+  /* これでカード間の隙間を制御します */
   width: 100%;
-  /* align-items: start;  */
-  /* grid-auto-flow: column; */
 }
 
 .topic-card {
   box-sizing: border-box;
-  width: 100%; 
+  width: 100%;
   height: auto;
   /* align-self: flex-start; */
   /* min-height: 20vh; 最小の高さを設定 */
@@ -162,7 +162,8 @@ header {
 .topic-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* 必要に応じて追加 */
+  align-items: center;
+  /* 必要に応じて追加 */
   height: 60px;
   font-size: 32px;
   font-weight: bold;
@@ -176,14 +177,16 @@ header {
   padding: 0;
   list-style: none;
   font-size: 16px;
-  color: rgba(22,24,35,0.5);
-  height: 80%; 
+  color: rgba(22, 24, 35, 0.5);
+  height: 80%;
 }
 
 .topic-card-list li {
-  flex: 1; /* 均等にスペースを占めるように設定 */
+  flex: 1;
+  /* 均等にスペースを占めるように設定 */
   display: flex;
-  align-items: center; /* 中央にテキストを配置 */
+  align-items: center;
+  /* 中央にテキストを配置 */
   justify-content: flex-start;
   margin-top: 20px;
 }
@@ -195,12 +198,47 @@ header {
   color: #fff;
   text-align: center;
   font-size: 14px;
-  position: relative; /* 必要に応じて追加: ページの一番下に固定したい場合は 'fixed' に変更 */
-  bottom: 0; /* position: fixed と組み合わせて使用 */
+  position: relative;
+  /* 必要に応じて追加: ページの一番下に固定したい場合は 'fixed' に変更 */
+  bottom: 0;
+  /* position: fixed と組み合わせて使用 */
   left: 0;
 }
 
 .footer div {
   text-align: left;
   padding: 20px 0 20px 40px;
+}
+
+@media (max-width: 970px) {
+  .topic-cards {
+    grid-template-columns: 1fr;
+    /* カードを一列にする */
+  }
+  
+  .faq-text {
+    font-size: 33px;
+    margin: 0 auto;
+}
+
+ .card-link {
+  font-size: 22px;
+ }
+
+  .topic-card-header {
+    font-size: 22px;
+  }
+
+  .topic-card-list {
+    font-size: 14px;
+  }
+
+  .topic-card {
+    padding: 28px 36px 56px 36px;
+  }
+
+  .card {
+    width: 100%;
+    /* カードを一列にする */
+  }
 }
