@@ -1,0 +1,36 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">画像を投稿する</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      画像を投稿するには:<br><br>
+
+      1.画面下の中央の「＋」をタップ<br>
+      2.「画像を投稿」をタップ<br>
+      3.画像ファイルを選択<br>
+      4.タイトル・URL・ハッシュタグ・キャプションを入力<br>
+      5.予約投稿をしたい場合は、チェックを付け日時を指定<br>
+      6.プレビューをタップして確認し、投稿<br><br>
+      
+      ヒント:<br>
+      画像は複数選択できます。<strong>複数選択した場合、選択順ではなくファイル名順に並び替えられる</strong>のでご注意ください。<br>
+      プレビューボタンを押すと実際にどのように表示されるかを確認できます。<br>
+      <strong>必須項目は「画像ファイル・タイトル」です。</strong><br><br>
+      ・画像ファイル(最大31ファイル)(1画像5MB以下)(最大サイズは1080px)<br>
+      ・タイトル (最低2字・最大30字)<br>
+      ・URL<br>
+      ・キャプション(最大100字)<br>
+      ・ハッシュタグ(3つまで設定可能)(1つにつき最大20文字)<br>
+      
+      
+    </p>
+  </div>
+</div>
+{% endblock %}

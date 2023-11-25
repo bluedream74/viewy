@@ -1,6 +1,7 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Meiryo', sans-serif;
 }
 
 
@@ -12,14 +13,14 @@ a {
 
 header {
   background-color: #ffffff;
-  padding: 8px;
+  padding: 0px;
   text-align: left;
   position: fixed;
   width: 100%;
   top: 0;
   left: 0;
   z-index: 1000;
-  border: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .nav-container {
@@ -29,10 +30,10 @@ header {
 }
 
 .nav-item.logo img {
-  width: 48px;
+  width: 252px;
   height: auto;
-  margin-top: 8px;
-  background-color: #f8f9fa;
+  margin-left: -52px;
+  margin-top: -18px;
 }
 
 .nav-right {
@@ -42,16 +43,7 @@ header {
 }
 
 .nav-item {
-  margin: 0 20px;
-}
-
-.nav-item a {
-  text-decoration: none;
-  color: #337ab7;
-}
-
-.nav-item a:hover {
-  text-decoration: underline;
+  margin: 0px 20px 0px 20px;
 }
 
 .footer {
@@ -75,7 +67,7 @@ header {
 
 .main {
   display: flex;
-  padding: 120px 70px 100px 55px;
+  padding: 120px 70px 160px 55px;
 }
 
 .accordion {
@@ -223,6 +215,11 @@ h3 {
 .paragraph {
   font-size: 16px;
   font-weight: normal;
+  color: #6b6b6b;
+}
+
+.paragraph strong {
+  color: black;
 }
 
 .inquiry {
@@ -342,6 +339,23 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   margin: 0 0 12px 0;
 }
 
+.a-link {
+  color: #0000EE;
+  /* リンクは通常青色です */
+  text-decoration: underline;
+  /* リンクには通常、下線が引かれます */
+}
+
+.a-link:hover {
+  color: #0000CC;
+  /* マウスカーソルをリンクの上に置くと、色が変わります（通常は濃い青色になる） */
+}
+
+.a-link:visited {
+  color: #551A8B;
+  /* 訪問済みリンクは通常、紫色で表示されます */
+}
+
 .attention a {
   font-size: 14px;
   color: #337ab7;
@@ -351,22 +365,37 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   .main {
     flex-direction: column;
     /* フレックスボックスの方向を縦に変更 */
-    padding: 20px;
+    padding: 30px 20px 20px 20px;
   }
 
   .viewy {
     display: none;
   }
 
+  .nav-item.logo img {
+    width: 212px;
+    height: auto;
+    margin-left: -40px;
+    margin-top: -8px;
+}
+
+  .nav-item {
+    margin: 0px 20px 0px 0px;
+  }
+
+  .nav-right {
+    margin-right: 0px;
+  }
+
 
   .topic-title {
     font-weight: 700;
-    font-size: 33px;
+    font-size: 26px;
     margin-bottom: 18px;
   }
 
   .sub-topic {
-    padding: 48px 22px;
+    padding: 26px 22px 26px 22px;
   }
 
   .accordion {
@@ -376,8 +405,6 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
     /* 右の境界線を削除 */
     padding-right: 0;
     /* 右のパディングを削除 */
-    border-bottom: 1px solid #e0e0e0;
-    /* 下に境界線を追加 */
     padding-bottom: 20px;
     margin-bottom: 20px;
     margin-top: 48px;
@@ -386,6 +413,18 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   .topic {
     width: 90%;
     margin: 0px auto;
+  }
+
+  .sub-topic {
+    font-size: 18px;
+  }
+
+  .form-textarea textarea {
+    width: 90%;
+  }
+
+  .form-form input {
+    width: 90%;
   }
 
 }

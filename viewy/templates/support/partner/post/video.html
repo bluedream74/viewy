@@ -1,0 +1,35 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">動画を投稿する</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      動画を投稿するには:<br><br>
+
+      1.画面下の中央の「＋」をタップ<br>
+      2.「動画を投稿」をタップ<br>
+      3.動画ファイルを選択<br>
+      4.タイトル・URL・ハッシュタグ・キャプションを入力<br>
+      5.予約投稿をしたい場合は、チェックを付け日時を指定<br>
+      6.プレビューをタップして確認し、投稿<br><br>
+      
+      ヒント:<br>
+      「プレビュー」ボタンを押すと実際にどのように表示されるかを確認できます。<br>
+      <strong>必須項目は「動画ファイル・タイトル」です。</strong><br><br>
+      ・動画ファイル(最大2分)(最大200MB)(最大サイズは720px)<br>
+      ・タイトル (最低2字・最大30字)<br>
+      ・URL<br>
+      ・キャプション(最大100字)<br>
+      ・ハッシュタグ(3つまで設定可能)(1つにつき最大20文字)
+      
+      
+    </p>
+  </div>
+</div>
+{% endblock %}

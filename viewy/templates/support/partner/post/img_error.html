@@ -1,0 +1,22 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">画像を投稿できない</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      画像が投稿できない場合は、画面のエラー指示に従って修正してみてください。また、画像ファイルが「最大31ファイル」「1画像5MB以下」「最大サイズ1080px」を満たしているかを確認してください。<br><br>
+
+      それでも投稿できない場合は、<a href="{% url 'support:inquiry_form'%}" class="a-link">お問い合わせ</a>までご連絡をお願いします。
+      
+      
+      
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -10,29 +10,25 @@ class AgeVerificationMiddleware:
     def __call__(self, request):
         # 年齢確認ページのURLを取得
         age_verification_url = reverse('home')
+        crawler_redirect_url = reverse('posts:visitor_postlist')
 
         # 静的ファイルとメディアファイルへのリクエストは除外
         if request.path.startswith(settings.STATIC_URL) or request.path.startswith(settings.MEDIA_URL):
             return self.get_response(request)
 
 
-        # # クローラー向けの特別なリダイレクト先
-        # crawler_redirect_url = reverse('posts:visitor_postlist')
-
-        # # クローラーのユーザーエージェントを識別する
-        # crawler_user_agents = ['Googlebot', 'Bingbot', 'Yahoo', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou']
+        # クローラーのユーザーエージェントを識別する
+        crawler_user_agents = ['Googlebot', 'Bingbot', 'Yahoo', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou']
         
-        # # リクエストのユーザーエージェントをチェック
-        # user_agent = request.META.get('HTTP_USER_AGENT', '')
+        # リクエストのユーザーエージェントをチェック
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
 
-        # print("Current User-Agent:", user_agent) 
-
-        # if any(crawler in user_agent for crawler in crawler_user_agents):
-        #     print("Detected crawler:", user_agent)
-        #     # クローラーの場合は年齢確認をスキップ
-        #     if request.path == crawler_redirect_url:
-        #         return self.get_response(request)
-        #     return redirect(crawler_redirect_url)
+        if any(crawler in user_agent for crawler in crawler_user_agents):
+            # 年齢確認ページにアクセスした場合、クローラーを特別なURLにリダイレクト
+            if request.path == age_verification_url:
+                return redirect(crawler_redirect_url)
+            # それ以外の場合は年齢確認をスキップ
+            return self.get_response(request)
 
         # 除外したいURLのリスト
         excluded_urls = [
@@ -41,7 +37,6 @@ class AgeVerificationMiddleware:
             "/for_advertiser/",
             "/set_meeting/",
             "/set_meeting_success/",
-            # crawler_redirect_url,
         ]
 
         # 現在のページが除外したいURLのいずれでもない場合のみリダイレクト処理を行う

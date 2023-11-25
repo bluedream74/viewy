@@ -4,14 +4,15 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
 
   <link rel="stylesheet" href="{% static 'css/support/first.css' %}">
   <!-- iOS向けの指定 -->
   <!-- <link rel="apple-touch-icon" type="image/png" href="{{ MEDIA_URL }}icon_management/apple-touch-icon.png" sizes="180x180"> -->
   <script src="https://kit.fontawesome.com/ad23325601.js" crossorigin="anonymous"></script>
-  <title>Viewy-Support</title>
+  <title>Viewy サポートセンター</title>
+  <meta name="description" content="Viewyは安全ですか.Viewyについて知りたい.Viewyは無料ですか.Viewyのパートナーになりたい.">
   {% block head %}
   {% endblock %}
 </head>
@@ -21,12 +22,12 @@
     <div class="nav-container">
       <div class="nav-item logo">
         <a href="{% url 'support:first'%}">
-          <img src="{{ MEDIA_URL }}others/viewy-logo-colored.png" alt="Home">
+          <img src="{{ MEDIA_URL }}others\ヘッダー2.png" alt="Home">
         </a>
       </div>
       <div class="nav-right">
-        <div class="nav-item"><a href="{% url 'support:inquiry_form'%}">お問い合わせ</a></div>
-        <div class="nav-item viewy"><a href="{% url 'posts:postlist'%}">Viewyへ</a></div>
+        <div class="nav-item"><a class="a-link" href="{% url 'support:inquiry_form'%}">お問い合わせ</a></div>
+        <div class="nav-item viewy"><a class="a-link" href="{% url 'posts:postlist'%}">Viewyへ</a></div>
       </div>
     </div>
   </header>
@@ -34,6 +35,7 @@
     <div class="img-container">
       <img src="{{ MEDIA_URL }}others/カード白アクア.png" alt="">
     </div>
+    <div class="big-title"><div>サポートセンター</div></div>
     <div class="popular articles">
       <div class="section-head">
         <div class="faq-text">よくある質問</div>
@@ -41,35 +43,35 @@
       <div class="section-cards">
         <div class="card">
           <div class="card-text">
-            <a>一般情報</a>
+            <a>Viewyについて</a>
             <span>></span>
-            <a>運営</a>
+            <a>利用方法</a>
           </div>
-          <div class="card-link"><a href="">安全なサイトですか</a></div>
+          <div class="card-link"><a href="{% url 'support:subtitle_page' pretitle='about_viewy' title='use' subtitle='viewy' %}">安全なサイトですか</a></div>
         </div>
         <div class="card">
           <div class="card-text">
             <a>ユーザー</a>
             <span>></span>
-            <a>利用方法</a>
+            <a>キャンペーン</a>
           </div>
-          <div class="card-link"><a href="">完全に無料ですか</a></div>
+          <div class="card-link"><a href="{% url 'support:subtitle_page' pretitle='user' title='campaign' subtitle='fee' %}">キャンペーンとは何ですか</a></div>
+        </div>
+        <div class="card">
+          <div class="card-text">
+            <a>Viewyについて</a>
+            <span>></span>
+            <a>登録・ログイン</a>
+          </div>
+          <div class="card-link"><a href="{% url 'support:subtitle_page' pretitle='about_viewy' title='regist_login' subtitle='n_login' %}">パスワードを忘れた</a></div>
         </div>
         <div class="card">
           <div class="card-text">
             <a>パートナー</a>
             <span>></span>
-            <a>一般情報</a>
+            <a>パートナー登録</a>
           </div>
-          <div class="card-link"><a href="">パートナーの条件</a></div>
-        </div>
-        <div class="card">
-          <div class="card-text">
-            <a>サービス全般</a>
-            <span>></span>
-            <a>一般情報</a>
-          </div>
-          <div class="card-link"><a href="">パスワードを忘れた</a></div>
+          <div class="card-link"><a href="{% url 'support:subtitle_page' pretitle='partner' title='regist' subtitle='who' %}">誰でもパートナーになれますか</a></div>
         </div>
       </div>
     </div>
@@ -83,7 +85,7 @@
           <div class="topic-card-header">
             <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='about_viewy' %}">
               Viewyについて</a></div>
-            <div><i class="fa-solid fa-user"></i></div>
+            <div><i class="fa-solid fa-compass"></i></div>
           </div>
           <ul class="topic-card-list">
             <li><a href="{% url 'support:title_page' pretitle='about_viewy' title='use' %}">Viewyの利用方法</a></li>
@@ -104,7 +106,7 @@
         <div class="topic-card">
           <div class="topic-card-header">
             <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='partner' %}">パートナー</a></div>
-            <div><i class="fa-solid fa-user"></i></div>
+            <div><i class="fa-solid fa-user-check"></i></div>
           </div>
           <ul class="topic-card-list">
             <li><a href="{% url 'support:title_page' pretitle='partner' title='regist' %}">パートナー登録</a></li>
@@ -115,7 +117,7 @@
         <div class="topic-card">
           <div class="topic-card-header">
             <div class="topic-card-name"><a href="{% url 'support:pretitle_page' pretitle='service' %}">サービス全般</a></div>
-            <div><i class="fa-solid fa-user"></i></div>
+            <div><i class="fa-solid fa-gears"></i></div>
           </div>
           <ul class="topic-card-list">
             <li><a href="{% url 'support:title_page' pretitle='service' title='general' %}">一般情報</a></li>

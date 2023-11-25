@@ -1,0 +1,28 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">パスワードを忘れた</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      <strong>アカウントを作成したが、ログインできないとき：<br><br></strong>
+
+      (1)パスワードを忘れた場合<br><br>
+      1.ログイン画面下の「パスワード変更」をタップ<br>
+      2.アカウントを作成した際に登録したメールアドレスを入力<br>
+      3.メールアドレス宛に届くパスワード変更メールのURLをクリック<br>
+      4.新たなパスワードを設定しログイン<br><br>
+      
+      (2)自分のメールアドレスにもかかわらず「このメールアドレスは既に使用されています」と表示される場合<br><br>
+      アカウントが作成途中の可能性があるので、メールアドレス宛にViewyからのメールが届いていないか確認（迷惑メールフォルダも確認）<br><br>
+      
+      上記以外の場合は<a href="{% url 'support:inquiry_form'%}" class="a-link">お問い合わせ</a>にてご連絡をお願いします。
+    </p>
+  </div>
+</div>
+{% endblock %}

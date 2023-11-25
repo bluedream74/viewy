@@ -1,0 +1,21 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">規約</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      以下の規約等をご覧ください。<br><br>
+
+      <a href="{% url 'terms'%}" class="a-link">利用規約</a><br>
+      <a href="{% url 'policy'%}" class="a-link">プライバシーポリシー</a><br>
+      <a href="{% url 'guideline'%}" class="a-link">投稿ガイドライン</a><br>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -20,12 +20,12 @@
     <div class="nav-container">
       <div class="nav-item logo">
         <a href="{% url 'support:first'%}">
-          <img src="{{ MEDIA_URL }}others/viewy-logo-colored.png" alt="Home">
+          <img src="{{ MEDIA_URL }}others\ヘッダー2.png" alt="Home">
         </a>
       </div>
       <div class="nav-right">
-        <div class="nav-item"><a href="{% url 'support:inquiry_form'%}">お問い合わせ</a></div>
-        <div class="nav-item viewy"><a href="{% url 'posts:postlist'%}">Viewyへ</a></div>
+        <div class="nav-item"><a class="a-link" href="{% url 'support:inquiry_form'%}">お問い合わせ</a></div>
+        <div class="nav-item viewy"><a class="a-link" href="{% url 'posts:postlist'%}">Viewyへ</a></div>
       </div>
     </div>
   </header>
@@ -46,7 +46,7 @@
               </div>
 
               <div class="n-accordion-content">
-                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='about_viewy' title='use' subtitle='viewy' %}">Viewyとは？</a></div>
+                <div class="subtitle"><a href="{% url 'support:subtitle_page' pretitle='about_viewy' title='use' subtitle='viewy' %}">Viewyは安全なサイトですか</a></div>
               </div>
 
             </div>

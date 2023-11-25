@@ -1,0 +1,32 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">投稿が視聴できない</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      お使いの端末(iPhoneやAndroidなど)を下記のように設定すると、投稿が視聴できないなどの不具合が解消される場合があります。<br><br>
+
+      <strong>サイトの履歴（キャッシュ・Cookie）を削除する<br><br></strong>
+      
+      (1)iPhoneの場合<br>
+      1.iPhoneやiPadなど端末のホーム画面から「設定」をタップ<br>
+      2.「Safari」をタップ<br>
+      3.「閲覧履歴データの削除」をタップ<br><br>
+      
+      (1)Androidの場合<br>
+      1.Google chorme右上の「その他アイコン」から「設定」をタップ<br>
+      2.「プライバシーとセキュリティ」をタップ<br>
+      3.「履歴とWeb サイトデータを消去」をタップ<br><br>
+      
+      
+      上記の動作をしても視聴できない場合は<a href="{% url 'support:inquiry_form'%}" class="a-link">お問い合わせ</a>までご連絡をお願いします。
+    </p>
+  </div>
+</div>
+{% endblock %}

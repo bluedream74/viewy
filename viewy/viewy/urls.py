@@ -1,11 +1,31 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.http import HttpResponse
+from django.urls import path, include, re_path
 from accounts.views import CheckAgeView, GuideView, GuideLineView, TermsView, PolicyView, AboutViewyView, ForInvitedView, ForAdvertiserView, RequestDocumentsView, RequestSuccessView, SetMeetingView, SetMeetingSuccessView, DeleteRequestView, DeleteRequestSuccessView, PartnerApplicationGuideView, ForbiddenView, NotFoundView, BadRequestView, UnauthorizedView, ForbiddenView, NotFoundView, ServerErrorView, BadGatewayView, ServiceUnavailableView, ServerErrorView
 # from . import settings
 from django.conf import settings
 from django.contrib.staticfiles.urls import static
 
+# サイトマップ関連
+from django.contrib.sitemaps.views import sitemap
+from posts.sitemaps import PosterPageSitemap, HashtagPageSitemap, StaticViewSitemap, SupportSitemap
+
+
+sitemaps = {
+    'posters': PosterPageSitemap,
+    'hashtags': HashtagPageSitemap,
+    'support': SupportSitemap,
+    'static': StaticViewSitemap,
+}
+
 urlpatterns = [
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
+    re_path(r'^robots.txt$', lambda r: HttpResponse(
+        "User-agent: *\n"
+        "Disallow: /management/\n"
+        "Disallow: /advertisement/\n"
+        "Sitemap: https://www.viewy.net/sitemap.xml",
+        content_type="text/plain")),
     path('accounts/', include('accounts.urls')), 
     path('posts/', include('posts.urls')),
     path('support/', include('support.urls')), 

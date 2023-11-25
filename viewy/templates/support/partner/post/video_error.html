@@ -1,0 +1,22 @@
+{% extends 'support/detail_base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block topic %}
+<div class="topic-title">動画を投稿できない</div>
+<div class="sub-topics">
+  <div class="sub-topic">
+
+    <p class="paragraph">
+      動画が投稿できない場合は、画面のエラー指示に従って再度投稿してみてください。また、動画ファイルが「最大2分」「最大200MB」「最大サイズ720px」を満たしているかを確認してください。<br><br>
+
+      それでも投稿できない場合は、<a href="{% url 'support:inquiry_form'%}" class="a-link">お問い合わせ</a>までご連絡をお願いします。
+      
+      
+      
+    </p>
+  </div>
+</div>
+{% endblock %}

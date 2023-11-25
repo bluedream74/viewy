@@ -1,6 +1,16 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Meiryo', sans-serif;
+}
+
+.big-title {
+  display: flex;       /* Flexboxレイアウトを適用 */
+  justify-content: center; /* 水平方向の中央揃え */
+  align-items: center;     /* 垂直方向の中央揃え */
+  height: 20vh;
+  font-size: 48px;
+  font-weight: bold;
 }
 
 
@@ -9,17 +19,34 @@ a {
   text-decoration: none;
 }
 
+.a-link {
+  color: #0000EE;
+  /* リンクは通常青色です */
+  text-decoration: underline;
+  /* リンクには通常、下線が引かれます */
+}
+
+.a-link:hover {
+  color: #0000CC;
+  /* マウスカーソルをリンクの上に置くと、色が変わります（通常は濃い青色になる） */
+}
+
+.a-link:visited {
+  color: #551A8B;
+  /* 訪問済みリンクは通常、紫色で表示されます */
+}
+
 
 header {
   background-color: #ffffff;
-  padding: 8px;
+  padding: 0px;
   text-align: left;
   position: fixed;
   width: 100%;
   top: 0;
   left: 0;
   z-index: 1000;
-  border: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .nav-container {
@@ -29,10 +56,10 @@ header {
 }
 
 .nav-item.logo img {
-  width: 48px;
+  width: 252px;
   height: auto;
-  margin-top: 8px;
-  background-color: #f8f9fa;
+  margin-left: -52px;
+  margin-top: -18px;
 }
 
 .nav-right {
@@ -45,17 +72,9 @@ header {
   margin: 0 20px;
 }
 
-.nav-item a {
-  text-decoration: none;
-  color: #337ab7;
-}
-
-.nav-item a:hover {
-  text-decoration: underline;
-}
 
 .img-container {
-  margin-top: 68px;
+  margin-top: 78px;
 }
 
 .img-container img {
@@ -101,7 +120,7 @@ header {
   /* または任意の色 */
   text-align: center;
   line-height: 1.5;
-  padding: 32px;
+  padding: 32px 32px 92px 32px;
   position: relative;
   border-radius: 5px;
   box-shadow: rgba(34, 90, 89, 0.2) 2px 4px 20px;
@@ -152,7 +171,7 @@ header {
   /* min-height: 20vh; 最小の高さを設定 */
   text-align: center;
   line-height: 1.5;
-  padding: 40px 36px;
+  padding: 56px 36px;
   /* margin: 32px 16px 0; */
   position: relative;
   border-radius: 5px;
@@ -215,15 +234,40 @@ header {
     grid-template-columns: 1fr;
     /* カードを一列にする */
   }
+
+  .big-title {
+    font-size: 33px;
+    height: 14vh;
+  }
   
+
+  .viewy {
+    display: none;
+  }
+
+  .nav-item.logo img {
+    width: 212px;
+    height: auto;
+    margin-left: -40px;
+    margin-top: -8px;
+}
+
+  .nav-item {
+    margin: 0px 20px 0px 0px;
+  }
+
+  .nav-right {
+    margin-right: 0px;
+  }
+
   .faq-text {
     font-size: 33px;
     margin: 0 auto;
-}
+  }
 
- .card-link {
-  font-size: 22px;
- }
+  .card-link {
+    font-size: 22px;
+  }
 
   .topic-card-header {
     font-size: 22px;
@@ -240,5 +284,12 @@ header {
   .card {
     width: 100%;
     /* カードを一列にする */
+    height: 18vh;
   }
+
+  .card-link a {
+    margin-top: 12px;
+    font-size: 18px;
+  }
+
 }
