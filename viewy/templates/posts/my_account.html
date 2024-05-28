@@ -85,14 +85,15 @@
         {% elif request.user and is_poster %}
         <div class="grade partner">パートナー</div>
         {% else %}
-        <div class="grade basic">{{tomstalk.status}}</div>
+          <div class="grade partner">パートナー</div>
+          <!--<div class="grade basic">{{tomstalk.status}}</div>-->
         {% endif %}
 
         {% if request.user and is_poster %}
           {% if request.user.boost_type == "boost" %}
-            <div class="boost_type boost">BOOST</div>
+            <!--<div class="boost_type boost">BOOST</div>-->
           {% elif request.user.boost_type == "firstboost" %}
-            <div class="boost_type first-boost">FIRST BOOST</div>
+            <!--<div class="boost_type first-boost">FIRST BOOST</div>-->
           {% elif request.user.boost_type == "superboost" %}
             <div class="boost_type super-boost">SUPER BOOST</div>
           {% elif request.user.boost_type == "viewyboost" %}
