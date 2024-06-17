@@ -13,6 +13,12 @@
   <div class="survey-tom"><img src="{{ MEDIA_URL }}others/アンケート.png" alt=""></div>
   <div class="guide">新しいXアカウントのURLを入力してください。確認後、ご自身のフォロワーに通知致します。</div>
 
+  
+  <div class="cation">
+    【注意】<br>
+    Viewyでの投稿数が0件のパートナー様は凍結通知機能が実行されません。（投稿後、検閲により削除されたコンテンツは投稿数に含みません。)
+  </div>
+
   <form method="post">
     {% csrf_token %}
 
@@ -36,7 +42,15 @@
 <style>
   .my-account{
     border-top: solid 2px aqua;
-      }
+  }
+
+  .cation{
+    background-color: #C84032;
+    border-radius: 10px;
+    padding:20px;
+    color:#fff;
+    margin:20px 0px;
+  }
 </style>
 <script type="module" src="{% static 'js/adjust_favorite_follow.js' %}"></script>
 {% endblock %}
