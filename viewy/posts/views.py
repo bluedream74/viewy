@@ -1813,16 +1813,18 @@ class MangaCreateView(BasePostCreateView):
 
         form.save()
 
-        for visual_file in image_files:
-            visual = Visuals(post=form.instance)
-            visual.visual.save(visual_file.name, visual_file, save=True)
-
         #24/06/18 投稿完了のメールを投げる
         subject = '新規画像の投稿がありました'
         message = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/manga_create/"
         from_email = 'support@viewy.net'
-        recipient_list = ['yugredokiseed@gmail.com']
+        recipient_list = ['support@viewy.net']
+        recipient_list2 = ['yugredokiseed@gmail.com']
         send_mail(subject, message, from_email, recipient_list)
+        send_mail(subject, message, from_email, recipient_list2)
+
+        for visual_file in image_files:
+            visual = Visuals(post=form.instance)
+            visual.visual.save(visual_file.name, visual_file, save=True)
 
         return response
 
@@ -1872,6 +1874,16 @@ class VideoCreateView(BasePostCreateView):
                     form.instance.content_length = int(clip.duration)  # Save the video's length in seconds
                 
                 form.save()
+
+                #24/06/18 投稿完了のメールを投げる
+                subject = '新規動画の投稿がありました'
+                message = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/video_create/"
+                from_email = 'support@viewy.net'
+                recipient_list = ['support@viewy.net']
+                recipient_list2 = ['yugredokiseed@gmail.com']
+                send_mail(subject, message, from_email, recipient_list)
+                send_mail(subject, message, from_email, recipient_list2)
+
                 video = Videos(post=form.instance)
                 video.video.save(video_file.name, video_file, save=True)
                 return super().form_valid(form)
