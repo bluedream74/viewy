@@ -18,6 +18,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import serializers
 from django.core.serializers import serialize, deserialize
+from django.core.mail import send_mail
 from django.db.models import Case, Exists, OuterRef, Q, When, Sum, IntegerField, Subquery
 from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -1815,6 +1816,14 @@ class MangaCreateView(BasePostCreateView):
         for visual_file in image_files:
             visual = Visuals(post=form.instance)
             visual.visual.save(visual_file.name, visual_file, save=True)
+
+        #24/06/18 投稿完了のメールを投げる
+        subject = '新規画像の投稿がありました'
+        message = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/manga_create/"
+        from_email = 'support@viewy.net'
+        recipient_list = ['yugredokiseed@gmail.com']
+        send_mail(subject, message, from_email, recipient_list)
+
         return response
 
     
