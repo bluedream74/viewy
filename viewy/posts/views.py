@@ -1813,14 +1813,22 @@ class MangaCreateView(BasePostCreateView):
 
         form.save()
 
-        #24/06/18 投稿完了のメールを投げる
-        subject = '新規画像の投稿がありました'
-        message = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/manga_create/"
-        from_email = 'support@viewy.net'
+        #24/06/21 投稿完了のメールを投げる
+        time.sleep(1)
+        post_last = Posts.objects.latest("id").id
+        user_name = Users.objects.filter(id=post_last)[0].username
+
+        subject         = '新規画像の投稿がありました'
+        message         = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/poster_post_list/"
+        param_user_name = f'{user_name}'
+        param_post_id   = f'{post_last}'
+        send_messgae    = message + param_user_name + "/?post_id=" + param_post_id
+        from_email      = 'support@viewy.net'
         recipient_list = ['support@viewy.net']
         recipient_list2 = ['yugredokiseed@gmail.com']
-        send_mail(subject, message, from_email, recipient_list)
-        send_mail(subject, message, from_email, recipient_list2)
+
+        send_mail(subject, send_messgae, from_email, recipient_list)
+        send_mail(subject, send_messgae, from_email, recipient_list2)
 
         for visual_file in image_files:
             visual = Visuals(post=form.instance)
