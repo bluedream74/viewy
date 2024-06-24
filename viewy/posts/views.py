@@ -1884,14 +1884,23 @@ class VideoCreateView(BasePostCreateView):
                 
                 form.save()
 
-                #24/06/18 投稿完了のメールを投げる
-                subject = '新規動画の投稿がありました'
-                message = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/video_create/"
-                from_email = 'support@viewy.net'
-                recipient_list = ['support@viewy.net']
+                #24/06/22 投稿完了のメールを投げる
+                time.sleep(1)
+                post_id   = Posts.objects.latest("id").id
+                post_last = Posts.objects.latest("id").poster_id
+                user_name = Users.objects.filter(id=post_last)[0].username
+
+                subject         = '新規動画の投稿がありました'
+                message         = "新規投稿がありました\n\nURL:https://www.viewy.net/posts/poster_post_list/"
+                param_user_name = f'{user_name}'
+                param_post_id   = f'{post_id}'
+                send_messgae    = message + param_user_name + "/?post_id=" + param_post_id
+                from_email      = 'support@viewy.net'
+                recipient_list  = ['support@viewy.net']
                 recipient_list2 = ['yugredokiseed@gmail.com']
-                send_mail(subject, message, from_email, recipient_list)
-                send_mail(subject, message, from_email, recipient_list2)
+
+                send_mail(subject, send_messgae, from_email, recipient_list)
+                send_mail(subject, send_messgae, from_email, recipient_list2)
 
                 video = Videos(post=form.instance)
                 video.video.save(video_file.name, video_file, save=True)
