@@ -8,6 +8,11 @@ from django.contrib.auth import signals
 from django.utils.decorators import method_decorator
 from axes.decorators import axes_dispatch
 from axes.handlers.proxy import AxesProxyHandler
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from django.utils.decorators import method_decorator
 
 # Third-party Django
 from django import forms
@@ -1016,3 +1021,21 @@ class SaveFreezeNotificationView(View):
         return JsonResponse({"status": "error"})
     
     
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        print(email)
+        user = authenticate(request=request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)

@@ -41,8 +41,8 @@ class AgeVerificationMiddleware:
 
         # 現在のページが除外したいURLのいずれでもない場合のみリダイレクト処理を行う
         if not any(request.path.startswith(url) for url in excluded_urls):
-            # 現在のページが年齢確認ページではない場合のみリダイレクト処理を行う
-            if request.path != age_verification_url and not request.COOKIES.get('is_over_18'):
+            # 現在のページが年齢確認ページ、ログインAPIではない場合のみリダイレクト処理を行う
+            if request.path != age_verification_url and not request.COOKIES.get('is_over_18') and request.path != settings.LOGIN_API_URL:
                 # nextパラメータに現在のページのパスを設定
                 query_string = urlencode({'next': request.path})
                 redirect_url = age_verification_url + '?' + query_string
