@@ -1030,7 +1030,7 @@ class LoginAPIView(APIView):
     
     @method_decorator(csrf_exempt)
     def get(self, request):
-        return Response({ 'error': 'Not found' }, status=status.HTTP_404_NOT_FOUND)
+        return render(request, 'error/404.html')
     
     @method_decorator(csrf_exempt)
     def post(self, request):
