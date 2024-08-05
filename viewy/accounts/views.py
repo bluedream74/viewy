@@ -39,6 +39,7 @@ from django.contrib.auth.views import LoginView
 from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
 from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults, NotificationView, FreezeNotificationView, Blocks
 from management.models import UserStats
+from .serializers import RegisterSerializer
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -1036,10 +1037,26 @@ class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        print(email)
         user = authenticate(request=request, username=email, password=password)
         if user is not None:
             login(request, user)
             return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
         else:
+            send_mail(
+                '【Viewy】ログイン失敗',
+                'Veilliveサイトと同じ会員データがViewyにありません。',
+                'Viewy <regist@viewy.net>',
+                ['support@viewy.net']
+            )
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        serializer = RegisterSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        
