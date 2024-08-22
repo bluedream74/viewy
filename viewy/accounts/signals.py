@@ -24,7 +24,7 @@ def log_login(sender, request, user, **kwargs):
     }
     log_data = json.dumps(log_entry)
     
-    file_name = f"login-logs/{user.email}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.json"
+    file_name = f"api/login-logs/{user.email}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.json"
     
     s3.put_object(
         Bucket=BUCKET_NAME,
