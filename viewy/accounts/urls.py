@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView, BlockView, BlockPosterView, LoginAPIView
+  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView, BlockView, BlockPosterView, LoginAPIView, RegisterAPIView
 )
 from . import views
 
@@ -36,4 +36,5 @@ urlpatterns = [
   path('save_notification_view/', SaveNotificationView.as_view(), name='save_notification_view'),
   path('save_freeze_notification_view/', SaveFreezeNotificationView.as_view(), name='save_freeze_notification_view'),
   path('login_api/', LoginAPIView.as_view(), name='login_api'),
+  path('register_api/', RegisterAPIView.as_view(), name='login_api'),
 ]

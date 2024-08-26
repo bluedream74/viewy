@@ -2,6 +2,8 @@
 import os
 import random
 import string
+import re
+import boto3
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect ,JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError, HttpResponse
 from django.contrib.auth import signals
@@ -12,7 +14,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from django.utils.decorators import method_decorator
 
 # Third-party Django
 from django import forms
@@ -23,6 +24,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.password_validation import validate_password
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -39,11 +41,11 @@ from django.contrib.auth.views import LoginView
 from .forms import EditPrfForm, RegistForm, InvitedRegistForm, UserLoginForm, VerifyForm, PasswordResetForm, SetPasswordForm, DeleteRequestForm
 from .models import Follows, Messages, Users, DeleteRequest, Features, Surveys, SurveyResults, NotificationView, FreezeNotificationView, Blocks
 from management.models import UserStats
+from .serializers import RegisterSerializer
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.template.loader import render_to_string
 
@@ -1036,10 +1038,167 @@ class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        print(email)
         user = authenticate(request=request, username=email, password=password)
         if user is not None:
             login(request, user)
-            return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+            return Response(True, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+            send_mail(
+                '【Viewy】ログイン失敗',
+                'Veilliveサイトと同じ会員データがViewyにありません。',
+                'Viewy <regist@viewy.net>',
+                ['support@viewy.net']
+            )
+            return Response(False, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    @method_decorator(csrf_exempt)
+    def get(self, request):
+        return render(request, 'error/404.html')
+
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        serializer = RegisterSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if Users.objects.filter(email=serializer.validated_data['email']).exists():
+            error_text = 'このメールアドレスは既に使用されています。別のメールアドレスを入力してください。'
+            self.error_log_to_s3(
+                serializer.validated_data['email'],
+                error_text
+            )
+            self.send_mail_to_manager(
+                serializer.validated_data['email'],
+                error_text
+            )
+            return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.match(r'^[a-zA-Z0-9_]+$', serializer.validated_data['username']):
+            error_text = 'ユーザーネームは英数字と_のみが使用可能です。'
+            self.error_log_to_s3(
+                serializer.validated_data['email'],
+                error_text
+            )
+            self.send_mail_to_manager(
+                serializer.validated_data['email'],
+                error_text
+            )
+            return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        
+        if Users.objects.filter(username=serializer.validated_data['username']).exists():
+            error_text = 'このユーザーネームは既に使用されています。別のユーザーネームを入力してください。'
+            self.error_log_to_s3(
+                serializer.validated_data['email'],
+                error_text
+            )
+            self.send_mail_to_manager(
+                serializer.validated_data['email'],
+                error_text
+            )
+            return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = serializer.save()
+        user.is_active = True
+        user.verification_code = None
+        validate_password(serializer.validated_data['password'], user) # パスワードのバリデーションをより詳しく行う
+        user.set_password(serializer.validated_data['password']) # パスワードのハッシュ化
+        user.save()
+
+
+        # ユーザーをログインさせる
+        login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+            
+
+        # ここで現在の総ユーザー数を保存するようにする
+        today = timezone.now().date()
+        total_users = Users.objects.filter(is_active=True).count()
+
+        record, created = UserStats.objects.get_or_create(date=today, defaults={'total_users': total_users})
+
+        if not created:
+            record.total_users = total_users
+            record.save()
+
+        # Add a success message
+        messages.success(self.request, 'ユーザー登録が完了しました')
+
+        # Success Log to AWS S3
+        self.success_log_to_s3(user)
+
+        return Response(True)
+        
+    def success_log_to_s3(self, user):
+        # AWS credentials should be configured in environment variables or AWS configuration files
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME
+        )
+        BUCKET_NAME = settings.AWS_LOGIN_LOG_BUCKET_NAME
+
+        # Create the log data
+        log_data = {
+            'email': user.email,
+            'username': user.username,
+            'date_registered': str(timezone.now())
+        }
+
+        # Convert log data to JSON format
+        log_data_json = json.dumps(log_data)
+
+        # Specify the S3 bucket name and the file name
+        file_name = f'api/register_true_logs/{user.email}_{timezone.now().strftime("%Y%m%d%H%M%S")}.json'
+
+        # Upload the JSON log data to S3
+        s3_client.put_object(
+            Bucket=BUCKET_NAME,
+            Key=file_name,
+            Body=log_data_json,
+            ContentType='application/json'
+        )
+    
+    def error_log_to_s3(self, email, error):
+        # AWS credentials should be configured in environment variables or AWS configuration files
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME
+        )
+        BUCKET_NAME = settings.AWS_LOGIN_LOG_BUCKET_NAME
+
+        # Create the log data
+        log_data = {
+            'email': email,
+            'error': error,
+            'tried_at': str(timezone.now()),
+        }
+
+        # Convert log data to JSON format
+        log_data_json = json.dumps(log_data)
+
+        # Specify the S3 bucket name and the file name
+        file_name = f'api/register_false_logs/{email}_{timezone.now().strftime("%Y%m%d%H%M%S")}.json'
+
+        # Upload the JSON log data to S3
+        s3_client.put_object(
+            Bucket=BUCKET_NAME,
+            Key=file_name,
+            Body=log_data_json,
+            ContentType='application/json'
+        )
+
+    def send_mail_to_manager(self, email, error):
+        send_mail(
+            '【Viewy】会員登録失敗',
+            f"登録試行したメールアドレス{email}：{error}",
+            'Viewy <regist@viewy.net>',
+            ['support@viewy.net']
+        )
