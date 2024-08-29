@@ -26,7 +26,7 @@
     </a>
     <div class="view-new">
       <!-- 新しいアカウントを見るボタン -->
-      {% with notification=poster.ice_alerts.first %}
+      {% with notification=poster.ice_alerts.last %}
       <a href="{{ notification.new_url }}" class="view-new-account">新しいアカウントを確認</a>
       {% endwith %}
     </div>
