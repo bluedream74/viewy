@@ -17,3 +17,4 @@ viewy/lib/python3.12/site-packages/pip-24.0.dist-info/INSTALLER
 /viewy/lib/python3.12/site-packages
 /viewy/path/to
 viewy/pyvenv.cfg
+/viewy/.venv
