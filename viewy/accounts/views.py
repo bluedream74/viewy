@@ -1038,7 +1038,8 @@ class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        user = authenticate(request=request, username=email, password=password)
+        user = authenticate(username=email, password=password, request=request)
+        
         if user is not None:
             login(request, user)
             return Response(True, status=status.HTTP_200_OK)
@@ -1202,3 +1203,21 @@ class RegisterAPIView(APIView):
             'Viewy <regist@viewy.net>',
             ['support@viewy.net']
         )
+
+class SetCookieView(TemplateView):
+    template_name = 'loader.html'
+
+    def get(self, request):
+        csrftoken = request.GET.get('csrftoken', None)
+        sessionid = request.GET.get('sessionid', None)
+        next_url = request.GET.get('next', None)
+
+        response = redirect('posts:visitor_postlist')
+        response.set_cookie('is_over_18', 'true', max_age=60*60*24*3)  # このクッキーは３日間続く
+        if csrftoken:
+            response.set_cookie('csrftoken', csrftoken)
+
+        if sessionid:
+            response.set_cookie('sessionid', sessionid)
+
+        return response
