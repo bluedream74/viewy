@@ -780,20 +780,33 @@ class VisitorPostListView(BasePostListView):
         base_query = super().get_queryset()
 
         # is_realがTrueのユーザーの投稿で、favorite_countが上位5件を取得
-        real_user_posts = base_query.filter(poster__is_real=True).order_by('-favorite_count')[:5]
+        #real_user_posts = base_query.filter(poster__is_real=True).order_by('-favorite_count')[:5]
 
         # is_realがFalseのユーザーの投稿で、favorite_countが上位5件を取得
-        not_real_user_posts = base_query.filter(poster__is_real=False).order_by('-favorite_count')[:5]
+        #not_real_user_posts = base_query.filter(poster__is_real=False).order_by('-favorite_count')[:5]
 
         # 上記の2つのクエリセットを結合
-        combined_query = real_user_posts.union(not_real_user_posts).order_by('-favorite_count')[:10]
+        #combined_query = real_user_posts.union(not_real_user_posts).order_by('-favorite_count')[:10]
 
         # クエリを実行して結果をリストに変換
-        combined_posts = list(combined_query)
+        #combined_posts = list(combined_query)
 
         # 10件の投稿の中からランダムに5件を選択
-        posts = random.sample(combined_posts, 5)
-        
+        #posts = random.sample(combined_posts, 5)
+
+
+        # Add 24/09/02 非会員ページの条件変更
+        # is_realがTrueのユーザーの投稿で、favorite_countが上位10件を取得
+        real_user_posts = base_query.filter(poster__is_real=True).order_by('-favorite_count')[:10]
+
+        # クエリを実行して結果をリストに変換
+        combined_posts = list(real_user_posts)
+
+        # 10件の投稿の中からランダムに7件を選択
+        posts = random.sample(combined_posts, 7)        
+
+
+
         return posts
     
     
