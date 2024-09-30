@@ -1107,9 +1107,14 @@ class RegisterAPIView(APIView):
         user = serializer.save()
         user.is_active = True
         user.verification_code = None
+        user.is_real = True # クリエイター権限
         validate_password(serializer.validated_data['password'], user) # パスワードのバリデーションをより詳しく行う
         user.set_password(serializer.validated_data['password']) # パスワードのハッシュ化
         user.save()
+
+        # Posterグループにユーザーを追加
+        group, created = Group.objects.get_or_create(name='Poster')
+        group.user_set.add(user)
 
 
         # ユーザーをログインさせる
@@ -1212,7 +1217,7 @@ class SetCookieView(TemplateView):
         sessionid = request.GET.get('sessionid', None)
         next_url = request.GET.get('next', None)
 
-        response = redirect('posts:visitor_postlist')
+        response = redirect(next_url)
         response.set_cookie('is_over_18', 'true', max_age=60*60*24*3)  # このクッキーは３日間続く
         if csrftoken:
             response.set_cookie('csrftoken', csrftoken)
