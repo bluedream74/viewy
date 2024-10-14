@@ -69,6 +69,7 @@ import json
 from posts.models import Posts
 
 from django.conf import settings
+from pprint import pprint
 
 BASE_URL = settings.BASE_URL
 
@@ -395,7 +396,8 @@ class RegistAdvertiserView(BaseRegistUserView):
 class VerifyView(FormView):
     template_name = 'verify.html'
     form_class = VerifyForm
-    success_url = reverse_lazy('posts:postlist')
+    # success_url = reverse_lazy('posts:postlist')
+    success_url = reverse_lazy('accounts:regist_end')    
 
     def form_valid(self, form):
         user = Users.objects.get(email=self.request.session['email'])
@@ -1226,3 +1228,8 @@ class SetCookieView(TemplateView):
             response.set_cookie('sessionid', sessionid)
 
         return response
+
+
+
+class RegistEndView(TemplateView):
+    template_name = 'regist_end.html'

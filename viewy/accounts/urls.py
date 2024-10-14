@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView, BlockView, BlockPosterView, LoginAPIView, RegisterAPIView, SetCookieView
+  RegistUserView, InvitedRegistUserView, RegistAdvertiserView, UserLoginView, UserLogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetSendView, PasswordResetCompleteView, FollowView, EditPrfView,CheckAgeView, VerifyView, ResendVerificationCodeView, MessageListView, MessageDetailView, MessageDeleteView, SearchHistoryView, SearchHistorySaveView, HideSearchHistoriesView, DeleteUserView, ChangeDimensionView, FirstSettingView, SurveyAnswerView, SaveNotificationView, SaveFreezeNotificationView, BlockView, BlockPosterView, LoginAPIView, RegisterAPIView, SetCookieView,RegistEndView
 )
 from . import views
 
@@ -38,4 +38,5 @@ urlpatterns = [
   path('login_api/', LoginAPIView.as_view(), name='login_api'),
   path('register_api/', RegisterAPIView.as_view(), name='login_api'),
   path('set_cookie/', SetCookieView.as_view(), name='set_cookie'),
+  path('regist_end/', RegistEndView.as_view(), name='regist_end'),
 ]
