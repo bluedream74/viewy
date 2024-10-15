@@ -32,78 +32,6 @@
 	{% block static %}
 	{% endblock %}
 
-<script>
-	//24/10/14 アフィリエイトタグ
-	window.onload = function() {
-
-			const cookies       = document.cookie;
-			const cookies_arr   = cookies.split(';');
-			let   cookie_check  = false;
-			let   location_path = location.pathname;
-			var   cookie_count  = new Date('2037/12/31 23:59');
-
-			if(location_path == '/accounts/regist_end/'){
-
-				cookies_arr.forEach(function(value) {
-
-					const content = value.split('=');
-					if(content[0] == 'regist_end'){
-						cookie_check = true;
-					}
-
-				});
-
-
-				if(cookie_check == false){
-
-					//Cookie 保存
-					document.cookie = 'regist_end=true; path=/; expires='+ cookie_count.toUTCString();
-
-					//アフィリエイト統計　サンクスページ
-					(function acsTrack(){
-					var PV = "phugaw5etiqb";
-					var _ARGSV = "成果識別子";
-					var _TKP1V = "識別パラメータ1";
-					var _TKP2V = "識別パラメータ2";
-					var _TKP3V = "識別パラメータ3";
-					var KEYS = {cid : ["CL_", "ACT_", "cid_auth_get_type"], plid : ["PL_", "APT_", "plid_auth_get_type"]};
-					var turl = "https://desiad.net/track.php?p=" + PV + "&args=" + _ARGSV + "&tkp1=" + _TKP1V + "&tkp2=" + _TKP2V + "&tkp3=" + _TKP3V;
-					var cks = document.cookie.split("; ").reduce(function(ret, s){ var kv = s.split("="); if(kv[0] && kv[1]) ret[kv[0]] = kv[1]; return ret; }, []);
-					turl = Object.keys(KEYS).reduce(function(url, k){ var vk = KEYS[k][0] + PV; var tk = KEYS[k][1] + PV; var v = "", t = ""; if(cks[vk]){ v = cks[vk]; if(cks[tk]) t = cks[tk]; }else if(localStorage.getItem(vk)){ v = localStorage.getItem(vk); t = "ls"; } if(v) url += "&" + k + "=" + v; if(t) url += "&" + KEYS[k][2] + "=" + t; return url; }, turl);
-					var xhr = new XMLHttpRequest(); xhr.open("GET", turl); xhr.send(); })();
-
-				}
-
-
-
-			}else{
-
-				//アフィリエイト　サンクスページ以外
-				window.acs_cbs = window.acs_cbs || [];
-				(function acsKeep(){
-				var PK = "p";
-				var IMK = "im";
-				var LKEYS = {cid : ["cid", "CL_", "ACT_"], gclid : ["plid", "PL_", "APT_"]};
-				var DKEYS = ["gclid", "fbclid", "yclid", "ttclid", "ldtag_cl", "msi"];
-				var PDIR = "./";
-				var durl = "https://desiad.net/direct.php";
-				function saveCookies(data){ var p = data[PK]; var out = Object.keys(LKEYS).reduce(function(ret, k){ if(k in data && data[k]) ret[k] = data[k]; return ret; }, {}); if(!p || !Object.keys(out).length) return;
-				var purl = PDIR + "lptag.php?p=" + p; Object.keys(out).forEach(function(k){ purl += "&" + LKEYS[k][0] + "=" + out[k]; localStorage.setItem(LKEYS[k][1] + p, out[k]); });
-				var xhr = new XMLHttpRequest(); var args = "; expires=" + new Date(new Date().getTime() + 63072000000).toUTCString() + "; path=/; SameSite=None; Secure"; xhr.open("GET", purl);
-				xhr.onloadend = function(){ if(xhr.status === 200 && xhr.response === ""){ window.acs_cbs.forEach(function(cb){ cb(); }); return; } Object.keys(out).forEach(function(k){ document.cookie = LKEYS[k][1] + p + "=" + decodeURIComponent(out[k]) + args; if(LKEYS[k][2]) document.cookie = LKEYS[k][2] + p + "=js" + args; }); window.acs_cbs.forEach(function(cb){ cb(); }); }; xhr.send(); }
-				var data = location.search.substring(1).split("&").reduce(function(ret, s){ var kv = s.split("="); if(kv[1]) ret[kv[0]] = kv[1]; return ret; }, {}); if(!(IMK in data)){ saveCookies(data); return; }
-				durl += "?im=" + data[IMK] + "&navi=" + performance.navigation.type; DKEYS.forEach(function(k){ if(!(k in data)) return; durl += "&" + k + "=" + data[k]; });
-				var xhr = new XMLHttpRequest(); xhr.open("GET", durl); function merge(a, b){ return Object.keys(LKEYS).reduce(function(ret, k){ if(k in b && !(k in a)) ret[k] = b[k]; return ret; }, a); }
-				xhr.onloadend = function(){ if(xhr.status !== 200) return; try{ var xhr_data = JSON.parse(xhr.responseText); if(PK != "p"){ xhr_data[PK] = xhr_data["p"]; } saveCookies(merge(xhr_data, data)); }catch(_){ } }; xhr.send(); })();
-
-			}
-
-
-	}
-
-</script>
-
-
 </head>
 
 
@@ -149,6 +77,64 @@
 	{% block script %}
 
 	{% endblock %}
+
+
+	<script>
+		//24/10/14 アフィリエイトタグ
+		window.onload = function() {
+	
+				let   location_path = location.pathname;
+				var   cookie_count  = new Date('2037/12/31 23:59');
+	
+				if(location_path == '/accounts/regist_end/'){
+
+					var result = document.cookie.indexOf('regist_end');
+	
+					if(result == -1) {
+
+						//Cookie 保存
+						document.cookie = 'regist_end=true; path=/; expires='+ cookie_count.toUTCString();
+	
+						//アフィリエイト統計　サンクスページ
+						(function acsTrack(){
+						var PV = "phugaw5etiqb";
+						var KEYS = {cid : ["CL_", "ACT_", "cid_auth_get_type"], plid : ["PL_", "APT_", "plid_auth_get_type"]};
+						var turl = "https://desiad.net/track.php?p=" + PV;
+						var cks = document.cookie.split("; ").reduce(function(ret, s){ var kv = s.split("="); if(kv[0] && kv[1]) ret[kv[0]] = kv[1]; return ret; }, []);
+						turl = Object.keys(KEYS).reduce(function(url, k){ var vk = KEYS[k][0] + PV; var tk = KEYS[k][1] + PV; var v = "", t = ""; if(cks[vk]){ v = cks[vk]; if(cks[tk]) t = cks[tk]; }else if(localStorage.getItem(vk)){ v = localStorage.getItem(vk); t = "ls"; } if(v) url += "&" + k + "=" + v; if(t) url += "&" + KEYS[k][2] + "=" + t; return url; }, turl);
+						var xhr = new XMLHttpRequest(); xhr.open("GET", turl); xhr.send(); })();
+
+					}
+	
+	
+				}else{
+	
+					//アフィリエイト　サンクスページ以外
+					window.acs_cbs = window.acs_cbs || [];
+					(function acsKeep(){
+					var PK = "p";
+					var IMK = "im";
+					var LKEYS = {cid : ["cid", "CL_", "ACT_"], gclid : ["plid", "PL_", "APT_"]};
+					var DKEYS = ["gclid", "fbclid", "yclid", "ttclid", "ldtag_cl", "msi"];
+					var PDIR = "./";
+					var durl = "https://desiad.net/direct.php";
+					function saveCookies(data){ var p = data[PK]; var out = Object.keys(LKEYS).reduce(function(ret, k){ if(k in data && data[k]) ret[k] = data[k]; return ret; }, {}); if(!p || !Object.keys(out).length) return;
+					var purl = PDIR + "lptag.php?p=" + p; Object.keys(out).forEach(function(k){ purl += "&" + LKEYS[k][0] + "=" + out[k]; localStorage.setItem(LKEYS[k][1] + p, out[k]); });
+					var xhr = new XMLHttpRequest(); var args = "; expires=" + new Date(new Date().getTime() + 63072000000).toUTCString() + "; path=/; SameSite=None; Secure"; xhr.open("GET", purl);
+					xhr.onloadend = function(){ if(xhr.status === 200 && xhr.response === ""){ window.acs_cbs.forEach(function(cb){ cb(); }); return; } Object.keys(out).forEach(function(k){ document.cookie = LKEYS[k][1] + p + "=" + decodeURIComponent(out[k]) + args; if(LKEYS[k][2]) document.cookie = LKEYS[k][2] + p + "=js" + args; }); window.acs_cbs.forEach(function(cb){ cb(); }); }; xhr.send(); }
+					var data = location.search.substring(1).split("&").reduce(function(ret, s){ var kv = s.split("="); if(kv[1]) ret[kv[0]] = kv[1]; return ret; }, {}); if(!(IMK in data)){ saveCookies(data); return; }
+					durl += "?im=" + data[IMK] + "&navi=" + performance.navigation.type; DKEYS.forEach(function(k){ if(!(k in data)) return; durl += "&" + k + "=" + data[k]; });
+					var xhr = new XMLHttpRequest(); xhr.open("GET", durl); function merge(a, b){ return Object.keys(LKEYS).reduce(function(ret, k){ if(k in b && !(k in a)) ret[k] = b[k]; return ret; }, a); }
+					xhr.onloadend = function(){ if(xhr.status !== 200) return; try{ var xhr_data = JSON.parse(xhr.responseText); if(PK != "p"){ xhr_data[PK] = xhr_data["p"]; } saveCookies(merge(xhr_data, data)); }catch(_){ } }; xhr.send(); })();
+
+
+				}
+	
+	
+		}
+	
+	</script>
+
 
 </body>
 
